@@ -11,6 +11,7 @@ import {
 	resetDb,
 	seedRider,
 	sessionCookie,
+	stableHeaders,
 } from "../support/ctx";
 import { ATHLETE_A, NOW } from "../support/fixtures";
 
@@ -60,7 +61,7 @@ describe("GET /style-<hash>.css", () => {
 			noDb,
 		);
 		expect(await signedIn.text()).toBe(await anonymous.text());
-		expect([...signedIn.headers]).toEqual([...anonymous.headers]);
+		expect(stableHeaders(signedIn)).toEqual(stableHeaders(anonymous));
 		expect(signedIn.headers.get("Set-Cookie")).toBeNull();
 		expect(signedIn.headers.get("Vary")).toBeNull();
 	});

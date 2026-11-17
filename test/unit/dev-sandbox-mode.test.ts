@@ -121,8 +121,8 @@ describe("production's hosts", () => {
 	});
 });
 
-// In a sandbox, nothing seeds and nothing resets: each deployment rebuilds the
-// database outside the Worker (research R6, FR-016, FR-019).
+// In a sandbox, nothing seeds and nothing resets: CI seeds the database outside
+// the Worker (research R6, FR-016, FR-019).
 describe("a sandbox's sample data", () => {
 	let access: AccessKeys;
 

@@ -1,0 +1,196 @@
+name: Sandbox reseed
+
+# Rebuilds Hamburg's or Europe's sandbox database from fresh sample riders, by
+# hand only (Actions → Sandbox reseed → Run workflow, on develop). Deployments
+# (sandbox.yml) keep the data; this is the reset, and the repair after a failed
+# migration. The code stays: the sample riders are seeded at the chosen branch,
+# then the live commit's migrations run on them (feature 027 research R6). No job
+# here is a required-check context; never add one to .github/rulesets/*.json.
+on:
+  workflow_dispatch:
+    inputs:
+      sandbox-hamburg:
+        description: Reseed Hamburg's sandbox.
+        type: boolean
+        default: false
+      sandbox-europe:
+        description: Reseed Europe's sandbox.
+        type: boolean
+        default: false
+      base:
+        description: The branch whose sample riders seed the database.
+        type: choice
+        options: [develop, main]
+        default: develop
+
+permissions: {}
+
+jobs:
+  # A run on any ref but develop stops here, before any job with an environment
+  # (whose branch policy would refuse it anyway).
+  resolve:
+    name: resolve
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      teams: ${{ steps.resolve.outputs.teams }}
+    steps:
+      - id: resolve
+        shell: bash
+        env:
+          HAMBURG: ${{ inputs['sandbox-hamburg'] }}
+          EUROPE: ${{ inputs['sandbox-europe'] }}
+        run: |
+          set -euo pipefail
+          teams='[]'
+          [ "$HAMBURG" = true ] && teams=$(jq -c '. + ["hamburg"]' <<< "$teams")
+          [ "$EUROPE" = true ] && teams=$(jq -c '. + ["europe"]' <<< "$teams")
+          [ "$teams" != '[]' ] || echo "::notice::No sandbox chosen; nothing to reseed."
+          echo "teams=$teams" >> "$GITHUB_OUTPUT"
+
+  # One per sandbox, in the same queue as its deployments.
+  reseed:
+    name: reseed (${{ matrix.team }})
+    needs: resolve
+    if: ${{ needs.resolve.outputs.teams != '' && needs.resolve.outputs.teams != '[]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        team: ${{ fromJSON(needs.resolve.outputs.teams) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: sandbox-${{ matrix.team }}
+      url: https://sandbox-${{ matrix.team }}.trhh-rynke-coins.link
+      deployment: false
+    concurrency:
+      group: sandbox-${{ matrix.team }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      deployments: read
+    defaults:
+      run:
+        shell: bash
+    env:
+      WRANGLER_SEND_METRICS: "false"
+      TEAM: ${{ matrix.team }}
+      BASE: ${{ inputs.base }}
+      SANDBOX_CHANGE: change
+    steps:
+      # As in sandbox.yml: develop's scripts run on the live commit in change/;
+      # base/ seeds. The GitHub token goes only to the step that calls GitHub.
+      - name: Checkout develop's scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Find the live commit
+        id: live
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          state="$RUNNER_TEMP/sandbox"
+          mkdir -p "$state"
+          {
+            echo "STATE=$state"
+            echo "SANDBOX_WORK=$state/work"
+          } >> "$GITHUB_ENV"
+          live=$(.github/scripts/live-commit.sh "sandbox-$TEAM")
+          if [ -z "$live" ]; then
+            echo "::error::Nothing is deployed to sandbox-$TEAM yet; deploy first, then reseed."
+            exit 1
+          fi
+          echo "sha=$live" >> "$GITHUB_OUTPUT"
+      - name: Checkout the live commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.live.outputs.sha }}
+          path: change
+          persist-credentials: false
+      - name: Checkout the base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.base }}
+          path: base
+          persist-credentials: false
+
+      - name: Install
+        uses: ./.github/actions/setup
+      - name: Install the live commit's and the base's dependencies
+        env:
+          LEFTHOOK: "0"
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile --dir change
+          pnpm install --frozen-lockfile --dir base
+
+      # Develop's rules on the live commit's wrangler.jsonc, before the
+      # credential is used (R8, R11).
+      - name: Check the team data
+        run: node scripts/team-check.mjs --wrangler change/wrangler.jsonc
+
+      # R6 phases 1 and 2, on local databases only: a failing migration stops
+      # here, before the sandbox is touched.
+      - name: Seed at the base
+        run: |
+          set -euo pipefail
+          scripts/sandbox-seed.sh seed "$TEAM" base
+          # The live commit's migrations the seed doesn't have yet, for the summary.
+          grep -oE '[0-9]{4}_[A-Za-z0-9_-]+\.sql' "$SANDBOX_WORK/base.sql" | sort -u > "$STATE/applied"
+          find change/migrations -maxdepth 1 -name '*.sql' -printf '%f\n' | sort > "$STATE/all"
+          comm -13 "$STATE/applied" "$STATE/all" > "$STATE/migrations"
+      - name: Try the migrations
+        run: scripts/sandbox-seed.sh try-migrations "$TEAM"
+
+      - name: Check the usage
+        env:
+          CLOUDFLARE_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_ANALYTICS_TOKEN }}
+          CLOUDFLARE_ANALYTICS_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          node scripts/sandbox-usage.mjs --seed-rows "$(scripts/sandbox-seed.sh count "$SANDBOX_WORK/base.sql")"
+
+      # From here on the sandbox changes. The credential is only in these steps,
+      # and every command names --env sandbox-<team>.
+      - name: Rebuild the database
+        id: rebuild
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_SANDBOX_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: scripts/sandbox-seed.sh rebuild "$TEAM"
+      - name: Apply the migrations
+        id: migrate
+        working-directory: change
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_SANDBOX_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler d1 migrations apply DB --remote --env "sandbox-$TEAM"
+
+      - name: Summary
+        if: always()
+        env:
+          LIVE: ${{ steps.live.outputs.sha }}
+          REBUILD: ${{ steps.rebuild.outcome }}
+          MIGRATE: ${{ steps.migrate.outcome }}
+        run: |
+          set -uo pipefail
+          name="${TEAM^}"
+          base_sha=$(git -C base rev-parse --short HEAD 2>/dev/null || echo "?")
+          {
+            if [ "$MIGRATE" = success ]; then
+              echo "### Sandbox reseed: $name ✅"
+              echo "Rebuilt with the sample riders as of \`$BASE\` (\`$base_sha\`); it still runs \`${LIVE:0:7}\`."
+              if [ -s "$STATE/migrations" ]; then
+                echo "Migrations applied on top:"
+                sed 's/.*/`&`/' "$STATE/migrations" | paste -sd ',' | sed 's/,/, /g'
+              fi
+            elif [ "$REBUILD" = skipped ]; then
+              echo "### Sandbox reseed: $name ❌"
+              echo "Stopped before the rebuild (see the run); the sandbox is unchanged."
+            else
+              echo "### Sandbox reseed: $name ❌"
+              echo "Stopped while rebuilding (see the run); the sandbox's database may be empty or half-built. Run it again to repair it."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

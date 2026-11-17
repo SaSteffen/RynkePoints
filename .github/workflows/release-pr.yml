@@ -106,7 +106,7 @@ jobs:
           echo "::notice::Opened $url"
           found "$url"
 
-  # The ticked sandboxes get the release pull request's head, seeded at main.
+  # The ticked sandboxes get the release pull request's head.
   sandbox:
     name: sandbox
     needs: release-pr
@@ -129,4 +129,3 @@ jobs:
         || (inputs.sandbox-hamburg && '["hamburg"]' || '["europe"]') }}
       pr: ${{ needs.release-pr.outputs.pr }}
       sha: ${{ needs.release-pr.outputs.sha }}
-      base: main

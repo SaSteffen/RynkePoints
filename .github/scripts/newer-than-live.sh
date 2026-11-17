@@ -16,19 +16,7 @@ set -euo pipefail
 
 environment=${1:?usage: newer-than-live.sh <environment> [sha]}
 sha=${2:-${GITHUB_SHA:?GITHUB_SHA or a sha argument is needed}}
-live_sha=""
-
-# Newest first. The first one whose newest status is success is live; older
-# successes are inactive, failed ones failure.
-deployments=$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=$environment&per_page=100" --jq '.[] | "\(.id) \(.sha)"')
-while read -r id deployed; do
-  [ -n "$id" ] || continue
-  state=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=1" --jq '.[0].state // ""')
-  if [ "$state" = success ]; then
-    live_sha=$deployed
-    break
-  fi
-done <<< "$deployments"
+live_sha=$("$(dirname "${BASH_SOURCE[0]}")/live-commit.sh" "$environment")
 
 if [ -z "$live_sha" ]; then
   echo "First deployment to $environment."

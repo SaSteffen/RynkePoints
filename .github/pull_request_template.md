@@ -7,8 +7,8 @@
 
 <details><summary>When to skip</summary>
 
-Ticking a box deploys this pull request's head to that sandbox, with fresh sample riders as of
-`develop`; the box unticks itself and a message follows here. Tick it again to deploy again.
+Ticking a box deploys this pull request's head to that sandbox, keeping its data; the box
+unticks itself and a message follows here. Tick it again to deploy again.
 Pull requests into `develop` from branches of this repository only.
 
 - **Can be skipped**: only docs, specs, tests, CI or developer tooling changed, or the change
