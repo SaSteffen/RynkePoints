@@ -56,6 +56,13 @@ Everyone who rides with us on the Tour de Paris should be well prepared on the
 bike. To show this, you collect **Training Rynke** over the season, for the
 kilometres and the elevation of your rides.
 
+# When is the season?
+
+The season runs from **1 January to 30 June**. Only rides in these six months
+earn Rynke, counted by the day a ride starts in your time zone. Rides before 1 January
+or after 30 June earn nothing, and by 30 June you need all your Training Rynke
+for the Tour.
+
 # What do I need for the Tour?
 
 | I'm in with | Training Rynke |
@@ -212,8 +219,8 @@ ride you up the hill.
 
 # Which rides count?
 
-- Only rides **from the start of the season**. If the organisers have
-  set a **deadline**, nothing that takes place after it counts any more.
+- Only rides in the season, **1 January to 30 June**. Nothing before or after
+  counts.
 - What matters is the ride's start date in your time zone.
 - If you change a ride on Strava (for example its route) or delete it,
   RynkePoints recalculates your Rynke.
