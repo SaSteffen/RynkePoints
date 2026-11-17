@@ -4,6 +4,7 @@ import { getRider } from "../../src/db/riders";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
+import { europe } from "../../src/teams/europe";
 import { hamburg } from "../../src/teams/hamburg";
 import { approve, setCookies } from "../support/callback";
 import {
@@ -73,6 +74,60 @@ describe("GET /auth/callback for a rider in another team's club", () => {
 		fake.addAthlete({ id: ATHLETE_A, clubs: [OTHER_CLUB.id] });
 		const res = await approve(ctx, fake, ATHLETE_A);
 		expect(res.headers.get("Location")).toBe("/notice/not-member");
+	});
+});
+
+// Feature 039 US2: Hamburg's and Europe's own team data side by side, each
+// naming the other's Strava club, not a stand-in club.
+describe("Hamburg's and Europe's clubs (feature 039)", () => {
+	const HAMBURG_CLUB = TEAM_CLUB.id;
+	const EUROPE_CLUB = 2292744;
+
+	function hamburgCtx(): TestCtx {
+		return makeCtx({ team: hamburg });
+	}
+
+	function europeCtx(): TestCtx {
+		const base = makeCtx({ team: europe });
+		return {
+			...base,
+			env: {
+				...base.env,
+				TEAM_ID: "europe",
+				STRAVA_CLUB_ID: String(EUROPE_CLUB),
+				STRAVA_EXTRA_CLUB_IDS: "",
+			},
+		};
+	}
+
+	it("shows a new Hamburg rider in both clubs the one-team notice once", async () => {
+		const app = hamburgCtx();
+		fake.addAthlete({ id: ATHLETE_A, clubs: [HAMBURG_CLUB, EUROPE_CLUB] });
+		const first = await approve(app, fake, ATHLETE_A);
+		expect(first.status).toBe(303);
+		expect(first.headers.get("Location")).toBe("/notice/one-team");
+		expect(fake.revocations).toEqual([]);
+		expect(await getRider(env.DB, ATHLETE_A)).not.toBeNull();
+
+		const again = await approve(app, fake, ATHLETE_A, undefined, {
+			...(await sessionCookie(app, ATHLETE_A)),
+		});
+		expect(again.status).toBe(302);
+		expect(again.headers.get("Location")).not.toMatch(/\/notice\//);
+	});
+
+	it("shows the same rider the one-team notice on Europe's app", async () => {
+		const app = europeCtx();
+		fake.addAthlete({ id: ATHLETE_A, clubs: [HAMBURG_CLUB, EUROPE_CLUB] });
+		const res = await approve(app, fake, ATHLETE_A);
+		expect(res.headers.get("Location")).toBe("/notice/one-team");
+	});
+
+	it("turns away a rider only in Europe's club from Hamburg as a non-member", async () => {
+		fake.addAthlete({ id: ATHLETE_A, clubs: [EUROPE_CLUB] });
+		const res = await approve(hamburgCtx(), fake, ATHLETE_A);
+		expect(res.headers.get("Location")).toBe("/notice/not-member");
+		expect(await getRider(env.DB, ATHLETE_A)).toBeNull();
 	});
 });
 

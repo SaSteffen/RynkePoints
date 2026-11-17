@@ -355,6 +355,17 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		administrator: true,
 		rides: rides(4, (i) => ride(...slot(i), 45, 220, 25)),
 	},
+	{
+		athleteId: 991019,
+		firstName: "Britt BothClubs",
+		state:
+			"In both teams' Strava clubs: connecting shows the one-team-at-a-time notice once",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		otherClubMember: true,
+		behaviour: "normal",
+		rides: rides(5, (i) => ride(...slot(i), 40 + 5 * i, 260, 25)),
+	},
 	...ordinaryRiders(ORDINARY_NAMES, 991_020, "Kalle"),
 ];
 

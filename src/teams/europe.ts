@@ -165,8 +165,6 @@ export const europe: TeamData = {
 		"shortName",
 		"colours",
 		"art.icons",
-		"STRAVA_CLUB_ID",
-		"STRAVA_EXTRA_CLUB_IDS",
 		"SEASON_START_DATE",
 		"QUALIFICATION_DEADLINE",
 		"PRIVACY_CONTROLLER",
