@@ -396,8 +396,8 @@ unchanged.
 
 ## Phase 8: Polish & Cross-Cutting
 
-- [ ] T067 Run `pnpm docs:pdf` and check that only `public/teams/europe/rynke-points.pdf` changed
-- [ ] T068 Run `node scripts/team-check.mjs` and the new and touched test files
+- [X] T067 Run `pnpm docs:pdf` and check that only `public/teams/europe/rynke-points.pdf` changed
+- [X] T068 Run `node scripts/team-check.mjs` and the new and touched test files
   (`test/teams`, `test/unit/rules-min-ride.test.ts`, `test/unit/rides.test.ts`,
   `test/unit/tally.test.ts`, `test/unit/fixable-reasons.test.ts`, `test/unit/team-predicates.test.ts`,
   `test/unit/badges-for.test.ts`, `test/integration/one-team.test.ts`,
