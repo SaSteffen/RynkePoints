@@ -254,6 +254,25 @@ describe.runIf(team.id === "europe")("europe's club (039 FR-005)", () => {
 	});
 });
 
+// Team Europe's training period, the days Rynke count: 1 January to 30 June
+// (feature 039), in its block and its sandbox's, no longer a placeholder.
+describe.runIf(team.id === "europe")("europe's training period (039)", () => {
+	it.each(["europe", "sandbox-europe"])(
+		"is 1 Jan to 30 Jun in env.%s",
+		(name) => {
+			expect(wrangler.env[name]?.vars.SEASON_START_DATE).toBe("2027-01-01");
+			expect(wrangler.env[name]?.vars.QUALIFICATION_DEADLINE).toBe(
+				"2027-06-30",
+			);
+		},
+	);
+
+	it("is no placeholder", () => {
+		expect(team.placeholders).not.toContain("SEASON_START_DATE");
+		expect(team.placeholders).not.toContain("QUALIFICATION_DEADLINE");
+	});
+});
+
 // Team Europe has neither team events nor Team Rynke (feature 039 US4,
 // research R2 and R3), and neither do its fake-mode samples.
 describe.runIf(team.id === "europe")("europe without events (039 US4)", () => {

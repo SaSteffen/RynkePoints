@@ -200,8 +200,6 @@ export const europe: TeamData = {
 		"shortName",
 		"colours",
 		"art.icons",
-		"SEASON_START_DATE",
-		"QUALIFICATION_DEADLINE",
 		"PRIVACY_CONTROLLER",
 		"CONTACT_EMAIL",
 		"database_id",
