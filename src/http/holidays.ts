@@ -1,8 +1,9 @@
 import { easterSunday, firstAdventSunday } from "../badges/easter";
 
-// A team's holidays with a seasonal quote monkey (feature 035 research R2, R3,
-// contracts/team-holidays.md). Each team lists its own in its team data; the
-// Team page asks which one holds the Berlin day it already computes.
+// A team's holidays with seasonal quote monkeys (feature 035 research R2, R3,
+// contracts/team-holidays.md; feature 038 research R1, R2). Each team lists its
+// own in its team data; the Team page asks which ones hold the Berlin day it
+// already computes.
 
 /** A fixed day `"MM-DD"`, or `offset` days after an anchor of the year. */
 export type DayRef =
@@ -12,13 +13,16 @@ export type DayRef =
 export interface Holiday {
 	/** Lower-case words joined by dashes; unique in the team. */
 	id: string;
-	/** A `seasonal: true` entry of art/quotes/monkeys.json. */
-	monkey: string;
+	/**
+	 * At least one; each a `seasonal: true` entry of art/quotes/monkeys.json;
+	 * no duplicates. A quote shows one of them (feature 038 research R3).
+	 */
+	monkeys: readonly string[];
 	/** The window's first day. */
 	from: DayRef;
 	/** Its last day, inclusive; before `from` in the year: over the year end. */
 	to: DayRef;
-	/** `short`: every quote shows the monkey; `long`: about half of them. */
+	/** `short`: every quote shows a monkey of the set; `long`: about half of them. */
 	kind: "short" | "long";
 }
 
@@ -34,16 +38,17 @@ function dayOf(ref: DayRef, year: number): number {
 }
 
 /**
- * The holiday whose window holds `today` (Berlin `YYYY-MM-DD`): of several the
- * one with the fewest days, the first listed on a tie; null without any.
+ * The holidays whose window holds `today` (Berlin `YYYY-MM-DD`): of several the
+ * ones with the fewest days, every one on a tie, in list order; none without
+ * any (feature 038 research R2).
  */
-export function holidayOn(
+export function holidaysOn(
 	today: string,
 	holidays: readonly Holiday[],
-): Holiday | null {
+): readonly Holiday[] {
 	const year = Number(today.slice(0, 4));
 	const day = Date.parse(`${today}T00:00:00Z`) / DAY;
-	let best: Holiday | null = null;
+	let best: Holiday[] = [];
 	let bestDays = Number.POSITIVE_INFINITY;
 	for (const holiday of holidays) {
 		// The window starting last year can still run into this one.
@@ -52,10 +57,13 @@ export function holidayOn(
 			let to = dayOf(holiday.to, start);
 			if (to < from) to = dayOf(holiday.to, start + 1);
 			const days = to - from + 1;
-			if (day >= from && day <= to && days < bestDays) {
-				best = holiday;
+			if (day < from || day > to || days > bestDays) continue;
+			if (days < bestDays) {
+				best = [];
 				bestDays = days;
 			}
+			best.push(holiday);
+			break;
 		}
 	}
 	return best;

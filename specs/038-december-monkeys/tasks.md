@@ -46,14 +46,14 @@ holiday becomes a set of one and shows exactly as before.
 
 ### Tests first
 
-- [ ] T001 [P] In `test/unit/holidays.test.ts`, switch to `holidaysOn` (import and the `on`
+- [X] T001 [P] In `test/unit/holidays.test.ts`, switch to `holidaysOn` (import and the `on`
   helper, which returns the ids of `holidaysOn(day, holidays)` as an array); rename "lets the
   shortest window win, the first listed on a tie" to "lets the shortest window win, every one on a
   tie": `["advent"]` on 2026-12-05 and 2026-12-07, `["nikolaus"]` on 2026-12-06,
   `["other", "nikolaus"]` for `[other, NIKOLAUS]` on 2026-12-06 (list order kept), and a
   one-day window inside a two-day one still wins alone; "gives no holiday without any" expects
   `holidaysOn("2026-12-24", [])` toEqual `[]`; the fixtures use `monkeys: ["…"]`
-- [ ] T002 [P] In `test/unit/quote-art.test.ts` › "quoteArt on a holiday", change the fixtures to
+- [X] T002 [P] In `test/unit/quote-art.test.ts` › "quoteArt on a holiday", change the fixtures to
   `monkeys: [...]` and every call's third argument from a holiday or `null` to an array
   of holidays (`[CHRISTMAS]`, `[ADVENT]`, `[]`); the existing cases keep their expectations (a set
   of one behaves as before). Add, with `SEASONAL` widened to the ids used:
@@ -75,7 +75,7 @@ holiday becomes a set of one and shows exactly as before.
     and short) gives every quote a picture of the combined set
   - "drops duplicates in a tie's set": two short windows both naming `["christmas"]` give every
     quote `/quotes/christmas.svg`
-- [ ] T003 [P] In `test/teams/holidays.test.ts`, "%s: names seasonal monkeys, unique ids, real
+- [X] T003 [P] In `test/teams/holidays.test.ts`, "%s: names seasonal monkeys, unique ids, real
   days" checks `holiday.monkeys` instead: at least one entry, no duplicates, every entry in
   `SEASONAL`; the `on` helper returns the ids of `holidaysOn(day, team.holidays)` joined by
   `" / "`, or `null` for none; the overlap test counts with `holidaysOn(day, [h]).length > 0`;
@@ -84,13 +84,13 @@ holiday becomes a set of one and shows exactly as before.
 
 ### Implementation
 
-- [ ] T004 In `src/http/holidays.ts`, replace `monkey: string` with
+- [X] T004 In `src/http/holidays.ts`, replace `monkey: string` with
   `monkeys: readonly string[]` ("at least one; each a `seasonal: true` entry of
   art/quotes/monkeys.json; no duplicates", data-model.md), and `holidayOn` with
   `holidaysOn(today, holidays): readonly Holiday[]`: every window holding `today` with the fewest
   days, in list order, `[]` without any; update the header comment and doc comment (feature 038
   research R2)
-- [ ] T005 In `src/http/sections/team.ts`, `quoteArt`'s third parameter becomes
+- [X] T005 In `src/http/sections/team.ts`, `quoteArt`'s third parameter becomes
   `holidays: readonly Holiday[] = []`: the set is the holidays' `monkeys` together, without
   duplicates, kept only if in `seasonal`; empty set → the regular monkey; the day is short if any
   holiday is short; short, or long with `((n >>> 16) & 1) === 1` →
@@ -98,12 +98,12 @@ holiday becomes a set of one and shows exactly as before.
   rider-state fallback unchanged. `renderQuote` takes `holidays: readonly Holiday[]`, and line
   ~762 passes `holidaysOn(today, ctx.team.holidays)`; update both doc comments (feature 038
   contracts/quote-art.md)
-- [ ] T006 [P] In `src/teams/hamburg.ts` and `src/teams/europe.ts`, rename every holiday's
+- [X] T006 [P] In `src/teams/hamburg.ts` and `src/teams/europe.ts`, rename every holiday's
   `monkey: "x"` to `monkeys: ["x"]`; nothing else changes yet
-- [ ] T007 [P] In `specs/035-seasonal-monkeys/drafts/seasonal-monkeys.html` (around line 106),
+- [X] T007 [P] In `specs/035-seasonal-monkeys/drafts/seasonal-monkeys.html` (around line 106),
   parse `monkeys:\s*\[([^\]]*)\]` and list the holiday's window under each monkey of its set
   instead of reading `monkey: "x"`
-- [ ] T008 Run `pnpm test test/unit/holidays.test.ts test/unit/quote-art.test.ts
+- [X] T008 Run `pnpm test test/unit/holidays.test.ts test/unit/quote-art.test.ts
   test/teams/holidays.test.ts test/integration/team-leaderboard.test.ts` and
   `node scripts/team-check.mjs`; all pass (the integration test's `quoteArt(...)` call keeps the
   default `[]`). `pnpm typecheck` passes

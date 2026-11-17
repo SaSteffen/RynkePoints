@@ -103,8 +103,10 @@ async function teamHolidays() {
     const block = src.match(/\bholidays:\s*\[([\s\S]*?)\n\t\],/);
     if (!block) continue;
     for (const entry of block[1].split(/\n\t\t\},?/)) {
-      const monkey = entry.match(/monkey:\s*"([\w-]+)"/);
-      if (!monkey) continue;
+      // A holiday names a set (feature 038): its window under each of them.
+      const set = entry.match(/monkeys:\s*\[([^\]]*)\]/);
+      if (!set) continue;
+      const monkeys = [...set[1].matchAll(/"([\w-]+)"/g)].map((m) => m[1]);
       const day = (key) => {
         const m = entry.match(new RegExp(`${key}:\\s*("[^"]+"|\\{[^}]*\\})`));
         if (!m) return "?";
@@ -114,7 +116,8 @@ async function teamHolidays() {
         return offset ? `${anchor} ${offset > 0 ? "+" : ""}${offset} d` : anchor;
       };
       const kind = entry.match(/kind:\s*"(\w+)"/)?.[1] ?? "?";
-      (byMonkey[monkey[1]] ??= []).push({ team, from: day("from"), to: day("to"), kind });
+      for (const monkey of monkeys)
+        (byMonkey[monkey] ??= []).push({ team, from: day("from"), to: day("to"), kind });
     }
   }
   return { byMonkey, teams };

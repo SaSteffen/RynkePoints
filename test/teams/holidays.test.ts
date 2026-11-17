@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import data from "../../art/quotes/monkeys.json";
-import { holidayOn } from "../../src/http/holidays";
+import { holidaysOn } from "../../src/http/holidays";
 import { TEAMS } from "../../src/teams";
 import { europe } from "../../src/teams/europe";
 import { hamburg } from "../../src/teams/hamburg";
@@ -13,8 +13,11 @@ const SEASONAL = new Set(
 		.filter((m) => m.seasonal === true)
 		.map((m) => m.id),
 );
-const on = (day: string, team = hamburg) =>
-	holidayOn(day, team.holidays)?.id ?? null;
+// The day's windows, " / " between the ones of a tie (feature 038 research R2).
+const on = (day: string, team = hamburg) => {
+	const ids = holidaysOn(day, team.holidays).map((h) => h.id);
+	return ids.length > 0 ? ids.join(" / ") : null;
+};
 
 describe("team holidays", () => {
 	it.each(TEAMS.map((team) => [team.id, team] as const))(
@@ -23,7 +26,12 @@ describe("team holidays", () => {
 			const ids = team.holidays.map((h) => h.id);
 			expect(new Set(ids).size).toBe(ids.length);
 			for (const holiday of team.holidays) {
-				expect(SEASONAL.has(holiday.monkey), holiday.monkey).toBe(true);
+				expect(holiday.monkeys.length, holiday.id).toBeGreaterThan(0);
+				expect(new Set(holiday.monkeys).size, holiday.id).toBe(
+					holiday.monkeys.length,
+				);
+				for (const monkey of holiday.monkeys)
+					expect(SEASONAL.has(monkey), monkey).toBe(true);
 				for (const ref of [holiday.from, holiday.to]) {
 					if (typeof ref !== "string") continue;
 					expect(ref).toMatch(/^\d\d-\d\d$/);
@@ -39,63 +47,63 @@ describe("team holidays", () => {
 		expect(hamburg.holidays).toEqual([
 			{
 				id: "karneval",
-				monkey: "karneval",
+				monkeys: ["karneval"],
 				from: { anchor: "easter", offset: -52 },
 				to: { anchor: "easter", offset: -46 },
 				kind: "short",
 			},
 			{
 				id: "valentine",
-				monkey: "valentine",
+				monkeys: ["valentine"],
 				from: "02-14",
 				to: "02-14",
 				kind: "short",
 			},
 			{
 				id: "easter",
-				monkey: "easter",
+				monkeys: ["easter"],
 				from: { anchor: "easter", offset: -2 },
 				to: { anchor: "easter", offset: 1 },
 				kind: "short",
 			},
 			{
 				id: "midsummer",
-				monkey: "midsummer",
+				monkeys: ["midsummer"],
 				from: "06-20",
 				to: "06-24",
 				kind: "short",
 			},
 			{
 				id: "halloween",
-				monkey: "halloween",
+				monkeys: ["halloween"],
 				from: "10-29",
 				to: "10-31",
 				kind: "short",
 			},
 			{
 				id: "advent",
-				monkey: "advent",
+				monkeys: ["advent"],
 				from: { anchor: "first-advent", offset: 0 },
 				to: "12-23",
 				kind: "long",
 			},
 			{
 				id: "nikolaus",
-				monkey: "nikolaus",
+				monkeys: ["nikolaus"],
 				from: "12-06",
 				to: "12-06",
 				kind: "short",
 			},
 			{
 				id: "christmas",
-				monkey: "christmas",
+				monkeys: ["christmas"],
 				from: "12-24",
 				to: "12-26",
 				kind: "short",
 			},
 			{
 				id: "new-year",
-				monkey: "new-year",
+				monkeys: ["new-year"],
 				from: "12-31",
 				to: "01-01",
 				kind: "short",
@@ -117,63 +125,63 @@ describe("team holidays", () => {
 		expect(europe.holidays).toEqual([
 			{
 				id: "carnival",
-				monkey: "karneval",
+				monkeys: ["karneval"],
 				from: { anchor: "easter", offset: -52 },
 				to: { anchor: "easter", offset: -46 },
 				kind: "short",
 			},
 			{
 				id: "valentine",
-				monkey: "valentine",
+				monkeys: ["valentine"],
 				from: "02-14",
 				to: "02-14",
 				kind: "short",
 			},
 			{
 				id: "easter",
-				monkey: "easter",
+				monkeys: ["easter"],
 				from: { anchor: "easter", offset: -2 },
 				to: { anchor: "easter", offset: 1 },
 				kind: "short",
 			},
 			{
 				id: "eu-day",
-				monkey: "eu-day",
+				monkeys: ["eu-day"],
 				from: "05-09",
 				to: "05-09",
 				kind: "short",
 			},
 			{
 				id: "midsummer",
-				monkey: "midsummer",
+				monkeys: ["midsummer"],
 				from: "06-20",
 				to: "06-24",
 				kind: "short",
 			},
 			{
 				id: "halloween",
-				monkey: "halloween",
+				monkeys: ["halloween"],
 				from: "10-29",
 				to: "10-31",
 				kind: "short",
 			},
 			{
 				id: "advent",
-				monkey: "advent",
+				monkeys: ["advent"],
 				from: { anchor: "first-advent", offset: 0 },
 				to: "12-23",
 				kind: "long",
 			},
 			{
 				id: "christmas",
-				monkey: "christmas",
+				monkeys: ["christmas"],
 				from: "12-24",
 				to: "12-26",
 				kind: "short",
 			},
 			{
 				id: "new-year",
-				monkey: "new-year",
+				monkeys: ["new-year"],
 				from: "12-31",
 				to: "01-01",
 				kind: "short",
@@ -254,7 +262,9 @@ describe("team holidays", () => {
 				t += 86_400_000
 			) {
 				const day = new Date(t).toISOString().slice(0, 10);
-				const holding = team.holidays.filter((h) => holidayOn(day, [h]));
+				const holding = team.holidays.filter(
+					(h) => holidaysOn(day, [h]).length > 0,
+				);
 				// Valentine's Day can fall in Karneval; the one day wins.
 				const allowed =
 					day.endsWith("-02-14") ||
