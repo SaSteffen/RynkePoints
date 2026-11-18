@@ -4,6 +4,7 @@ import type { Ctx } from "../src/ctx";
 import { clearSessionCookie } from "../src/http/session";
 import { CATALOGS } from "../src/i18n/catalogs";
 import { handleFetch, handleQueue, handleScheduled } from "../src/index";
+import { countingWindow } from "../src/rynke/rules";
 import { STRAVA_ORIGIN } from "../src/strava/result";
 import { teamFor } from "../src/teams";
 import { sendAll } from "../src/work/messages";
@@ -438,6 +439,7 @@ async function devRoute(
 		case "GET /_dev/badges":
 			return badgesPage(
 				ctx.team,
+				countingWindow(ctx.env),
 				url.searchParams.get("lang"),
 				berlinDate(ctx.now()),
 			);

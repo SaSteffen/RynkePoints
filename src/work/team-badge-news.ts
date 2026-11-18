@@ -63,6 +63,7 @@ async function announce(ctx: Ctx, keep: Set<number>): Promise<number[]> {
 	// lists is news (feature 039 research R9).
 	const { earned } = listedFor(
 		ctx.team,
+		window,
 		evaluateTeamBadges(
 			sums,
 			currentRules(ctx.team.rules),

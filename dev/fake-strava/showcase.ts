@@ -5,6 +5,7 @@ import { html, htmlResponse, layout } from "../../src/http/html";
 import { badgeNames, renderBadges } from "../../src/http/sections/badges";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
+import type { CountingWindow } from "../../src/rynke/rules";
 import type { TeamData } from "../../src/teams/types";
 import { dayBefore } from "./samples";
 
@@ -12,10 +13,11 @@ import { dayBefore } from "./samples";
 // badge earned, personal and team, to look at every picture, ribbon and large
 // view at once. The team's badges are shared by everyone, so the sample riders
 // can't show them all; this page can. Earned a day apart, the last one newest.
-// Only the badges the team lists (feature 039 research R9).
+// Only the badges the team lists in its season (feature 039).
 
 export function badgesPage(
 	team: TeamData,
+	season: CountingWindow,
 	lang: string | null,
 	today: string,
 ): Response {
@@ -31,8 +33,8 @@ export function badgesPage(
 	});
 	const section = buildBadgeSection({
 		waiting: false,
-		personal: listedFor(team, evaluated("personal")),
-		team: listedFor(team, evaluated("team")),
+		personal: listedFor(team, season, evaluated("personal")),
+		team: listedFor(team, season, evaluated("team")),
 	});
 	const body = html`<div class="overview-grid">${section ? renderBadges(i18n, team, badgeNames({ team }, i18n), section, { name: team.shortName, icon: team.art.icons.icon192 }) : null}</div>`;
 	return htmlResponse(

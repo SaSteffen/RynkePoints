@@ -696,10 +696,11 @@ describe("a team's listed badges (feature 039 US5)", () => {
 			}),
 		);
 	const all = progress(near);
+	const SEASON = { seasonStart: "2026-09-01", deadline: "2027-06-30" };
 
 	it("names no event-only badge for a team without events", () => {
 		const list = full(
-			listedFor(europe, { earned: [], progress: all }).progress,
+			listedFor(europe, SEASON, { earned: [], progress: all }).progress,
 		);
 		expect(list.length).toBeGreaterThan(0);
 		for (const candidate of list) {
@@ -712,7 +713,7 @@ describe("a team's listed badges (feature 039 US5)", () => {
 
 	it("gives a team with events the same hints as today", () => {
 		expect(
-			full(listedFor(hamburg, { earned: [], progress: all }).progress),
+			full(listedFor(hamburg, SEASON, { earned: [], progress: all }).progress),
 		).toEqual(full(all));
 	});
 });

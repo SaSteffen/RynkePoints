@@ -254,20 +254,16 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			// Virtual: 28 + 27 km, so virtual 50; not winter days.
 			ride(5, "19:00", 28, 0, 30, { sportType: "VirtualRide" }),
 			ride(6, "19:00", 27, 0, 30, { trainer: true }),
-			// Winter: a trainer ride on 5 December is no December day; two rides
-			// on 10 January are one day; five days in February.
-			ride(0, "10:00", 40, 200, 24, { onDate: "11-14" }),
-			ride(0, "18:00", 30, 0, 30, { onDate: "12-05", trainer: true }),
-			ride(0, "10:00", 40, 200, 24, { onDate: "12-06" }),
+			// Winter: two rides on 10 January are one day; five days in February.
+			// No November or December in the season (feature 039).
 			ride(0, "09:00", 40, 200, 24, { onDate: "01-10" }),
 			ride(0, "15:00", 30, 100, 24, { onDate: "01-10" }),
 			ride(0, "10:00", 40, 200, 24, { onDate: "01-11" }),
 			...rides(5, (i) =>
 				ride(0, "10:00", 40, 200, 24, { onDate: `02-0${1 + i}` }),
 			),
-			// Surprises (part D): Christmas Eve and a night owl on its own day
-			// (counting once the dates have passed); New Year and early bird.
-			ride(0, "22:00", 30, 100, 24, { onDate: "12-24" }),
+			// Surprises (part D): a night owl, New Year and early bird; no
+			// Christmas in the season (feature 039).
 			ride(9, "22:00", 30, 100, 24),
 			ride(0, "05:30", 30, 100, 24, { onDate: "01-01" }),
 			// With the activities on days 2 to 6, a full week from day 8 on (the
@@ -291,20 +287,6 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		clubMember: true,
 		behaviour: "normal",
 		rides: [
-			// Festive 500: 4 × 130 km between Christmas Eve and New Year's Eve,
-			// two of them on Zwift.
-			ride(0, "10:00", 130, 300, 26, { onDate: "12-25" }),
-			ride(0, "10:00", 130, 300, 26, { onDate: "12-27" }),
-			ride(0, "10:00", 130, 0, 30, {
-				onDate: "12-29",
-				sportType: "VirtualRide",
-				trainer: true,
-			}),
-			ride(0, "10:00", 130, 0, 30, {
-				onDate: "12-31",
-				sportType: "VirtualRide",
-				trainer: true,
-			}),
 			// Etappenfahrer: 100 km on three days in a row, the middle one in
 			// two rides.
 			ride(3, "08:00", 100, 500, 25),
@@ -317,8 +299,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			ride(8, "18:00", 5, 30, 10, { sportType: "Run" }),
 			// Kreiszahl: 32 km on 14 March.
 			ride(0, "10:00", 32, 150, 24, { onDate: "03-14" }),
-			// Sonnenwende: outdoors on both solstices.
-			ride(0, "10:00", 25, 100, 24, { onDate: "12-21" }),
+			// 21 June: no Sonnenwende, whose 21 December is outside the season.
 			ride(0, "10:00", 25, 100, 24, { onDate: "06-21" }),
 			// Osterhase: a ride on Easter Monday.
 			ride(0, "10:00", 30, 150, 24, { onEaster: 1 }),
