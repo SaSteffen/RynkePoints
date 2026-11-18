@@ -156,8 +156,11 @@ const CONTRACT_IDS = [
 	"waiting.heading",
 	"waiting.body",
 	"rynke.verdict.in",
-	"rynke.verdict.notYet",
 	"rynke.verdict.missing",
+	"rynke.deadline.date",
+	"rynke.deadline.daysLeft",
+	"rynke.deadline.passed",
+	"rynke.deadline.notStarted",
 	// Issue #93: the plan status in the rider banner
 	"rynke.status.push",
 	"rynke.status.onTrack",

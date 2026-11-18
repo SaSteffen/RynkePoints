@@ -232,7 +232,8 @@ Hallo Nora NoRides!
 0 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 250 Trainingsrynke
@@ -808,7 +809,8 @@ Hallo Fiona FarAway!
 18 Trainingsrynke
 2 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 232 Trainingsrynke
@@ -1507,7 +1509,8 @@ Hallo Tina TrainingDone!
 332 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 25 Teamrynke
@@ -2396,7 +2399,8 @@ Hallo Vera Virtual!
 310 Trainingsrynke
 7 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 18 Teamrynke
@@ -3362,7 +3366,8 @@ Hallo Rex Rejected!
 5 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 245 Trainingsrynke
@@ -4076,7 +4081,8 @@ Hallo Paula Paging!
 130 Trainingsrynke
 11 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 120 Trainingsrynke
@@ -4908,7 +4914,8 @@ Hallo Olli OptionalDenied!
 35 Trainingsrynke
 2 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 215 Trainingsrynke
@@ -5810,7 +5817,8 @@ Hallo Olga Organiser!
 60 Trainingsrynke
 7 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 190 Trainingsrynke
@@ -6511,7 +6519,8 @@ Hallo Bea Badges!
 122 Trainingsrynke
 12 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 128 Trainingsrynke
@@ -7286,7 +7295,8 @@ Hallo Nick NearlyThere!
 8 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 242 Trainingsrynke
@@ -7887,8 +7897,10 @@ Hallo Carla Complete!
 725 Trainingsrynke
 28 Teamrynke
 [img /illustrations/status_in_fun.svg?v=0f6163b332]
-Qualifiziert für Paris! 🗼
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Plan übererfüllt: Trainingsziel erreicht.
+Qualifiziert für Paris! 🗼
 Dein Fortschritt 🪙
 Trainingsrynke: 725 von 250 · 100 %
 Distanz: 500
@@ -8870,7 +8882,8 @@ Hallo Rudi Runner!
 17 Trainingsrynke
 1 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 233 Trainingsrynke
@@ -9511,7 +9524,8 @@ Hallo Wanda Winter!
 90 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 160 Trainingsrynke
@@ -10399,7 +10413,8 @@ Hallo Fritz Festtag!
 195 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 55 Trainingsrynke
@@ -11302,7 +11317,8 @@ Hallo Alex Admin!
 16 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 234 Trainingsrynke
@@ -11933,7 +11949,8 @@ Hallo Alma!
 118 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 132 Trainingsrynke
@@ -12788,7 +12805,8 @@ Hallo Bruno!
 125 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 125 Trainingsrynke
@@ -13809,7 +13827,8 @@ Hallo Dirk!
 152 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 98 Trainingsrynke
@@ -14671,7 +14690,8 @@ Hallo Elif!
 166 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 84 Trainingsrynke
@@ -15533,7 +15553,8 @@ Hallo Fabian!
 167 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 83 Trainingsrynke
@@ -16409,7 +16430,8 @@ Hallo Greta!
 192 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 58 Trainingsrynke
@@ -17458,7 +17480,8 @@ Hallo Ida!
 215 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 35 Trainingsrynke
@@ -18333,7 +18356,8 @@ Hallo Jonas!
 166 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 84 Trainingsrynke
@@ -19195,7 +19219,8 @@ Hallo Kira!
 173 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 77 Trainingsrynke
@@ -20078,7 +20103,8 @@ Hallo Lars!
 188 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 62 Trainingsrynke
@@ -21134,7 +21160,8 @@ Hallo Nils!
 151 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 99 Trainingsrynke
@@ -21996,7 +22023,8 @@ Hallo Ole!
 162 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 88 Trainingsrynke
@@ -22858,7 +22886,8 @@ Hallo Paul!
 161 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 89 Trainingsrynke
@@ -23727,7 +23756,8 @@ Hallo Quirin!
 183 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 67 Trainingsrynke
@@ -24769,7 +24799,8 @@ Hallo Sven!
 146 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 104 Trainingsrynke
@@ -25617,7 +25648,8 @@ Hallo Tessa!
 165 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 85 Trainingsrynke
@@ -26472,7 +26504,8 @@ Hallo Uwe!
 170 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 80 Trainingsrynke
@@ -27341,7 +27374,8 @@ Hallo Vera!
 187 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 63 Trainingsrynke
@@ -28383,7 +28417,8 @@ Hallo Xenia!
 219 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 31 Trainingsrynke
@@ -29271,7 +29306,8 @@ Hallo Yann!
 154 Trainingsrynke
 0 Teamrynke
 [img /illustrations/status_push_fun.svg?v=ea2e9324b9]
-Noch nicht qualifiziert
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
 Du liegst hinter dem Plan.
 Dir fehlen noch:
 96 Trainingsrynke

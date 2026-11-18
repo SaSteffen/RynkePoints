@@ -128,8 +128,12 @@ export const de = {
 		other: "Bisher {n} Aktivitäten geholt, weitere folgen",
 	},
 	"rynke.verdict.in": "Qualifiziert für Paris! 🗼",
-	"rynke.verdict.notYet": "Noch nicht qualifiziert",
 	"rynke.verdict.missing": "Dir fehlen noch:",
+	"rynke.deadline.date": "Stichtag · {date}",
+	"rynke.deadline.daysLeft": "Noch {n} Tage ⏳",
+	"rynke.deadline.passed": "Der Stichtag ist vorbei",
+	"rynke.deadline.notStarted":
+		"Die Qualifikation beginnt am {date}. Ab dann zählen deine Fahrten.",
 	"rynke.status.push": "Du liegst hinter dem Plan.",
 	"rynke.status.onTrack": "Du liegst im Plan.",
 	"rynke.status.in": "Plan übererfüllt: Trainingsziel erreicht.",

@@ -123,8 +123,12 @@ export const nl: Catalog = {
 		other: "{n} activiteiten tot nu toe opgehaald, er komen er meer",
 	},
 	"rynke.verdict.in": "Gekwalificeerd voor Parijs! 🗼",
-	"rynke.verdict.notYet": "Nog niet gekwalificeerd",
 	"rynke.verdict.missing": "Je hebt nog nodig:",
+	"rynke.deadline.date": "Kwalificatiedeadline · {date}",
+	"rynke.deadline.daysLeft": "Nog {n} dagen ⏳",
+	"rynke.deadline.passed": "De deadline is voorbij",
+	"rynke.deadline.notStarted":
+		"De kwalificatie begint op {date}. Vanaf dan tellen je ritten mee.",
 	"rynke.status.push": "Je loopt achter op schema.",
 	"rynke.status.onTrack": "Je ligt op schema.",
 	"rynke.status.in": "Voor op schema: trainingsdoel gehaald.",

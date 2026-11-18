@@ -123,8 +123,12 @@ export const sv: Catalog = {
 		other: "{n} aktiviteter hämtade hittills, fler kommer",
 	},
 	"rynke.verdict.in": "Kvalificerad till Paris! 🗼",
-	"rynke.verdict.notYet": "Inte kvalificerad än",
 	"rynke.verdict.missing": "Du har kvar:",
+	"rynke.deadline.date": "Sista dag för kvalificering · {date}",
+	"rynke.deadline.daysLeft": "Dagar kvar: {n} ⏳",
+	"rynke.deadline.passed": "Sista dagen har passerat",
+	"rynke.deadline.notStarted":
+		"Kvalificeringen börjar {date}. Från och med då räknas dina turer.",
 	"rynke.status.push": "Du ligger efter planen.",
 	"rynke.status.onTrack": "Du följer planen.",
 	"rynke.status.in": "Före planen: träningsmålet är nått.",

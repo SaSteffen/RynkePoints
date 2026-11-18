@@ -126,8 +126,12 @@ export const fr: Catalog = {
 		other: "{n} activités récupérées pour l'instant, d'autres suivent",
 	},
 	"rynke.verdict.in": "Qualifié·e pour Paris\u00a0! 🗼",
-	"rynke.verdict.notYet": "Pas encore qualifié·e",
 	"rynke.verdict.missing": "Il te manque encore\u00a0:",
+	"rynke.deadline.date": "Date limite de qualification · {date}",
+	"rynke.deadline.daysLeft": "Jours restants\u00a0: {n} ⏳",
+	"rynke.deadline.passed": "La date limite est passée",
+	"rynke.deadline.notStarted":
+		"La qualification commence le {date}. Tes sorties comptent à partir de ce jour-là.",
 	"rynke.status.push": "Tu es en retard sur le plan.",
 	"rynke.status.onTrack": "Tu es dans le plan.",
 	"rynke.status.in": "En avance\u00a0: objectif d'entraînement atteint.",

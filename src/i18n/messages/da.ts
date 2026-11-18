@@ -123,8 +123,12 @@ export const da: Catalog = {
 		other: "{n} aktiviteter hentet indtil nu, flere følger",
 	},
 	"rynke.verdict.in": "Kvalificeret til Paris! 🗼",
-	"rynke.verdict.notYet": "Ikke kvalificeret endnu",
 	"rynke.verdict.missing": "Du mangler stadig:",
+	"rynke.deadline.date": "Kvalifikationsfrist · {date}",
+	"rynke.deadline.daysLeft": "Dage tilbage: {n} ⏳",
+	"rynke.deadline.passed": "Fristen er overskredet",
+	"rynke.deadline.notStarted":
+		"Kvalifikationen begynder den {date}. Fra da af tæller dine ture.",
 	"rynke.status.push": "Du er bagud i forhold til planen.",
 	"rynke.status.onTrack": "Du følger planen.",
 	"rynke.status.in": "Foran planen: træningsmålet er nået.",

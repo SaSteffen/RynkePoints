@@ -125,8 +125,12 @@ export const is: Catalog = {
 		other: "Sótt hingað til: {n} æfingar, fleiri koma",
 	},
 	"rynke.verdict.in": "Komst til Parísar! 🗼",
-	"rynke.verdict.notYet": "Ekki komist áfram enn",
 	"rynke.verdict.missing": "Þig vantar enn:",
+	"rynke.deadline.date": "Frestur til að komast áfram · {date}",
+	"rynke.deadline.daysLeft": "Dagar eftir: {n} ⏳",
+	"rynke.deadline.passed": "Fresturinn er liðinn",
+	"rynke.deadline.notStarted":
+		"Tímabilið til að komast áfram hefst {date}. Frá þeim degi teljast ferðirnar þínar.",
 	"rynke.status.push": "Þú ert á eftir áætlun.",
 	"rynke.status.onTrack": "Þú ert á áætlun.",
 	"rynke.status.in": "Á undan áætlun: æfingamarkmiði náð.",
