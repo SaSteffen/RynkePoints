@@ -145,6 +145,11 @@ shows every team's counts, and connected riders count against Strava's 999 toget
    ([repository settings](../.github/repository-settings.md#environment-production-europe-like-production-for-team-rynkeby-europe)),
    with its own deploy credential. Create it before anything references it: a run that
    references a missing environment creates it without any rules.
+   `scripts/team-github.sh <id>` does it: the environment with its `main` rule, the
+   deploy token (asked for hidden, and recorded in `.dev.vars` so it isn't lost) and
+   the account ID, then it checks the result. The token needs *Workers Routes: Edit*
+   on the team's zone besides production's two permissions, because this team's
+   first deploy creates its custom domain.
 2. In `.github/workflows/ci.yml`, `deploy-gate` lists the teams. Add the new team's
    entry (`team`, `environment`, `url`, `database: "DB"`, `wrangler_env: "<id>"`) behind
    its own repository variable, like Europe's behind `EUROPE_DEPLOY`. That's the line of
@@ -163,7 +168,8 @@ isn't counted as a team in the shared usage figures.
    `env.<id>.routes` (`{ "pattern": "<domain>", "custom_domain": true }`).
    `node scripts/team-check.mjs --deployable <id>` passes.
 2. Merge, and release to `main` as usual.
-3. `gh variable set <ID>_DEPLOY --body on`, then **Actions → CI → Run workflow** on
+3. `scripts/team-github.sh <id> --go-live` (it asks first), or by hand
+   `gh variable set <ID>_DEPLOY --body on`, then **Actions → CI → Run workflow** on
    `main`. The team's own `deploy (<id>)` job applies its migrations, deploys it and
    creates the custom domain. The other teams' jobs are unaffected.
 4. Check:
