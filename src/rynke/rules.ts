@@ -154,6 +154,18 @@ export function inCountingWindow(
 }
 
 /**
+ * Whether a day dated `YYYY-MM-DD` falls in the season, up to the deadline: the
+ * days whose activities the badges count (feature 040 research R5). Unlike
+ * `inCountingWindow`, the days before the window opens are in.
+ */
+export function inBadgeSeason(
+	date: string,
+	window: Pick<CountingWindow, "seasonStart" | "deadline">,
+): boolean {
+	return date >= window.seasonStart && date <= window.deadline;
+}
+
+/**
  * The season's last day: the day before the season start's anniversary
  * (2026-09-01 → 2027-08-31, feature 021 research R10).
  */
