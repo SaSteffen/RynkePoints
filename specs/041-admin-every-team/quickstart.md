@@ -12,8 +12,10 @@ Use the Strava app from `.dev.vars` (`STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`)
 production app, step 5 may end your own connection to your team; reconnect there afterwards.
 
 `scripts/strava-token-check.mjs` runs these steps: `start` (steps 1–3, two approvals in the browser),
-then after the time it prints, `finish` (step 4) or `finish --revoke` (steps 4 and 5). It prints the
-outcome and keeps the tokens out of the repository and off the screen. By hand:
+then after the time it prints, `finish` (step 4) or `finish --revoke` (steps 4 and 5). `revoke`
+answers step 5 alone in a few minutes, whenever no check is running; it revokes a fresh
+authorization, so it answers in outcome A and B alike. It prints the outcome and keeps the tokens
+out of the repository and off the screen. By hand:
 
 1. **Authorize twice.** Open this in the browser, approve, and copy `code` from the address Strava
    sends you to (the page itself won't load; `localhost` is allowed for every app):
