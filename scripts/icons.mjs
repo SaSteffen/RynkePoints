@@ -4,7 +4,7 @@
 // dependency: the outputs are committed and only change with the artwork.
 // The lettering is drawn from stroked glyphs below, so no font is needed.
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { registerHooks } from "node:module";
 import { extname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -238,28 +238,28 @@ const { STYLE } = await import("../src/http/style.ts");
 // The launch screen's background (manifest background_color): the light
 // scheme's coin face, which comes first.
 const face = STYLE.match(/--rp-coin-face:(#[0-9a-f]+)/)[1];
-let front = readFileSync(
-	new URL("../public/coin/rynke-coin-front.svg", import.meta.url),
-	"utf8",
-)
-	.replace(/^<svg[^>]*>/, "")
-	.replace(/<\/svg>\s*$/, "");
-// Without its title and comments, removed until none are left so a removal
-// can't join two halves into a new one.
-let stripped = front;
-do {
-	front = stripped;
-	stripped = front.replace(/<title>[\s\S]*?<\/title>|<!--[\s\S]*?-->/g, "");
-} while (stripped !== front);
+// A coin front's drawing, without its title and comments, removed until none
+// are left so a removal can't join two halves into a new one.
+function coinFront(path) {
+	let front = readFileSync(new URL(`../${path}`, import.meta.url), "utf8")
+		.replace(/^<svg[^>]*>/, "")
+		.replace(/<\/svg>\s*$/, "");
+	let stripped = front;
+	do {
+		front = stripped;
+		stripped = front.replace(/<title>[\s\S]*?<\/title>|<!--[\s\S]*?-->/g, "");
+	} while (stripped !== front);
+	return front;
+}
 // Transparent around the coin, or scaled on the launch screen's background
 // for the maskable icon.
-const launch = (scale, background) =>
+const launch = (front, scale, background) =>
 	svg(
 		`${background ? `<rect width="512" height="512" fill="${face}"/>` : ""}<g transform="translate(256 256) scale(${r1(scale * 5.12 * 1000) / 1000}) translate(-50 -50)">${front}</g>`,
 	);
 
-function png(name, size, source) {
-	execFileSync("rsvg-convert", ["-w", size, "-h", size, "-o", OUT + name], {
+function png(file, size, source) {
+	execFileSync("rsvg-convert", ["-w", size, "-h", size, "-o", file], {
 		input: source,
 	});
 }
@@ -269,9 +269,24 @@ const icon = svg(
 );
 writeFileSync(`${OUT}icon.svg`, icon);
 writeFileSync(`${OUT}favicon.svg`, favicon);
-png("icon-192.png", "192", launch(1));
-png("icon-512.png", "512", launch(1));
-png("icon-maskable-512.png", "512", launch(0.8, true));
-// iOS: its home-screen icon and the screen it shows while the app opens.
-png("apple-touch-icon.png", "180", launch(0.92, true));
-png("badge-96.png", "96", mono);
+png(`${OUT}badge-96.png`, "96", mono);
+// The home-screen icons show each team's own coin front, whose lettering names
+// the team (feature 026 FR-023); the favicon and the notification badge above
+// show only the head and are shared. Europe's go to public/teams/europe/icons/.
+const COIN_ICONS = [
+	["public/coin/rynke-coin-front.svg", "public/icons/"],
+	[
+		"public/teams/europe/coin/rynke-coin-front.svg",
+		"public/teams/europe/icons/",
+	],
+];
+for (const [coin, dir] of COIN_ICONS) {
+	const front = coinFront(coin);
+	const out = fileURLToPath(new URL(`../${dir}`, import.meta.url));
+	mkdirSync(out, { recursive: true });
+	png(`${out}icon-192.png`, "192", launch(front, 1));
+	png(`${out}icon-512.png`, "512", launch(front, 1));
+	png(`${out}icon-maskable-512.png`, "512", launch(front, 0.8, true));
+	// iOS: its home-screen icon and the screen it shows while the app opens.
+	png(`${out}apple-touch-icon.png`, "180", launch(front, 0.92, true));
+}

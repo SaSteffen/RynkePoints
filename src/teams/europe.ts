@@ -43,6 +43,7 @@ const EUROPE_RULES_V4: RynkeRules = {
 export const europe: TeamData = {
 	id: "europe",
 	name: "Team Rynkeby Europe",
+	// The founding team's short name and colours, as Europe's own (spec 026 T081).
 	shortName: hamburg.shortName,
 	defaultLocale: "en",
 	foreignLocale: "en",
@@ -58,7 +59,15 @@ export const europe: TeamData = {
 			front: "/teams/europe/coin/rynke-coin-front.svg",
 			back: "/teams/europe/coin/rynke-coin-back.svg",
 		},
-		icons: hamburg.art.icons,
+		// The home-screen icons show Europe's coin (pnpm icons); the favicon and
+		// the notification badge show only the head and are shared.
+		icons: {
+			...hamburg.art.icons,
+			appleTouch: "/teams/europe/icons/apple-touch-icon.png",
+			icon192: "/teams/europe/icons/icon-192.png",
+			icon512: "/teams/europe/icons/icon-512.png",
+			maskable512: "/teams/europe/icons/icon-maskable-512.png",
+		},
 		// The neutral picture for each badge with the founding team's motifs.
 		badges: Object.fromEntries(
 			hamburg.art.teamSpecificBadges.map((id) => [id, "placeholder"]),
@@ -190,11 +199,10 @@ export const europe: TeamData = {
 	// For now an English translation of the founding team's handout (T082).
 	rulesHandout: { path: "/teams/europe/rynke-points.pdf", locale: "en" },
 	dev: { host: "europe.localhost", port: 8790, inspectorPort: 9231 },
-	// The database ID is the Wrangler block's placeholder (`database_id`).
 	cloudflare: {
 		worker: "rynke-points-europe",
 		databaseId: "ab5fb54c-2e8d-4ee3-8668-a27e99da58f5",
-		queueIds: [],
+		queueIds: ["15a3b7e979294386838bf566b4f300cf"],
 	},
-	placeholders: ["shortName", "colours", "art.icons"],
+	placeholders: [],
 };
