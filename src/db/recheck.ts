@@ -30,10 +30,11 @@ function startedBetween(from: string, to: string | null): string {
 /**
  * The riders a run may check (data-model.md "Eligible rider"): connected, the
  * import done, and active, with an activity started within the last 30 days.
- * `?1` is the start of those 30 days.
+ * Never a guest: they use none of the team's allowance and aren't among its
+ * active riders (feature 041 FR-007). `?1` is the start of those 30 days.
  */
 const ELIGIBLE = `r.status = 'connected' AND r.import_status = 'done'
-	AND ${startedBetween("?1", null)}`;
+	AND r.guest = 0 AND ${startedBetween("?1", null)}`;
 
 /** An eligible rider, with what the run's order and its count need. */
 export interface RecheckCandidate extends Candidate {

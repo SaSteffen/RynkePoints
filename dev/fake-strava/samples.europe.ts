@@ -373,6 +373,17 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			ride(0, "17:00", 15, 60, 22, { onDate: "11-10" }),
 		],
 	},
+	{
+		athleteId: 991099,
+		firstName: "Gwen Guest",
+		state:
+			"An administrator of another team on the guest list, not in the club: Orga and Admin, her rides count for nobody but her (feature 041)",
+		scopes: ALL_SCOPES,
+		clubMember: false,
+		behaviour: "normal",
+		guest: true,
+		rides: rides(4, (i) => ride(...slot(i), 50, 300, 25)),
+	},
 ];
 
 /**

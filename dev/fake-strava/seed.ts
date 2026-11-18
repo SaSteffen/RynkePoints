@@ -141,6 +141,7 @@ export async function seed(
 		db.prepare("DELETE FROM usage_source_state"),
 		db.prepare("DELETE FROM usage_alerts"),
 		db.prepare("DELETE FROM blocked_athletes"),
+		db.prepare("DELETE FROM guests"),
 		db.prepare("DELETE FROM removal_log"),
 	]);
 	await clearActivities(db);
@@ -155,10 +156,18 @@ export async function seed(
 		),
 	);
 
+	// The maintainer lists guests by hand; the seed does it for the sample
+	// guest, who then connects like a member (feature 041 research R13).
+	for (const rider of riders.filter((r) => r.guest)) {
+		await db
+			.prepare("INSERT INTO guests (athlete_id) VALUES (?)")
+			.bind(rider.athleteId)
+			.run();
+	}
 	// Non-members would only be turned away; their state is reached through
 	// "Connect as" (research R6).
-	const members = riders.filter((r) => r.clubMember);
-	for (const rider of members) {
+	const connected = riders.filter((r) => r.clubMember || r.guest);
+	for (const rider of connected) {
 		await connectThroughApp(ctx, origin, rider);
 		// `/connect` only takes the current version (feature 029 research R11).
 		if (rider.consentVersion !== undefined) {
@@ -176,7 +185,7 @@ export async function seed(
 	}
 	// Entered as an organiser would, with the change record (feature 014), once
 	// the organiser's rider row exists.
-	for (const rider of members) {
+	for (const rider of connected) {
 		for (const recipe of rider.events ?? []) {
 			const { eventId } = await teamEventChange(ctx, {
 				kind: "create-event",

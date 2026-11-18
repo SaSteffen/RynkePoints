@@ -111,14 +111,15 @@ describe("GET /auth/callback refusals", () => {
 	it.each([
 		["activity:read", "read"],
 		["read", "activity:read"],
-	])("revokes and refuses a grant without %s", async (_missing, granted) => {
-		const res = await approve(ctx, fake, ATHLETE_A, granted);
-		expectNotice(res, "denied");
-		expect(fake.revocations).toEqual([
-			expect.objectContaining({ kind: "access" }),
-		]);
-		await expectNoRows();
-	});
+	])(
+		"refuses a grant without %s, revoking nothing (041 FR-009)",
+		async (_missing, granted) => {
+			const res = await approve(ctx, fake, ATHLETE_A, granted);
+			expectNotice(res, "denied");
+			expect(fake.revocations).toEqual([]);
+			await expectNoRows();
+		},
+	);
 
 	it("deletes an existing rider who signs in without activity:read", async () => {
 		await seedExistingRider();
@@ -126,7 +127,7 @@ describe("GET /auth/callback refusals", () => {
 			...(await sessionCookie(ctx, ATHLETE_A)),
 		});
 		expectNotice(res, "denied-deleted");
-		expect(fake.revocations).toHaveLength(1);
+		expect(fake.revocations).toEqual([]);
 		await expectNoRows();
 		expect(setCookies(res).rp_session).toMatch(/^rp_session=; .*Max-Age=0/);
 	});
@@ -166,11 +167,11 @@ describe("GET /auth/callback token exchange", () => {
 });
 
 describe("GET /auth/callback club check", () => {
-	it("revokes and refuses a non-member", async () => {
+	it("refuses a non-member, revoking nothing (041 FR-009)", async () => {
 		fake.addAthlete({ id: ATHLETE_A, clubs: [OTHER_CLUB.id] });
 		const res = await approve(ctx, fake, ATHLETE_A);
 		expectNotice(res, "not-member");
-		expect(fake.revocations).toHaveLength(1);
+		expect(fake.revocations).toEqual([]);
 		await expectNoRows();
 	});
 
@@ -181,11 +182,11 @@ describe("GET /auth/callback club check", () => {
 		expect(await getRider(env.DB, ATHLETE_A)).not.toBeNull();
 	});
 
-	it("revokes and turns a new rider away when Strava is busy", async () => {
+	it("turns a new rider away when Strava is busy, revoking nothing", async () => {
 		fake.failNext("clubs", { status: 503 });
 		const res = await approve(ctx, fake, ATHLETE_A);
 		expectNotice(res, "strava-busy");
-		expect(fake.revocations).toHaveLength(1);
+		expect(fake.revocations).toEqual([]);
 		await expectNoRows();
 	});
 
@@ -220,7 +221,7 @@ describe("GET /auth/callback club check", () => {
 		if (athlete) athlete.clubs = [OTHER_CLUB.id];
 		const res = await approve(ctx, fake, ATHLETE_A);
 		expectNotice(res, "not-member-deleted");
-		expect(fake.revocations).toHaveLength(1);
+		expect(fake.revocations).toEqual([]);
 		await expectNoRows();
 		expect(setCookies(res).rp_session).toMatch(/Max-Age=0/);
 	});
@@ -449,7 +450,7 @@ describe("GET /auth/callback consent", () => {
 	});
 
 	it.each([0, 99])(
-		"revokes and refuses a new athlete with consent version %i",
+		"refuses a new athlete with consent version %i, revoking nothing",
 		async (consentVersion) => {
 			const res = await approve(
 				ctx,
@@ -463,9 +464,7 @@ describe("GET /auth/callback consent", () => {
 			);
 			expectNotice(res, "consent-required");
 			expect(setCookies(res).rp_oauth_state).toMatch(/Max-Age=0/);
-			expect(fake.revocations).toEqual([
-				expect.objectContaining({ kind: "access" }),
-			]);
+			expect(fake.revocations).toEqual([]);
 			await expectNoRows();
 		},
 	);
@@ -629,13 +628,11 @@ describe("GET /auth/callback for a blocked rider (025 FR-030, R7)", () => {
 			.bind(athleteId)
 			.run();
 
-	it("revokes the new token and refuses, with no club request and nothing stored", async () => {
+	it("refuses with no club request, no revoke and nothing stored", async () => {
 		await block(ATHLETE_A);
 		const res = await approve(ctx, fake, ATHLETE_A);
 		expectNotice(res, "blocked");
-		expect(fake.revocations).toEqual([
-			expect.objectContaining({ kind: "access" }),
-		]);
+		expect(fake.revocations).toEqual([]);
 		expect(fake.callsTo("clubs")).toEqual([]);
 		await expectNoRows();
 		const { results } = await env.DB.prepare(

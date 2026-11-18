@@ -123,7 +123,7 @@ describe("logging never includes credentials", () => {
 		expectLogged(log);
 	});
 
-	it("revoke of an unreadable stored token", async () => {
+	it("withdrawal of an unreadable stored token", async () => {
 		await seedRider(ctx);
 		await env.DB.prepare(
 			"UPDATE strava_credentials SET refresh_token_enc = 'v1:broken:broken'",
@@ -134,7 +134,7 @@ describe("logging never includes credentials", () => {
 			reason: "left-club",
 			revoke: true,
 		});
-		expectLogged("stored token unreadable");
+		expectLogged("token unreadable");
 	});
 
 	it("consumer: activity-event moves to failed_work after a refresh failure", async () => {

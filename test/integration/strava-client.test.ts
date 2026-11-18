@@ -14,7 +14,6 @@ import {
 import {
 	exchangeCode,
 	getAccessToken,
-	revokeStoredToken,
 	revokeToken,
 } from "../../src/strava/tokens";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
@@ -400,50 +399,17 @@ describe("revoking", () => {
 		]);
 	});
 
-	it("revokes the stored refresh token without refreshing", async () => {
-		await resetDb();
-		await seedRider(ctx, { expiresAt: NOW - 3600 });
-		expect(await revokeStoredToken(ctx, ATHLETE_A)).toEqual({
-			kind: "ok",
-			value: null,
-		});
-		expect(fake.callsTo("token")).toHaveLength(0);
-		expect(fake.revocations).toEqual([
-			{ token: "refresh-900001-0", kind: "refresh" },
-		]);
-	});
-
-	it("succeeds without a call when the rider has no credentials", async () => {
-		await resetDb();
-		expect(await revokeStoredToken(ctx, ATHLETE_A)).toEqual({
-			kind: "ok",
-			value: null,
-		});
-		expect(fake.calls).toHaveLength(0);
-	});
-
-	it("treats unreadable stored credentials as nothing to revoke", async () => {
-		await env.DB.prepare(
-			"UPDATE strava_credentials SET refresh_token_enc = 'v1:AAAA:AAAA'",
-		).run();
-		expect(await revokeStoredToken(ctx, ATHLETE_A)).toEqual({
-			kind: "ok",
-			value: null,
-		});
-		expect(fake.calls).toHaveLength(0);
-	});
-
 	it("maps 5xx, 429 and network errors to transient", async () => {
 		fake.failNext("revoke", { status: 429 });
-		expect(await revokeStoredToken(ctx, ATHLETE_A)).toMatchObject({
+		expect(await revokeToken(ctx, "refresh-900001-0")).toMatchObject({
 			kind: "transient",
 		});
 		fake.failNext("revoke", { status: 503 });
-		expect(await revokeStoredToken(ctx, ATHLETE_A)).toMatchObject({
+		expect(await revokeToken(ctx, "refresh-900001-0")).toMatchObject({
 			kind: "transient",
 		});
 		fake.failNext("revoke", "network");
-		expect(await revokeStoredToken(ctx, ATHLETE_A)).toMatchObject({
+		expect(await revokeToken(ctx, "refresh-900001-0")).toMatchObject({
 			kind: "transient",
 		});
 	});
@@ -452,7 +418,7 @@ describe("revoking", () => {
 		"treats %i as nothing left to revoke",
 		async (status) => {
 			fake.failNext("revoke", { status });
-			expect(await revokeStoredToken(ctx, ATHLETE_A)).toEqual({
+			expect(await revokeToken(ctx, "refresh-900001-0")).toEqual({
 				kind: "ok",
 				value: null,
 			});

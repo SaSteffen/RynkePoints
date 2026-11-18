@@ -232,6 +232,8 @@ export const lt: Catalog = {
 	"disconnect.title": "Ištrinti tavo duomenis?",
 	"disconnect.explain":
 		"RynkePoints atsisako prieigos prie tavo Strava paskyros ir iš karto ištrina visus duomenis apie tave. Tavo veiklos Strava lieka nepakitusios.",
+	"disconnect.explain.guest":
+		"RynkePoints iš karto ištrina visus duomenis apie tave šioje komandoje. Prieiga prie tavo Strava paskyros lieka, nes jos reikia tavo komandai. Tavo veiklos Strava lieka nepakitusios.",
 	"disconnect.confirm": "Taip, ištrinti viską",
 	"disconnect.cancel": "Atšaukti",
 
@@ -259,8 +261,6 @@ export const lt: Catalog = {
 	"notice.deleted.title": "Tavo duomenys ištrinti",
 	"notice.deleted.body":
 		"Ištrynėme visus duomenis apie tave. Kopijos mūsų prieglobos paslaugų teikėjo atsarginėse kopijose dingsta ne vėliau kaip po 7 dienų.",
-	"notice.revokeFailed.body":
-		"Nepavyko atsisakyti prieigos Strava. Pašalink RynkePoints savo Strava nustatymuose, skiltyje „My Apps“.",
 
 	"install.button": "Įdiegti kaip programėlę",
 	"install.ios":
@@ -1226,14 +1226,16 @@ export const lt: Catalog = {
 	"admin.riders.import.running": "Dar vyksta",
 	"admin.riders.import.done": "Baigta",
 	"admin.riders.remove": "Pašalinti",
+	"admin.riders.guests.heading": "Svečiai",
+	"admin.riders.guest": "Svečias",
 	"admin.remove.title": "Pašalinti {name}?",
 	"admin.remove.explain":
 		"To nebus galima atšaukti. Visi jo duomenys ištrinami, o Strava prieiga atšaukiama. Jis nebegalės prisijungti prie šios komandos, net būdamas klube: jo Strava ID lieka blokuojamųjų sąraše.",
+	"admin.remove.explain.guest":
+		"To nebus galima atšaukti. Visi svečio duomenys šioje komandoje ištrinami; Strava prieiga lieka, nes jos reikia svečio komandai. Jo Strava ID lieka blokuojamųjų sąraše, net jei jis yra svečių sąraše.",
 	"admin.remove.confirm": "Pašalinti ir užblokuoti",
 	"admin.remove.cancel": "Atšaukti",
 	"admin.remove.done.removed": "Dviratininkas pašalintas ir užblokuotas.",
-	"admin.remove.done.removed-revoke-failed":
-		"Dviratininkas pašalintas ir užblokuotas, bet nepavyko susisiekti su Strava ir atšaukti jo prieigos. Jo žetonas čia vis tiek ištrintas.",
 	"admin.remove.error.self":
 		"Negali pašalinti savęs. Jei nori išeiti, naudok {leave}.",
 	"admin.remove.error.unknown":
@@ -1243,7 +1245,7 @@ export const lt: Catalog = {
 	"notification.usage.critical": "Kritinis: {allowance} – {percent} %",
 	"notice.blocked.title": "Negali dalyvauti šioje komandoje",
 	"notice.blocked.body":
-		"Administratorius tave pašalino iš šios komandos. Pasiliekame tik tavo Strava ID, kad negalėtum vėl prisijungti, ir atšaukėme ką tik suteiktą prieigą.",
+		"Administratorius tave pašalino iš šios komandos. Pasiliekame tik tavo Strava ID, kad negalėtum vėl prisijungti.",
 	"notice.oneTeam.title": "Tu taip pat esi kitos komandos klube",
 	"notice.oneTeam.body":
 		"RynkePoints gali dalyvauti tik vienoje komandoje vienu metu. Strava suteikia programėlei vieną ryšį vienam asmeniui, todėl prisijungus prie antros komandos ryšys su pirmąja nutrūksta. Dabar ryšys veikia čia.",

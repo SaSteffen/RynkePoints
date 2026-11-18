@@ -156,7 +156,9 @@ beforeEach(async () => {
 	ctx = devCtx();
 });
 
-afterEach(() => {
+afterEach(async () => {
+	// Background work (a refusal's withdrawal) still talks to the fake.
+	await Promise.allSettled(ctx.pending);
 	logSpy.mockRestore();
 	removeStravaInterceptor();
 	// No token, code or secret ever reaches a log line.
@@ -250,7 +252,10 @@ describe("another team's samples (026 FR-050)", { timeout: 20_000 }, () => {
 			"SELECT athlete_id FROM riders ORDER BY athlete_id",
 		).all<{ athlete_id: number }>();
 		expect(results.map((r) => r.athlete_id)).toEqual(
-			EUROPE_SAMPLES.riders.filter((r) => r.clubMember).map((r) => r.athleteId),
+			EUROPE_SAMPLES.riders
+				.filter((r) => r.clubMember || r.guest)
+				.map((r) => r.athleteId)
+				.sort((a, b) => a - b),
 		);
 		expect(
 			await count("SELECT COUNT(*) AS n FROM riders WHERE organiser = 1"),
@@ -420,13 +425,15 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 		return get(decided.headers.get("Location") ?? "", stateCookie);
 	}
 
-	it("stores every club member and nobody else", async () => {
+	it("stores every club member and the guest, nobody else", async () => {
 		await seeded();
 		const { results } = await env.DB.prepare(
 			"SELECT athlete_id FROM riders ORDER BY athlete_id",
 		).all<{ athlete_id: number }>();
 		expect(results.map((r) => r.athlete_id)).toEqual(
-			SAMPLE_RIDERS.filter((r) => r.athleteId !== NOAH).map((r) => r.athleteId),
+			SAMPLE_RIDERS.filter((r) => r.athleteId !== NOAH)
+				.map((r) => r.athleteId)
+				.sort((a, b) => a - b),
 		);
 	});
 
@@ -1193,8 +1200,9 @@ describe("the daily work on demand (027)", () => {
 		const location = new URL(res.headers.get("Location") ?? "", LOCAL);
 		expect(location.pathname).toBe("/_dev/");
 		expect(location.searchParams.get("flash")).toMatch(/daily work/);
+		// Guests' clubs are never checked (feature 041 FR-006).
 		const connected = await count(
-			"SELECT COUNT(*) AS n FROM riders WHERE status = 'connected'",
+			"SELECT COUNT(*) AS n FROM riders WHERE status = 'connected' AND guest = 0",
 		);
 		const checks = ctx.queue.sent.filter(
 			(m) => (m.body as { kind?: string }).kind === "check-membership",

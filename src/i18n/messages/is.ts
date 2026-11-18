@@ -231,6 +231,8 @@ export const is: Catalog = {
 	"disconnect.title": "Eyða gögnunum þínum?",
 	"disconnect.explain":
 		"RynkePoints afsalar sér aðgangi að Strava-reikningnum þínum og eyðir strax öllum gögnum um þig. Virkni þín á Strava helst óbreytt.",
+	"disconnect.explain.guest":
+		"RynkePoints eyðir strax öllum gögnum um þig hjá þessu liði. Aðgangurinn að Strava-reikningnum þínum helst, því þitt eigið lið þarf hann. Virkni þín á Strava helst óbreytt.",
 	"disconnect.confirm": "Já, eyða öllu",
 	"disconnect.cancel": "Hætta við",
 
@@ -258,8 +260,6 @@ export const is: Catalog = {
 	"notice.deleted.title": "Gögnunum þínum hefur verið eytt",
 	"notice.deleted.body":
 		"Við höfum eytt öllum gögnum um þig. Afrit í afritum hýsingaraðilans hverfa í síðasta lagi eftir 7 daga.",
-	"notice.revokeFailed.body":
-		"Við gátum ekki afsalað okkur aðganginum hjá Strava. Fjarlægðu RynkePoints undir „My Apps“ í Strava-stillingunum þínum.",
 
 	"install.button": "Setja upp sem app",
 	"install.ios":
@@ -1181,15 +1181,17 @@ export const is: Catalog = {
 	"admin.riders.import.running": "Enn í gangi",
 	"admin.riders.import.done": "Lokið",
 	"admin.riders.remove": "Fjarlægja",
+	"admin.riders.guests.heading": "Gestir",
+	"admin.riders.guest": "Gestur",
 	"admin.remove.title": "Fjarlægja {name}?",
 	"admin.remove.explain":
 		"Þetta er ekki hægt að afturkalla. Öllum gögnum viðkomandi er eytt og Strava-aðgangurinn afturkallaður. Viðkomandi getur ekki tengst þessu liði aftur, ekki einu sinni sem klúbbfélagi: Strava-auðkennið verður áfram á bannlistanum.",
+	"admin.remove.explain.guest":
+		"Þetta er ekki hægt að afturkalla. Öllum gögnum gestsins hjá þessu liði er eytt; Strava-aðgangurinn helst, því eigið lið gestsins þarf hann. Strava-auðkennið verður áfram á bannlistanum, jafnvel þótt það sé á gestalistanum.",
 	"admin.remove.confirm": "Fjarlægja og loka á",
 	"admin.remove.cancel": "Hætta við",
 	"admin.remove.done.removed":
 		"Hjólreiðamaðurinn var fjarlægður og lokað á hann.",
-	"admin.remove.done.removed-revoke-failed":
-		"Hjólreiðamaðurinn var fjarlægður og lokað á hann, en ekki náðist í Strava til að afturkalla aðganginn. Tokeninu er samt eytt hér.",
 	"admin.remove.error.self":
 		"Þú getur ekki fjarlægt sjálfa/n þig. Til að hætta, notaðu {leave}.",
 	"admin.remove.error.unknown":
@@ -1199,7 +1201,7 @@ export const is: Catalog = {
 	"notification.usage.critical": "Alvarlegt: {allowance} í {percent} %",
 	"notice.blocked.title": "Þú getur ekki tekið þátt í þessu liði",
 	"notice.blocked.body":
-		"Stjórnandi fjarlægði þig úr þessu liði. Við geymum aðeins Strava-auðkennið þitt svo þú getir ekki tengst aftur, og við höfum afturkallað aðganginn sem þú veittir rétt í þessu.",
+		"Stjórnandi fjarlægði þig úr þessu liði. Við geymum aðeins Strava-auðkennið þitt svo þú getir ekki tengst aftur.",
 	"notice.oneTeam.title": "Þú ert líka í klúbbi annars liðs",
 	"notice.oneTeam.body":
 		"Á RynkePoints geturðu verið með í einu liði í einu. Strava gefur appinu eina tengingu á hverja manneskju, svo ef þú tengist öðru liði rofnar tengingin við það fyrra. Þú ert nú tengd/ur hér.",

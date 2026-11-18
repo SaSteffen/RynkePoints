@@ -69,6 +69,8 @@ function rider(athleteId: number, organiser: boolean): Rider {
 		onboardedAt: null,
 		organiserOnboardedAt: null,
 		recheckedAt: null,
+		guest: false,
+		onGuestList: false,
 	};
 }
 

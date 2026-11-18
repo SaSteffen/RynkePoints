@@ -633,6 +633,7 @@ describe("the release is invisible (US5)", () => {
 				scopes: "read,activity:read",
 				scopeReadAll: false,
 				now: NOW,
+				guest: false,
 			},
 			{ version: 1, acceptedAt: NOW },
 		);
