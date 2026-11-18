@@ -66,9 +66,11 @@ const FIELDS = [
 /**
  * Never a team's: the local gateway's and the fake Strava's (`pnpm dev`, feature
  * 026 contracts/dev-commands.md) and the test servers' (`pnpm test:e2e:server`,
- * `:europe`).
+ * `:europe`, `:europe-early`).
  */
-const RESERVED_PORTS = [8791, 9232, 8792, 9233, 8797, 9237, 8798, 9238];
+const RESERVED_PORTS = [
+	8791, 9232, 8792, 9233, 8797, 9237, 8798, 9238, 8799, 9239,
+];
 
 /**
  * A release sandbox's block, `sandbox-<team>` (feature 027): fake mode, not a
