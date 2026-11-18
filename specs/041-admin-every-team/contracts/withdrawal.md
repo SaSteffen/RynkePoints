@@ -65,5 +65,6 @@ team, never an athlete ID.
 
 ## Team side: reaching the gateway
 
-`POST <STRAVA_RETURN_VIA>/teams/<TEAM_ID>/held`, the gateway's custom domain (a Worker may fetch a
-Worker on a custom domain in the same zone). 10 s timeout; anything but a valid `200` is no answer.
+`POST <STRAVA_RETURN_VIA>/teams/<TEAM_ID>/held`, the gateway's Custom Domain, with a plain
+`fetch()`: Cloudflare allows it from the same zone without a service binding, and from another zone
+it is an ordinary subrequest (research R14). 10 s timeout; anything but a valid `200` is no answer.

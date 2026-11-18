@@ -262,6 +262,15 @@ Authentication needs no new secret. The gateway already holds each team's
 gateway checks it against the team it names, and asks each other team with that team's token, in
 the path as the forward does. The gateway logs only statuses, never an ID.
 
+A team reaches the gateway at `STRAVA_RETURN_VIA`, the gateway's Custom Domain, with a plain
+`fetch()`. Checked against Cloudflare's docs (Workers › Custom Domains, "Worker to Worker
+communication", 2026-11-18): a fetch from one Worker to another Worker on a Custom Domain in the
+same zone succeeds without a service binding; only routes and `workers.dev` need one. That covers
+Hamburg, whose domain is the gateway's zone. Europe's domain is another zone, so its fetch is an
+ordinary subrequest under the gateway zone's security settings. Europe's usage exchange already
+makes that kind of request to Hamburg, and Strava's webhook POSTs already reach the gateway.
+WAF custom rules don't apply to same-zone subrequests, so the gateway checks the token itself.
+
 This replaces the guest exception in `revokeStoredToken` and the "no revoke on refusal" of R5: a
 guest's home team holds them, so nothing is revoked, and a guest whose home team no longer holds
 them is revoked as FR-009 requires. It also replaces the old fallback where a failed revoke at
