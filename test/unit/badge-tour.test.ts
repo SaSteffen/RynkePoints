@@ -13,7 +13,11 @@ import { CURRENT_RULES } from "../support/team-rules";
 // R11): the season's tour days numbered in date order, and badge n for each
 // rider recorded at the n-th, dated with that day. Synthetic dates only.
 
-const SEASON = { seasonStart: "2026-09-01", deadline: "2027-06-30" };
+const SEASON = {
+	seasonStart: "2026-09-01",
+	windowStart: "2026-09-01",
+	deadline: "2027-06-30",
+};
 
 /** Tour days with ids 1, 2, … in the order given. */
 const days = (...dates: string[]): TourEvent[] =>

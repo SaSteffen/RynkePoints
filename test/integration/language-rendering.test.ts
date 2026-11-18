@@ -61,10 +61,9 @@ function expectLanguage(
 	)
 		.replace(/<blockquote [^>]*lang="de">[\s\S]*?<\/blockquote>/g, "")
 		// Chart data holds numbers and names under keys no rider reads.
-		.replace(
-			/<script type="application\/json"[^>]*>[\s\S]*?<\/script\s*>/g,
-			"",
-		);
+		.replace(/<script type="application\/json"[^>]*>[\s\S]*?<\/script\s*>/g, "")
+		// So do the graphs' tabs, charts and text templates ("virtual").
+		.replace(/ data-(?:tab|metric|text)="[a-z][a-z.]*"/g, "");
 	for (const text of locale === "de" ? ENGLISH_ONLY : GERMAN_ONLY) {
 		expect(page).not.toContain(text);
 	}

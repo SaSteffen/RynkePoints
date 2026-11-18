@@ -10,6 +10,7 @@ import {
 	TEAM_SUMMARY_SINCE,
 	type WeekEntry,
 } from "../rynke/summary";
+import { BADGE_RIDE } from "./badges";
 import { sharedRiderIdsSince } from "./consents";
 import { LISTED_RIDER_IDS } from "./organiser";
 
@@ -247,8 +248,8 @@ export async function readWeeksAddedUp(
 }
 
 /**
- * Counting rides and outdoor runs per day, when counting rides, runs and swims
- * started, and attended events.
+ * The rides the badges count and outdoor runs per day, when those rides, runs
+ * and swims started, and attended events.
  */
 export async function readDaysAddedUp(
 	db: D1Database,
@@ -264,7 +265,7 @@ export async function readDaysAddedUp(
 					SUM(r.elevation_dm) AS elevation_dm
 				FROM ride_results r
 				JOIN activities a ON a.strava_activity_id = r.strava_activity_id
-				WHERE r.counts = 1 AND ${OF_THESE_LISTED("r.athlete_id")}
+				WHERE ${BADGE_RIDE} AND ${OF_THESE_LISTED("r.athlete_id")}
 				GROUP BY 1, 2
 				ORDER BY 1, 2`,
 			)
@@ -287,7 +288,7 @@ export async function readDaysAddedUp(
 					SELECT a.athlete_id, a.start_date_local, 1 AS ride
 					FROM ride_results r
 					JOIN activities a ON a.strava_activity_id = r.strava_activity_id
-					WHERE r.counts = 1 AND ${OF_THESE_LISTED("r.athlete_id")}
+					WHERE ${BADGE_RIDE} AND ${OF_THESE_LISTED("r.athlete_id")}
 					UNION ALL
 					SELECT athlete_id, start_date_local, 0 FROM runs
 					WHERE ${OF_THESE_LISTED("athlete_id")}

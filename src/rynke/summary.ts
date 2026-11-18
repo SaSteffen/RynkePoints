@@ -58,12 +58,17 @@ interface StartedFigure {
 	startTime: string;
 }
 
-/** A rider's counting rides, outdoor runs and swims, from their evaluation. */
+/**
+ * A rider's counting and pre-window rides, outdoor runs and swims, from their
+ * evaluation.
+ */
 export interface SummaryFigures {
 	rides: readonly (StartedFigure & {
 		distanceRynke: number;
 		elevationDm: number;
 		virtual?: boolean;
+		/** Dated before the window opens: for the badges only (feature 040). */
+		preWindow?: true;
 	})[];
 	runs: readonly StartedFigure[];
 	swims: readonly StartedFigure[];
@@ -125,6 +130,9 @@ export function summaryOf(
 				ride.elevationDm,
 			]);
 		}
+		// The team's weeks count only the rides that earned Rynke, as do the
+		// ride figures below (feature 040 FR-010).
+		if (ride.preWindow) continue;
 		const weekEnd = weekEndOf(ride.date);
 		const week = weeks.at(-1);
 		if (week?.[0] === weekEnd) {
@@ -152,6 +160,7 @@ export function summaryOf(
 		ownDays: JSON.stringify(ownDays),
 		rides: JSON.stringify(
 			rides
+				.filter((r) => !r.preWindow)
 				.map((r): RideEntry => [r.date, r.distanceM, r.elevationDm])
 				.sort((a, b) => compareText(a[0], b[0]) || a[1] - b[1] || a[2] - b[2]),
 		),

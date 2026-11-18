@@ -21,8 +21,9 @@ pnpm dev:strava       # the app on port 8789 against the real Strava (.dev.vars)
 pnpm test             # Vitest inside the Workers runtime
 pnpm test:e2e         # Playwright smoke tests in Chromium, Firefox and WebKit,
                       # against fake mode on port 8797 (started for you), and
-                      # Europe's in Chromium on 8798 (project europe-smoke);
-                      # both on a fixed day of the season (RYNKE_FAKE_SEASON_DAY);
+                      # Europe's in Chromium on 8798 (project europe-smoke) and,
+                      # before its window opens, 8799 (europe-pre-window);
+                      # each on a fixed day of the season (RYNKE_FAKE_SEASON_DAY);
                       # first `pnpm exec playwright install chromium firefox webkit`
 pnpm test:e2e:webkit  # WebKit in Docker where it doesn't run natively (Arch);
                       # then run the tests with

@@ -80,7 +80,7 @@ jobs:
       matrix:
         include:
           - browser: chromium
-            projects: --project chromium --project europe-smoke
+            projects: --project chromium --project europe-smoke --project europe-pre-window
           - browser: firefox
             projects: --project firefox
           - browser: webkit

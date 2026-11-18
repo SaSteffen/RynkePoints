@@ -33,10 +33,25 @@ export interface RynkeRules {
 	minSpeedKmh: number;
 	maxSpeedKmh: number;
 	maxClimbMPerH: number;
+	/**
+	 * The shortest ride that counts, in whole kilometres (feature 039 research
+	 * R1). Absent means no minimum: a team without one leaves it out, never
+	 * writes 0, so its rule objects and fingerprints stay as they were.
+	 */
+	minRideKm?: number;
 	excludedSportTypes: readonly string[];
 	trainingThreshold: number;
-	teamThreshold: number;
-	maxVirtualShare: Share;
+	/**
+	 * `null`: the team has no Team Rynke (feature 039 research R2). Nobody
+	 * misses any then, and every team-event amount's `team` is 0.
+	 */
+	teamThreshold: number | null;
+	/**
+	 * How many of the `trainingThreshold` Training Rynke must come from
+	 * anything but virtual rides, a whole number (FR-014a, feature 039 research
+	 * R15). 0: no such requirement at all, nothing shows it.
+	 */
+	minOutsideTraining: number;
 	teamEvents: Readonly<Record<TeamEventKind, TeamEventAmounts>>;
 }
 
@@ -61,16 +76,43 @@ export function rulesForVersion(
 	return history.find((rules) => rules.version === version) ?? null;
 }
 
-/** `rulesForVersion` over one team's history, as the rider views take it. */
+/**
+ * `rulesForVersion` over one team's history, as the rider views take it. A
+ * team whose rules in effect have no Team Rynke shows none, also for a result
+ * stored under an earlier version that had it (feature 039).
+ */
 export function versionsOf(
 	history: readonly RynkeRules[],
 ): (version: number) => RynkeRules | null {
-	return (version) => rulesForVersion(history, version);
+	const withTeam = currentRules(history).teamThreshold !== null;
+	return (version) => {
+		const rules = rulesForVersion(history, version);
+		return rules && !withTeam ? withoutTeamRynke(rules) : rules;
+	};
 }
 
-/** Inclusive `YYYY-MM-DD` bounds a ride's local start date must fall in (FR-011). */
+/** `rules` with no Team threshold and no event earning Team Rynke. */
+function withoutTeamRynke(rules: RynkeRules): RynkeRules {
+	const teamEvents = Object.fromEntries(
+		Object.entries(rules.teamEvents).map(([kind, amounts]) => [
+			kind,
+			{ ...amounts, team: 0 },
+		]),
+	) as RynkeRules["teamEvents"];
+	return { ...rules, teamThreshold: null, teamEvents };
+}
+
+/**
+ * A team's season and qualification window, inclusive `YYYY-MM-DD` days
+ * (feature 040 data-model.md). Hamburg's window opens on its season start;
+ * Europe's opens later.
+ */
 export interface CountingWindow {
+	/** The season's first day (fetch, season end, badges, tour days). */
 	seasonStart: string;
+	/** The first day a ride can count (Rynke, pace, graphs; FR-011). */
+	windowStart: string;
+	/** The last day a ride can count; badges end here too. */
 	deadline: string;
 	/**
 	 * The team's calendar day, set by feature 013's `badgeWindow` only: the
@@ -80,23 +122,45 @@ export interface CountingWindow {
 	today?: string;
 }
 
-/** `SEASON_START_DATE` to `QUALIFICATION_DEADLINE`, team settings like the club. */
+/**
+ * `SEASON_START_DATE`, `QUALIFICATION_START_DATE` and `QUALIFICATION_DEADLINE`,
+ * team settings like the club.
+ */
 export function countingWindow(
-	env: Pick<Env, "SEASON_START_DATE" | "QUALIFICATION_DEADLINE">,
+	env: Pick<
+		Env,
+		"SEASON_START_DATE" | "QUALIFICATION_START_DATE" | "QUALIFICATION_DEADLINE"
+	>,
 ): CountingWindow {
+	if (!isCalendarDate(env.QUALIFICATION_START_DATE)) {
+		throw new Error("QUALIFICATION_START_DATE must be a date YYYY-MM-DD");
+	}
 	if (!isCalendarDate(env.QUALIFICATION_DEADLINE)) {
 		throw new Error("QUALIFICATION_DEADLINE must be a date YYYY-MM-DD");
 	}
 	return {
 		seasonStart: env.SEASON_START_DATE,
+		windowStart: env.QUALIFICATION_START_DATE,
 		deadline: env.QUALIFICATION_DEADLINE,
 	};
 }
 
-/** Whether a `YYYY-MM-DD` date falls inside `window`. */
+/** Whether a ride dated `YYYY-MM-DD` falls inside the qualification window. */
 export function inCountingWindow(
 	date: string,
-	window: CountingWindow,
+	window: Pick<CountingWindow, "windowStart" | "deadline">,
+): boolean {
+	return date >= window.windowStart && date <= window.deadline;
+}
+
+/**
+ * Whether a day dated `YYYY-MM-DD` falls in the season, up to the deadline: the
+ * days whose activities the badges count (feature 040 research R5). Unlike
+ * `inCountingWindow`, the days before the window opens are in.
+ */
+export function inBadgeSeason(
+	date: string,
+	window: Pick<CountingWindow, "seasonStart" | "deadline">,
 ): boolean {
 	return date >= window.seasonStart && date <= window.deadline;
 }
@@ -121,7 +185,7 @@ export function seasonEnd(window: Pick<CountingWindow, "seasonStart">): string {
 /**
  * Whether an event of `kind` dated `date` counts: a tour day from the season
  * start to the season end (feature 021 FR-003), and to `window.today` when
- * that is set; every other kind inside the counting window, as rides
+ * that is set; every other kind inside the qualification window, as rides
  * (feature 003 FR-011). Every filter of events uses this; rides keep
  * `inCountingWindow`.
  */
@@ -149,27 +213,47 @@ export function assertValidRules(rules: RynkeRules): void {
 		"maxSpeedKmh",
 		"maxClimbMPerH",
 		"trainingThreshold",
-		"teamThreshold",
 	] as const) {
 		const value = rules[field];
 		if (!Number.isInteger(value) || value <= 0) {
 			throw new Error(`rules.${field} must be a positive integer`);
 		}
 	}
+	if (
+		rules.teamThreshold !== null &&
+		(!Number.isInteger(rules.teamThreshold) || rules.teamThreshold <= 0)
+	) {
+		throw new Error("rules.teamThreshold must be a positive integer or null");
+	}
+	if (
+		rules.minRideKm !== undefined &&
+		(!Number.isInteger(rules.minRideKm) || rules.minRideKm <= 0)
+	) {
+		throw new Error("rules.minRideKm must be a positive integer when set");
+	}
 	if (rules.minSpeedKmh >= rules.maxSpeedKmh) {
 		throw new Error("rules.minSpeedKmh must be below rules.maxSpeedKmh");
 	}
-	for (const field of ["maxPausedShare", "maxVirtualShare"] as const) {
-		const { num, den } = rules[field];
-		if (
-			!Number.isInteger(num) ||
-			!Number.isInteger(den) ||
-			den <= 0 ||
-			num < 0 ||
-			num > den
-		) {
-			throw new Error(`rules.${field} must be a share 0 ≤ num ≤ den, den > 0`);
-		}
+	const { num, den } = rules.maxPausedShare;
+	if (
+		!Number.isInteger(num) ||
+		!Number.isInteger(den) ||
+		den <= 0 ||
+		num < 0 ||
+		num > den
+	) {
+		throw new Error(
+			"rules.maxPausedShare must be a share 0 ≤ num ≤ den, den > 0",
+		);
+	}
+	if (
+		!Number.isInteger(rules.minOutsideTraining) ||
+		rules.minOutsideTraining < 0 ||
+		rules.minOutsideTraining > rules.trainingThreshold
+	) {
+		throw new Error(
+			"rules.minOutsideTraining must be a whole number from 0 to trainingThreshold",
+		);
 	}
 	const kinds = Object.keys(rules.teamEvents);
 	if (
@@ -184,6 +268,11 @@ export function assertValidRules(rules: RynkeRules): void {
 			if (!Number.isInteger(value) || value < 0) {
 				throw new Error(`rules.teamEvents.${kind} must be whole numbers ≥ 0`);
 			}
+		}
+		if (rules.teamThreshold === null && team !== 0) {
+			throw new Error(
+				`rules.teamEvents.${kind}.team must be 0 without Team Rynke`,
+			);
 		}
 	}
 	assertDate("effectiveDate", rules.effectiveDate);

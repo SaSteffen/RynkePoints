@@ -4,6 +4,7 @@ import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import type { RiderStatus } from "../rynke/pace";
 import { FIXABLE_REASONS } from "../rynke/rides";
+import { dayNumber } from "../rynke/weeks";
 import { STRAVA_ORIGIN } from "../strava/result";
 import type { CoinArt, RulesHandout } from "../teams/types";
 import { coinArt, flippingCoin, miniCoin, SHARED_COIN } from "./coin";
@@ -40,6 +41,8 @@ const STATUS = {
 		cls: "ride-pending",
 		text: "rynke.ride.beingEvaluated",
 	},
+	// Orange, not red: the window hasn't opened yet (feature 040 research R6).
+	"not-yet": { cls: "ride-not-yet", text: "rynke.ride.notYet" },
 } as const;
 
 /**
@@ -141,7 +144,11 @@ export function renderSummary(
 	i18n: I18n,
 	summary: Summary,
 	status: RiderStatus,
+	countdown: { windowStart: string; deadline: string; today: string },
 ): SafeHtml {
+	const days = dayNumber(countdown.deadline) - dayNumber(countdown.today);
+	// Before the window opens there is no plan to be on or behind yet.
+	const before = countdown.today < countdown.windowStart;
 	const unmet = [
 		{
 			condition: summary.training,
@@ -162,11 +169,23 @@ export function renderSummary(
 				]
 			: [],
 	);
-	// The gauges below carry the figures; this says only where the rider stands.
+	// The gauges below carry the figures; this says only where the rider stands
+	// and how long is left until the qualification deadline, as on the
+	// organisers' overview.
 	return html`<section id="rynke" class="rynke-summary verdict card">
 ${statusArt(status, "banner")}<div>
-<p class="rynke-verdict">${i18n.t(summary.qualified ? "rynke.verdict.in" : "rynke.verdict.notYet")}</p>
-<p class="rynke-status">${i18n.t(STATUS_SENTENCE[status])}</p>
+<p class="rynke-deadline-date">${i18n.t("rynke.deadline.date", { date: i18n.formatDate(countdown.deadline) })}</p>
+${
+	// Before the window opens, no countdown yet: when it starts instead.
+	before
+		? html`<p class="rynke-deadline-start">${i18n.t("rynke.deadline.notStarted", { date: i18n.formatDate(countdown.windowStart) })}</p>`
+		: html`<p class="rynke-deadline-count">${
+				days < 0
+					? i18n.t("rynke.deadline.passed")
+					: i18n.t("rynke.deadline.daysLeft", { n: whole(i18n, days) })
+			}</p>`
+}
+${before ? null : html`<p class="rynke-status">${i18n.t(STATUS_SENTENCE[status])}</p>\n`}${summary.qualified ? html`<p class="rynke-verdict">${i18n.t("rynke.verdict.in")}</p>\n` : null}
 ${
 	missing.length > 0
 		? html`<p>${i18n.t("rynke.verdict.missing")}</p>
@@ -298,7 +317,8 @@ ${legend}</figure>
 
 /**
  * One source's row: its name over what it counted, then its Training and Team
- * Rynke; the cell stays empty where a source brings none of a kind.
+ * Rynke; the cell stays empty where a source brings none of a kind. Without
+ * Team Rynke (`withTeam` false) there is no Team cell (feature 039).
  */
 function breakdownRow(
 	label: string,
@@ -306,37 +326,36 @@ function breakdownRow(
 	training: number,
 	team: number | null,
 	i18n: I18n,
+	withTeam = true,
 ): SafeHtml {
 	const counted =
 		detail && html`<span class="breakdown-detail">${detail}</span>`;
-	return html`<tr><th scope="row">${label}${counted}</th><td>${whole(i18n, training)}</td><td>${team === null ? null : whole(i18n, team)}</td></tr>
+	const teamCell = withTeam
+		? html`<td>${team === null ? null : whole(i18n, team)}</td>`
+		: null;
+	return html`<tr><th scope="row">${label}${counted}</th><td>${whole(i18n, training)}</td>${teamCell}</tr>
 `;
 }
 
-/** Where the Rynke come from (FR-030–FR-033, FR-035); the hero has the totals. */
-export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
+/**
+ * Where the Rynke come from (FR-030–FR-033, FR-035); the hero has the totals.
+ * Without Team Rynke no Team column, without events (`events` false) no
+ * event-kind rows and no events part (feature 039).
+ */
+export function renderBreakdown(
+	i18n: I18n,
+	breakdown: Breakdown,
+	events = true,
+): SafeHtml {
 	const metres = i18n.t("units.m", {
 		value: whole(i18n, breakdown.elevationM),
 	});
-	return html`<section class="rynke-breakdown card card-outlined">
-<h2>${i18n.t("rynke.breakdown.heading")}</h2>
-<table class="breakdown-table">
-<thead><tr><td></td><th scope="col">${coinLabel(i18n, "training")}</th><th scope="col">${coinLabel(i18n, "team")}</th></tr></thead>
-<tbody>
-${breakdownRow(i18n.t("rynke.source.distance"), null, breakdown.distanceRynke, null, i18n)}${breakdownRow(i18n.t("rynke.source.elevation"), metres, breakdown.elevationRynke, null, i18n)}${breakdown.kinds.map(
-	(kind) =>
-		breakdownRow(
-			i18n.t(`rynke.source.${kind.kind}`),
-			i18n.t("rynke.breakdown.attended", {
-				count: whole(i18n, kind.attended),
-			}),
-			kind.training,
-			kind.team,
-			i18n,
-		),
-)}</tbody>
-</table>
-<h3>${i18n.t("rynke.events.heading")}</h3>
+	const withTeam = breakdown.teamTotal !== null;
+	const teamHead = withTeam
+		? html`<th scope="col">${coinLabel(i18n, "team")}</th>`
+		: null;
+	const eventsPart = events
+		? html`<h3>${i18n.t("rynke.events.heading")}</h3>
 ${
 	breakdown.events.length === 0
 		? html`<p>${i18n.t("rynke.events.none")}</p>`
@@ -344,7 +363,29 @@ ${
 				eventItem(i18n, event),
 			)}</ul>`
 }
-</section>`;
+`
+		: null;
+	return html`<section class="rynke-breakdown card card-outlined">
+<h2>${i18n.t("rynke.breakdown.heading")}</h2>
+<table class="breakdown-table">
+<thead><tr><td></td><th scope="col">${coinLabel(i18n, "training")}</th>${teamHead}</tr></thead>
+<tbody>
+${breakdownRow(i18n.t("rynke.source.distance"), null, breakdown.distanceRynke, null, i18n, withTeam)}${breakdownRow(i18n.t("rynke.source.elevation"), metres, breakdown.elevationRynke, null, i18n, withTeam)}${(
+	events ? breakdown.kinds : []
+).map((kind) =>
+	breakdownRow(
+		i18n.t(`rynke.source.${kind.kind}`),
+		i18n.t("rynke.breakdown.attended", {
+			count: whole(i18n, kind.attended),
+		}),
+		kind.training,
+		kind.team,
+		i18n,
+		withTeam,
+	),
+)}</tbody>
+</table>
+${eventsPart}</section>`;
 }
 
 /** Date, kind, the organiser's name for it, and whether it counts (FR-033). */
@@ -367,7 +408,7 @@ export function renderRules(
 	handout: RulesHandout,
 ): SafeHtml {
 	const window = i18n.t("rynke.rules.windowDeadline", {
-		start: day(i18n, rules.seasonStart),
+		start: day(i18n, rules.windowStart),
 		deadline: day(i18n, rules.deadline),
 	});
 	return html`<p>${i18n.t("rynke.rules.version", {
@@ -375,7 +416,11 @@ export function renderRules(
 		date: day(i18n, rules.effectiveDate),
 	})}</p>
 <p>${window}</p>
-<p><a class="tap" href="${handout.path}">${i18n.t(HANDOUT_LABEL[handout.locale])}</a></p>`;
+${
+	rules.minRideKm !== undefined &&
+	html`<p>${i18n.t("rynke.rules.minRide", { limit: wholeKm(i18n, rules.minRideKm) })}</p>
+`
+}<p><a class="tap" href="${handout.path}">${i18n.t(HANDOUT_LABEL[handout.locale])}</a></p>`;
 }
 
 /**
@@ -474,6 +519,13 @@ function renderMore(i18n: I18n): SafeHtml {
 `;
 }
 
+/** Whole kilometres, as a limit is given. */
+function wholeKm(i18n: I18n, km: number): string {
+	return i18n.t("units.km", {
+		value: i18n.formatNumber(km, { fractionDigits: 0 }),
+	});
+}
+
 function kilometres(i18n: I18n, m: number): string {
 	return i18n.t("units.km", {
 		value: i18n.formatNumber(m / 1000, { fractionDigits: 1 }),
@@ -534,6 +586,19 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 						),
 					});
 		}
+		case "too_short": {
+			const distance = i18n.t("units.km", {
+				value: i18n.formatNumber(reason.distanceKmTenths / 10, {
+					fractionDigits: 1,
+				}),
+			});
+			return reason.limitKm === null
+				? i18n.t("rynke.reason.too_short.noLimit", { distance })
+				: i18n.t("rynke.reason.too_short", {
+						distance,
+						limit: wholeKm(i18n, reason.limitKm),
+					});
+		}
 		case "climbing_rate": {
 			const rate = i18n.t("units.mPerH", { value: whole(i18n, reason.mPerH) });
 			return reason.limitMPerH === null
@@ -555,6 +620,10 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 			});
 		case "after_deadline":
 			return i18n.t("rynke.reason.outside_window.afterDeadline", {
+				date: day(i18n, reason.date),
+			});
+		case "before_window":
+			return i18n.t("rynke.reason.before_window", {
 				date: day(i18n, reason.date),
 			});
 		case "overlap": {
@@ -613,7 +682,10 @@ function explanation(i18n: I18n, ride: RideLine): SafeHtml | null {
 		? html`<p>${i18n.t("rynke.ride.fixHint")}</p>${fixSteps(i18n, ride)}`
 		: null;
 	if (!reasons && !unknown && !fixHint) return null;
-	const open = ride.status === "does-not-count" ? html` open` : null;
+	const open =
+		ride.status === "does-not-count" || ride.status === "not-yet"
+			? html` open`
+			: null;
 	return html`<details class="ride-why"${open}><summary class="tap">${i18n.t("rynke.ride.why")}</summary>${reasons}${unknown}${fixHint}</details>
 `;
 }
@@ -628,8 +700,10 @@ function rideCard(
 	// The rider's local date: Strava writes local wall-clock time with a `Z`.
 	const date = i18n.formatDate(ride.startDateLocal);
 	const km = kilometres(i18n, ride.distanceM);
-	// Never 0 for a ride still being evaluated (FR-041).
-	const pending = ride.status === "being-evaluated";
+	// Never 0 for a ride still being evaluated (FR-041), nor for one that
+	// can't count yet (feature 040).
+	const pending =
+		ride.status === "being-evaluated" || ride.status === "not-yet";
 	const rynke = pending ? "–" : whole(i18n, ride.distanceRynke);
 	// A mini coin for each ride that earned Training Rynke (feature 012); a
 	// ride that counts without them gets no coin on its status either (020

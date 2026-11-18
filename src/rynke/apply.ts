@@ -117,10 +117,16 @@ import type {
 	RunRecord,
 	SwimRecord,
 } from "../strava/activity";
+import { hasEvents, hasTeamRynke } from "../teams";
 import { sendAll } from "../work/messages";
 import { notifyRiders } from "../work/send-notification";
 import { teamBadgeNews } from "../work/team-badge-news";
-import { type Evaluation, evaluateRides, rideFromRow } from "./rides";
+import {
+	type Evaluation,
+	evaluateRides,
+	isPreWindow,
+	rideFromRow,
+} from "./rides";
 import {
 	type CountingWindow,
 	countingWindow,
@@ -720,6 +726,14 @@ export async function teamEventChange(
 	ctx: Ctx,
 	change: TeamEventChange,
 ): Promise<TeamEventResult> {
+	// A team without events records none, and a kind it doesn't have is
+	// refused (feature 039 research R6).
+	if (
+		!hasEvents(ctx.team) ||
+		("event" in change && !isTeamKind(ctx, change.event.kind))
+	) {
+		throw new TeamEventRefused("unknown_kind");
+	}
 	const result = await applyTeamEventChange(
 		ctx.env.DB,
 		change,
@@ -841,6 +855,14 @@ export async function correctionChange(
 	ctx: Ctx,
 	change: CorrectionChange,
 ): Promise<CorrectionResult> {
+	// Without Team Rynke a correction can't give any (feature 039 research R6).
+	if (
+		change.kind === "add-correction" &&
+		change.correction.team !== 0 &&
+		!hasTeamRynke(ctx.team)
+	) {
+		throw new CorrectionRefused("invalid_amount");
+	}
 	const result = await applyCorrectionChange(
 		ctx.env.DB,
 		change,
@@ -860,6 +882,10 @@ export async function correctionChange(
 		[...new Set([...own, ...team])].sort((a, b) => a - b),
 	);
 	return result;
+}
+
+function isTeamKind(ctx: Ctx, kind: string): boolean {
+	return (ctx.team.eventKinds as readonly string[]).includes(kind);
 }
 
 /** The bounds of the `corrections` table (data-model.md, R8). */
@@ -1010,11 +1036,11 @@ async function readRiders(
 }
 
 /**
- * The rider's counting rides, outdoor runs and swims, as the badges add them
- * up, and with when they started for the team surprises.
+ * The rider's counting and pre-window rides, outdoor runs and swims, as the
+ * badges add them up, and with when they started for the team surprises.
  */
 interface Figures {
-	rides: (CountingRide & { startTime: string })[];
+	rides: (CountingRide & { startTime: string; preWindow?: true })[];
 	runs: (DatedRun & { startTime: string })[];
 	swims: (DatedSwim & { startTime: string })[];
 }
@@ -1075,13 +1101,15 @@ function evaluateState(
 
 /**
  * The rider's counting rides and outdoor runs, which their personal badges
- * (R13, R14) and the team's (R15) are worked out from.
+ * (R13, R14) and the team's (R15) are worked out from, and their pre-window
+ * rides, which count for the badges too (feature 040 FR-014).
  */
 function figuresOf(state: RiderState, evaluation: Evaluation): Figures {
-	const rides = [];
+	const rides: Figures["rides"] = [];
 	for (const result of evaluation.results) {
 		const activity = state.activities.get(result.activityId);
-		if (!result.counts || !activity) continue;
+		const preWindow = isPreWindow(result.reasons);
+		if ((!result.counts && !preWindow) || !activity) continue;
 		rides.push({
 			date: activity.start_date_local.slice(0, 10),
 			distanceM: activity.distance_m,
@@ -1089,6 +1117,7 @@ function figuresOf(state: RiderState, evaluation: Evaluation): Figures {
 			elevationDm: result.elevationDm,
 			virtual: result.isVirtual,
 			startTime: activity.start_date_local.slice(11, 16),
+			...(preWindow ? { preWindow: true as const } : {}),
 		});
 	}
 	const dated = (activity: RunRecord | SwimRecord) => ({

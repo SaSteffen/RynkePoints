@@ -196,7 +196,7 @@ describe("seeding (FR-005, FR-012)", () => {
 		await drain();
 		const page = await mePage(TINA);
 		expect(page).toContain('<figure class="gauge gauge-reached">');
-		expect(page).toContain("Noch nicht qualifiziert");
+		expect(page).toContain("Dir fehlen noch:");
 		expect(page.match(/<li class="ride-card /g)).toHaveLength(20);
 
 		// FR-006, SC-002: fake answers never touch the request budget.
@@ -255,6 +255,17 @@ describe("another team's samples (026 FR-050)", { timeout: 20_000 }, () => {
 		expect(
 			await count("SELECT COUNT(*) AS n FROM riders WHERE organiser = 1"),
 		).toBe(2);
+	});
+
+	it("gives Europe's riders rides in November and December again (040 FR-020)", () => {
+		const dates = EUROPE_SAMPLES.riders.flatMap((r) =>
+			r.rides.flatMap((ride) =>
+				ride.onDate === undefined ? [] : [ride.onDate],
+			),
+		);
+		expect(dates.some((d) => d.startsWith("11-"))).toBe(true);
+		expect(dates.some((d) => d.startsWith("12-"))).toBe(true);
+		expect(dates).toContain("12-24");
 	});
 });
 

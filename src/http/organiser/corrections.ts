@@ -12,6 +12,7 @@ import {
 } from "../../db/organiser";
 import type { I18n } from "../../i18n/i18n";
 import { CorrectionRefused, correctionChange } from "../../rynke/apply";
+import { hasTeamRynke } from "../../teams";
 import { notFound } from "../errors";
 import { html, type SafeHtml } from "../html";
 import {
@@ -105,6 +106,11 @@ export function handleOrganiserRider(
 			ctx.env.DB,
 			athleteId,
 		).all<CorrectionRow>();
+		// Without Team Rynke only Training can be corrected (feature 039).
+		const teamField = hasTeamRynke(ctx.team)
+			? html`<label>${i18n.t("organiser.field.team")}<input type="number" name="team" step="1" min="-10000" max="10000"></label>
+`
+			: null;
 		const list =
 			results.length === 0
 				? html`<p>${i18n.t("organiser.corrections.none")}</p>`
@@ -117,8 +123,7 @@ ${list}
 <h2>${i18n.t("organiser.corrections.new")}</h2>
 <form method="post" action="${path}/corrections" class="organiser-form">
 <label>${i18n.t("organiser.field.training")}<input type="number" name="training" step="1" min="-10000" max="10000"></label>
-<label>${i18n.t("organiser.field.team")}<input type="number" name="team" step="1" min="-10000" max="10000"></label>
-<label>${i18n.t("organiser.field.reason")}<input type="text" name="reason" maxlength="200" required></label>
+${teamField}<label>${i18n.t("organiser.field.reason")}<input type="text" name="reason" maxlength="200" required></label>
 <label>${i18n.t("organiser.field.date")}<input type="date" name="date" value="${berlinDate(ctx.now())}" required></label>
 <button class="button">${i18n.t("organiser.add")}</button>
 </form>

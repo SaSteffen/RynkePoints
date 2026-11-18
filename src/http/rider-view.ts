@@ -7,14 +7,13 @@ import {
 	type RiderViewRead,
 } from "../db/rider-view";
 import type { StoredBalance } from "../db/rynke";
-import type { UnknownFigureCode } from "../rynke/rides";
+import { isPreWindow, type UnknownFigureCode } from "../rynke/rides";
 import {
 	type CountingWindow,
 	eventInWindow,
 	type RynkeRules,
 	type Share,
 } from "../rynke/rules";
-import { virtualShareRequired } from "../rynke/tally";
 import type {
 	EventKind,
 	TeamEventKind,
@@ -48,10 +47,32 @@ export interface RulesInfo {
 	version: number;
 	/** `YYYY-MM-DD` */
 	effectiveDate: string;
-	/** `YYYY-MM-DD`, `SEASON_START_DATE`. */
-	seasonStart: string;
+	/** `YYYY-MM-DD`, `QUALIFICATION_START_DATE`. */
+	windowStart: string;
 	/** `YYYY-MM-DD`, `QUALIFICATION_DEADLINE`. */
 	deadline: string;
+	/** The version's minimum ride length; absent without one (feature 039). */
+	minRideKm?: number;
+}
+
+/**
+ * The rules section's figures for a stored version; `rules` are that
+ * version's, `null` when unknown.
+ */
+export function rulesInfo(
+	version: number,
+	effectiveDate: string,
+	rules: RynkeRules | null,
+	window: CountingWindow,
+): RulesInfo {
+	const info: RulesInfo = {
+		version,
+		effectiveDate,
+		windowStart: window.windowStart,
+		deadline: window.deadline,
+	};
+	if (rules?.minRideKm !== undefined) info.minRideKm = rules.minRideKm;
+	return info;
 }
 
 /** Other rules are in effect, so the numbers are being updated (research R4). */
@@ -63,8 +84,12 @@ export interface UpdateNotice {
 
 export interface Summary {
 	training: Condition;
-	team: Condition;
-	/** `null` when the rider has no virtual ride (FR-012). */
+	/** `null` when the version has no Team Rynke (feature 039). */
+	team: Condition | null;
+	/**
+	 * `null` when the rider has no virtual ride (FR-012), or the version needs
+	 * nothing from outside them (feature 039 research R15).
+	 */
 	withoutVirtual: Condition | null;
 	/** Stored (FR-011, FR-023). */
 	qualified: boolean;
@@ -81,8 +106,12 @@ export interface Condition {
 
 export interface Gauges {
 	training: Gauge;
-	team: Gauge;
-	/** `null` when the rider has no virtual ride (FR-012). */
+	/** `null` when the version has no Team Rynke (feature 039). */
+	team: Gauge | null;
+	/**
+	 * `null` when the rider has no virtual ride (FR-012), or the version needs
+	 * nothing from outside them (feature 039 research R15).
+	 */
 	withoutVirtual: Gauge | null;
 	elevation: ElevationGauge;
 }
@@ -128,7 +157,11 @@ export interface Breakdown {
 	/** Rounded up. */
 	toNextStepM: number;
 	trainingTotal: number;
-	teamTotal: number;
+	/**
+	 * `null` when the version has no Team Rynke (feature 039): no Team column
+	 * in the breakdown.
+	 */
+	teamTotal: number | null;
 	/**
 	 * Stored per kind, in `TEAM_EVENT_KINDS` order (FR-032); empty for a balance
 	 * stored before team events existed.
@@ -171,7 +204,8 @@ export interface RideLine {
 	sportType: CyclingSportType;
 	distanceM: number;
 	elevationGainM: number;
-	status: "being-evaluated" | "counts" | "does-not-count";
+	/** `not-yet`: a pre-window ride (feature 040 research R6). */
+	status: "being-evaluated" | "counts" | "does-not-count" | "not-yet";
 	/** 0 unless the ride counts. */
 	distanceRynke: number;
 	/** Metres towards the elevation total; 0 unless the ride counts. */
@@ -205,10 +239,14 @@ export type ReasonLine =
 			kmhTenths: number;
 			limitKmh: number | null;
 	  }
+	/** Distance in tenths of a km, rounded down; the limit in whole km. */
+	| { code: "too_short"; distanceKmTenths: number; limitKm: number | null }
 	| { code: "climbing_rate"; mPerH: number; limitMPerH: number | null }
 	| { code: "excluded_sport_type"; sportType: CyclingSportType }
 	/** `SEASON_START_DATE`. */
 	| { code: "before_season"; date: string }
+	/** `QUALIFICATION_START_DATE`: a ride in the season before the window opens. */
+	| { code: "before_window"; date: string }
 	/** `QUALIFICATION_DEADLINE`. */
 	| { code: "after_deadline"; date: string }
 	| {
@@ -258,12 +296,12 @@ export function buildRiderView(
 		summary: summary(balance, read.virtualCount, rules),
 		gauges: rules && gauges(balance, read.virtualCount, rules),
 		breakdown: breakdown(balance, rules, read.attendance, context),
-		rules: {
-			version: balance.rulesVersion,
-			effectiveDate: balance.rulesEffectiveDate,
-			seasonStart: context.seasonStart,
-			deadline: context.deadline,
-		},
+		rules: rulesInfo(
+			balance.rulesVersion,
+			balance.rulesEffectiveDate,
+			rules,
+			context,
+		),
 		rides: rideTable(read, context),
 	};
 }
@@ -282,7 +320,7 @@ function breakdown(
 		elevationStepRynke: rules?.elevationStepRynke ?? null,
 		toNextStepM: Math.ceil(balance.elevationToNextStepDm / 10),
 		trainingTotal: balance.trainingRynke,
-		teamTotal: balance.teamRynke,
+		teamTotal: rules?.teamThreshold === null ? null : balance.teamRynke,
 		kinds: balance.teamEvents,
 		events: attendance.map(({ date, kind, name }) => ({
 			date,
@@ -305,17 +343,21 @@ export function summary(
 			rules?.trainingThreshold ?? null,
 			balance.trainingMissing,
 		),
-		team: condition(
-			balance.teamRynke,
-			rules?.teamThreshold ?? null,
-			balance.teamMissing,
-		),
+		// Unknown rules keep the Team figure without a target (FR-013).
+		team:
+			rules?.teamThreshold === null
+				? null
+				: condition(
+						balance.teamRynke,
+						rules?.teamThreshold ?? null,
+						balance.teamMissing,
+					),
 		withoutVirtual:
-			virtualCount === 0
+			virtualCount === 0 || rules?.minOutsideTraining === 0
 				? null
 				: condition(
 						balance.trainingWithoutVirtual,
-						rules ? virtualShareRequired(rules) : null,
+						rules?.minOutsideTraining ?? null,
 						balance.virtualShareMissing,
 					),
 		qualified: balance.qualified,
@@ -351,23 +393,33 @@ function gauges(
 				rules.trainingThreshold,
 			),
 		),
-		team: gauge(
-			balance.teamRynke,
-			rules.teamThreshold,
-			gaugeParts<GaugeSource>(
-				kinds.map((k) => ({ source: k.kind, value: k.team })),
-				rules.teamThreshold,
-			),
-		),
+		team: teamGauge(balance.teamRynke, kinds, rules.teamThreshold),
 		withoutVirtual:
-			virtualCount === 0
+			virtualCount === 0 || rules.minOutsideTraining === 0
 				? null
-				: gauge(balance.trainingWithoutVirtual, virtualShareRequired(rules)),
+				: gauge(balance.trainingWithoutVirtual, rules.minOutsideTraining),
 		elevation: {
 			...gauge(stepDm - balance.elevationToNextStepDm, stepDm),
 			stepRynke: rules.elevationStepRynke,
 		},
 	};
+}
+
+/** The Team gauge, or `null` without Team Rynke (feature 039). */
+function teamGauge(
+	value: number,
+	kinds: StoredBalance["teamEvents"],
+	threshold: number | null,
+): Gauge | null {
+	if (threshold === null) return null;
+	return gauge(
+		value,
+		threshold,
+		gaugeParts<GaugeSource>(
+			kinds.map((k) => ({ source: k.kind, value: k.team })),
+			threshold,
+		),
+	);
 }
 
 function gauge(value: number, target: number, parts: GaugePart[] = []): Gauge {
@@ -486,7 +538,13 @@ function rideLine(ride: RideRow, context: ViewContext): RideLine {
 		sportType: ride.sportType,
 		distanceM: ride.distanceM,
 		elevationGainM: ride.elevationGainM,
-		status: !result ? "being-evaluated" : counts ? "counts" : "does-not-count",
+		status: !result
+			? "being-evaluated"
+			: counts
+				? "counts"
+				: isPreWindow(result.reasons)
+					? "not-yet"
+					: "does-not-count",
 		distanceRynke: counts ? result.distanceRynke : 0,
 		elevationM: counts ? result.elevationDm / 10 : 0,
 		isVirtual: result?.isVirtual ?? false,
@@ -521,6 +579,13 @@ function reasonLines(
 					movingS: ride.movingS,
 					share: rules?.maxPausedShare ?? null,
 				};
+			case "too_short":
+				return {
+					code,
+					// 24.96 km is 24.9 km, never 25.0 km beside "at least 25 km".
+					distanceKmTenths: Math.floor(ride.distanceM / 100),
+					limitKm: rules?.minRideKm ?? null,
+				};
 			case "too_slow":
 				return {
 					code,
@@ -551,6 +616,8 @@ function reasonLines(
 							code: "after_deadline",
 							date: context.deadline,
 						};
+			case "before_window":
+				return { code, date: context.windowStart };
 			case "overlap":
 				return { code, countedInstead: ride.countedInstead };
 			default:

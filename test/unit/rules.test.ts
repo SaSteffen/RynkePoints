@@ -34,7 +34,7 @@ describe("CURRENT_RULES", () => {
 			excludedSportTypes: ["EBikeRide", "EMountainBikeRide"],
 			trainingThreshold: 250,
 			teamThreshold: 25,
-			maxVirtualShare: { num: 1, den: 3 },
+			minOutsideTraining: 167,
 			teamEvents: TEAM_EVENTS,
 		});
 		expect(effectiveDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
@@ -50,7 +50,7 @@ describe("CURRENT_RULES", () => {
 			'{"distanceStepKm":10,"distanceStepRynke":1,"elevationStepM":1000,' +
 			'"elevationStepRynke":5,"excludedSportTypes":["EBikeRide","EMountainBikeRide"],' +
 			'"maxClimbMPerH":1500,"maxPausedShare":{"den":1,"num":1},"maxSpeedKmh":45,' +
-			'"maxVirtualShare":{"den":3,"num":1},"minSpeedKmh":10,' +
+			'"minOutsideTraining":167,"minSpeedKmh":10,' +
 			'"teamEvents":{' +
 			'"team_training":{"team":1,"training":5},' +
 			'"technique_training":{"team":5,"training":5},' +
@@ -138,9 +138,6 @@ describe("assertValidRules", () => {
 		expect(() =>
 			assertValidRules({ ...CURRENT_RULES, maxPausedShare: share }),
 		).toThrow();
-		expect(() =>
-			assertValidRules({ ...CURRENT_RULES, maxVirtualShare: share }),
-		).toThrow();
 	});
 
 	it("accepts shares at their bounds", () => {
@@ -148,10 +145,28 @@ describe("assertValidRules", () => {
 			assertValidRules({
 				...CURRENT_RULES,
 				maxPausedShare: { num: 0, den: 1 },
-				maxVirtualShare: { num: 1, den: 1 },
 			}),
 		).not.toThrow();
 	});
+
+	// Feature 039 research R15: a whole number of Training Rynke, 0 for none.
+	it.each([-1, 0.5, 251, Number.NaN])(
+		"rejects %j Training Rynke needed from outside virtual rides",
+		(minOutsideTraining) => {
+			expect(() =>
+				assertValidRules({ ...CURRENT_RULES, minOutsideTraining }),
+			).toThrow();
+		},
+	);
+
+	it.each([0, 84, 250])(
+		"accepts %j Training Rynke needed from outside virtual rides",
+		(minOutsideTraining) => {
+			expect(() =>
+				assertValidRules({ ...CURRENT_RULES, minOutsideTraining }),
+			).not.toThrow();
+		},
+	);
 
 	it.each(["", "2026-1-1", "01.01.2026", "2026-13-01", "2026-02-30"])(
 		"rejects the date %j",
@@ -198,9 +213,14 @@ describe("countingWindow", () => {
 		expect(
 			countingWindow({
 				SEASON_START_DATE: "2026-01-01",
+				QUALIFICATION_START_DATE: "2026-01-01",
 				QUALIFICATION_DEADLINE: "2027-06-30",
 			}),
-		).toEqual({ seasonStart: "2026-01-01", deadline: "2027-06-30" });
+		).toEqual({
+			seasonStart: "2026-01-01",
+			windowStart: "2026-01-01",
+			deadline: "2027-06-30",
+		});
 	});
 
 	it.each(["", "2027-6-30", "30.06.2027", "2027-02-30"])(
@@ -209,6 +229,7 @@ describe("countingWindow", () => {
 			expect(() =>
 				countingWindow({
 					SEASON_START_DATE: "2026-01-01",
+					QUALIFICATION_START_DATE: "2026-01-01",
 					QUALIFICATION_DEADLINE: deadline,
 				}),
 			).toThrow("QUALIFICATION_DEADLINE");

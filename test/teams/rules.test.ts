@@ -2,11 +2,21 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { upsertActivity } from "../../src/db/activities";
 import { evaluateChange } from "../../src/rynke/apply";
-import { currentRules, type RynkeRules } from "../../src/rynke/rules";
+import { evaluateRides } from "../../src/rynke/rides";
+import {
+	countingWindow,
+	currentRules,
+	type RynkeRules,
+	rulesFingerprint,
+	seasonEnd,
+} from "../../src/rynke/rules";
 import { teamFor } from "../../src/teams";
+import { europe } from "../../src/teams/europe";
+import { hamburg } from "../../src/teams/hamburg";
 import type { TeamData } from "../../src/teams/types";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A } from "../support/fixtures";
+import { makeRide } from "../support/rides";
 import { activityRecord } from "../support/rynke";
 
 // Each team's own rules (feature 026 US3 scenarios 1, 2, FR-019): the
@@ -27,13 +37,13 @@ function otherTeam(base: TeamData, distanceStepKm: number): TeamData {
 	return { ...base, id: "synthetic", rules: [...base.rules, rules] };
 }
 
-/** A 79 km ride on the season's first day, inside every team's window. */
+/** A 79 km ride on the window's first day, inside every team's window. */
 async function seedRide(): Promise<void> {
 	await upsertActivity(
 		env.DB,
 		activityRecord(1, {
-			start_date: `${env.SEASON_START_DATE}T08:00:00Z`,
-			start_date_local: `${env.SEASON_START_DATE}T08:00:00Z`,
+			start_date: `${env.QUALIFICATION_START_DATE}T08:00:00Z`,
+			start_date_local: `${env.QUALIFICATION_START_DATE}T08:00:00Z`,
 			distance_m: 79000,
 		}),
 	);
@@ -84,5 +94,92 @@ describe(`${team.id}'s own rules (US3)`, () => {
 
 		expect(await scoredAs(team)).toEqual(before);
 		expect(currentRules(team.rules).distanceStepKm).toBe(step);
+	});
+});
+
+// Team Europe's own rules beside Hamburg's (feature 039 research R1, R4):
+// Hamburg's history stays versions 1–3 without a minimum; Europe's shares
+// those three objects and adds its own version 4.
+describe("Hamburg's and Europe's rule histories side by side", () => {
+	it("keeps Hamburg on version 3 without a minimum ride length", () => {
+		const inEffect = currentRules(hamburg.rules);
+		expect(inEffect.version).toBe(3);
+		for (const rules of hamburg.rules) {
+			expect("minRideKm" in rules).toBe(false);
+		}
+	});
+
+	it("gives Europe Hamburg's three versions, then its own version 4", () => {
+		expect(europe.rules.map((rules) => rules.version)).toEqual([1, 2, 3, 4]);
+		for (const [i, rules] of hamburg.rules.entries()) {
+			expect(europe.rules[i]).toBe(rules);
+		}
+		expect(currentRules(europe.rules).minRideKm).toBe(25);
+	});
+
+	// Research R15: Hamburg's "at most a third virtual" written as a whole
+	// number in every version, with the same results; Europe needs a third.
+	it("needs Hamburg's 2/3 of 250, rounded up, and Europe's third from outside virtual rides", () => {
+		for (const rules of hamburg.rules) {
+			expect(rules.minOutsideTraining).toBe(
+				Math.ceil((rules.trainingThreshold * 2) / 3),
+			);
+			expect(rules.minOutsideTraining).toBe(167);
+		}
+		const inEffect = currentRules(europe.rules);
+		expect(inEffect.minOutsideTraining).toBe(
+			Math.ceil(inEffect.trainingThreshold / 3),
+		);
+		expect(inEffect.minOutsideTraining).toBe(84);
+	});
+
+	it("pins Europe's version 4 values to its version", () => {
+		const inEffect = currentRules(europe.rules);
+		const fingerprint =
+			'{"distanceStepKm":10,"distanceStepRynke":1,"elevationStepM":1000,' +
+			'"elevationStepRynke":5,"excludedSportTypes":["EBikeRide","EMountainBikeRide"],' +
+			'"maxClimbMPerH":1500,"maxPausedShare":{"den":1,"num":1},"maxSpeedKmh":45,' +
+			'"minOutsideTraining":84,"minRideKm":25,"minSpeedKmh":10,' +
+			'"teamEvents":{' +
+			'"team_training":{"team":0,"training":0},' +
+			'"technique_training":{"team":0,"training":0},' +
+			'"training_weekend_day":{"team":0,"training":0}},' +
+			'"teamThreshold":null,"trainingThreshold":250}';
+		expect(inEffect.version).toBe(4);
+		expect(
+			rulesFingerprint(inEffect),
+			"a rule value changed: raise Europe's version and effectiveDate, then update this fingerprint",
+		).toBe(fingerprint);
+	});
+});
+
+// Hamburg stays exactly as it is (feature 040 US1, FR-019): its window opens
+// on its season start, so no ride of its season is ever a pre-window ride.
+describe.runIf(team.id === "hamburg")("hamburg's window (040 US1)", () => {
+	const window = countingWindow(env);
+
+	it("opens on the season start", () => {
+		expect(window.windowStart).toBe(window.seasonStart);
+	});
+
+	it("never marks a ride of its season as before the window", () => {
+		const rules = currentRules(team.rules);
+		const last = seasonEnd(window);
+		const rides = [];
+		for (
+			let day = Date.parse(`${window.seasonStart}T08:00:00Z`), id = 1;
+			new Date(day).toISOString().slice(0, 10) <= last;
+			day += 86_400_000, id++
+		) {
+			const start = new Date(day).toISOString().replace(".000Z", "Z");
+			rides.push(makeRide({ id, km: 40, movingH: 1.6, start }));
+		}
+		const { results } = evaluateRides(rides, rules, window);
+		expect(results).toHaveLength(365);
+		for (const result of results) {
+			expect(result.reasons as readonly string[]).not.toContain(
+				"before_window",
+			);
+		}
 	});
 });

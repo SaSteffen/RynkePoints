@@ -39,6 +39,8 @@ export const is: Catalog = {
 		"Einkaferðir („Aðeins þú“) teljast aðeins ef þú leyfir aðgang að einkavirkni þinni á Strava.",
 	"landing.purpose":
 		"Við notum gögnin aðeins fyrir Rynke og viðburði liðsins. Aðeins þú sérð einstakar ferðir þínar og heiti þeirra.",
+	"landing.purpose.noEvents":
+		"Við notum gögnin aðeins fyrir Rynke og merki. Aðeins þú sérð einstakar ferðir þínar og heiti þeirra.",
 	"landing.leave":
 		"Þú getur hætt hvenær sem er: í Stillingum eða með því að fjarlægja RynkePoints á Strava. Þá eyðum við öllum gögnum um þig, líka Rynke-stigunum þínum. Ef þú hættir í klúbbnum eyðum við þeim innan 24 klukkustunda. Aðeins ef stjórnandi fjarlægir þig geymum við Strava-auðkennið þitt svo þú getir ekki tengst aftur.",
 	"landing.backups":
@@ -58,6 +60,8 @@ export const is: Catalog = {
 	"consent.details": "Öll smáatriðin",
 	"consent.organisers":
 		"Skipuleggjendur sjá fornafn þitt af Strava, Rynke-stigin þín og hvaðan þau koma, hvað þig vantar enn, hvort þú hafir náð æfingamarkmiðinu, liðsviðburði þína og leiðréttingar, og á hvaða liðsviðburði þú hefur sagst ætla að mæta eða mætt.",
+	"consent.organisers.noEvents":
+		"Skipuleggjendur sjá fornafn þitt af Strava, Rynke-stigin þín og hvaðan þau koma, hvað þig vantar enn, hvort þú hafir náð æfingamarkmiðinu, og leiðréttingar sínar.",
 	"consent.dailyFigures":
 		"Skipuleggjendur sjá líka, með fornafni þínu, hve marga kílómetra þú hefur hjólað úti og í sýndarheimi og hve marga metra þú hefur klifið, sem heildartölu á dag, allt tímabilið. Það á líka við um einkaferðir sem teljast. Þeir sjá ekki einstakar ferðir, heiti þeirra, tíma eða leiðir.",
 	"consent.rideFigures":
@@ -121,8 +125,12 @@ export const is: Catalog = {
 		other: "Sótt hingað til: {n} æfingar, fleiri koma",
 	},
 	"rynke.verdict.in": "Komst til Parísar! 🗼",
-	"rynke.verdict.notYet": "Ekki komist áfram enn",
 	"rynke.verdict.missing": "Þig vantar enn:",
+	"rynke.deadline.date": "Frestur til að komast áfram · {date}",
+	"rynke.deadline.daysLeft": "Dagar eftir: {n} ⏳",
+	"rynke.deadline.passed": "Fresturinn er liðinn",
+	"rynke.deadline.notStarted":
+		"Tímabilið til að komast áfram hefst {date}. Fram að því teljast ferðirnar þínar ekki með, en þú getur þegar safnað merkjum. 🏅",
 	"rynke.status.push": "Þú ert á eftir áætlun.",
 	"rynke.status.onTrack": "Þú ert á áætlun.",
 	"rynke.status.in": "Á undan áætlun: æfingamarkmiði náð.",
@@ -141,11 +149,13 @@ export const is: Catalog = {
 	"rynke.rules.heading": "Reglur",
 	"rynke.rules.version": "Reglur, útgáfa {version}, í gildi frá {date}.",
 	"rynke.rules.windowDeadline": "Allt frá {start} til {deadline} telst.",
+	"rynke.rules.minRide": "Ferðir sem eru {limit} eða lengri teljast.",
 	"rynke.rules.handout": "Reglurnar sem PDF (á þýsku)",
 	"rynke.rules.handoutEnglish": "Reglurnar sem PDF (á ensku)",
 	"rynke.ride.counts": "telst 🪙",
 	"rynke.ride.countsWithoutRynke": "telst",
 	"rynke.ride.doesNotCount": "telst ekki",
+	"rynke.ride.notYet": "telst ekki enn",
 	"rynke.ride.beingEvaluated": "Í mati",
 	"rynke.ride.virtual": "sýndar",
 	"rynke.ride.fixHint":
@@ -172,6 +182,8 @@ export const is: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"Enginn hreyfitími: ferðin telst hlé alla leið.",
 	"rynke.reason.manual": "Skráð handvirkt á Strava.",
+	"rynke.reason.too_short": "Of stutt: {distance}, minnst {limit} þarf.",
+	"rynke.reason.too_short.noLimit": "Of stutt: {distance}.",
 	"rynke.reason.too_slow":
 		"Of hægt: {speed} að meðaltali, minnst {limit} þarf.",
 	"rynke.reason.too_slow.noLimit": "Of hægt: {speed} að meðaltali.",
@@ -186,6 +198,8 @@ export const is: Catalog = {
 	"rynke.reason.excluded_sport_type": "{sport} telst ekki til Rynke.",
 	"rynke.reason.outside_window": "Fyrir upphaf tímabilsins {date}.",
 	"rynke.reason.outside_window.afterDeadline": "Eftir frestinn {date}.",
+	"rynke.reason.before_window":
+		"Tímabilið til að komast áfram hefst {date}. Frá þeim degi teljast ferðir eins og þessi.",
 	"rynke.reason.overlap":
 		"Skráð tvisvar: ferð þín {date}, {time}, {distance} telst í staðinn.",
 	"rynke.reason.overlap.noRide":
@@ -281,7 +295,9 @@ export const is: Catalog = {
 	"tour.rider.teamRynke":
 		"Liðs-Rynke koma aðeins frá liðsviðburðum sem skipuleggjendur hafa bætt þér við: {teamTraining} fyrir liðsæfingu, {weekendDay} fyrir dag í æfingahelginni, {technique} fyrir tækniæfingu. Þú þarft {teamThreshold} til Parísar.",
 	"tour.rider.outdoor":
-		"Í mesta lagi {virtualShare} af Æfinga-Rynke mega koma úr sýndarferðum. Þessi stika telur allt annað: minnst {outside} af {trainingThreshold} Æfinga-Rynke verða að koma úr hjólreiðum úti, liðsviðburðir meðtaldir.",
+		"Þessi stika telur allt nema sýndarferðir: minnst {outside} af {trainingThreshold} Æfinga-Rynke verða að koma úr hjólreiðum úti, liðsviðburðir meðtaldir.",
+	"tour.rider.outdoor.noEvents":
+		"Þessi stika telur allt nema sýndarferðir: minnst {outside} af {trainingThreshold} Æfinga-Rynke verða að koma úr hjólreiðum úti.",
 	"tour.rider.rides":
 		"Ferðir: hver ferð og hvað hún gaf. Þessi telst ekki. „Af hverju?“ segir hvað fór úrskeiðis og hvað þú getur gert.",
 	"tour.rider.shortRide":
@@ -297,12 +313,16 @@ export const is: Catalog = {
 		"Þú ert nú skipuleggjandi: flipinn Orga er nýr. Leyfðu okkur að sýna þér.",
 	"tour.organiser.riders":
 		"Hjólreiðamenn: allir í liðinu með Æfinga- og Liðs-Rynke og hvað þá vantar.",
+	"tour.organiser.riders.noEvents":
+		"Hjólreiðamenn: allir í liðinu með Æfinga-Rynke og hvað þá vantar.",
 	"tour.organiser.riders.rides":
 		"Auk þess hve margar ferðir þeirra hafa talið á tímabilinu og hve löng dæmigerð ferð er.",
 	"tour.organiser.example":
 		"Sýnilið: svona lítur Orga út þegar tímabilið er hafið. Ekkert hér er smellanlegt; þú sérð raunverulega liðið eftir kynninguna.",
 	"tour.organiser.groups":
 		"Hóparnir: „Þarf hvatningu“ er á eftir hraðanum, „Á réttri leið“ er á áætlun, „Æfingamarkmiði náð“ hefur allt. Ýttu á flís til að sjá aðeins hjólreiðamenn hennar. Fyrst: allir með opna tilkynningu.",
+	"tour.organiser.groups.noEvents":
+		"Hóparnir: „Þarf hvatningu“ er á eftir hraðanum, „Á réttri leið“ er á áætlun, „Æfingamarkmiði náð“ hefur allt. Ýttu á flís til að sjá aðeins hjólreiðamenn hennar.",
 	"tour.organiser.pace":
 		"Merkið á hverri stiku er jafn hraði fram að fresti. Hjólreiðamenn vinstra megin við það þurfa hvatningu. Ýttu á nafn til að opna leiðréttingar: Rynke bætt við eða dregin frá, með ástæðu.",
 	"tour.organiser.graphs":
@@ -563,8 +583,12 @@ export const is: Catalog = {
 	"organiser.overview.showing": "Sýnt: {group}",
 	"organiser.overview.hint":
 		"Merkið á hverri stiku sýnir jafnan hraða fram að fresti: í dag {training} Æfinga og {team} Liðs.",
+	"organiser.overview.hint.noEvents":
+		"Merkið á hverri stiku sýnir jafnan hraða fram að fresti: í dag {training} Æfinga.",
 	"organiser.overview.hint.percent":
 		"Merkið á hverri stiku sýnir jafnan hraða fram að fresti: í dag {training} af Æfinga og {team} af Liðs.",
+	"organiser.overview.hint.percent.noEvents":
+		"Merkið á hverri stiku sýnir jafnan hraða fram að fresti: í dag {training} af Æfinga.",
 	"organiser.overview.training.percent": "Æfinga {n}",
 	"organiser.overview.team.percent": "Liðs {n}",
 	"organiser.overview.behind.training": "Æfinga á eftir hraða",
@@ -585,11 +609,15 @@ export const is: Catalog = {
 		"{kind}: {attended}× → {training} Æfinga, {team} Liðs",
 	"organiser.overview.corrections":
 		"Leiðréttingar {training} Æfinga, {team} Liðs",
+	"organiser.overview.corrections.noEvents": "Leiðréttingar {training} Æfinga",
 	"organiser.overview.virtual": "Sýndarferðir {n} % af Æfinga",
 	"organiser.overview.amounts": "{training} Æfinga, {team} Liðs",
+	"organiser.overview.amounts.noEvents": "{training} Æfinga",
 	"organiser.overview.percent": "{n} %",
 	"organiser.overview.qualifiedList": "Æfingamarkmiði náð 🎯",
 	"organiser.overview.qualifiedHint": "Báðum þröskuldum og útihlutfallinu náð.",
+	"organiser.overview.qualifiedHint.noEvents":
+		"Æfingaþröskuldi og útihlutfallinu náð.",
 	"organiser.overview.nobodyYet": "Enginn hefur náð æfingamarkmiðinu enn.",
 	"organiser.overview.none": "Engir hjólreiðamenn deila Rynke sínum enn.",
 	"organiser.overview.column.name": "Hjólreiðamaður",
@@ -787,6 +815,8 @@ export const is: Catalog = {
 	"badges.surprise.sunday-outing": "Sunnudagsferð",
 	"badges.surprise.sunday-outing.for":
 		"Minnst tíu úr liðinu úti á sunnudegi án liðsviðburðar.",
+	"badges.surprise.sunday-outing.for.noEvents":
+		"Minnst tíu úr liðinu úti á sama sunnudegi.",
 	"badges.surprise.festive-500": "Festive 500",
 	"badges.surprise.festive-500.for":
 		"Hjólaði 500 kílómetra milli aðfangadags og gamlárskvölds.",
@@ -847,6 +877,8 @@ export const is: Catalog = {
 	"privacy.team.heading": "Gögn frá liðinu og hvað er reiknað út frá þeim",
 	"privacy.team.body":
 		"Skipuleggjendur skrá á hvaða liðsviðburði þú mættir og geta leiðrétt Rynke-stigin þín með ástæðu og dagsetningu. Þú getur sjálf/ur tilkynnt á hvaða liðsviðburði þú mætir eða mættir; skipuleggjendur sjá það og ákveða hvort það er skráð. Hver breytti hverju og hvenær er líka geymt.",
+	"privacy.team.body.noEvents":
+		"Skipuleggjendur geta leiðrétt Rynke-stigin þín með ástæðu og dagsetningu. Hver breytti hverju og hvenær er líka geymt.",
 	"privacy.team.derived":
 		"Út frá þessu öllu reiknar RynkePoints Rynke-stigin þín, merkin og hvaða ferðir teljast og af hverju.",
 	"privacy.team.rideFigures":
@@ -865,11 +897,15 @@ export const is: Catalog = {
 		"Allir aðrir í liðinu sjá Rynke-stigin þín, alls og á viku, án nafns. Kílómetrar og hækkun þín, og á hvaða dögum og klukkan hvað þú ert virk/ur, teljast með í samtölum og liðsmerkjum liðsins, án nafns.",
 	"privacy.visibility.organisers":
 		"Skipuleggjendur sjá fornafn þitt, Rynke-stigin og hvaðan þau koma, hvað þig vantar enn, hvort þú hafir náð æfingamarkmiðinu, liðsviðburði þína og leiðréttingar, á hvaða liðsviðburði þú hefur sagst mæta eða mætt, og kílómetra úti og í sýndarheimi og hækkun sem samtölur á dag, en enga einstaka virkni.",
+	"privacy.visibility.organisers.noEvents":
+		"Skipuleggjendur sjá fornafn þitt, Rynke-stigin og hvaðan þau koma, hvað þig vantar enn, hvort þú hafir náð æfingamarkmiðinu, leiðréttingar sínar, og kílómetra úti og í sýndarheimi og hækkun sem samtölur á dag, en enga einstaka virkni.",
 	"privacy.visibility.public":
 		"Ekkert af þessu er opinbert: hver síða með þessum gögnum krefst innskráningar með Strava.",
 	"privacy.legal.heading": "Lagagrundvöllur",
 	"privacy.legal.body":
 		"Lestur Strava-gagnanna þinna og deiling Rynke-stiganna eins og lýst er byggja á samþykki þínu, veittu áður en þú tengist (a-liður 1. mgr. 6. gr. GDPR). Liðsviðburðir, leiðréttingar, nauðsynlegar vafrakökur og skrár byggja á lögmætum hagsmunum af því að skipuleggja æfingar liðsins og reka appið örugglega (f-liður 1. mgr. 6. gr. GDPR; fyrir vafrakökur 2. mgr. 25. gr. TDDDG).",
+	"privacy.legal.body.noEvents":
+		"Lestur Strava-gagnanna þinna og deiling Rynke-stiganna eins og lýst er byggja á samþykki þínu, veittu áður en þú tengist (a-liður 1. mgr. 6. gr. GDPR). Leiðréttingar, nauðsynlegar vafrakökur og skrár byggja á lögmætum hagsmunum af því að skipuleggja æfingar liðsins og reka appið örugglega (f-liður 1. mgr. 6. gr. GDPR; fyrir vafrakökur 2. mgr. 25. gr. TDDDG).",
 	"privacy.retention.heading": "Hve lengi gögn eru geymd",
 	"privacy.retention.body":
 		"Gögnin þín eru geymd meðan þú ert tengd/ur og fylgja Strava: ef þú eyðir virkni á Strava, eða gerir hana að einkavirkni án þess að hafa veitt heimild fyrir því, hverfur hún líka hér um leið og Strava tilkynnir það, yfirleitt innan nokkurra mínútna. Virkni frá því fyrir upphaf tímabilsins er eytt.",
@@ -994,6 +1030,7 @@ export const is: Catalog = {
 	"progress.help":
 		"Örvalyklar velja dag, + og − þysja, Page Up/Down færa, 0 sýnir allt tímabilið.",
 	"progress.day": "{date} · {training} Æfinga-Rynke · {team} Liðs-Rynke",
+	"progress.day.noEvents": "{date} · {training} Æfinga-Rynke",
 	"progress.table.summary": "Tölurnar sem tafla",
 	"progress.table.week": "Vika frá",
 	"progress.table.total": "Alls",

@@ -64,7 +64,7 @@ export function organiserGraphsView(input: {
 	rows: readonly GraphRow[];
 	riders: readonly GraphRider[];
 	requests: ReadonlyMap<number, readonly unknown[]>;
-	window: Pick<CountingWindow, "seasonStart" | "deadline">;
+	window: Pick<CountingWindow, "windowStart" | "deadline">;
 	today: string;
 	group: string | null;
 	/**
@@ -75,7 +75,7 @@ export function organiserGraphsView(input: {
 }): OrganiserGraphs {
 	const { rows, riders, requests, window, today, group } = input;
 	const rides = input.rides ?? null;
-	const firstDay = window.seasonStart;
+	const firstDay = window.windowStart;
 	const lastDay =
 		today < firstDay ? firstDay : lastDayOf(today, window.deadline);
 	const start = dayNumber(firstDay);

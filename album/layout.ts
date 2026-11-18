@@ -239,7 +239,8 @@ function stickerPages(
 /** Every page of the album, in order, an even number of them (FR-053). */
 export function layoutAlbum(data: AlbumData): AlbumPage[] {
 	const pages: AlbumPage[] = [{ number: 1, safe: safeArea(1), kind: "cover" }];
-	const events = data.team.events;
+	// A team without events has the team page without a table (feature 039).
+	const events = data.team.events ?? [];
 	let start = 0;
 	do {
 		const number = pages.length + 1;

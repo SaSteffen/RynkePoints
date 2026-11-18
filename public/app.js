@@ -2356,7 +2356,8 @@ function progressCharts(signal) {
 				fill(day, {
 					date: longDate.format(dateOf(index)),
 					training: number.format(data.training.values[index]),
-					team: number.format(data.team.values[index]),
+					// No Team Rynke series on a team without them (feature 039).
+					team: data.team ? number.format(data.team.values[index]) : "",
 				}),
 			]);
 		}

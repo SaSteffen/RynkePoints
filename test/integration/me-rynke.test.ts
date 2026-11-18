@@ -84,9 +84,7 @@ describe("GET /me Rynke summary (US1)", () => {
 			virtualShareMissing: 155,
 		});
 		const shown = await summary();
-		expect(shown).toContain(
-			"Noch nicht qualifiziert Du liegst hinter dem Plan. Dir fehlen noch:",
-		);
+		expect(shown).toContain("Du liegst hinter dem Plan. Dir fehlen noch:");
 		// The gauges carry the figures (issue: wording review).
 		expect(shown).not.toContain("von 250");
 		expect(shown).toContain("238 Trainingsrynke");
@@ -109,7 +107,7 @@ describe("GET /me Rynke summary (US1)", () => {
 			section(html, 'class="rynke-summary verdict card"') ?? "",
 		);
 		expect(shown).toBe(
-			"Qualifiziert für Paris! 🗼 Plan übererfüllt: Trainingsziel erreicht.",
+			"Stichtag · 30.06.2027 Noch 267 Tage ⏳ Plan übererfüllt: Trainingsziel erreicht. Qualifiziert für Paris! 🗼",
 		);
 		expect(html).toContain(
 			`src="${artUrl("/illustrations/status_in_fun.svg")}"`,
@@ -133,7 +131,7 @@ describe("GET /me Rynke summary (US1)", () => {
 		});
 		const shown = await summary();
 		expect(shown).toContain("7 Trainingsrynke draußen");
-		expect(shown).toContain("Noch nicht qualifiziert");
+		expect(shown).not.toContain("Qualifiziert für Paris");
 	});
 
 	it("S1-4: names only the missing Team Rynke", async () => {

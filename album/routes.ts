@@ -18,6 +18,7 @@ export type AlbumEnv = Pick<
 	Env,
 	| "DB"
 	| "SEASON_START_DATE"
+	| "QUALIFICATION_START_DATE"
 	| "QUALIFICATION_DEADLINE"
 	| "TEAM_ID"
 	| "SEASON_ALBUM"

@@ -37,6 +37,8 @@ export const da: Catalog = {
 		"Private (»Kun dig«) ture tæller kun, hvis du tillader adgang til dine private aktiviteter på Strava.",
 	"landing.purpose":
 		"Vi bruger kun dataene til Rynke og holdarrangementer. Kun du ser dine enkelte ture og deres navne.",
+	"landing.purpose.noEvents":
+		"Vi bruger kun dataene til Rynke og badges. Kun du ser dine enkelte ture og deres navne.",
 	"landing.leave":
 		"Du kan stoppe når som helst: under Indstillinger, eller ved at fjerne RynkePoints på Strava. Så sletter vi alle data om dig, også dine Rynke. Forlader du klubben, sletter vi dem inden for 24 timer. Kun hvis en administrator fjerner dig, beholder vi dit Strava-ID, så du ikke kan forbinde igen.",
 	"landing.backups":
@@ -56,6 +58,8 @@ export const da: Catalog = {
 	"consent.details": "Alle detaljer",
 	"consent.organisers":
 		"Arrangørerne ser dit fornavn fra Strava, dine Rynke og hvor de kommer fra, hvad du mangler, om du har nået dit træningsmål, dine holdarrangementer og rettelser, og hvilke holdarrangementer du har meldt, at du kommer til eller var med til.",
+	"consent.organisers.noEvents":
+		"Arrangørerne ser dit fornavn fra Strava, dine Rynke og hvor de kommer fra, hvad du mangler, om du har nået dit træningsmål, og deres rettelser.",
 	"consent.dailyFigures":
 		"Arrangørerne ser også, med dit fornavn, hvor mange kilometer du har kørt udendørs og virtuelt, og hvor mange højdemeter du har klatret, som samlet tal pr. dag, hele sæsonen igennem. Det gælder også private ture, der tæller. De ser ikke dine enkelte ture, deres navne, tider eller ruter.",
 	"consent.rideFigures":
@@ -119,8 +123,12 @@ export const da: Catalog = {
 		other: "{n} aktiviteter hentet indtil nu, flere følger",
 	},
 	"rynke.verdict.in": "Kvalificeret til Paris! 🗼",
-	"rynke.verdict.notYet": "Ikke kvalificeret endnu",
 	"rynke.verdict.missing": "Du mangler stadig:",
+	"rynke.deadline.date": "Kvalifikationsfrist · {date}",
+	"rynke.deadline.daysLeft": "Dage tilbage: {n} ⏳",
+	"rynke.deadline.passed": "Fristen er overskredet",
+	"rynke.deadline.notStarted":
+		"Kvalifikationen begynder den {date}. Indtil da tæller dine ture ikke med i kvalifikationen, men du kan allerede samle badges. 🏅",
 	"rynke.status.push": "Du er bagud i forhold til planen.",
 	"rynke.status.onTrack": "Du følger planen.",
 	"rynke.status.in": "Foran planen: træningsmålet er nået.",
@@ -139,11 +147,13 @@ export const da: Catalog = {
 	"rynke.rules.heading": "Regler",
 	"rynke.rules.version": "Regelversion {version}, gældende siden {date}.",
 	"rynke.rules.windowDeadline": "Alt fra {start} til {deadline} tæller.",
+	"rynke.rules.minRide": "Ture på {limit} eller mere tæller.",
 	"rynke.rules.handout": "Reglerne som PDF (på tysk)",
 	"rynke.rules.handoutEnglish": "Reglerne som PDF (på engelsk)",
 	"rynke.ride.counts": "tæller 🪙",
 	"rynke.ride.countsWithoutRynke": "tæller",
 	"rynke.ride.doesNotCount": "tæller ikke",
+	"rynke.ride.notYet": "tæller ikke endnu",
 	"rynke.ride.beingEvaluated": "Vurderes",
 	"rynke.ride.virtual": "virtuel",
 	"rynke.ride.fixHint":
@@ -170,6 +180,8 @@ export const da: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"Ingen bevægelsestid: turen tæller som pause hele vejen.",
 	"rynke.reason.manual": "Indtastet manuelt på Strava.",
+	"rynke.reason.too_short": "For kort: {distance}, mindst {limit} kræves.",
+	"rynke.reason.too_short.noLimit": "For kort: {distance}.",
 	"rynke.reason.too_slow":
 		"For langsom: {speed} i gennemsnit, mindst {limit} kræves.",
 	"rynke.reason.too_slow.noLimit": "For langsom: {speed} i gennemsnit.",
@@ -184,6 +196,8 @@ export const da: Catalog = {
 	"rynke.reason.excluded_sport_type": "{sport} tæller ikke til Rynke.",
 	"rynke.reason.outside_window": "Før sæsonstart den {date}.",
 	"rynke.reason.outside_window.afterDeadline": "Efter fristen den {date}.",
+	"rynke.reason.before_window":
+		"Kvalifikationen begynder den {date}. Fra da af tæller ture som denne.",
 	"rynke.reason.overlap":
 		"Registreret to gange: din tur fra {date}, {time}, {distance} tæller i stedet.",
 	"rynke.reason.overlap.noRide":
@@ -282,7 +296,9 @@ export const da: Catalog = {
 	"tour.rider.teamRynke":
 		"Team-Rynke kommer kun fra holdarrangementer, som arrangørerne har tilføjet dig til: {teamTraining} for en holdtræning, {weekendDay} for en dag på træningsweekenden, {technique} for en teknisk træning. Du skal bruge {teamThreshold} til Paris.",
 	"tour.rider.outdoor":
-		"Højst {virtualShare} af dine Trænings-Rynke må komme fra virtuelle ture. Denne bjælke tæller alt andet: mindst {outside} af {trainingThreshold} Trænings-Rynke skal komme fra at køre udendørs, holdarrangementer medregnet.",
+		"Denne bjælke tæller alt undtagen virtuelle ture: mindst {outside} af {trainingThreshold} Trænings-Rynke skal komme fra at køre udendørs, holdarrangementer medregnet.",
+	"tour.rider.outdoor.noEvents":
+		"Denne bjælke tæller alt undtagen virtuelle ture: mindst {outside} af {trainingThreshold} Trænings-Rynke skal komme fra at køre udendørs.",
 	"tour.rider.rides":
 		"Ture: hver tur og hvad den gav. Denne her tæller ikke. »Hvorfor?« fortæller, hvad der gik galt, og hvad du kan gøre.",
 	"tour.rider.shortRide":
@@ -299,12 +315,16 @@ export const da: Catalog = {
 		"Du er nu arrangør: fanen Orga er ny. Lad os vise dig rundt.",
 	"tour.organiser.riders":
 		"Ryttere: alle på holdet med deres Trænings- og Team-Rynke og hvad de mangler.",
+	"tour.organiser.riders.noEvents":
+		"Ryttere: alle på holdet med deres Trænings-Rynke og hvad de mangler.",
 	"tour.organiser.riders.rides":
 		"Desuden hvor mange af deres ture der har talt i sæsonen, og hvor lang en typisk tur er.",
 	"tour.organiser.example":
 		"Eksempelhold: sådan ser Orga ud, når sæsonen er i gang. Intet her kan klikkes; du ser det rigtige hold efter rundvisningen.",
 	"tour.organiser.groups":
 		"Grupperne: »Har brug for et skub« er bagud i tempoet, »På sporet« følger planen, »Træningsmål nået« har det hele. Tryk på en flise for kun at se dens ryttere. Først: alle med en åben melding.",
+	"tour.organiser.groups.noEvents":
+		"Grupperne: »Har brug for et skub« er bagud i tempoet, »På sporet« følger planen, »Træningsmål nået« har det hele. Tryk på en flise for kun at se dens ryttere.",
 	"tour.organiser.pace":
 		"Mærket på hver bjælke er det jævne tempo frem til fristen. Ryttere til venstre for det har brug for et skub. Tryk på et navn for at åbne deres rettelser: Rynke lagt til eller trukket fra, med en begrundelse.",
 	"tour.organiser.graphs":
@@ -563,8 +583,12 @@ export const da: Catalog = {
 	"organiser.overview.showing": "Viser: {group}",
 	"organiser.overview.hint":
 		"Mærket på hver bjælke viser det jævne tempo frem til fristen: i dag {training} Træning og {team} Team.",
+	"organiser.overview.hint.noEvents":
+		"Mærket på hver bjælke viser det jævne tempo frem til fristen: i dag {training} Træning.",
 	"organiser.overview.hint.percent":
 		"Mærket på hver bjælke viser det jævne tempo frem til fristen: i dag {training} af Træning og {team} af Team.",
+	"organiser.overview.hint.percent.noEvents":
+		"Mærket på hver bjælke viser det jævne tempo frem til fristen: i dag {training} af Træning.",
 	"organiser.overview.training.percent": "Træning {n}",
 	"organiser.overview.team.percent": "Team {n}",
 	"organiser.overview.behind.training": "Træning bagud i tempo",
@@ -584,12 +608,16 @@ export const da: Catalog = {
 	"organiser.overview.event":
 		"{kind}: {attended}× → {training} Træning, {team} Team",
 	"organiser.overview.corrections": "Rettelser {training} Træning, {team} Team",
+	"organiser.overview.corrections.noEvents": "Rettelser {training} Træning",
 	"organiser.overview.virtual": "Virtuelle ture {n} % af Træning",
 	"organiser.overview.amounts": "{training} Træning, {team} Team",
+	"organiser.overview.amounts.noEvents": "{training} Træning",
 	"organiser.overview.percent": "{n} %",
 	"organiser.overview.qualifiedList": "Træningsmål nået 🎯",
 	"organiser.overview.qualifiedHint":
 		"Begge tærskler og den udendørs andel er nået.",
+	"organiser.overview.qualifiedHint.noEvents":
+		"Træningstærsklen og den udendørs andel er nået.",
 	"organiser.overview.nobodyYet": "Ingen har nået træningsmålet endnu.",
 	"organiser.overview.none": "Ingen ryttere deler deres Rynke endnu.",
 	"organiser.overview.column.name": "Rytter",
@@ -780,6 +808,8 @@ export const da: Catalog = {
 	"badges.surprise.sunday-outing": "Søndagstur",
 	"badges.surprise.sunday-outing.for":
 		"Mindst ti fra holdet ude en søndag uden holdarrangement.",
+	"badges.surprise.sunday-outing.for.noEvents":
+		"Mindst ti fra holdet ude den samme søndag.",
 	"badges.surprise.festive-500": "Festive 500",
 	"badges.surprise.festive-500.for":
 		"Kørte 500 kilometer mellem juleaften og nytårsaften.",
@@ -841,6 +871,8 @@ export const da: Catalog = {
 	"privacy.team.heading": "Data fra holdet, og hvad der regnes ud fra dem",
 	"privacy.team.body":
 		"Arrangørerne registrerer, hvilke holdarrangementer du var med til, og kan rette dine Rynke med en begrundelse og en dato. Du kan selv melde, hvilke holdarrangementer du kommer til eller var med til; arrangørerne ser det og beslutter, om det registreres. Hvem der ændrede hvad, og hvornår, gemmes også.",
+	"privacy.team.body.noEvents":
+		"Arrangørerne kan rette dine Rynke med en begrundelse og en dato. Hvem der ændrede hvad, og hvornår, gemmes også.",
 	"privacy.team.derived":
 		"Ud fra alt dette regner RynkePoints dine Rynke, dine badges, og hvilke ture der tæller og hvorfor.",
 	"privacy.team.rideFigures":
@@ -859,11 +891,15 @@ export const da: Catalog = {
 		"Alle andre på holdet ser dine Rynke, samlet og pr. uge, uden dit navn. Dine kilometer og højdemeter, og hvilke dage og hvilken time du er aktiv, tæller med i holdets summer og holdbadges, uden dit navn.",
 	"privacy.visibility.organisers":
 		"Arrangørerne ser dit fornavn, dine Rynke og hvor de kommer fra, hvad du mangler, om du har nået dit træningsmål, dine holdarrangementer og rettelser, hvilke holdarrangementer du har meldt, at du kommer til eller var med til, og dine kilometer udendørs og virtuelt og dine højdemeter som summer pr. dag, men ingen enkelte aktiviteter.",
+	"privacy.visibility.organisers.noEvents":
+		"Arrangørerne ser dit fornavn, dine Rynke og hvor de kommer fra, hvad du mangler, om du har nået dit træningsmål, deres rettelser og dine kilometer udendørs og virtuelt og dine højdemeter som summer pr. dag, men ingen enkelte aktiviteter.",
 	"privacy.visibility.public":
 		"Intet af det er offentligt: hver side med disse data kræver, at du logger ind med Strava.",
 	"privacy.legal.heading": "Retsgrundlag",
 	"privacy.legal.body":
 		"At læse dine Strava-data og dele dine Rynke som beskrevet bygger på dit samtykke, givet før du forbinder (art. 6, stk. 1, litra a, GDPR). Holdarrangementer, rettelser, de nødvendige cookies og logs bygger på den legitime interesse i at organisere holdets træning og drive appen sikkert (art. 6, stk. 1, litra f, GDPR; for cookies § 25, stk. 2, TDDDG).",
+	"privacy.legal.body.noEvents":
+		"At læse dine Strava-data og dele dine Rynke som beskrevet bygger på dit samtykke, givet før du forbinder (art. 6, stk. 1, litra a, GDPR). Rettelser, de nødvendige cookies og logs bygger på den legitime interesse i at organisere holdets træning og drive appen sikkert (art. 6, stk. 1, litra f, GDPR; for cookies § 25, stk. 2, TDDDG).",
 	"privacy.retention.heading": "Hvor længe data gemmes",
 	"privacy.retention.body":
 		"Dine data gemmes, så længe du er forbundet, og følger Strava: sletter du en aktivitet på Strava, eller gør du den privat uden at have givet tilladelse til det, forsvinder den også her, så snart Strava melder det, som regel inden for minutter. Aktiviteter fra før sæsonstart slettes.",
@@ -986,6 +1022,7 @@ export const da: Catalog = {
 	"progress.help":
 		"Piletasterne vælger en dag, + og − zoomer, Page Up/Down flytter, 0 viser hele sæsonen.",
 	"progress.day": "{date} · {training} Trænings-Rynke · {team} Team-Rynke",
+	"progress.day.noEvents": "{date} · {training} Trænings-Rynke",
 	"progress.table.summary": "Tallene som tabel",
 	"progress.table.week": "Uge fra",
 	"progress.table.total": "I alt",

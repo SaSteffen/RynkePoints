@@ -2,9 +2,10 @@ import { hasAgreed } from "../consent";
 import type { Ctx } from "../ctx";
 import { type Rider, setOnboarded, type TourId } from "../db/riders";
 import type { MessageId } from "../i18n/catalogs";
+import { eventsText, type NoEventsId } from "../i18n/events-text";
 import type { I18n } from "../i18n/i18n";
 import type { RynkeRules } from "../rynke/rules";
-import { virtualShareRequired } from "../rynke/tally";
+import type { TeamData } from "../teams/types";
 import { forbidden } from "./errors";
 import { html, type SafeHtml } from "./html";
 import { redirect } from "./redirect";
@@ -48,6 +49,12 @@ export interface TourStep {
 export interface TourSwitches {
 	/** The sections the team has switched off. */
 	hidden: ReadonlySet<SectionId>;
+	/** The team has Team Rynke (feature 039). */
+	teamRynke: boolean;
+	/** The team's organisers record events (feature 039). */
+	events: boolean;
+	/** Some Training Rynke must come from outside virtual rides (feature 039). */
+	outside: boolean;
 	/** `/team` ranks by ride figures too (feature 032). */
 	rideRanking: boolean;
 	/** Orga › Rider shows each rider's rides (feature 032). */
@@ -60,9 +67,13 @@ export interface TourSwitches {
 
 type TourSwitch = Exclude<keyof TourSwitches, "hidden">;
 
-/** What of the team the tour needs: its rules in effect and its switches. */
+/**
+ * What of the team the tour needs: its rules in effect, its switches and the
+ * events it records, which decide the wording of two steps (feature 039).
+ */
 export interface TourTeam extends TourSwitches {
 	rules: RynkeRules;
+	eventKinds: TeamData["eventKinds"];
 }
 
 /** Every step of each tour; `tourSteps` picks the viewer's (FR-001). */
@@ -94,6 +105,7 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			text: "tour.rider.teamRynke",
 			target: "tour-team",
 			example: true,
+			only: "teamRynke",
 		},
 		{
 			path: "/me",
@@ -101,6 +113,7 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			text: "tour.rider.outdoor",
 			target: "tour-outdoor",
 			example: true,
+			only: "outside",
 		},
 		{
 			path: "/me/rides",
@@ -168,6 +181,7 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			text: "tour.organiser.requests",
 			target: "tour-requests",
 			example: true,
+			only: "events",
 		},
 		{
 			path: "/organiser",
@@ -176,6 +190,7 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			also: { when: "tourDays", text: "tour.organiser.newEvent.tourDays" },
 			target: "tour-new-event",
 			example: true,
+			only: "events",
 		},
 		{
 			path: "/organiser",
@@ -183,6 +198,7 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			text: "tour.organiser.upcoming",
 			target: "tour-later-event",
 			example: true,
+			only: "events",
 		},
 		{
 			path: "/organiser",
@@ -190,6 +206,7 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			text: "tour.organiser.past",
 			target: "tour-past-event",
 			example: true,
+			only: "events",
 		},
 	],
 };
@@ -211,6 +228,9 @@ function allowed(rider: Rider, tour: TourId): boolean {
 /** Every switch on, no section switched off. */
 const ALL_ON: TourSwitches = {
 	hidden: new Set(),
+	teamRynke: true,
+	events: true,
+	outside: true,
 	rideRanking: true,
 	riderRides: true,
 	graphs: true,
@@ -335,11 +355,29 @@ function ruleParams(i18n: I18n, rules: RynkeRules): Record<string, string> {
 		teamTraining: whole(amounts.team_training.team),
 		weekendDay: whole(amounts.training_weekend_day.team),
 		technique: whole(amounts.technique_training.team),
-		teamThreshold: whole(rules.teamThreshold),
-		virtualShare: `${rules.maxVirtualShare.num}/${rules.maxVirtualShare.den}`,
-		outside: whole(virtualShareRequired(rules)),
+		// Only the texts of steps about Team Rynke name it (feature 039).
+		...(rules.teamThreshold === null
+			? {}
+			: { teamThreshold: whole(rules.teamThreshold) }),
+		outside: whole(rules.minOutsideTraining),
 		trainingThreshold: whole(rules.trainingThreshold),
 	};
+}
+
+/** The steps whose text has a `.noEvents` variant (feature 039 research R7). */
+const EVENTS_TEXTS: readonly NoEventsId[] = [
+	"tour.rider.outdoor",
+	"tour.organiser.riders",
+	"tour.organiser.groups",
+];
+
+/** The step's text, its `.noEvents` variant for a team without events. */
+function stepText(
+	step: TourStep,
+	team: Pick<TeamData, "eventKinds">,
+): MessageId {
+	const id = EVENTS_TEXTS.find((candidate) => candidate === step.text);
+	return id ? eventsText(team, id) : step.text;
 }
 
 function stepCard(
@@ -358,10 +396,11 @@ function stepCard(
 		total: String(steps.length),
 	});
 	const params = ruleParams(i18n, team.rules);
+	const own = i18n.t(stepText(step, team), params);
 	const text =
 		step.also && team[step.also.when]
-			? `${i18n.t(step.text, params)} ${i18n.t(step.also.text, params)}`
-			: i18n.t(step.text, params);
+			? `${own} ${i18n.t(step.also.text, params)}`
+			: own;
 	return {
 		section: step.target ? null : step.section,
 		example: step.example === true,

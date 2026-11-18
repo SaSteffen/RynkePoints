@@ -5,13 +5,17 @@
 
 import { type CountingWindow, eventInWindow } from "../rynke/rules";
 import type { Attendance } from "../rynke/team-events";
+import type { TeamData } from "../teams/types";
 import {
 	BADGE_CATEGORIES,
+	BADGES,
+	type Badge,
 	type BadgeCategoryId,
 	type BadgeGroup,
 	type BadgeUnit,
 	badgeById,
 	badgeOrder,
+	badgesFor,
 	categoryById,
 	ONE_DECIMAL,
 } from "./catalog";
@@ -72,6 +76,31 @@ export interface BadgeSection {
 export interface Evaluated {
 	earned: readonly EarnedBadge[];
 	progress: readonly CategoryProgress[];
+	/** The badges the team lists (`listedFor`); absent: every badge. */
+	listed?: readonly Badge[];
+}
+
+/**
+ * What of `evaluated` the team lists (`badgesFor`, feature 039): all of it,
+ * unchanged, with events and a season that holds every badge's days; else no
+ * badge it doesn't list, earned or to come, so no card, gallery row, outline
+ * or hint names one. `season` is the whole counting window, not the one
+ * `badgeWindow` ends today.
+ */
+export function listedFor(
+	team: Pick<TeamData, "eventKinds">,
+	season: CountingWindow,
+	evaluated: Evaluated,
+): Evaluated {
+	const listed = badgesFor(team, season);
+	if (listed === BADGES) return evaluated;
+	const ids = new Set(listed.map((b) => b.id));
+	const categories = new Set(listed.map((b) => b.category));
+	return {
+		earned: evaluated.earned.filter((b) => ids.has(b.badgeId)),
+		progress: evaluated.progress.filter((p) => categories.has(p.category)),
+		listed,
+	};
 }
 
 /**
@@ -152,7 +181,7 @@ const newestFirst = (a: EarnedBadge, b: EarnedBadge) =>
 	badgeOrder(b.badgeId) - badgeOrder(a.badgeId);
 
 function groupView(
-	{ earned, progress }: Evaluated,
+	{ earned, progress, listed = BADGES }: Evaluated,
 	over: (category: BadgeCategoryId) => boolean,
 ): {
 	view: GroupView;
@@ -180,7 +209,8 @@ function groupView(
 		gallery.push({
 			category: category.id,
 			badges,
-			unearned: category.ladder.length - badges.length,
+			unearned:
+				listed.filter((b) => b.category === category.id).length - badges.length,
 		});
 		if (!highest) {
 			notYet.push({

@@ -59,6 +59,11 @@ export interface SampleRider {
 	/** The scopes it connects with when seeded, comma-separated. */
 	scopes: string;
 	clubMember: boolean;
+	/**
+	 * Also a member of the other team's club (the first of the team's
+	 * `otherClubIds`), for the one-team-at-a-time notice (feature 039).
+	 */
+	otherClubMember?: true;
 	behaviour: Behaviour;
 	rides: readonly RideRecipe[];
 	events?: readonly EventRecipe[];
@@ -258,9 +263,19 @@ function iso(epochMs: number): string {
 	return new Date(epochMs).toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
+/** `YYYY-MM-DD` one year before `day`. */
+function yearBefore(day: string): string {
+	return `${Number(day.slice(0, 4)) - 1}${day.slice(4)}`;
+}
+
 /**
  * The activity Strava would send for `recipe` on a seeding day `seedDay`
- * (`YYYY-MM-DD`, Europe/Berlin), never before `seasonStart` (`YYYY-MM-DD`).
+ * (`YYYY-MM-DD`, Europe/Berlin). Inside the season, never before `seasonStart`
+ * (`YYYY-MM-DD`). Seeded before it, everything counts for nothing (a season
+ * start set after the seeding day, as in a sandbox before 1 September): a ride
+ * keeps its own day, and one on a set day of the season (`onDate`,
+ * `onEaster`) is on that day of the season before, in the past like any ride
+ * Strava has.
  */
 export function recipeToActivity(
 	recipe: RideRecipe,
@@ -268,13 +283,15 @@ export function recipeToActivity(
 	seasonStart: string,
 	id: number,
 ): FakeActivity {
+	const preseason = seedDay < seasonStart;
+	const season = preseason ? yearBefore(seasonStart) : seasonStart;
 	const wanted =
 		recipe.onEaster !== undefined
-			? dayBefore(seasonEaster(seasonStart), -recipe.onEaster)
+			? dayBefore(seasonEaster(season), -recipe.onEaster)
 			: recipe.onDate
-				? seasonDay(recipe.onDate, seasonStart)
+				? seasonDay(recipe.onDate, season)
 				: dayBefore(seedDay, recipe.daysAgo);
-	const day = wanted < seasonStart ? seasonStart : wanted;
+	const day = wanted < seasonStart && !preseason ? seasonStart : wanted;
 	const startUtc = berlinToUtcMs(day, recipe.startTime);
 	return {
 		id,

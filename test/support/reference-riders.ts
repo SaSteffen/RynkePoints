@@ -18,6 +18,7 @@ import type { RideSpec } from "./rides";
 /** The counting window, with a deadline so both of its ends are covered. */
 export const WINDOW: CountingWindow = {
 	seasonStart: "2026-01-01",
+	windowStart: "2026-01-01",
 	deadline: "2026-08-31",
 };
 

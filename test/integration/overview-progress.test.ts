@@ -26,7 +26,11 @@ import { CURRENT_RULES } from "../support/team-rules";
 /** 7 October 2026, in the example rider's season. */
 const ctx: TestCtx = {
 	...makeCtx({ now: Date.UTC(2026, 9, 7, 10) / 1000 }),
-	env: { ...env, SEASON_START_DATE: EXAMPLE_WINDOW.seasonStart },
+	env: {
+		...env,
+		SEASON_START_DATE: EXAMPLE_WINDOW.seasonStart,
+		QUALIFICATION_START_DATE: EXAMPLE_WINDOW.windowStart,
+	},
 };
 const { de, en } = CATALOGS;
 

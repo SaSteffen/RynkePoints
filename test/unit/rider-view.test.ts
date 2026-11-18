@@ -31,6 +31,7 @@ import { CURRENT_RULES, rulesForVersion } from "../support/team-rules";
 
 const CONTEXT: ViewContext = {
 	seasonStart: "2026-01-01",
+	windowStart: "2026-01-01",
 	deadline: "2027-06-30",
 	rulesFor: rulesForVersion,
 };
@@ -201,6 +202,17 @@ describe("buildRiderView summary", () => {
 		expect(summaryOf({}).withoutVirtual).toBeNull();
 	});
 
+	// Feature 039 research R15: 0 needed from outside virtual rides.
+	it("leaves out the share without virtual rides when the rules need none", () => {
+		const rules = { ...CURRENT_RULES, minOutsideTraining: 0 };
+		expect(
+			summaryOf(
+				{ trainingRynke: 262, trainingWithoutVirtual: 0 },
+				{ virtualCount: 3, rules },
+			).withoutVirtual,
+		).toBeNull();
+	});
+
 	it("S1-3: shows the share without virtual rides with a virtual ride", () => {
 		const summary = summaryOf(
 			{
@@ -220,7 +232,11 @@ describe("buildRiderView summary", () => {
 	});
 
 	it("S1-5: takes the targets from the balance's rules version", () => {
-		const rules = { ...CURRENT_RULES, trainingThreshold: 300 };
+		const rules = {
+			...CURRENT_RULES,
+			trainingThreshold: 300,
+			minOutsideTraining: 200,
+		};
 		const summary = summaryOf(
 			{ trainingRynke: 12, trainingMissing: 288 },
 			{ virtualCount: 1, rules },
@@ -245,7 +261,7 @@ describe("buildRiderView summary", () => {
 			missing: 238,
 			reached: false,
 		});
-		expect(summary.team.target).toBeNull();
+		expect(summary.team?.target).toBeNull();
 		expect(summary.withoutVirtual).toEqual({
 			value: 10,
 			target: null,
@@ -539,6 +555,17 @@ describe("buildRiderView gauges", () => {
 		expect(gaugesOf({})?.withoutVirtual).toBeNull();
 	});
 
+	// Feature 039 research R15: 0 needed from outside virtual rides.
+	it("leaves out the share without virtual rides when the rules need none", () => {
+		const rules = { ...CURRENT_RULES, minOutsideTraining: 0 };
+		expect(
+			gaugesOf(
+				{ trainingRynke: 262, trainingWithoutVirtual: 0 },
+				{ virtualCount: 3, rules },
+			)?.withoutVirtual,
+		).toBeNull();
+	});
+
 	it("S2-5: fills the elevation gauge within the current step", () => {
 		expect(gaugesOf({ elevationToNextStepDm: 7600 })?.elevation).toEqual({
 			value: 2400,
@@ -690,6 +717,48 @@ describe("buildRiderView ride reasons", () => {
 		).toEqual([{ code: "after_deadline", date: "2027-06-30" }]);
 	});
 
+	describe("with the window opening after the season start (feature 040)", () => {
+		const context = { seasonStart: "2026-09-01", windowStart: "2027-01-01" };
+
+		it("dates a ride before the season by the season start", () => {
+			expect(
+				lineOf(
+					["outside_window"],
+					{ startDateLocal: "2026-08-31T08:00:00Z" },
+					{ context },
+				).reasons,
+			).toEqual([{ code: "before_season", date: "2026-09-01" }]);
+		});
+
+		it("shows a pre-window ride as not yet counting, with no Rynke or elevation", () => {
+			const line = lineOf(
+				["before_window"],
+				{ startDateLocal: "2026-11-15T08:00:00Z", elevationGainM: 412 },
+				{ context, result: { elevationDm: 4120 } },
+			);
+			expect(line).toMatchObject({
+				status: "not-yet",
+				distanceRynke: 0,
+				elevationM: 0,
+				reasons: [{ code: "before_window", date: "2027-01-01" }],
+				fixHint: false,
+			});
+		});
+
+		it("keeps a pre-window ride failing another rule a not-counting one", () => {
+			const line = lineOf(
+				["before_window", "too_short"],
+				{ startDateLocal: "2026-11-15T08:00:00Z", distanceM: 12000 },
+				{ context },
+			);
+			expect(line.status).toBe("does-not-count");
+			expect(line.reasons.map((r) => r.code)).toEqual([
+				"before_window",
+				"too_short",
+			]);
+		});
+	});
+
 	it("S4-1: carries the ride that counted instead", () => {
 		const countedInstead = {
 			startDateLocal: "2026-10-06T08:00:00Z",
@@ -786,6 +855,37 @@ describe("buildRiderView ride reasons", () => {
 			status: "counts",
 			unknownFigures: ["elapsed_time"],
 		});
+	});
+});
+
+describe("buildRiderView too short (feature 039 research R5)", () => {
+	const MIN_25: RynkeRules = { ...CURRENT_RULES, minRideKm: 25 };
+
+	it("rounds the distance down and takes the limit of the result's rules", () => {
+		expect(
+			lineOf(
+				["too_short"],
+				{ distanceM: 24960, movingS: 3600 },
+				{ context: { rulesFor: () => MIN_25 } },
+			).reasons,
+		).toEqual([{ code: "too_short", distanceKmTenths: 249, limitKm: 25 }]);
+	});
+
+	it("has no limit when the result's rules are unknown", () => {
+		expect(
+			lineOf(
+				["too_short"],
+				{ distanceM: 24960, movingS: 3600 },
+				{ result: { rulesVersion: 99 } },
+			).reasons,
+		).toEqual([{ code: "too_short", distanceKmTenths: 249, limitKm: null }]);
+	});
+
+	it("offers no fix hint", () => {
+		expect(
+			lineOf(["too_short"], {}, { context: { rulesFor: () => MIN_25 } })
+				.fixHint,
+		).toBe(false);
 	});
 });
 
@@ -1011,7 +1111,7 @@ describe("buildRiderView team events (US3b)", () => {
 			gaugesOf({
 				teamRynke: 5,
 				teamEvents: kinds([0, 0, 0], [0, 0, 0], [1, 5, 5]),
-			})?.team.parts,
+			})?.team?.parts,
 		).toEqual([{ source: "technique_training", value: 5, widthPercent: 20 }]);
 	});
 
@@ -1082,7 +1182,7 @@ describe("buildRiderView rules and notices (US6)", () => {
 		expect(view.rules).toEqual({
 			version: NEXT_RULES.version,
 			effectiveDate: "2026-11-01",
-			seasonStart: "2026-01-01",
+			windowStart: "2026-01-01",
 			deadline: "2027-06-30",
 		});
 		expect(view.updating).toEqual({
@@ -1284,5 +1384,67 @@ describe("buildRiderView more (018 US1)", () => {
 		expect(table(20, 1).more).toBeNull();
 		expect(table(3, 1).more).toBeNull();
 		expect(table(0, 1).more).toBeNull();
+	});
+});
+
+/** Rules of a team without Team Rynke (feature 039): no threshold, events give nothing. */
+const NO_TEAM_RULES: RynkeRules = {
+	...CURRENT_RULES,
+	teamThreshold: null,
+	teamEvents: Object.fromEntries(
+		TEAM_EVENT_KINDS.map((kind) => [kind, { team: 0, training: 0 }]),
+	) as RynkeRules["teamEvents"],
+};
+
+describe("buildRiderView without Team Rynke (feature 039)", () => {
+	const view = (rules: RynkeRules) =>
+		ready(
+			buildRiderView(
+				read({
+					balance: balance({ trainingRynke: 120, teamMissing: 0 }),
+					attendance: [],
+				}),
+				rules,
+				rules,
+				CONTEXT,
+			),
+		);
+
+	it("has no Team condition, gauge or breakdown total", () => {
+		const shown = view(NO_TEAM_RULES);
+		expect(shown.summary.team).toBeNull();
+		expect(shown.gauges?.team).toBeNull();
+		expect(shown.gauges?.training).not.toBeNull();
+		expect(shown.breakdown.teamTotal).toBeNull();
+	});
+
+	it("keeps them with Hamburg's rules", () => {
+		const shown = view(CURRENT_RULES);
+		expect(shown.summary.team).toEqual({
+			value: 0,
+			target: CURRENT_RULES.teamThreshold,
+			missing: 0,
+			reached: true,
+		});
+		expect(shown.gauges?.team).not.toBeNull();
+		expect(shown.breakdown.teamTotal).toBe(0);
+	});
+
+	it("keeps the Team figure without a target for an unknown version (FR-013)", () => {
+		const shown = ready(
+			buildRiderView(
+				read({ balance: balance({ teamRynke: 3 }) }),
+				null,
+				NO_TEAM_RULES,
+				CONTEXT,
+			),
+		);
+		expect(shown.summary.team).toEqual({
+			value: 3,
+			target: null,
+			missing: 25,
+			reached: false,
+		});
+		expect(shown.gauges).toBeNull();
 	});
 });

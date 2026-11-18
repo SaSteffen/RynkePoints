@@ -13,6 +13,7 @@ const TODAY = "2026-03-25"; // 83 days after the season start
 
 const RUNNING: CountingWindow = {
 	seasonStart: SEASON_START,
+	windowStart: SEASON_START,
 	deadline: DEADLINE,
 };
 
@@ -100,5 +101,43 @@ describe("riderStatus", () => {
 
 	it("is push for a rider without a balance", () => {
 		expect(riderStatus(null, CURRENT_RULES, RUNNING, TODAY)).toBe("push");
+	});
+});
+
+describe("riderStatus without Team Rynke (feature 039)", () => {
+	const NO_TEAM = { ...CURRENT_RULES, teamThreshold: null };
+	const noTeam = (overrides: Partial<Balance> = {}) =>
+		balance({ teamRynke: 0, teamMissing: 0, ...overrides });
+
+	it("doesn't count the Team amount against the pace", () => {
+		// 0 Team Rynke is behind the pace of Team Rynke, but there are none.
+		expect(riderStatus(noTeam(), CURRENT_RULES, RUNNING, TODAY)).toBe("push");
+		expect(riderStatus(noTeam(), NO_TEAM, RUNNING, TODAY)).toBe("on_track");
+	});
+
+	it("still pushes for Training or outdoor Training behind the pace", () => {
+		expect(
+			riderStatus(
+				noTeam({ trainingRynke: PACE.training - 1 }),
+				NO_TEAM,
+				RUNNING,
+				TODAY,
+			),
+		).toBe("push");
+		expect(
+			riderStatus(
+				noTeam({ trainingWithoutVirtual: PACE.outdoor - 1 }),
+				NO_TEAM,
+				RUNNING,
+				TODAY,
+			),
+		).toBe("push");
+	});
+
+	it("is in once the balance qualifies, push after the deadline otherwise", () => {
+		expect(
+			riderStatus(noTeam({ qualified: true }), NO_TEAM, RUNNING, TODAY),
+		).toBe("in");
+		expect(riderStatus(noTeam(), NO_TEAM, RUNNING, "2026-06-01")).toBe("push");
 	});
 });

@@ -22,6 +22,7 @@ export interface RideSpec {
 
 export const WINDOW: CountingWindow = {
 	seasonStart: "2026-01-01",
+	windowStart: "2026-01-01",
 	deadline: "2027-06-30",
 };
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import {
+	renderBreakdown,
 	renderGauges,
 	renderNotice,
 	renderRideBatch,
@@ -11,6 +12,7 @@ import {
 	renderWaiting,
 } from "../../src/http/rider-sections";
 import type {
+	Breakdown,
 	ReasonLine,
 	RideLine,
 	RiderView,
@@ -22,6 +24,12 @@ import { hamburg } from "../../src/teams/hamburg";
 
 const en = createI18n("en", CATALOGS);
 const de = createI18n("de", CATALOGS);
+// 224 days from 18 November 2026 to the deadline of 30 June 2027.
+const COUNTDOWN = {
+	windowStart: "2026-09-01",
+	deadline: "2027-06-30",
+	today: "2026-11-18",
+};
 
 function line(overrides: Partial<RideLine> = {}): RideLine {
 	return {
@@ -71,11 +79,70 @@ describe("renderRides reasons", () => {
 	});
 });
 
+describe("renderRides too short (feature 039)", () => {
+	it("gives the distance with one decimal and the limit without", () => {
+		expect(
+			rendered({ code: "too_short", distanceKmTenths: 249, limitKm: 25 }),
+		).toContain("Too short: 24.9 km, at least 25 km needed.");
+	});
+
+	it("gives only the distance when the limit is unknown", () => {
+		expect(
+			rendered({ code: "too_short", distanceKmTenths: 249, limitKm: null }),
+		).toContain("Too short: 24.9 km.");
+	});
+
+	it("speaks German", () => {
+		expect(
+			table(
+				line({
+					reasons: [{ code: "too_short", distanceKmTenths: 249, limitKm: 25 }],
+				}),
+				de,
+			),
+		).toContain("Zu kurz: 24,9 km, mindestens 25 km sind nötig.");
+	});
+});
+
+describe("renderRules minimum ride length (feature 039)", () => {
+	const rules = {
+		version: 4,
+		effectiveDate: "2026-11-17",
+		windowStart: "2026-01-01",
+		deadline: "2027-03-31",
+	};
+
+	it("names the minimum when the rules have one", () => {
+		expect(
+			renderRules(
+				en,
+				{ ...rules, minRideKm: 25 },
+				europe.rulesHandout,
+			).toString(),
+		).toContain("<p>Rides of 25 km or more count.</p>");
+		expect(
+			renderRules(
+				de,
+				{ ...rules, minRideKm: 25 },
+				europe.rulesHandout,
+			).toString(),
+		).toContain("<p>Es zählen Fahrten ab 25 km.</p>");
+	});
+
+	it("says nothing about a minimum when the rules have none", () => {
+		for (const i18n of [en, de]) {
+			const html = renderRules(i18n, rules, hamburg.rulesHandout).toString();
+			expect(html).not.toContain("25 km");
+			expect(html.match(/<p>/g)).toHaveLength(3);
+		}
+	});
+});
+
 describe("renderRules window", () => {
 	const rules = {
 		version: 2,
 		effectiveDate: "2026-11-01",
-		seasonStart: "2026-01-01",
+		windowStart: "2026-01-01",
 	};
 
 	it("names the start and the deadline", () => {
@@ -93,7 +160,7 @@ describe("renderRules handout (026 FR-022)", () => {
 	const rules = {
 		version: 2,
 		effectiveDate: "2026-11-01",
-		seasonStart: "2026-01-01",
+		windowStart: "2026-01-01",
 		deadline: "2027-03-31",
 	};
 	const link = (i18n: typeof en, team: typeof hamburg) =>
@@ -157,6 +224,52 @@ describe("renderRides card disclosure (011 FR-021, clarification Q5)", () => {
 		expect(out).toMatch(
 			/<details class="ride-why" open><summary class="tap">Why\?<\/summary><ul class="ride-reasons">/,
 		);
+	});
+});
+
+describe("renderRides pre-window ride (feature 040 US3)", () => {
+	const before = { code: "before_window", date: "2027-01-01" } as const;
+
+	it("is orange, with dashes and the open reason", () => {
+		const out = table(
+			line({
+				status: "not-yet",
+				reasons: [before],
+				fixHint: false,
+				elevationGainM: 412,
+			}),
+			de,
+		);
+		expect(out).toContain('<li class="ride-card ride-not-yet">');
+		expect(out).toContain(
+			`<span class="chip ride-status">${de.t("rynke.ride.notYet")}</span>`,
+		);
+		expect(out).toContain(
+			`<dt>${de.t("rynke.training")}</dt><dd>–</dd></div><div><dt>${de.t("rynke.rides.col.elevationTotal")}</dt><dd>–</dd>`,
+		);
+		expect(out).toContain('<details class="ride-why" open>');
+		expect(out).toContain(
+			de.t("rynke.reason.before_window", { date: "01.01.2027" }),
+		);
+		expect(out).not.toContain("ride-fix");
+	});
+
+	it("is a red not-counting ride when another rule fails too (FR-013)", () => {
+		const out = table(
+			line({
+				status: "does-not-count",
+				reasons: [
+					before,
+					{ code: "too_short", distanceKmTenths: 120, limitKm: 25 },
+				],
+				fixHint: false,
+			}),
+		);
+		expect(out).toContain('<li class="ride-card ride-not-counting">');
+		expect(out).toContain(
+			en.t("rynke.reason.before_window", { date: "01/01/2027" }),
+		);
+		expect(out).toContain("Too short");
 	});
 });
 
@@ -258,6 +371,7 @@ describe("coins", () => {
 				qualified: false,
 			},
 			"push",
+			COUNTDOWN,
 		).toString();
 		expect(html).toContain(
 			'<span class="chip"><svg class="coin coin-mini" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#coin-mini"/></svg>3\u00a0Training Rynke</span>',
@@ -289,7 +403,7 @@ describe("coins", () => {
 			],
 		] as const;
 		for (const [summary, status, sentence] of cases) {
-			const html = renderSummary(en, summary, status).toString();
+			const html = renderSummary(en, summary, status, COUNTDOWN).toString();
 			expect(html).toContain(
 				`<img class="status-art status-art-banner" src="${artUrl(`/illustrations/status_${status}_fun.svg`)}" alt="" width="128" height="128">`,
 			);
@@ -309,9 +423,95 @@ describe("coins", () => {
 				qualified: true,
 			},
 			"in",
+			COUNTDOWN,
 		).toString();
 		expect(html).toContain("Qualified for Paris! 🗼");
 		expect(html).not.toContain("rynke-missing");
+	});
+
+	it("counts the days to the qualification deadline, then says it has passed", () => {
+		const summary = {
+			training: condition(17, 20),
+			team: condition(3, 4),
+			withoutVirtual: null,
+			qualified: false,
+		};
+		const html = renderSummary(en, summary, "push", COUNTDOWN).toString();
+		expect(html).toContain(
+			`<p class="rynke-deadline-date">${en.t("rynke.deadline.date", { date: en.formatDate("2027-06-30") })}</p>`,
+		);
+		expect(html).toContain(
+			`<p class="rynke-deadline-count">224 days to go ⏳</p>`,
+		);
+		const last = renderSummary(en, summary, "push", {
+			...COUNTDOWN,
+			today: "2027-06-30",
+		}).toString();
+		expect(last).toContain("0 days to go ⏳");
+		const after = renderSummary(en, summary, "push", {
+			...COUNTDOWN,
+			today: "2027-07-01",
+		}).toString();
+		expect(after).toContain(
+			`<p class="rynke-deadline-count">The deadline has passed</p>`,
+		);
+	});
+
+	it("says when qualifying starts instead of counting before the window opens", () => {
+		const html = renderSummary(
+			en,
+			{
+				training: condition(0, 250),
+				team: null,
+				withoutVirtual: null,
+				qualified: false,
+			},
+			"on_track",
+			{
+				windowStart: "2027-01-01",
+				deadline: "2027-06-30",
+				today: "2026-11-18",
+			},
+		).toString();
+		expect(html).toContain(
+			`<p class="rynke-deadline-start">${escapeHtml(en.t("rynke.deadline.notStarted", { date: en.formatDate("2027-01-01") }))}</p>`,
+		);
+		expect(html).not.toContain("rynke-deadline-count");
+		expect(html).not.toContain("rynke-status");
+		// From the first day of the window, the countdown.
+		const first = renderSummary(
+			en,
+			{
+				training: condition(0, 250),
+				team: null,
+				withoutVirtual: null,
+				qualified: false,
+			},
+			"on_track",
+			{
+				windowStart: "2027-01-01",
+				deadline: "2027-06-30",
+				today: "2027-01-01",
+			},
+		).toString();
+		expect(first).toContain("180 days to go ⏳");
+		expect(first).not.toContain("rynke-deadline-start");
+	});
+
+	it("never says it on a season day when the window opens with the season (Hamburg)", () => {
+		const summary = {
+			training: condition(0, 250),
+			team: null,
+			withoutVirtual: null,
+			qualified: false,
+		};
+		for (const today of ["2026-09-01", "2026-11-18", "2027-06-30"]) {
+			const html = renderSummary(en, summary, "on_track", {
+				...COUNTDOWN,
+				today,
+			}).toString();
+			expect(html, today).not.toContain("rynke-deadline-start");
+		}
 	});
 
 	it("edges the Training and Team gauges in their colour, with a row of ten", () => {
@@ -503,5 +703,74 @@ describe("renderRideBatch (018 contracts/http-routes.md)", () => {
 		expect(renderRideBatch(de, [], null).toString()).toBe(
 			'<ol class="ride-list">\n</ol>',
 		);
+	});
+});
+
+describe("renderBreakdown without Team Rynke and events (feature 039)", () => {
+	const breakdown = (teamTotal: number | null): Breakdown => ({
+		distanceRynke: 80,
+		elevationM: 1200,
+		elevationRynke: 40,
+		elevationStepM: 300,
+		elevationStepRynke: 10,
+		toNextStepM: 100,
+		trainingTotal: 120,
+		teamTotal,
+		kinds: [],
+		events: [],
+	});
+
+	it("has no Team column and no events part", () => {
+		const html = renderBreakdown(en, breakdown(null), false).toString();
+		expect(html).not.toContain(en.t("rynke.team"));
+		expect(html).not.toContain(en.t("rynke.events.heading"));
+		expect(html).not.toContain(en.t("rynke.events.none"));
+		// One Training cell per row, no empty Team cell.
+		expect(html).toContain("<td>80</td></tr>");
+		expect(html).toContain(en.t("rynke.training"));
+	});
+
+	it("keeps both with Team Rynke and events", () => {
+		const html = renderBreakdown(en, breakdown(0)).toString();
+		expect(html).toContain(en.t("rynke.team"));
+		expect(html).toContain(en.t("rynke.events.heading"));
+		expect(html).toContain("<td>80</td><td></td></tr>");
+	});
+});
+
+describe("renderGauges and renderSummary without Team Rynke (feature 039)", () => {
+	const gauge = {
+		value: 120,
+		target: 250,
+		percent: 48,
+		reached: false,
+		parts: [],
+	};
+
+	it("shows no Team gauge", () => {
+		const html = renderGauges(en, {
+			training: gauge,
+			team: null,
+			withoutVirtual: null,
+			elevation: { ...gauge, stepRynke: 10 },
+		}).toString();
+		expect(html).not.toContain('id="tour-team"');
+		expect(html).not.toContain(en.t("rynke.team"));
+	});
+
+	it("misses no Team Rynke", () => {
+		const html = renderSummary(
+			en,
+			{
+				training: { value: 120, target: 250, missing: 130, reached: false },
+				team: null,
+				withoutVirtual: null,
+				qualified: false,
+			},
+			"push",
+			COUNTDOWN,
+		).toString();
+		expect(html).toContain("rynke-missing");
+		expect(html).not.toContain(en.t("rynke.team"));
 	});
 });

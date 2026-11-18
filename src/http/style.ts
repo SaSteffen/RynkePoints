@@ -325,7 +325,10 @@ footer img{height:24px}
 .card{margin:0 0 var(--rp-space-3);padding:var(--rp-space-4);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container)}
 .card-outlined{border:1px solid var(--md-sys-color-outline-variant);background:var(--md-sys-color-surface-container-low)}
 .verdict{background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container)}
-.rynke-verdict{font:var(--md-type-title-large)}
+.rynke-deadline-date{font:var(--md-type-label);opacity:.8}
+.rynke-summary .rynke-deadline-count{font:700 32px/38px var(--md-ref-typeface);margin-bottom:var(--rp-space-3)}
+.rynke-summary .rynke-deadline-start{font:var(--md-type-body-large);margin-bottom:var(--rp-space-3)}
+.rynke-verdict{font:var(--md-type-label)}
 .rynke-summary{display:flex;align-items:flex-start;gap:var(--rp-space-4)}
 .rynke-summary>div{flex:1;min-width:0}
 .rynke-summary p{margin:0 0 var(--rp-space-2)}
@@ -465,6 +468,7 @@ ul.attendance-list{margin:0 0 var(--rp-space-4);padding:0;list-style:none}
 .chip,.status-chip{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:var(--md-shape-sm);font:var(--rp-type-status);background:var(--rp-neutral-container);color:var(--rp-on-neutral-container)}
 .ride-counting .chip{background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
 .ride-not-counting .chip{background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container)}
+.ride-not-yet .chip{background:var(--rp-push-container);color:var(--rp-on-push-container)}
 ol.ride-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:var(--rp-space-3)}
 .ride-card{min-width:0;padding:var(--rp-space-3) var(--rp-space-4);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container)}
 .ride-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--rp-space-2)}
@@ -1053,7 +1057,7 @@ ul.requests{margin:0;padding:0;list-style:none}
 @media (min-width:600px){.overview-grid>.progress{grid-column:1/-1}.progress-plot{height:13rem}}
 @media (min-width:600px) and (max-width:839.98px){body.shell .wordmark-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
 @media (min-width:600px) and (max-width:1023.98px){nav.app-nav a:not([aria-current]) .nav-label{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0 0 0 0)}}
-@media (max-width:399.98px){:root{--rp-page-padding:12px}.hero,.team-total,.overview-deadline{gap:var(--rp-space-3);padding:var(--rp-space-3)}.hero .coin-hero,.team-total .coin-large{width:96px;height:96px}.overview-deadline .coin-large{width:96px;height:96px}.overview-deadline .overview-deadline-count{font:700 28px/34px var(--md-ref-typeface)}.rynke-verdict{font:600 20px/26px var(--md-ref-typeface)}.rynke-summary{gap:var(--rp-space-3)}.status-art-banner{width:96px;height:96px}.quote-monkey-art{width:100px;height:100px}.group-tile{padding:10px}dl.ride-figures{grid-template-columns:repeat(3,auto);justify-content:space-between}nav.app-nav .nav-icon{width:56px}}
+@media (max-width:399.98px){:root{--rp-page-padding:12px}.hero,.team-total,.overview-deadline{gap:var(--rp-space-3);padding:var(--rp-space-3)}.hero .coin-hero,.team-total .coin-large{width:96px;height:96px}.overview-deadline .coin-large{width:96px;height:96px}.overview-deadline .overview-deadline-count{font:700 28px/34px var(--md-ref-typeface)}.rynke-summary .rynke-deadline-count{font:700 28px/34px var(--md-ref-typeface)}.rynke-summary{gap:var(--rp-space-3)}.status-art-banner{width:96px;height:96px}.quote-monkey-art{width:100px;height:100px}.group-tile{padding:10px}dl.ride-figures{grid-template-columns:repeat(3,auto);justify-content:space-between}nav.app-nav .nav-icon{width:56px}}
 @media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,summary::after{transition:none}.button,.button-outlined,.button-text,.danger,.icon-button{transition:none}.button[aria-busy=true]::after,.button-outlined[aria-busy=true]::after,.danger[aria-busy=true]::after,.segmented[aria-busy=true]::after{animation:none}.celebrate-coins .coin-mini{animation:none}.badges-reveal-pictures img{animation:none}button.badge{transition:none}.badge-sparkles>span{animation:none}.coin-flip-turn{animation:none}}
 ${FUN_RULES}
 ${SHOW_RULES}

@@ -18,7 +18,7 @@ export type ArtPath = string;
 export interface CoinArt {
 	/** Training Rynke's side. */
 	front: ArtPath;
-	/** Team Rynke's side. */
+	/** The coin's back, art only: it stands for nothing on any team (feature 039). */
 	back: ArtPath;
 }
 

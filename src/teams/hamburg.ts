@@ -36,7 +36,9 @@ const RULES_V1: RynkeRules = {
 	excludedSportTypes: ["EBikeRide", "EMountainBikeRide"],
 	trainingThreshold: 250,
 	teamThreshold: 25,
-	maxVirtualShare: { num: 1, den: 3 },
+	// At most a third virtual: 2/3 of 250, rounded up. Written as a whole number
+	// since feature 039 (research R15), with the same results, so no new version.
+	minOutsideTraining: 167,
 	teamEvents: {
 		team_training: { team: 1, training: 5 },
 		training_weekend_day: { team: 5, training: 10 },
@@ -230,8 +232,8 @@ export const hamburg: TeamData = {
 			kind: "short",
 		},
 	],
-	// Filled with Europe's club once it has one (FR-012, release 4).
-	otherClubIds: [],
+	// Team Europe's club (wrangler.jsonc `STRAVA_CLUB_ID`, feature 039).
+	otherClubIds: [2292744],
 	// Half of the re-check's 300 reads a day; Europe has the other half (036).
 	recheckAllowance: 150,
 	rulesHandout: { path: "/rynke-punkte.pdf", locale: "de" },

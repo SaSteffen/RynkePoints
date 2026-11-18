@@ -3,6 +3,7 @@ import type { TeamRider } from "../../src/db/team";
 import { artUrl } from "../../src/http/art";
 import {
 	overviewBody,
+	overviewPace,
 	overviewRiders,
 	parseGroup,
 	percentOf,
@@ -11,7 +12,7 @@ import {
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 import { riderStatus } from "../../src/rynke/pace";
-import type { CountingWindow } from "../../src/rynke/rules";
+import type { CountingWindow, RynkeRules } from "../../src/rynke/rules";
 import type { Balance } from "../../src/rynke/tally";
 import { CURRENT_RULES } from "../support/team-rules";
 
@@ -23,6 +24,7 @@ const de = createI18n("de", CATALOGS);
 
 const RUNNING: CountingWindow = {
 	seasonStart: "2026-01-01",
+	windowStart: "2026-01-01",
 	deadline: "2026-05-31", // 150 days after the season start
 };
 const TODAY = "2026-03-25"; // 83 days after the season start, 67 to go
@@ -413,5 +415,268 @@ describe("overviewBody with ORGANISER_FIGURES percent", () => {
 		expect(head).not.toContain("Virtual");
 		expect(head).not.toContain("Distance");
 		expect(head).not.toContain("Elevation");
+	});
+});
+
+// A team without Team Rynke and events (feature 039 US4): the Team part is
+// absent from the figures and the page, not zero.
+describe("the overview without Team Rynke", () => {
+	const NO_TEAM: RynkeRules = {
+		...CURRENT_RULES,
+		teamThreshold: null,
+		teamEvents: Object.fromEntries(
+			Object.entries(CURRENT_RULES.teamEvents).map(([kind, amounts]) => [
+				kind,
+				{ ...amounts, team: 0 },
+			]),
+		) as RynkeRules["teamEvents"],
+	};
+	const WITHOUT_EVENTS = { eventKinds: [] } as const;
+
+	/** What the evaluation stores without Team Rynke: nothing missing of Team. */
+	function noTeamBalance(training: number, outdoor: number): Balance {
+		const trainingMissing = Math.max(0, 250 - training);
+		const virtualShareMissing = Math.max(0, 167 - outdoor);
+		return {
+			...balance(training, 0, outdoor),
+			trainingMissing,
+			teamMissing: 0,
+			virtualShareMissing,
+			qualified: trainingMissing === 0 && virtualShareMissing === 0,
+		};
+	}
+
+	const PAULA = rider(1, "Paula", noTeamBalance(300, 250));
+	const JONAS = rider(2, "Jonas", noTeamBalance(150, 100), [
+		{ date: "2026-02-01", training: 10, team: 0 },
+		{ date: "2026-03-01", training: -4, team: 0 },
+	]);
+	const MIRA = rider(3, "Mira", null);
+	const READ_NO_TEAM = [PAULA, JONAS, MIRA];
+
+	describe("overviewRiders", () => {
+		const riders = overviewRiders(READ_NO_TEAM, NO_TEAM, RUNNING, TODAY);
+		const byId = (id: number) => riders.find((r) => r.athleteId === id);
+
+		it("leaves out each rider's Team amount, missing, pace and events", () => {
+			for (const r of riders) {
+				expect(r.team).toBeNull();
+				expect(r.missing.team).toBeNull();
+				expect(r.pace?.team).toBeNull();
+				expect(r.breakdown.teamEvents).toEqual([]);
+			}
+			expect(overviewPace(NO_TEAM, RUNNING, TODAY)).toEqual({
+				training: PACE.training,
+				team: null,
+				outdoor: PACE.outdoor,
+			});
+		});
+
+		it("keeps Training and outdoor Training as they are", () => {
+			expect(byId(2)).toMatchObject({
+				training: 150,
+				outdoorTraining: 100,
+				missing: {
+					training: { amount: 100, behind: false },
+					outdoor: { amount: 67, behind: false },
+				},
+			});
+			expect(byId(2)?.breakdown.corrections).toEqual({ training: 6, team: 0 });
+			expect(byId(3)?.missing).toMatchObject({
+				training: { amount: 250, behind: true },
+				outdoor: { amount: 167, behind: true },
+			});
+		});
+
+		it("groups and orders by Training and outdoor Training alone", () => {
+			// Jonas is above both even paces; with Team Rynke 0 would be behind.
+			expect(byId(2)?.status).toBe("on_track");
+			expect(
+				overviewRiders(READ_NO_TEAM, CURRENT_RULES, RUNNING, TODAY).find(
+					(r) => r.athleteId === 2,
+				)?.status,
+			).toBe("push");
+			expect(byId(1)?.status).toBe("in");
+			expect(riders.map((r) => r.athleteId)).toEqual([3, 2, 1]);
+		});
+
+		it("is the founding team's with Team Rynke", () => {
+			const founding = overviewRiders(READ, CURRENT_RULES, RUNNING, TODAY);
+			for (const r of founding) {
+				expect(typeof r.team).toBe("number");
+				expect(r.missing.team).not.toBeNull();
+				expect(typeof r.pace?.team).toBe("number");
+			}
+		});
+	});
+
+	describe.each([
+		["full", "full"],
+		["percent", "percent"],
+	] as const)("overviewBody in %s figures", (_name, figures) => {
+		const page = (group: Parameters<typeof overviewBody>[4] = "all") =>
+			overviewBody(
+				READ_NO_TEAM,
+				NO_TEAM,
+				RUNNING,
+				TODAY,
+				group,
+				en,
+				new Map(),
+				false,
+				figures,
+				null,
+				"riders",
+				null,
+				undefined,
+				WITHOUT_EVENTS,
+			).value;
+		const founding = () =>
+			overviewBody(
+				READ,
+				CURRENT_RULES,
+				RUNNING,
+				TODAY,
+				"all",
+				en,
+				new Map(),
+				false,
+				figures,
+			).value;
+
+		it("has no Team bar, figure, missing amount or breakdown line", () => {
+			const html = page();
+			for (const part of [
+				"amount-team",
+				"bar-team",
+				"Team to go",
+				"Team behind pace",
+				"Team training",
+				"Technique training",
+				"Training-weekend day",
+				"Team 0",
+				"Team Rynke",
+			]) {
+				expect(html, part).not.toContain(part);
+			}
+			expect(html).toContain("amount-training");
+			expect(html).toContain("bar-training");
+		});
+
+		it("explains the tick with Training's pace alone", () => {
+			const hint = page().match(
+				/<p class="team-hint" id="tour-pace">([^<]*)<\/p>/,
+			)?.[1];
+			expect(hint).toMatch(
+				/^The tick on each bar marks the even pace to the deadline: today [^.]* Training\.$/,
+			);
+		});
+
+		it("has Hamburg's Team part with Team Rynke", () => {
+			const html = founding();
+			expect(html).toContain("bar-team");
+			expect(html).toContain('class="team-hint"');
+		});
+
+		it("reads the corrections and the qualified hint without Team", () => {
+			const html = page();
+			expect(html).toContain(en.t("organiser.overview.qualifiedHint.noEvents"));
+			expect(html).not.toContain(en.t("organiser.overview.qualifiedHint"));
+			expect(html).not.toContain(", 0 Team");
+			expect(html).not.toContain(", 2 Team");
+			expect(founding()).toContain(en.t("organiser.overview.qualifiedHint"));
+		});
+
+		it("has Training's coin alone in the Corrections column", () => {
+			const pairs = [
+				...page().matchAll(
+					/<span class="coin-pair" aria-hidden="true">(.*?)<\/span><span class="visually-hidden">/g,
+				),
+			].map((m) => m[1] ?? "");
+			expect(pairs.length).toBe(READ_NO_TEAM.length);
+			for (const inner of pairs) expect(inner.split("<span>").length).toBe(2);
+			expect(page()).toContain(
+				'<span class="visually-hidden">6 Training</span>',
+			);
+		});
+	});
+
+	it("reads the corrections line of the full card without Team", () => {
+		const html = overviewBody(
+			READ_NO_TEAM,
+			NO_TEAM,
+			RUNNING,
+			TODAY,
+			"all",
+			en,
+			new Map(),
+			false,
+			"full",
+			null,
+			"riders",
+			null,
+			undefined,
+			WITHOUT_EVENTS,
+		).value;
+		expect(html).toContain("<li>Corrections 6 Training</li>");
+		expect(html).not.toContain("<li>Corrections 6 Training, 0 Team</li>");
+	});
+});
+
+// Feature 039 research R15: rules that need no Training from outside virtual
+// rides ask organisers about none either.
+describe("the overview without Training needed outdoors", () => {
+	const NONE: RynkeRules = { ...CURRENT_RULES, minOutsideTraining: 0 };
+	/** What the evaluation stores then: nothing missing outdoors. */
+	const allVirtual = (training: number, team: number): Balance => {
+		const b = balance(training, team, 0);
+		return {
+			...b,
+			virtualShareMissing: 0,
+			qualified: b.trainingMissing === 0 && b.teamMissing === 0,
+		};
+	};
+	const VERA = rider(1, "Vera", allVirtual(300, 30));
+	const OLE = rider(2, "Ole", allVirtual(100, 20));
+
+	it("misses no outdoor Training and groups by the rest", () => {
+		const riders = overviewRiders([VERA, OLE], NONE, RUNNING, TODAY);
+		for (const r of riders) expect(r.missing.outdoor.amount).toBe(0);
+		expect(riders.find((r) => r.athleteId === 1)?.status).toBe("in");
+		expect(riders.find((r) => r.athleteId === 2)?.status).toBe("push");
+	});
+
+	it("shows no outdoor figure, reason or amount to go", () => {
+		const html = overviewBody(
+			[VERA, OLE],
+			NONE,
+			RUNNING,
+			TODAY,
+			"all",
+			en,
+			new Map(),
+			false,
+			"full",
+		).value;
+		for (const part of [
+			"Outdoor Training",
+			en.t("organiser.overview.reason.outdoor"),
+			"outdoor Training to go",
+		]) {
+			expect(html, part).not.toContain(part);
+		}
+		expect(
+			overviewBody(
+				[VERA, OLE],
+				CURRENT_RULES,
+				RUNNING,
+				TODAY,
+				"all",
+				en,
+				new Map(),
+				false,
+				"full",
+			).value,
+		).toContain("Outdoor Training 0 of 167");
 	});
 });

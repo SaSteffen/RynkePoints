@@ -8,7 +8,12 @@ import { evenPace } from "../rynke/pace";
 import { evaluateRides, type Ride } from "../rynke/rides";
 import type { CountingWindow, RynkeRules } from "../rynke/rules";
 import type { DayEntry, RideEntry, VirtualDayEntry } from "../rynke/summary";
-import { type Extras, extrasFromAttendance, tally } from "../rynke/tally";
+import {
+	type Extras,
+	extrasFromAttendance,
+	NO_EXTRAS,
+	tally,
+} from "../rynke/tally";
 import {
 	evaluateAttendance,
 	TEAM_EVENT_KINDS,
@@ -139,14 +144,14 @@ function daysBefore(date: string, days: number): string {
  */
 function dateFor(daysAgo: number, today: string, window: CountingWindow) {
 	const anchor =
-		today < window.seasonStart
-			? window.seasonStart
+		today < window.windowStart
+			? window.windowStart
 			: today > window.deadline
 				? window.deadline
 				: today;
 	const date = daysBefore(anchor, daysAgo);
 	// biome-ignore lint/complexity/useMathMinMax: ISO date strings, not numbers
-	return date < window.seasonStart ? window.seasonStart : date;
+	return date < window.windowStart ? window.windowStart : date;
 }
 
 /** The example as the pages read a rider, with `rules` (the rules in effect). */
@@ -174,7 +179,9 @@ export function exampleRiderView(
 		refreshedAt: 0,
 	}));
 	const evaluation = evaluateRides(inputs, rules, window);
-	const attendance: AttendedEvent[] = EVENTS.map(({ id, kind, daysAgo }) => ({
+	// Without Team Rynke the example rider attended no events (feature 039).
+	const events = rules.teamThreshold === null ? [] : EVENTS;
+	const attendance: AttendedEvent[] = events.map(({ id, kind, daysAgo }) => ({
 		eventId: id,
 		kind,
 		date: dateFor(daysAgo, today, window),
@@ -427,7 +434,7 @@ function teamRiderRides(
 	const anchor = dateFor(0, today, window);
 	const span = Math.round(
 		(Date.parse(`${anchor}T00:00:00Z`) -
-			Date.parse(`${window.seasonStart}T00:00:00Z`)) /
+			Date.parse(`${window.windowStart}T00:00:00Z`)) /
 			DAY_MS,
 	);
 	let climbed = 0;
@@ -509,24 +516,34 @@ export function exampleTeam(
 	rules: RynkeRules,
 ): ExampleTeam {
 	const pace = (amount: number) =>
-		evenPace(amount, window.seasonStart, window.deadline, today);
+		evenPace(amount, window.windowStart, window.deadline, today);
 	const rides = new Map<number, ExampleTeamRide[]>();
+	// Without Team Rynke the example team has no Team Rynke and no events
+	// (feature 039).
+	const teamThreshold = rules.teamThreshold;
 	const riders = TEAM.map((rider): TeamRider => {
-		const target = rider.qualified
-			? { training: rules.trainingThreshold + 12, team: rules.teamThreshold }
-			: {
-					training: Math.min(
-						rules.trainingThreshold - 1,
-						Math.floor(
-							(pace(rules.trainingThreshold) * rider.trainingPace) / 100,
-						),
+		const training = rider.qualified
+			? rules.trainingThreshold + 12
+			: Math.min(
+					rules.trainingThreshold - 1,
+					Math.floor(
+						(pace(rules.trainingThreshold) * rider.trainingPace) / 100,
 					),
-					team: Math.min(
-						rules.teamThreshold - 1,
-						Math.floor((pace(rules.teamThreshold) * rider.teamPace) / 100),
-					),
-				};
-		const extras = teamExtras(target.team, rules);
+				);
+		const target = {
+			training,
+			team:
+				teamThreshold === null
+					? 0
+					: rider.qualified
+						? teamThreshold
+						: Math.min(
+								teamThreshold - 1,
+								Math.floor((pace(teamThreshold) * rider.teamPace) / 100),
+							),
+		};
+		const extras =
+			teamThreshold === null ? NO_EXTRAS : teamExtras(target.team, rules);
 		// The rest from riding: a fifth of it from climbing, in whole steps.
 		const riding = Math.max(0, target.training - extras.training);
 		const steps = Math.floor(riding / 5 / rules.elevationStepRynke);
@@ -569,39 +586,44 @@ export function exampleTeam(
 			corrections: [],
 		};
 	});
-	const events = TEAM_EVENTS.map(
-		(event): TeamEventListRow => ({
-			event_id: event.id,
-			kind: event.kind,
-			event_date: daysBefore(today, -event.days),
-			name: event.name,
-			attendees: event.attendees,
-			changed_at: null,
-			changed_by_name: null,
-		}),
-	).sort((a, b) => b.event_date.localeCompare(a.event_date));
-	const requests = REQUESTS.map(({ riderId, eventId }): OpenRequestRow => {
-		const event = events.find(
-			(e) => e.event_id === eventId,
-		) as TeamEventListRow;
-		const rider = TEAM.find((r) => r.id === riderId) as ExampleTeamRider;
-		return {
-			event_id: event.event_id,
-			kind: event.kind,
-			event_date: event.event_date,
-			name: event.name,
-			athlete_id: rider.id,
-			first_name: rider.firstName,
-			reported_at: 0,
-		};
-	});
+	const teamEvents = teamThreshold === null ? [] : TEAM_EVENTS;
+	const events = teamEvents
+		.map(
+			(event): TeamEventListRow => ({
+				event_id: event.id,
+				kind: event.kind,
+				event_date: daysBefore(today, -event.days),
+				name: event.name,
+				attendees: event.attendees,
+				changed_at: null,
+				changed_by_name: null,
+			}),
+		)
+		.sort((a, b) => b.event_date.localeCompare(a.event_date));
+	const requests = (teamThreshold === null ? [] : REQUESTS).map(
+		({ riderId, eventId }): OpenRequestRow => {
+			const event = events.find(
+				(e) => e.event_id === eventId,
+			) as TeamEventListRow;
+			const rider = TEAM.find((r) => r.id === riderId) as ExampleTeamRider;
+			return {
+				event_id: event.event_id,
+				kind: event.kind,
+				event_date: event.event_date,
+				name: event.name,
+				athlete_id: rider.id,
+				first_name: rider.firstName,
+				reported_at: 0,
+			};
+		},
+	);
 	return {
 		riders,
 		listed: TEAM.map((r) => ({ athlete_id: r.id, first_name: r.firstName })),
 		requests,
 		events,
-		intents: new Map(TEAM_EVENTS.map((e) => [e.id, e.intents])),
-		attended: new Set(TEAM_EVENTS.filter((e) => e.you).map((e) => e.id)),
+		intents: new Map(teamEvents.map((e) => [e.id, e.intents])),
+		attended: new Set(teamEvents.filter((e) => e.you).map((e) => e.id)),
 		rides: new Map(
 			[...rides].map(([id, own]) => [
 				id,

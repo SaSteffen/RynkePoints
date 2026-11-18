@@ -14,9 +14,11 @@ import {
 /** Why a ride doesn't count, in the order a result lists them (FR-016). */
 export const REASON_CODES = [
 	"outside_window",
+	"before_window",
 	"excluded_sport_type",
 	"flagged",
 	"manual",
+	"too_short",
 	"pause",
 	"too_slow",
 	"too_fast",
@@ -25,6 +27,15 @@ export const REASON_CODES = [
 ] as const;
 
 export type ReasonCode = (typeof REASON_CODES)[number];
+
+/**
+ * A pre-window ride (feature 040 research R3): in the season, before the
+ * qualification window opens, and meeting every other rule. It earns no Rynke
+ * but counts for the badges, and takes part in overlap resolution.
+ */
+export function isPreWindow(reasons: readonly string[]): boolean {
+	return reasons.length === 1 && reasons[0] === "before_window";
+}
 
 /**
  * The reasons a crop on Strava can remove: a rider with a recent ride that
@@ -75,7 +86,10 @@ export interface RideResult {
 	/** The larger counting ride this one overlaps; set only for `["overlap"]`. */
 	overlapsActivityId: number | null;
 	distanceRynke: number;
-	/** Decimetres added to the elevation total; 0 when not counting. */
+	/**
+	 * Decimetres added to the elevation total; 0 when not counting, except for
+	 * a pre-window ride, whose elevation only the badges read (feature 040).
+	 */
 	elevationDm: number;
 	isVirtual: boolean;
 	unknownFigures: UnknownFigureCode[];
@@ -120,9 +134,10 @@ export function evaluateRides(
 	});
 
 	// FR-005d: among rides passing every other rule, the largest of overlapping
-	// recordings counts (research R5).
+	// recordings counts (research R5); pre-window rides too, so two recordings
+	// of one don't both reach the badges (feature 040 research R3).
 	const candidates = checked
-		.filter((c) => c.reasons.length === 0)
+		.filter((c) => c.reasons.length === 0 || isPreWindow(c.reasons))
 		.sort(
 			(a, b) =>
 				b.ride.distanceM - a.ride.distanceM ||
@@ -152,7 +167,9 @@ export function evaluateRides(
 				reasons: allReasons,
 				overlapsActivityId,
 				distanceRynke: counts ? distanceRynke(ride, rules) : 0,
-				elevationDm: counts ? elevationDm : 0,
+				// A pre-window ride keeps its elevation for the badges; every
+				// Rynke sum reads counting results only.
+				elevationDm: counts || isPreWindow(allReasons) ? elevationDm : 0,
 				isVirtual: isVirtual(ride),
 				unknownFigures: unknownFigures(ride),
 				activityRefreshedAt: ride.refreshedAt,
@@ -187,6 +204,8 @@ function reasonsFor(
 		(window.deadline !== null && date > window.deadline)
 	) {
 		reasons.push("outside_window");
+	} else if (date < window.windowStart) {
+		reasons.push("before_window");
 	}
 	if (rules.excludedSportTypes.includes(ride.sportType)) {
 		reasons.push("excluded_sport_type");
@@ -194,6 +213,14 @@ function reasonsFor(
 	// FR-005g: under every rule version, so not a rule value.
 	if (ride.flagged === true) reasons.push("flagged");
 	if (ride.manual === true) reasons.push("manual");
+	// Metres against metres, no rounding (feature 039 research R5); before the
+	// moving-time return, so a ride without moving time lists it too.
+	if (
+		rules.minRideKm !== undefined &&
+		ride.distanceM < rules.minRideKm * 1000
+	) {
+		reasons.push("too_short");
+	}
 
 	const moving = ride.movingS;
 	if (moving === 0) {

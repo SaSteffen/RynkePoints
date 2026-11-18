@@ -8,7 +8,7 @@ import { readRiseStatement } from "../db/rynke";
 import { type CurrentAlert, currentAlertStatement } from "../db/usage";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
-import { rulesForVersion } from "../rynke/rules";
+import { versionsOf } from "../rynke/rules";
 import { CRITICAL_LEVEL, utcDay } from "../usage/allowances";
 import { percentOf } from "../usage/figures";
 import { html, htmlResponse, layout, pageLook, type SafeHtml } from "./html";
@@ -216,7 +216,7 @@ export async function handleRiderNotificationText(
 	const summary = riderSummary(
 		balance,
 		virtualCount,
-		rulesForVersion(ctx.team.rules, balance.rulesVersion),
+		versionsOf(ctx.team.rules)(balance.rulesVersion),
 	);
 	const unmet = [
 		{ condition: summary.training, id: "rynke.missing.training" },

@@ -12,7 +12,11 @@ import type { RideEntry } from "../../src/rynke/summary";
 
 // Feature 032: the ride figures against hand counts (SC-001). Synthetic riders.
 
-const window = { seasonStart: "2026-01-01", deadline: "2027-06-30" };
+const window = {
+	seasonStart: "2026-01-01",
+	windowStart: "2026-01-01",
+	deadline: "2027-06-30",
+};
 const season = { from: "2026-01-01", to: "2027-06-30" };
 
 const rider = (athleteId: number, rides: RideEntry[]): RideRider => ({

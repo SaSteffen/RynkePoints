@@ -3,6 +3,7 @@ import type { Ctx } from "../ctx";
 import { recordConsent } from "../db/consents";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
+import type { TeamData } from "../teams/types";
 import { consentForm, consentSummary, nextInput } from "./consent-form";
 import { forbidden } from "./errors";
 import {
@@ -88,6 +89,7 @@ export function consentGate(
 	gate: GateState,
 	path: string,
 	look: PageLook,
+	team: Pick<TeamData, "eventKinds">,
 ): Response {
 	return htmlResponse(
 		i18n,
@@ -99,7 +101,7 @@ export function consentGate(
 ${intro(i18n, current, gate)}
 <section class="card">
 <h2>${i18n.t("consent.heading")}</h2>
-${consentSummary(i18n, path)}<p>${i18n.t("consent.required")}</p>
+${consentSummary(i18n, path, team)}<p>${i18n.t("consent.required")}</p>
 ${form(i18n, current, gate, path)}
 </section>
 <p>${i18n.t("me.consent.renew.leave")}</p>

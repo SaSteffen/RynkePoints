@@ -15,6 +15,8 @@ import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import { vapidPublicKey } from "../push/vapid";
 import { countingWindow, currentRules } from "../rynke/rules";
+import { hasEvents, hasOutsideRule, hasTeamRynke } from "../teams";
+import type { TeamData } from "../teams/types";
 import { consentGate } from "./consent-gate";
 import {
 	html,
@@ -111,13 +113,18 @@ export const SECTIONS: readonly {
 ];
 
 /**
- * The sections the team has switched off (feature 026 FR-018): no menu
- * entry, no tour step, and the page answers 404.
+ * The sections the team has switched off (feature 026 FR-018) or has no use
+ * for, Events without events (feature 039): no menu entry, no tour step, and
+ * the page answers 404.
  */
 export function hiddenSections(
 	env: Pick<Env, "BADGES">,
+	team: Pick<TeamData, "eventKinds">,
 ): ReadonlySet<SectionId> {
-	return new Set<SectionId>(badges(env) ? [] : ["badges"]);
+	const hidden = new Set<SectionId>();
+	if (!badges(env)) hidden.add("badges");
+	if (!hasEvents(team)) hidden.add("events");
+	return hidden;
 }
 
 /** The team's switches the tours follow (feature 020 FR-012, FR-016). */
@@ -126,7 +133,10 @@ export function tourSwitches({
 	team,
 }: Pick<Ctx, "env" | "team">): TourSwitches {
 	return {
-		hidden: hiddenSections(env),
+		hidden: hiddenSections(env, team),
+		teamRynke: hasTeamRynke(team),
+		events: hasEvents(team),
+		outside: hasOutsideRule(team),
 		rideRanking: rideFigures(env),
 		riderRides: organiserRideFigures(env),
 		graphs: organiserGraphsShown(env),
@@ -266,6 +276,7 @@ export async function shellPage(
 				: { state: accepted ? "scopes" : "missing" },
 			path,
 			pageLook(ctx),
+			ctx.team,
 		);
 	}
 	// No tour while the first import still runs: the pages it points at only
@@ -278,7 +289,11 @@ export async function shellPage(
 		viewer.rider,
 		path,
 		new URL(request.url).searchParams,
-		{ rules: currentRules(ctx.team.rules), ...tourSwitches(ctx) },
+		{
+			rules: currentRules(ctx.team.rules),
+			eventKinds: ctx.team.eventKinds,
+			...tourSwitches(ctx),
+		},
 	);
 	if (hint && !(await hasBalance(ctx.env.DB, viewer.rider.athleteId))) {
 		hint = null;
@@ -291,7 +306,7 @@ export async function shellPage(
 			consent: accepted,
 			example: hint?.example === true,
 		}),
-		viewer.rider.organiser ? countOpenRequests(ctx) : 0,
+		viewer.rider.organiser && hasEvents(ctx.team) ? countOpenRequests(ctx) : 0,
 	]);
 	if (rendered instanceof Response) return rendered;
 	const { body, scripts } =
@@ -319,7 +334,7 @@ export async function shellPage(
 				viewer.rider.administrator,
 				hint,
 				openRequests,
-				hiddenSections(ctx.env),
+				hiddenSections(ctx.env, ctx.team),
 				look,
 			),
 		}),

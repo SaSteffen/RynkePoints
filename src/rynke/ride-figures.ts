@@ -98,11 +98,11 @@ const earlier = (a: string, b: string) => (a < b ? a : b);
 export function periodOf(
 	period: Period,
 	today: string,
-	window: Pick<CountingWindow, "seasonStart" | "deadline">,
+	window: Pick<CountingWindow, "windowStart" | "deadline">,
 ): DateRange {
 	let range: DateRange;
 	if (period === "season") {
-		range = { from: window.seasonStart, to: window.deadline };
+		range = { from: window.windowStart, to: window.deadline };
 	} else if (period === "month") {
 		const first = `${today.slice(0, 7)}-01`;
 		const next = utcDate(first);
@@ -113,7 +113,7 @@ export function periodOf(
 		range = { from: addDays(sunday, -6), to: sunday };
 	}
 	return {
-		from: later(range.from, window.seasonStart),
+		from: later(range.from, window.windowStart),
 		to: earlier(range.to, window.deadline),
 	};
 }

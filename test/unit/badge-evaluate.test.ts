@@ -10,7 +10,11 @@ import { CURRENT_RULES } from "../support/team-rules";
 // 013 FR-001 to FR-004, FR-010, FR-013, data-model.md "Evaluation", research
 // R14). Synthetic figures only.
 
-const WINDOW = { seasonStart: "2026-01-01", deadline: "2027-06-30" };
+const WINDOW = {
+	seasonStart: "2026-01-01",
+	windowStart: "2026-01-01",
+	deadline: "2027-06-30",
+};
 const NONE: PersonalInputs = {
 	rides: [],
 	runs: [],
@@ -134,7 +138,11 @@ describe("evaluateBadges", () => {
 			},
 			CURRENT_RULES,
 			badgeWindow(
-				{ seasonStart: "2026-09-01", deadline: "2027-06-30" },
+				{
+					seasonStart: "2026-09-01",
+					windowStart: "2026-09-01",
+					deadline: "2027-06-30",
+				},
 				"2027-07-08",
 			),
 		);
@@ -343,7 +351,11 @@ describe("evaluateBadges for virtual rides", () => {
 });
 
 describe("evaluateBadges for the winter months", () => {
-	const WINTER = { seasonStart: "2026-09-01", deadline: "2027-07-31" };
+	const WINTER = {
+		seasonStart: "2026-09-01",
+		windowStart: "2026-09-01",
+		deadline: "2027-07-31",
+	};
 	const inWinter = (rides: ReturnType<typeof ride>[]) =>
 		evaluateBadges({ ...NONE, rides }, CURRENT_RULES, WINTER);
 
@@ -452,7 +464,11 @@ describe("evaluateBadges for swims", () => {
 
 // Part D: surprise badges (spec User Story 6, FR-015a, research R33).
 describe("evaluateBadges for the surprise badges", () => {
-	const SEASON = { seasonStart: "2026-09-01", deadline: "2027-07-31" };
+	const SEASON = {
+		seasonStart: "2026-09-01",
+		windowStart: "2026-09-01",
+		deadline: "2027-07-31",
+	};
 	const at = (date: string, time: string, km = 20) => ({
 		...ride(date, km),
 		startTime: time,
@@ -564,7 +580,11 @@ describe("evaluateBadges for the surprise badges", () => {
 // Part F: surprise badges from cycling traditions (spec User Story 8, FR-017,
 // research R43).
 describe("evaluateBadges for the surprise badges of part F", () => {
-	const SEASON = { seasonStart: "2026-09-01", deadline: "2027-07-31" };
+	const SEASON = {
+		seasonStart: "2026-09-01",
+		windowStart: "2026-09-01",
+		deadline: "2027-07-31",
+	};
 	const outdoor = (date: string, km: number, elevationM = 0) => ({
 		...ride(date, km, elevationM),
 		startTime: "10:00",
@@ -742,6 +762,7 @@ describe("evaluateBadges for the surprise badges of part F", () => {
 		it("is dated with the later day when June comes first", () => {
 			const calendarYear = {
 				seasonStart: "2026-01-01",
+				windowStart: "2026-01-01",
 				deadline: "2026-12-31",
 			};
 			expect(
@@ -808,7 +829,11 @@ describe("evaluateBadges for the surprise badges of part F", () => {
 	});
 
 	it("counts nothing outside the counting window", () => {
-		const late = { seasonStart: "2026-12-27", deadline: "2027-07-31" };
+		const late = {
+			seasonStart: "2026-12-27",
+			windowStart: "2026-12-27",
+			deadline: "2027-07-31",
+		};
 		expect(
 			surprises(
 				{
@@ -843,7 +868,11 @@ describe("evaluateBadges for the surprise badges of part F", () => {
 
 // Part J: Winterschlaf beendet (spec User Story 9, FR-018, research R49).
 describe("evaluateBadges for Winterschlaf beendet", () => {
-	const SEASON = { seasonStart: "2026-09-01", deadline: "2027-07-31" };
+	const SEASON = {
+		seasonStart: "2026-09-01",
+		windowStart: "2026-09-01",
+		deadline: "2027-07-31",
+	};
 	const outdoor = (date: string, km = 20) => ({
 		...ride(date, km),
 		startTime: "10:00",
@@ -898,7 +927,11 @@ describe("evaluateBadges for Winterschlaf beendet", () => {
 		expect(
 			sleep(
 				{ rides: [outdoor("2026-01-02")] },
-				{ seasonStart: "2026-01-01", deadline: "2026-08-31" },
+				{
+					seasonStart: "2026-01-01",
+					windowStart: "2026-01-01",
+					deadline: "2026-08-31",
+				},
 			),
 		).toEqual([]);
 	});
@@ -908,9 +941,14 @@ describe("evaluateBadges for Winterschlaf beendet", () => {
 // today in Berlin (badgeWindow).
 describe("badgeWindow and future dates", () => {
 	it("ends the window today, or at the deadline once it has passed", () => {
-		const season = { seasonStart: "2026-09-01", deadline: "2027-07-31" };
+		const season = {
+			seasonStart: "2026-09-01",
+			windowStart: "2026-09-01",
+			deadline: "2027-07-31",
+		};
 		expect(badgeWindow(season, "2026-10-12")).toEqual({
 			seasonStart: "2026-09-01",
+			windowStart: "2026-09-01",
 			deadline: "2026-10-12",
 			today: "2026-10-12",
 		});
@@ -923,7 +961,11 @@ describe("badgeWindow and future dates", () => {
 
 	it("counts no ride, run or swim after the window's last day", () => {
 		const window = badgeWindow(
-			{ seasonStart: "2026-09-01", deadline: "2027-07-31" },
+			{
+				seasonStart: "2026-09-01",
+				windowStart: "2026-09-01",
+				deadline: "2027-07-31",
+			},
 			"2026-10-12",
 		);
 		const result = evaluateBadges(
@@ -941,7 +983,11 @@ describe("badgeWindow and future dates", () => {
 
 	it("needs the later activity, dated today at the latest, for a rest day", () => {
 		const window = badgeWindow(
-			{ seasonStart: "2026-09-01", deadline: "2027-07-31" },
+			{
+				seasonStart: "2026-09-01",
+				windowStart: "2026-09-01",
+				deadline: "2027-07-31",
+			},
 			"2026-10-09",
 		);
 		const runs = [1, 2, 3, 4, 5, 6, 7].map((d) => ({

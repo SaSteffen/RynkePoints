@@ -22,6 +22,7 @@ import {
 	type TeamRider,
 	toRideRiders,
 } from "../../db/team";
+import { eventsText } from "../../i18n/events-text";
 import type { I18n } from "../../i18n/i18n";
 import { evenPace, type RiderStatus, riderStatus } from "../../rynke/pace";
 import { figuresOf, shownKm } from "../../rynke/ride-figures";
@@ -32,10 +33,10 @@ import {
 	type RynkeRules,
 } from "../../rynke/rules";
 import type { RideEntry } from "../../rynke/summary";
-import { virtualShareRequired } from "../../rynke/tally";
 import type { TeamEventSum } from "../../rynke/team-events";
 import { dayNumber } from "../../rynke/weeks";
-import type { CoinArt } from "../../teams/types";
+import { hasEvents } from "../../teams";
+import type { CoinArt, TeamData } from "../../teams/types";
 import { SINCE_VERSION } from "../../visibility";
 import { thresholdBars } from "../charts";
 import { coinArt, miniCoin, SHARED_COIN } from "../coin";
@@ -75,7 +76,7 @@ function seasonSessions(
 ): { sessions: number; typicalM: number | null } | null {
 	const own = rides?.get(athleteId);
 	if (!own) return null;
-	return figuresOf(own, { from: window.seasonStart, to: window.deadline });
+	return figuresOf(own, { from: window.windowStart, to: window.deadline });
 }
 
 /** Each listed rider's open requests, newest event first (019 FR-034). */
@@ -99,7 +100,8 @@ export function percentOf(value: number, threshold: number): number {
 /** The even pace of each amount today; none once the deadline has passed. */
 export interface Pace {
 	training: number;
-	team: number;
+	/** Null without Team Rynke (feature 039). */
+	team: number | null;
 	outdoor: number;
 }
 
@@ -109,13 +111,15 @@ export interface OverviewRider {
 	profileLink: string | null;
 	status: RiderStatus;
 	training: number;
-	team: number;
+	/** Null without Team Rynke (feature 039): no Team amount, missing or events. */
+	team: number | null;
 	outdoorTraining: number;
 	pace: Pace | null;
-	missing: { training: Missing; team: Missing; outdoor: Missing };
+	missing: { training: Missing; team: Missing | null; outdoor: Missing };
 	breakdown: {
 		distanceRynke: number;
 		elevationRynke: number;
+		/** Empty without Team Rynke. */
 		teamEvents: TeamEventSum[];
 		corrections: { training: number; team: number };
 		/** Virtual rides' share of Training, in whole percent. */
@@ -131,11 +135,11 @@ export function overviewPace(
 ): Pace | null {
 	if (today > window.deadline) return null;
 	const pace = (amount: number) =>
-		evenPace(amount, window.seasonStart, window.deadline, today);
+		evenPace(amount, window.windowStart, window.deadline, today);
 	return {
 		training: pace(rules.trainingThreshold),
-		team: pace(rules.teamThreshold),
-		outdoor: pace(virtualShareRequired(rules)),
+		team: rules.teamThreshold === null ? null : pace(rules.teamThreshold),
+		outdoor: pace(rules.minOutsideTraining),
 	};
 }
 
@@ -155,7 +159,9 @@ export function overviewRiders(
 			read.map((r) => ({ athlete_id: r.athleteId, first_name: r.firstName })),
 		).map((r) => [r.athlete_id, r.profileLink]),
 	);
-	const required = virtualShareRequired(rules);
+	const required = rules.minOutsideTraining;
+	// Without Team Rynke the Team part is absent, not zero (feature 039).
+	const { teamThreshold } = rules;
 	const riders = read.map((rider): OverviewRider => {
 		const b = rider.balance;
 		const training = b?.trainingRynke ?? 0;
@@ -176,7 +182,7 @@ export function overviewRiders(
 			profileLink: profiles.get(rider.athleteId) ?? null,
 			status: riderStatus(b, rules, window, today),
 			training,
-			team,
+			team: teamThreshold === null ? null : team,
 			outdoorTraining,
 			pace,
 			missing: {
@@ -185,11 +191,14 @@ export function overviewRiders(
 					training,
 					pace?.training ?? null,
 				),
-				team: missing(
-					b?.teamMissing ?? rules.teamThreshold,
-					team,
-					pace?.team ?? null,
-				),
+				team:
+					teamThreshold === null
+						? null
+						: missing(
+								b?.teamMissing ?? teamThreshold,
+								team,
+								pace?.team ?? null,
+							),
 				outdoor: missing(
 					b?.virtualShareMissing ?? required,
 					outdoorTraining,
@@ -199,7 +208,7 @@ export function overviewRiders(
 			breakdown: {
 				distanceRynke: b?.distanceRynke ?? 0,
 				elevationRynke: b?.elevationRynke ?? 0,
-				teamEvents: b?.teamEvents ?? [],
+				teamEvents: teamThreshold === null ? [] : (b?.teamEvents ?? []),
 				corrections,
 				virtualShare:
 					training > 0
@@ -212,7 +221,9 @@ export function overviewRiders(
 	});
 	const need = (r: OverviewRider) =>
 		r.missing.training.amount / rules.trainingThreshold +
-		r.missing.team.amount / rules.teamThreshold;
+		(r.missing.team === null || teamThreshold === null
+			? 0
+			: r.missing.team.amount / teamThreshold);
 	return riders.sort(
 		(a, b) =>
 			need(b) - need(a) ||
@@ -281,8 +292,12 @@ function renderTiles(
 	group: Group | null,
 	passed: boolean,
 	requests: RiderRequests,
+	events: boolean,
 ): SafeHtml {
-	const tiles = GROUPS.filter((g) => !(passed && g === "on_track")).map((g) => {
+	// Open reports are about events: no tile for them without (feature 039).
+	const tiles = GROUPS.filter(
+		(g) => !(passed && g === "on_track") && (events || g !== "requests"),
+	).map((g) => {
 		const count = riders.filter((r) => inGroup(r, g, requests)).length;
 		const alert = g === "requests" && count > 0 ? " tile-alert" : "";
 		const art = g === "all" || g === "requests" ? null : statusArt(g, "tile");
@@ -312,32 +327,48 @@ function hasRequests(rider: OverviewRider, requests: RiderRequests): boolean {
 	return (requests.get(rider.athleteId)?.length ?? 0) > 0;
 }
 
+/**
+ * What of the team the page's wording follows: whether it records events
+ * (feature 039), which picks the texts that name Team Rynke.
+ */
+export type Wording = Pick<TeamData, "eventKinds">;
+
+/** Today's wording, with events, for a caller that doesn't say. */
+const WITH_EVENTS: Wording = { eventKinds: ["team_training"] };
+
 function missingItems(
 	i18n: I18n,
 	rider: OverviewRider,
 ): { text: string; behind: boolean }[] {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
-	return (["training", "team", "outdoor"] as const)
-		.filter((key) => rider.missing[key].amount > 0)
-		.map((key) => {
-			const { amount, behind } = rider.missing[key];
-			const text = i18n.t(`organiser.overview.toGo.${key}`, {
-				n: whole(amount),
-			});
-			return {
+	return (["training", "team", "outdoor"] as const).flatMap((key) => {
+		const item = rider.missing[key];
+		if (item === null || item.amount <= 0) return [];
+		const { amount, behind } = item;
+		const text = i18n.t(`organiser.overview.toGo.${key}`, {
+			n: whole(amount),
+		});
+		return [
+			{
 				text: behind
 					? `${text} · ${i18n.t("organiser.overview.behind")}`
 					: text,
 				behind,
-			};
-		});
+			},
+		];
+	});
 }
 
-function amounts(i18n: I18n, training: number, team: number): string {
+function amounts(
+	i18n: I18n,
+	wording: Wording,
+	training: number,
+	team: number | null,
+): string {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
-	return i18n.t("organiser.overview.amounts", {
+	return i18n.t(eventsText(wording, "organiser.overview.amounts"), {
 		training: whole(training),
-		team: whole(team),
+		team: whole(team ?? 0),
 	});
 }
 
@@ -357,21 +388,26 @@ function statusChip(
 	return html`<span class="status-chip">${statusArt(rider.status, "chip")}${groupLabel(i18n, rider.status, passed)}</span>`;
 }
 
-/** The figure of `kind` in percent, with its bar and the even pace. */
+/**
+ * The figure of `kind` in percent, with its bar and the even pace; none for
+ * Team without Team Rynke.
+ */
 function percentLine(
 	i18n: I18n,
 	kind: "training" | "team",
 	rider: OverviewRider,
 	rules: RynkeRules,
-): SafeHtml {
+): SafeHtml | null {
 	const threshold =
 		kind === "training" ? rules.trainingThreshold : rules.teamThreshold;
+	const value = rider[kind];
+	if (value === null || threshold === null) return null;
 	const n = i18n.t("organiser.overview.percent", {
-		n: i18n.formatNumber(percentOf(rider[kind], threshold), {
+		n: i18n.formatNumber(percentOf(value, threshold), {
 			fractionDigits: 0,
 		}),
 	});
-	return html`<div class="amount amount-${kind}"><p>${miniCoin(kind)}${i18n.t(`organiser.overview.${kind}.percent`, { n })}</p>${thresholdBars(rider[kind], threshold, rider.pace?.[kind] ?? null)}</div>`;
+	return html`<div class="amount amount-${kind}"><p>${miniCoin(kind)}${i18n.t(`organiser.overview.${kind}.percent`, { n })}</p>${thresholdBars(value, threshold, rider.pace?.[kind] ?? null)}</div>`;
 }
 
 /**
@@ -384,7 +420,7 @@ function percentReasons(
 ): { text: string; behind: boolean }[] {
 	const reasons: { text: string; behind: boolean }[] = [];
 	for (const kind of ["training", "team"] as const) {
-		if (rider.missing[kind].behind) {
+		if (rider.missing[kind]?.behind) {
 			reasons.push({
 				text: i18n.t(`organiser.overview.behind.${kind}`),
 				behind: true,
@@ -401,9 +437,13 @@ function percentReasons(
 }
 
 /** The corrections as amounts; organisers enter them, Strava has no part. */
-function correctionsLine(i18n: I18n, rider: OverviewRider): string {
+function correctionsLine(
+	i18n: I18n,
+	wording: Wording,
+	rider: OverviewRider,
+): string {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
-	return i18n.t("organiser.overview.corrections", {
+	return i18n.t(eventsText(wording, "organiser.overview.corrections"), {
 		training: whole(rider.breakdown.corrections.training),
 		team: whole(rider.breakdown.corrections.team),
 	});
@@ -412,16 +452,22 @@ function correctionsLine(i18n: I18n, rider: OverviewRider): string {
 function percentBody(
 	i18n: I18n,
 	rules: RynkeRules,
+	wording: Wording,
 	rider: OverviewRider,
 	passed: boolean,
 	lines: SafeHtml | null,
 ): SafeHtml {
 	const reasons = percentReasons(i18n, rider);
+	const teamLine = percentLine(i18n, "team", rider, rules);
 	const { corrections } = rider.breakdown;
 	return html`<div class="rider-head"><h3>${nameLinks(i18n, rider)}</h3>${statusChip(i18n, rider, passed)}</div>
 <div class="rider-bars">
-${percentLine(i18n, "training", rider, rules)}
-${percentLine(i18n, "team", rider, rules)}
+${percentLine(i18n, "training", rider, rules)}${
+	teamLine
+		? html`
+${teamLine}`
+		: null
+}
 </div>
 ${
 	reasons.length > 0
@@ -430,7 +476,7 @@ ${
 		: null
 }${
 	corrections.training !== 0 || corrections.team !== 0
-		? html`<p class="rider-corrections">${correctionsLine(i18n, rider)}</p>
+		? html`<p class="rider-corrections">${correctionsLine(i18n, wording, rider)}</p>
 `
 		: null
 }${lines}`;
@@ -439,6 +485,7 @@ ${
 function fullBody(
 	i18n: I18n,
 	rules: RynkeRules,
+	wording: Wording,
 	rider: OverviewRider,
 	passed: boolean,
 	lines: SafeHtml | null,
@@ -461,14 +508,20 @@ function fullBody(
 				team: whole(sum.team),
 			}),
 		),
-		i18n.t("organiser.overview.corrections", {
+		i18n.t(eventsText(wording, "organiser.overview.corrections"), {
 			training: whole(breakdown.corrections.training),
 			team: whole(breakdown.corrections.team),
 		}),
-		i18n.t("organiser.overview.outdoor", {
-			n: whole(rider.outdoorTraining),
-			required: whole(virtualShareRequired(rules)),
-		}),
+		// Nothing needed from outside virtual rides: no such figure (feature 039
+		// research R15).
+		...(rules.minOutsideTraining === 0
+			? []
+			: [
+					i18n.t("organiser.overview.outdoor", {
+						n: whole(rider.outdoorTraining),
+						required: whole(rules.minOutsideTraining),
+					}),
+				]),
 		i18n.t("organiser.overview.virtual", { n: whole(breakdown.virtualShare) }),
 	];
 	const rides =
@@ -485,10 +538,18 @@ function fullBody(
 						}),
 					});
 	const missing = missingItems(i18n, rider);
+	const team =
+		rider.team === null || rules.teamThreshold === null
+			? null
+			: html`<div class="amount amount-team"><p>${miniCoin("team")}${i18n.t("organiser.overview.team", { n: whole(rider.team), threshold: whole(rules.teamThreshold) })}</p>${thresholdBars(rider.team, rules.teamThreshold, rider.pace?.team ?? null)}</div>`;
 	return html`<div class="rider-head"><h3>${nameLinks(i18n, rider)}</h3>${statusChip(i18n, rider, passed)}</div>
 <div class="rider-bars">
-<div class="amount amount-training"><p>${miniCoin("training")}${i18n.t("organiser.overview.training", { n: whole(rider.training), threshold: whole(rules.trainingThreshold) })}</p>${thresholdBars(rider.training, rules.trainingThreshold, rider.pace?.training ?? null)}</div>
-<div class="amount amount-team"><p>${miniCoin("team")}${i18n.t("organiser.overview.team", { n: whole(rider.team), threshold: whole(rules.teamThreshold) })}</p>${thresholdBars(rider.team, rules.teamThreshold, rider.pace?.team ?? null)}</div>
+<div class="amount amount-training"><p>${miniCoin("training")}${i18n.t("organiser.overview.training", { n: whole(rider.training), threshold: whole(rules.trainingThreshold) })}</p>${thresholdBars(rider.training, rules.trainingThreshold, rider.pace?.training ?? null)}</div>${
+		team
+			? html`
+${team}`
+			: null
+	}
 </div>
 ${
 	rides === null
@@ -506,30 +567,36 @@ ${
 `;
 }
 
-/** Training or Team as a small bar in a row's one line, with its figure. */
+/**
+ * Training or Team as a small bar in a row's one line, with its figure; none
+ * for Team without Team Rynke.
+ */
 function miniBar(
 	i18n: I18n,
 	kind: "training" | "team",
 	rider: OverviewRider,
 	rules: RynkeRules,
 	percent: boolean,
-): SafeHtml {
+): SafeHtml | null {
 	const threshold =
 		kind === "training" ? rules.trainingThreshold : rules.teamThreshold;
+	const value = rider[kind];
+	if (value === null || threshold === null) return null;
 	const figure = percent
 		? i18n.t("organiser.overview.percent", {
-				n: i18n.formatNumber(percentOf(rider[kind], threshold), {
+				n: i18n.formatNumber(percentOf(value, threshold), {
 					fractionDigits: 0,
 				}),
 			})
-		: i18n.formatNumber(rider[kind], { fractionDigits: 0 });
-	return html`<span class="rider-mini bar-${kind}"><span class="rider-mini-figure"><span class="visually-hidden">${i18n.t(`organiser.overview.column.${kind}`)} </span>${figure}</span>${thresholdBars(rider[kind], threshold, rider.pace?.[kind] ?? null)}</span>`;
+		: i18n.formatNumber(value, { fractionDigits: 0 });
+	return html`<span class="rider-mini bar-${kind}"><span class="rider-mini-figure"><span class="visually-hidden">${i18n.t(`organiser.overview.column.${kind}`)} </span>${figure}</span>${thresholdBars(value, threshold, rider.pace?.[kind] ?? null)}</span>`;
 }
 
 /** One rider below 1100 px: one line that opens on today's card content. */
 function renderRow(
 	i18n: I18n,
 	rules: RynkeRules,
+	wording: Wording,
 	rider: OverviewRider,
 	passed: boolean,
 	lines: SafeHtml | null,
@@ -540,7 +607,7 @@ function renderRow(
 ): SafeHtml {
 	return html`<li class="rider-row status-${rider.status}" data-name="${rider.firstName.toLowerCase()}"${hidden ? html` hidden` : null}>
 <details${open ? html` open` : null}><summary class="rider-row-line"><span class="rider-dot" aria-hidden="true"></span><span class="rider-row-name"><span class="rider-name">${rider.firstName}</span><span class="visually-hidden">, ${groupLabel(i18n, rider.status, passed)}</span></span>${lines ? html`<span class="rider-row-report">${i18n.t("organiser.graphs.rows.report")}</span>` : null}${miniBar(i18n, "training", rider, rules, percent)}${miniBar(i18n, "team", rider, rules, percent)}</summary>
-<div class="rider-row-body">${percent ? percentBody(i18n, rules, rider, passed, lines) : fullBody(i18n, rules, rider, passed, lines, sessions)}</div>
+<div class="rider-row-body">${percent ? percentBody(i18n, rules, wording, rider, passed, lines) : fullBody(i18n, rules, wording, rider, passed, lines, sessions)}</div>
 </details>
 </li>
 `;
@@ -553,6 +620,7 @@ function renderRow(
 function renderRows(
 	i18n: I18n,
 	rules: RynkeRules,
+	wording: Wording,
 	riders: readonly OverviewRider[],
 	group: Group | null,
 	passed: boolean,
@@ -573,7 +641,7 @@ function renderRows(
 <p class="rider-search-none" data-rider-none hidden></p>
 <template data-rider-none-text>${i18n.tHtml("organiser.graphs.rows.noMatch", { query: html`<span data-slot="query"></span>` })}</template>
 <ul class="rider-rows${group === null ? " default" : ""}">
-${ordered.map((r) => renderRow(i18n, rules, r, passed, lines(r), percent, !inView(r), open, sessionsOf(r)))}</ul>
+${ordered.map((r) => renderRow(i18n, rules, wording, r, passed, lines(r), percent, !inView(r), open, sessionsOf(r)))}</ul>
 `;
 }
 
@@ -625,10 +693,18 @@ function barBlock(
 	return html`<div class="bar-block bar-${kind}"><span class="bar-figures"><span class="figure"><span class="visually-hidden">${i18n.t(`organiser.overview.column.${kind}`)} </span>${whole(value)}</span>${toGo}</span>${thresholdBars(value, threshold, pace)}</div>`;
 }
 
-/** Training and Team amounts as the two mini coins, read out in words. */
-function coinPair(i18n: I18n, training: number, team: number): SafeHtml {
+/**
+ * Training and Team amounts as the two mini coins, read out in words; the
+ * Training coin alone without Team Rynke.
+ */
+function coinPair(
+	i18n: I18n,
+	wording: Wording,
+	training: number,
+	team: number | null,
+): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
-	return html`<td class="number"><span class="coin-pair" aria-hidden="true"><span>${miniCoin("training")}${whole(training)}</span><span>${miniCoin("team")}${whole(team)}</span></span><span class="visually-hidden">${amounts(i18n, training, team)}</span></td>`;
+	return html`<td class="number"><span class="coin-pair" aria-hidden="true"><span>${miniCoin("training")}${whole(training)}</span>${team === null ? null : html`<span>${miniCoin("team")}${whole(team)}</span>`}</span><span class="visually-hidden">${amounts(i18n, wording, training, team)}</span></td>`;
 }
 
 /** The Sessions cell: the season count and typical ride, "–" below 3. */
@@ -647,6 +723,7 @@ function sessionsCell(
 function renderTable(
 	i18n: I18n,
 	rules: RynkeRules,
+	wording: Wording,
 	riders: readonly OverviewRider[],
 	passed: boolean,
 	lines: (rider: OverviewRider) => SafeHtml | null,
@@ -678,14 +755,19 @@ function renderTable(
 			rider.pace?.training ?? null,
 			rider.missing.training,
 		);
-		const team = barBlock(
-			i18n,
-			"team",
-			rider.team,
-			rules.teamThreshold,
-			rider.pace?.team ?? null,
-			rider.missing.team,
-		);
+		const team =
+			rider.team === null ||
+			rules.teamThreshold === null ||
+			rider.missing.team === null
+				? null
+				: barBlock(
+						i18n,
+						"team",
+						rider.team,
+						rules.teamThreshold,
+						rider.pace?.team ?? null,
+						rider.missing.team,
+					);
 		return html`<tr class="status-${rider.status}">
 <th scope="row">${nameLinks(i18n, rider)}</th>
 <td>${statusChip(i18n, rider, passed)}</td>
@@ -693,9 +775,13 @@ function renderTable(
 <td class="number">${i18n.t("organiser.overview.percent", { n: whole(rider.breakdown.virtualShare) })}</td>
 ${sessionsOf ? sessionsCell(i18n, sessionsOf(rider)) : null}<td class="number">${whole(rider.breakdown.distanceRynke)}</td>
 <td class="number">${whole(rider.breakdown.elevationRynke)}</td>
-${coinPair(i18n, rider.breakdown.corrections.training, rider.breakdown.corrections.team)}
-<td class="requests-cell">${lines(rider)}</td>
-</tr>
+${coinPair(i18n, wording, rider.breakdown.corrections.training, rider.team === null ? null : rider.breakdown.corrections.team)}
+${
+	hasEvents(wording)
+		? html`<td class="requests-cell">${lines(rider)}</td>
+`
+		: null
+}</tr>
 `;
 	});
 	return html`<div class="table-scroll" tabindex="0" role="region" aria-label="${i18n.t("organiser.overview.column.name")}"><table class="rider-table">
@@ -703,7 +789,7 @@ ${coinPair(i18n, rider.breakdown.corrections.training, rider.breakdown.correctio
 		sessionsOf
 			? html`<th scope="col" class="number" title="${i18n.t("organiser.overview.column.typical.hint")}">${i18n.t("organiser.overview.column.sessions")}<span class="th-sub">${i18n.t("organiser.overview.column.typical")}</span></th>`
 			: null
-	}${column("distance", true)}${column("elevation", true)}${column("corrections", true)}${column("requests")}</tr></thead>
+	}${column("distance", true)}${column("elevation", true)}${column("corrections", true)}${hasEvents(wording) ? column("requests") : null}</tr></thead>
 <tbody>
 ${rows}</tbody>
 </table></div>
@@ -731,6 +817,7 @@ function percentBlock(
 function renderPercentTable(
 	i18n: I18n,
 	rules: RynkeRules,
+	wording: Wording,
 	riders: readonly OverviewRider[],
 	passed: boolean,
 	lines: (rider: OverviewRider) => SafeHtml | null,
@@ -749,14 +836,19 @@ function renderPercentTable(
 			rider.pace?.training ?? null,
 			rider.missing.training,
 		);
-		const team = percentBlock(
-			i18n,
-			"team",
-			rider.team,
-			rules.teamThreshold,
-			rider.pace?.team ?? null,
-			rider.missing.team,
-		);
+		const team =
+			rider.team === null ||
+			rules.teamThreshold === null ||
+			rider.missing.team === null
+				? null
+				: percentBlock(
+						i18n,
+						"team",
+						rider.team,
+						rules.teamThreshold,
+						rider.pace?.team ?? null,
+						rider.missing.team,
+					);
 		// Outdoor Training is no column of its own, only a reason (2026-10-29).
 		const outdoor =
 			rider.missing.outdoor.amount > 0
@@ -766,13 +858,17 @@ function renderPercentTable(
 <th scope="row">${nameLinks(i18n, rider)}</th>
 <td>${statusChip(i18n, rider, passed)}${outdoor}</td>
 <td class="bar-cell">${training}${team}</td>
-${coinPair(i18n, rider.breakdown.corrections.training, rider.breakdown.corrections.team)}
-<td class="requests-cell">${lines(rider)}</td>
-</tr>
+${coinPair(i18n, wording, rider.breakdown.corrections.training, rider.team === null ? null : rider.breakdown.corrections.team)}
+${
+	hasEvents(wording)
+		? html`<td class="requests-cell">${lines(rider)}</td>
+`
+		: null
+}</tr>
 `;
 	});
 	return html`<div class="table-scroll" tabindex="0" role="region" aria-label="${i18n.t("organiser.overview.column.name")}"><table class="rider-table">
-<thead><tr>${column("name")}${column("group")}${column("rynke")}${column("corrections", true)}${column("requests")}</tr></thead>
+<thead><tr>${column("name")}${column("group")}${column("rynke")}${column("corrections", true)}${hasEvents(wording) ? column("requests") : null}</tr></thead>
 <tbody>
 ${rows}</tbody>
 </table></div>
@@ -781,6 +877,7 @@ ${rows}</tbody>
 
 function renderQualified(
 	i18n: I18n,
+	wording: Wording,
 	riders: readonly OverviewRider[],
 ): SafeHtml {
 	const qualified = riders
@@ -791,7 +888,7 @@ function renderQualified(
 ${
 	qualified.length === 0
 		? html`<p>${i18n.t("organiser.overview.nobodyYet")}</p>`
-		: html`<p class="qualified-hint">${i18n.t("organiser.overview.qualifiedHint")}</p>
+		: html`<p class="qualified-hint">${i18n.t(eventsText(wording, "organiser.overview.qualifiedHint"))}</p>
 <ul>${qualified.map((r) => html`<li>${miniCoin("team")}<span class="rider-name">${r.firstName}</span></li>`)}</ul>`
 }${FUN_BURSTS}
 </section>
@@ -816,6 +913,7 @@ export function overviewBody(
 	view: "graphs" | "riders" = "riders",
 	rides: RiderRides = null,
 	coin: CoinArt = SHARED_COIN,
+	wording: Wording = WITH_EVENTS,
 ): SafeHtml {
 	const passed = today > window.deadline;
 	const sessionsOf =
@@ -845,12 +943,12 @@ export function overviewBody(
 			? html`<p>${i18n.t("organiser.overview.none")}</p>
 `
 			: html`${renderReports(i18n, riders, requests, back)}${hasGraphs ? renderViewSwitch(i18n, shown.length, view) : null}<div class="overview-list">
-${pace ? renderHint(i18n, rules, pace, figures, whole) : null}${renderRows(i18n, rules, riders, group, passed, requests, lines, percent, sessionsOf ?? (() => null))}${percent ? renderPercentTable(i18n, rules, shown, passed, lines) : renderTable(i18n, rules, shown, passed, lines, sessionsOf)}</div>
-${hasGraphs ? graphs : null}<div class="overview-qualified">${renderQualified(i18n, riders)}</div>
+${pace ? renderHint(i18n, rules, pace, figures, whole) : null}${renderRows(i18n, rules, wording, riders, group, passed, requests, lines, percent, sessionsOf ?? (() => null))}${percent ? renderPercentTable(i18n, rules, wording, shown, passed, lines) : renderTable(i18n, rules, wording, shown, passed, lines, sessionsOf)}</div>
+${hasGraphs ? graphs : null}<div class="overview-qualified">${renderQualified(i18n, wording, riders)}</div>
 `;
 	return html`<div class="team-overview"${hasGraphs ? html` data-view="${view}"` : null}${inert ? html` inert` : null}>
 <h2>${i18n.t("organiser.overview.heading")}</h2>
-${renderDeadline(i18n, window, today, riders, coin)}${renderTiles(i18n, riders, group, passed, requests)}${body}</div>`;
+${renderDeadline(i18n, window, today, riders, coin)}${renderTiles(i18n, riders, group, passed, requests, hasEvents(wording))}${body}</div>`;
 }
 
 /**
@@ -870,14 +968,32 @@ function renderViewSwitch(
 `;
 }
 
-/** What the even pace asks for today, as amounts or in percent. */
+/**
+ * What the even pace asks for today, as amounts or in percent; Training's
+ * alone without Team Rynke (feature 039).
+ */
 function renderHint(
 	i18n: I18n,
 	rules: RynkeRules,
 	pace: Pace,
 	figures: OrganiserFigures,
 	whole: (n: number) => string,
-): SafeHtml {
+): SafeHtml | null {
+	if (pace.team === null || rules.teamThreshold === null) {
+		// Without Team Rynke the tick marks Training's pace only (feature 039).
+		const text =
+			figures === "percent"
+				? i18n.t("organiser.overview.hint.percent.noEvents", {
+						training: i18n.t("organiser.overview.percent", {
+							n: whole(percentOf(pace.training, rules.trainingThreshold)),
+						}),
+					})
+				: i18n.t("organiser.overview.hint.noEvents", {
+						training: whole(pace.training),
+					});
+		return html`<p class="team-hint" id="tour-pace">${text}</p>
+`;
+	}
 	const text =
 		figures === "percent"
 			? i18n.t("organiser.overview.hint.percent", {
@@ -957,7 +1073,7 @@ export function handleOrganiserOverview(
 		// The organiser tour's graphs step asks for them (020 FR-012).
 		const view =
 			url.searchParams.get("view") === "graphs" ? "graphs" : "riders";
-		const body = html`${organiserSwitch(i18n, "riders", team.requests.length)}${notices}${overviewBody(team.read, rules, window, today, shownGroup, i18n, requests, example, figures, graphs, view, team.rides, ctx.team.art.coin)}`;
+		const body = html`${organiserSwitch(i18n, "riders", team.requests.length, ctx.team)}${notices}${overviewBody(team.read, rules, window, today, shownGroup, i18n, requests, example, figures, graphs, view, team.rides, ctx.team.art.coin, ctx.team)}`;
 		return graphs ? { body, scripts: CHART_SCRIPTS } : body;
 	});
 }

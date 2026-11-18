@@ -11,7 +11,6 @@ import {
 	extrasFromAttendance,
 	NO_EXTRAS,
 	tally,
-	virtualShareRequired,
 } from "../../src/rynke/tally";
 import {
 	type Attendance,
@@ -180,26 +179,40 @@ describe("tally", () => {
 		},
 	);
 
-	it("needs ceil(threshold × (den − num) / den) without virtual rides", () => {
-		const rules: RynkeRules = { ...CURRENT_RULES, trainingThreshold: 10 };
+	it("needs the rules' Training Rynke without virtual rides", () => {
+		const rules: RynkeRules = {
+			...CURRENT_RULES,
+			trainingThreshold: 10,
+			minOutsideTraining: 7,
+		};
 		expect(
 			tally(riding(sums(10), sums(0)), NO_EXTRAS, rules).virtualShareMissing,
 		).toBe(7);
-		const half: RynkeRules = {
-			...CURRENT_RULES,
-			trainingThreshold: 9,
-			maxVirtualShare: { num: 1, den: 2 },
-		};
 		expect(
-			tally(riding(sums(9), sums(0)), NO_EXTRAS, half).virtualShareMissing,
-		).toBe(5);
-		const any: RynkeRules = {
+			tally(riding(sums(10), sums(5)), NO_EXTRAS, rules).virtualShareMissing,
+		).toBe(2);
+	});
+
+	// Feature 039 research R15: 0 drops the requirement; the rest decides.
+	it("qualifies on virtual rides alone when nothing is needed from outside them", () => {
+		const none: RynkeRules = {
 			...CURRENT_RULES,
-			maxVirtualShare: { num: 1, den: 1 },
+			teamThreshold: null,
+			minOutsideTraining: 0,
+			teamEvents: {
+				team_training: { team: 0, training: 0 },
+				training_weekend_day: { team: 0, training: 0 },
+				technique_training: { team: 0, training: 0 },
+			},
 		};
-		expect(
-			tally(riding(sums(250), sums(0)), NO_EXTRAS, any).virtualShareMissing,
-		).toBe(0);
+		expect(tally(riding(sums(250), sums(0)), NO_EXTRAS, none)).toMatchObject({
+			virtualShareMissing: 0,
+			qualified: true,
+		});
+		expect(tally(riding(sums(249), sums(0)), NO_EXTRAS, none)).toMatchObject({
+			trainingMissing: 1,
+			qualified: false,
+		});
 	});
 
 	it("uses the rules' steps for the elevation still to climb", () => {
@@ -291,19 +304,54 @@ describe("tally", () => {
 	});
 });
 
-describe("virtualShareRequired", () => {
-	it("is 167 under the current rules", () => {
-		expect(virtualShareRequired(CURRENT_RULES)).toBe(167);
+describe("tally without Team Rynke (feature 039 research R2)", () => {
+	const NO_TEAM: RynkeRules = {
+		...CURRENT_RULES,
+		teamThreshold: null,
+		teamEvents: {
+			team_training: { team: 0, training: 0 },
+			training_weekend_day: { team: 0, training: 0 },
+			technique_training: { team: 0, training: 0 },
+		},
+	};
+
+	it("misses no Team Rynke and qualifies on Training and the outdoor share", () => {
+		expect(
+			tally(riding(sums(250), sums(167)), NO_EXTRAS, NO_TEAM),
+		).toMatchObject({
+			teamRynke: 0,
+			teamMissing: 0,
+			trainingMissing: 0,
+			virtualShareMissing: 0,
+			qualified: true,
+		});
 	});
 
-	it("follows the threshold and the share", () => {
+	it("doesn't qualify with Training Rynke missing", () => {
 		expect(
-			virtualShareRequired({
-				...CURRENT_RULES,
-				trainingThreshold: 300,
-				maxVirtualShare: { num: 1, den: 3 },
-			}),
-		).toBe(200);
+			tally(riding(sums(249), sums(249)), NO_EXTRAS, NO_TEAM),
+		).toMatchObject({ teamMissing: 0, trainingMissing: 1, qualified: false });
+	});
+
+	it("doesn't qualify with the outdoor share missing", () => {
+		expect(
+			tally(riding(sums(260), sums(160)), NO_EXTRAS, NO_TEAM),
+		).toMatchObject({
+			teamMissing: 0,
+			virtualShareMissing: 7,
+			qualified: false,
+		});
+	});
+});
+
+// Feature 039 research R15: the whole number replaced "at most a third
+// virtual", ceil(250 × 2 / 3), with the same results.
+describe("the founding team's Training Rynke needed from outside virtual rides", () => {
+	it("is what at most a third virtual asked for", () => {
+		expect(CURRENT_RULES.minOutsideTraining).toBe(
+			Math.ceil((CURRENT_RULES.trainingThreshold * 2) / 3),
+		);
+		expect(CURRENT_RULES.minOutsideTraining).toBe(167);
 	});
 });
 
