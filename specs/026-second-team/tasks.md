@@ -437,7 +437,7 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 
 ## Phase 16: Go live (release 4)
 
-- [ ] T081 Replace Europe's placeholders with its real values in `src/teams/europe.ts` and
+- [X] T081 Replace Europe's placeholders with its real values in `src/teams/europe.ts` and
   `wrangler.jsonc` (domain route, club IDs, dates, rules, switches, controller, contact,
   the seasonal monkeys' `holidays`), empty `placeholders`; `node scripts/team-check.mjs --deployable europe` passes.
 - [X] T082 Europe's Rynke explanation in English, `docs/teams/europe/rynke-points.md`, and its
@@ -445,7 +445,7 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
   English translation of Hamburg's `docs/rynke-punkte.md`, adjusted only where Europe's
   values differ. The handout's file name becomes team data instead of the fixed
   `RULES_HANDOUT_URL` in `src/http/rider-sections.ts`; `scripts/docs-pdf.sh` builds per team.
-- [ ] T083 Add Europe to the gateway's `TEAMS` in `gateway/wrangler.jsonc`.
+- [X] T083 Add Europe to the gateway's `TEAMS` in `gateway/wrangler.jsonc`.
 - [X] T084 Runbook `docs/add-a-team.md`: the manual steps from quickstart › Release 4
   (resources in the EU jurisdiction, secrets with the Strava secret by the Strava owner
   only, environment, controllers' decision, gateway token), written for any later team

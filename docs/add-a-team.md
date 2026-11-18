@@ -94,6 +94,12 @@ Every secret goes on the team's Worker with `--env <id>`, for example
 `pnpm exec wrangler secret put ADMIN_TOKEN --env <id>`. Each value is new, never one
 from `.dev.vars` or another team, except where a row says so.
 
+`node scripts/team-secrets.mjs <id>` does this step and the gateway secret of step 5
+at once. The Strava owner runs it, since it sets the Strava application's credentials
+from `.dev.vars`. It creates the new values, writes each one into `.dev.vars` as a
+comment before setting it, and on a later run sets the same values again. A secret
+already on the Worker with no record there stays as it is.
+
 | Secret | Who | Value |
 |---|---|---|
 | `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` | **Strava owner only** | the shared Strava application's |
@@ -139,6 +145,11 @@ shows every team's counts, and connected riders count against Strava's 999 toget
    ([repository settings](../.github/repository-settings.md#environment-production-europe-like-production-for-team-rynkeby-europe)),
    with its own deploy credential. Create it before anything references it: a run that
    references a missing environment creates it without any rules.
+   `scripts/team-github.sh <id>` does it: the environment with its `main` rule, the
+   deploy token (asked for hidden, and recorded in `.dev.vars` so it isn't lost) and
+   the account ID, then it checks the result. The token needs *Workers Routes: Edit*
+   on the team's zone besides production's two permissions, because this team's
+   first deploy creates its custom domain.
 2. In `.github/workflows/ci.yml`, `deploy-gate` lists the teams. Add the new team's
    entry (`team`, `environment`, `url`, `database: "DB"`, `wrangler_env: "<id>"`) behind
    its own repository variable, like Europe's behind `EUROPE_DEPLOY`. That's the line of
@@ -157,7 +168,8 @@ isn't counted as a team in the shared usage figures.
    `env.<id>.routes` (`{ "pattern": "<domain>", "custom_domain": true }`).
    `node scripts/team-check.mjs --deployable <id>` passes.
 2. Merge, and release to `main` as usual.
-3. `gh variable set <ID>_DEPLOY --body on`, then **Actions → CI → Run workflow** on
+3. `scripts/team-github.sh <id> --go-live` (it asks first), or by hand
+   `gh variable set <ID>_DEPLOY --body on`, then **Actions → CI → Run workflow** on
    `main`. The team's own `deploy (<id>)` job applies its migrations, deploys it and
    creates the custom domain. The other teams' jobs are unaffected.
 4. Check:

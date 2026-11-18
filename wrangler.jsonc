@@ -173,8 +173,7 @@
 				{
 					"binding": "DB",
 					"database_name": "rynke-points-europe",
-					// Placeholder, until `wrangler d1 create rynke-points-europe`.
-					"database_id": "00000000-0000-0000-0000-000000000000",
+					"database_id": "ab5fb54c-2e8d-4ee3-8668-a27e99da58f5",
 					"migrations_dir": "migrations"
 				}
 			],
@@ -220,12 +219,12 @@
 				"PHRASES": "on",
 				"SEASON_ALBUM": "on",
 				"FUN_THEMES": "on",
-				// Placeholder until Europe names its controller. The contact is
-				// Cloudflare Email Routing on Europe's domain, like Hamburg's.
-				"PRIVACY_CONTROLLER": "Placeholder Controller",
+				// The same controller as Hamburg's. The contact is Cloudflare Email
+				// Routing on Europe's domain, like Hamburg's.
+				"PRIVACY_CONTROLLER": "Sascha Steffen",
 				"CONTACT_EMAIL": "support@rynke-points.eu",
 				"TEAM_ID": "europe",
-				"STRAVA_RETURN_VIA": "",
+				"STRAVA_RETURN_VIA": "https://gateway.trhh-rynke-coins.link",
 				"USAGE_PEERS": "[{\"id\":\"hamburg\",\"origin\":\"https://trhh-rynke-coins.link\"}]"
 			},
 			"secrets": {
@@ -383,7 +382,7 @@
 				"PHRASES": "on",
 				"SEASON_ALBUM": "on",
 				"FUN_THEMES": "on",
-				"PRIVACY_CONTROLLER": "Placeholder Controller",
+				"PRIVACY_CONTROLLER": "Sascha Steffen",
 				"CONTACT_EMAIL": "support@rynke-points.eu",
 				"TEAM_ID": "europe",
 				"STRAVA_RETURN_VIA": "",
