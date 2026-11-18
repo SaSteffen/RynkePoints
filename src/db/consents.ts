@@ -106,8 +106,17 @@ export async function consentVersionOf(
  * no team count includes them (feature 041 FR-007, research R3).
  */
 export function sharedRiderIdsSince(version: number): string {
-	return `SELECT athlete_id FROM consent_records WHERE version >= ${Math.trunc(version)}
+	return `${consentedRiderIdsSince(version)}
 		AND athlete_id NOT IN (SELECT athlete_id FROM riders WHERE guest = 1)`;
+}
+
+/**
+ * `sharedRiderIdsSince` without leaving guests out: only for a query that reads
+ * the rider's `riders` row anyway and checks `guest = 0` there, which costs no
+ * extra read (feature 041 FR-007).
+ */
+export function consentedRiderIdsSince(version: number): string {
+	return `SELECT athlete_id FROM consent_records WHERE version >= ${Math.trunc(version)}`;
 }
 
 /**

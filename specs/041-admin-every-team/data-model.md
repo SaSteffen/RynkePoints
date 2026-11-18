@@ -2,8 +2,12 @@
 
 **Feature**: [spec.md](spec.md) | **Research**: [research.md](research.md)
 
-One migration, `migrations/0030_guests.sql`, add only, so the previous release keeps working while
-CI applies it before publishing the code (CLAUDE.md).
+Three migrations, all add only, so the previous release keeps working while CI applies them before
+publishing the code (CLAUDE.md): `0030_guests.sql`, `0031_pending_revocations.sql` (see Pending
+revocations) and `0032_guest_index.sql`, a partial index on the guests' `riders` rows. Every team
+figure leaves guests out; the index lets that check read only the guests' rows instead of every
+rider. A query that already reads the rider's row checks `guest = 0` there instead
+(`LISTED_RIDER_IDS`).
 
 ## `guests` (new): the guest list
 
