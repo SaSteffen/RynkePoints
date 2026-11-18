@@ -263,11 +263,18 @@ function iso(epochMs: number): string {
 	return new Date(epochMs).toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
+/** `YYYY-MM-DD` one year before `day`. */
+function yearBefore(day: string): string {
+	return `${Number(day.slice(0, 4)) - 1}${day.slice(4)}`;
+}
+
 /**
  * The activity Strava would send for `recipe` on a seeding day `seedDay`
  * (`YYYY-MM-DD`, Europe/Berlin). Inside the season, never before `seasonStart`
- * (`YYYY-MM-DD`); seeded before it, on its own day, so it counts for nothing
- * (Europe's season starts on 1 January, feature 039).
+ * (`YYYY-MM-DD`). Seeded before it, everything counts for nothing (Europe's
+ * season starts on 1 January, feature 039): a ride keeps its own day, and one
+ * on a set day of the season (`onDate`, `onEaster`) is on that day of the
+ * season before, in the past like any ride Strava has.
  */
 export function recipeToActivity(
 	recipe: RideRecipe,
@@ -275,14 +282,15 @@ export function recipeToActivity(
 	seasonStart: string,
 	id: number,
 ): FakeActivity {
+	const preseason = seedDay < seasonStart;
+	const season = preseason ? yearBefore(seasonStart) : seasonStart;
 	const wanted =
 		recipe.onEaster !== undefined
-			? dayBefore(seasonEaster(seasonStart), -recipe.onEaster)
+			? dayBefore(seasonEaster(season), -recipe.onEaster)
 			: recipe.onDate
-				? seasonDay(recipe.onDate, seasonStart)
+				? seasonDay(recipe.onDate, season)
 				: dayBefore(seedDay, recipe.daysAgo);
-	const day =
-		wanted < seasonStart && seedDay >= seasonStart ? seasonStart : wanted;
+	const day = wanted < seasonStart && !preseason ? seasonStart : wanted;
 	const startUtc = berlinToUtcMs(day, recipe.startTime);
 	return {
 		id,
