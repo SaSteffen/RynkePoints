@@ -28,7 +28,9 @@
 // art/quotes/monkeys.json with its art/quotes/prompt.txt and the hero coin's
 // reference sheet, into art/quotes/originals/ (art/quotes/README.md); so do
 // the two pictures of Rynke in the fun themes' page-switch shows, from
-// art/shows/ (art/shows/README.md). Their ids work like badge ids here.
+// art/shows/ (art/shows/README.md). Their ids work like badge ids here. A
+// team's own take of a badge with another team's motifs, from
+// art/badges/teams/<team>/, has the id <team>/<badge>, e.g. europe/running-100.
 //
 // Other options: --profile <dir> (default ~/.cache/rynkepoints/gemini-profile),
 // --browser chrome|chromium (default chrome), --timeout <seconds> per image
@@ -49,7 +51,11 @@ import { homedir, tmpdir } from "node:os";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
-import { buildPrompt, validateBadges } from "./badge-prompts.mjs";
+import {
+	buildPrompt,
+	validateBadges,
+	validateTeamBadges,
+} from "./badge-prompts.mjs";
 import { validateMonkeys, validateShows } from "./quote-prompts.mjs";
 
 const GEMINI = "https://gemini.google.com/app";
@@ -117,7 +123,7 @@ const REFERENCE = {
 };
 
 // Three lists: the badges, the Team page's quote monkeys (art/quotes) and
-// Rynke in the page-switch shows (art/shows).
+// Rynke in the page-switch shows (art/shows); then the teams' own badges.
 const SETS = [
 	{
 		dir: "art/badges",
@@ -148,11 +154,49 @@ const items = SETS.flatMap(({ dir, list, key, check }) => {
 	if (!Array.isArray(data[key])) return [];
 	return data[key].map((item) => ({
 		...item,
+		file: item.id,
 		out: root(`${dir}/originals`),
 		reference: REFERENCE[item.group ?? "monkey"],
 		prompt: () => buildPrompt(template, data.snippets ?? {}, item),
 	}));
 });
+// A team's own takes of badges whose shared picture shows another team's
+// motifs (feature 026 FR-024), art/badges/teams/<team>/: the shared badge's
+// group, prompt and snippets with the team's scene; the id is <team>/<badge>.
+const shared = JSON.parse(readFileSync(root("art/badges/badges.json"), "utf8"));
+const badgeTemplate = readFileSync(
+	root("art/badges/prompt.txt"),
+	"utf8",
+).trim();
+for (const team of teamArtDirs()) {
+	const dir = `art/badges/teams/${team}`;
+	const data = JSON.parse(readFileSync(root(`${dir}/badges.json`), "utf8"));
+	const found = validateTeamBadges(data, shared);
+	problems.push(...found.map((p) => `${dir}: ${p}`));
+	if (found.length > 0) continue;
+	for (const item of data.badges) {
+		const group = shared.badges.find((b) => b.id === item.id).group;
+		items.push({
+			...item,
+			id: `${team}/${item.id}`,
+			file: item.id,
+			out: root(`${dir}/originals`),
+			reference: REFERENCE[group],
+			prompt: () => buildPrompt(badgeTemplate, shared.snippets ?? {}, item),
+		});
+	}
+}
+
+/** The teams with their own badge scenes under art/badges/teams/. */
+function teamArtDirs() {
+	try {
+		return readdirSync(root("art/badges/teams")).filter(
+			(f) => !f.startsWith("."),
+		);
+	} catch {
+		return [];
+	}
+}
 const ids = new Set();
 for (const { id } of items) {
 	if (ids.has(id)) problems.push(`${id}: in two of the art lists`);
@@ -165,7 +209,7 @@ if (problems.length > 0) {
 
 function existing(item) {
 	try {
-		return readdirSync(item.out).find((f) => f.startsWith(`${item.id}.`));
+		return readdirSync(item.out).find((f) => f.startsWith(`${item.file}.`));
 	} catch {
 		return undefined;
 	}
@@ -266,20 +310,21 @@ async function attach(page, editor, file) {
 			.getByRole("button", { name: SELECTORS.uploadMenu })
 			.first()
 			.click({ timeout: 5_000 });
-		const input = page.locator(SELECTORS.imageInput).first();
-		if ((await input.count()) > 0) {
-			await input.setInputFiles(file);
-			await page.keyboard.press("Escape").catch(() => {});
-		} else {
+		// The menu's upload item first: since November 2026 filling the hidden
+		// image input no longer starts an upload.
+		const item = page
+			.getByRole("menuitem", { name: SELECTORS.uploadItem })
+			.or(page.getByRole("button", { name: SELECTORS.uploadItem }))
+			.first();
+		if ((await item.count()) > 0) {
 			const chooser = page.waitForEvent("filechooser", { timeout: 10_000 });
 			// Awaited below; without this a failed click leaves it to crash the run.
 			chooser.catch(() => {});
-			await page
-				.getByRole("menuitem", { name: SELECTORS.uploadItem })
-				.or(page.getByRole("button", { name: SELECTORS.uploadItem }))
-				.first()
-				.click({ timeout: 5_000 });
+			await item.click({ timeout: 5_000 });
 			await (await chooser).setFiles(file);
+		} else {
+			await page.locator(SELECTORS.imageInput).first().setInputFiles(file);
+			await page.keyboard.press("Escape").catch(() => {});
 		}
 	} catch {
 		await page.keyboard.press("Escape").catch(() => {});
@@ -349,9 +394,9 @@ async function waitForImage(page, seconds, before) {
  * comes back as JPEG must replace a PNG, or badge-build finds two originals.
  * The raw copies keep every earlier take.
  */
-function dropOthers(path, { id, out }) {
+function dropOthers(path, { file, out }) {
 	for (const f of readdirSync(out)) {
-		if (f.startsWith(`${id}.`) && join(out, f) !== path) rmSync(join(out, f));
+		if (f.startsWith(`${file}.`) && join(out, f) !== path) rmSync(join(out, f));
 	}
 }
 
@@ -359,11 +404,15 @@ function dropOthers(path, { id, out }) {
 function keepRaw(path, id) {
 	mkdirSync(RAW, { recursive: true });
 	const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-	copyFileSync(path, join(RAW, `${id}-${stamp}${extname(path)}`));
+	copyFileSync(
+		path,
+		join(RAW, `${id.replaceAll("/", "-")}-${stamp}${extname(path)}`),
+	);
 }
 
 async function download(page, index, item) {
 	const { id, out } = item;
+	const name = item.file;
 	const answer = page.locator(SELECTORS.response).last();
 	const img = answer.locator("img").nth(index);
 	await img.scrollIntoViewIfNeeded();
@@ -376,7 +425,7 @@ async function download(page, index, item) {
 			.click({ timeout: 10_000 });
 		const file = await event;
 		const ext = extname(file.suggestedFilename()) || ".png";
-		const path = join(out, `${id}${ext}`);
+		const path = join(out, `${name}${ext}`);
 		await file.saveAs(path);
 		keepRaw(path, id);
 		dropOthers(path, item);
@@ -391,7 +440,7 @@ async function download(page, index, item) {
 			return { b64: btoa(s), type: blob.type };
 		});
 		const ext = type === "image/jpeg" ? ".jpg" : ".png";
-		const path = join(out, `${id}${ext}`);
+		const path = join(out, `${name}${ext}`);
 		writeFileSync(path, Buffer.from(b64, "base64"));
 		keepRaw(path, id);
 		dropOthers(path, item);
@@ -467,7 +516,7 @@ for (const [n, badge] of batch.entries()) {
 		);
 		ok = true;
 	} catch (error) {
-		const shot = join(DEBUG, `${badge.id}.png`);
+		const shot = join(DEBUG, `${badge.id.replaceAll("/", "-")}.png`);
 		await page
 			.screenshot({ path: shot, timeout: 10_000 })
 			.catch((e) => console.error(`  no screenshot: ${e.message}`));
@@ -481,7 +530,10 @@ for (const [n, badge] of batch.entries()) {
 				),
 			)
 			.catch(() => []);
-		writeFileSync(join(DEBUG, `${badge.id}.txt`), buttons.join("\n"));
+		writeFileSync(
+			join(DEBUG, `${badge.id.replaceAll("/", "-")}.txt`),
+			buttons.join("\n"),
+		);
 		console.error(`  failed: ${error.message.split("\n")[0]} (see ${shot})`);
 		failed.push(badge.id);
 	} finally {
