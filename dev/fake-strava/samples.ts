@@ -271,10 +271,11 @@ function yearBefore(day: string): string {
 /**
  * The activity Strava would send for `recipe` on a seeding day `seedDay`
  * (`YYYY-MM-DD`, Europe/Berlin). Inside the season, never before `seasonStart`
- * (`YYYY-MM-DD`). Seeded before it, everything counts for nothing (Europe's
- * season starts on 1 January, feature 039): a ride keeps its own day, and one
- * on a set day of the season (`onDate`, `onEaster`) is on that day of the
- * season before, in the past like any ride Strava has.
+ * (`YYYY-MM-DD`). Seeded before it, everything counts for nothing (a season
+ * start set after the seeding day, as in a sandbox before 1 September): a ride
+ * keeps its own day, and one on a set day of the season (`onDate`,
+ * `onEaster`) is on that day of the season before, in the past like any ride
+ * Strava has.
  */
 export function recipeToActivity(
 	recipe: RideRecipe,
