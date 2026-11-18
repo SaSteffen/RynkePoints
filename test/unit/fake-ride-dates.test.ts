@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { recipeToActivity, ride } from "../../dev/fake-strava/samples";
+import {
+	type RideRecipe,
+	recipeToActivity,
+	ride,
+} from "../../dev/fake-strava/samples";
 
 // Where the fake mode puts a sample ride from before the season start: on the
 // season start once the season has begun, so its rides count; seeded before
@@ -7,13 +11,18 @@ import { recipeToActivity, ride } from "../../dev/fake-strava/samples";
 // (Europe's season starts on 1 January, feature 039).
 
 const START = "2027-01-01";
+const dateOf = (recipe: RideRecipe, seedDay: string) =>
+	recipeToActivity(recipe, seedDay, START, 0).start_date_local.slice(0, 10);
 const dayOf = (seedDay: string, daysAgo: number) =>
-	recipeToActivity(
-		ride(daysAgo, "10:00", 40, 200, 24),
-		seedDay,
-		START,
-		0,
-	).start_date_local.slice(0, 10);
+	dateOf(ride(daysAgo, "10:00", 40, 200, 24), seedDay);
+const onDate = (monthDay: string): RideRecipe => ({
+	...ride(0, "10:00", 40, 200, 24),
+	onDate: monthDay,
+});
+const onEaster = (offset: number): RideRecipe => ({
+	...ride(0, "10:00", 40, 200, 24),
+	onEaster: offset,
+});
 
 describe("a sample ride from before the season start", () => {
 	it("is moved to the season start once the season has begun", () => {
@@ -26,5 +35,22 @@ describe("a sample ride from before the season start", () => {
 
 	it("keeps its own day inside the season", () => {
 		expect(dayOf("2027-03-12", 3)).toBe("2027-03-09");
+	});
+});
+
+// A ride on a set day of the season (a holiday, a winter month, Easter) is on
+// that day of this season once it has begun, the "Pretend a day" showcase;
+// seeded before it, on that day of the season before, so nothing is dated
+// after today and a rider connecting before 1 January has 0 Rynke.
+describe("a sample ride on a set day of the season", () => {
+	it("is in this season once it has begun", () => {
+		expect(dateOf(onDate("03-14"), "2027-01-05")).toBe("2027-03-14");
+		expect(dateOf(onEaster(1), "2027-01-05")).toBe("2027-03-29");
+	});
+
+	it("is in the season before when seeded before the season", () => {
+		expect(dateOf(onDate("03-14"), "2026-11-18")).toBe("2026-03-14");
+		expect(dateOf(onDate("01-01"), "2026-11-18")).toBe("2026-01-01");
+		expect(dateOf(onEaster(1), "2026-11-18")).toBe("2026-04-06");
 	});
 });

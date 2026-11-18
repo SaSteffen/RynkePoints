@@ -291,7 +291,8 @@ same results as before for every sample rider.
   local fake mode, with sample rides below and above 25 km for Europe.
 - **FR-016**: Europe's sample riders and the sandbox's data MUST contain no events, attendance or
   Team Rynke, and no rides dated in a November or December of the season. Seeded before the season
-  starts, a sample ride keeps its own date and counts for nothing: a rider connecting before
+  starts, a sample ride keeps its own date, one on a set day of the season (a holiday, a winter
+  day, Easter) is on that day of the season before, and none counts: a rider connecting before
   1 January has rides and 0 Rynke.
 
 ### Key Entities
