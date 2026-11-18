@@ -26,7 +26,7 @@ const en = createI18n("en", CATALOGS);
 const de = createI18n("de", CATALOGS);
 // 224 days from 18 November 2026 to the deadline of 30 June 2027.
 const COUNTDOWN = {
-	seasonStart: "2026-09-01",
+	windowStart: "2026-09-01",
 	deadline: "2027-06-30",
 	today: "2026-11-18",
 };
@@ -108,7 +108,7 @@ describe("renderRules minimum ride length (feature 039)", () => {
 	const rules = {
 		version: 4,
 		effectiveDate: "2026-11-17",
-		seasonStart: "2026-01-01",
+		windowStart: "2026-01-01",
 		deadline: "2027-03-31",
 	};
 
@@ -142,7 +142,7 @@ describe("renderRules window", () => {
 	const rules = {
 		version: 2,
 		effectiveDate: "2026-11-01",
-		seasonStart: "2026-01-01",
+		windowStart: "2026-01-01",
 	};
 
 	it("names the start and the deadline", () => {
@@ -160,7 +160,7 @@ describe("renderRules handout (026 FR-022)", () => {
 	const rules = {
 		version: 2,
 		effectiveDate: "2026-11-01",
-		seasonStart: "2026-01-01",
+		windowStart: "2026-01-01",
 		deadline: "2027-03-31",
 	};
 	const link = (i18n: typeof en, team: typeof hamburg) =>
@@ -422,7 +422,7 @@ describe("coins", () => {
 			},
 			"on_track",
 			{
-				seasonStart: "2027-01-01",
+				windowStart: "2027-01-01",
 				deadline: "2027-06-30",
 				today: "2026-11-18",
 			},
@@ -443,7 +443,7 @@ describe("coins", () => {
 			},
 			"on_track",
 			{
-				seasonStart: "2027-01-01",
+				windowStart: "2027-01-01",
 				deadline: "2027-06-30",
 				today: "2027-01-01",
 			},

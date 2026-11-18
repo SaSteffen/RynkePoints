@@ -31,6 +31,7 @@ import { CURRENT_RULES, rulesForVersion } from "../support/team-rules";
 
 const CONTEXT: ViewContext = {
 	seasonStart: "2026-01-01",
+	windowStart: "2026-01-01",
 	deadline: "2027-06-30",
 	rulesFor: rulesForVersion,
 };
@@ -1139,7 +1140,7 @@ describe("buildRiderView rules and notices (US6)", () => {
 		expect(view.rules).toEqual({
 			version: NEXT_RULES.version,
 			effectiveDate: "2026-11-01",
-			seasonStart: "2026-01-01",
+			windowStart: "2026-01-01",
 			deadline: "2027-06-30",
 		});
 		expect(view.updating).toEqual({

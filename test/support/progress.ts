@@ -13,6 +13,7 @@ import { CURRENT_RULES } from "./team-rules";
 
 export const EXAMPLE_WINDOW = {
 	seasonStart: "2026-09-01",
+	windowStart: "2026-09-01",
 	deadline: "2027-06-30",
 };
 

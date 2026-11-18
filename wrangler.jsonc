@@ -79,6 +79,9 @@
 				// named in the app; "" for none.
 				"STRAVA_EXTRA_CLUB_IDS": "2372209",
 				"SEASON_START_DATE": "2026-09-01",
+				// First day a ride can count for qualifying; on or after the season start,
+				// on or before the deadline (feature 040).
+				"QUALIFICATION_START_DATE": "2026-09-01",
 				// Last day rides and team events count; the even pace runs to it (016).
 				"QUALIFICATION_DEADLINE": "2027-06-30",
 				// What organisers see of each rider's Rynke on /organiser/riders:
@@ -199,8 +202,10 @@
 				// Team Europe's Strava club (feature 039).
 				"STRAVA_CLUB_ID": "2292744",
 				"STRAVA_EXTRA_CLUB_IDS": "",
-				// Team Europe's training period, 1 January to 30 June (feature 039).
-				"SEASON_START_DATE": "2027-01-01",
+				// Team Europe's season runs 1 September to 31 August like every team; its
+				// qualification window opens on 1 January (feature 040).
+				"SEASON_START_DATE": "2026-09-01",
+				"QUALIFICATION_START_DATE": "2027-01-01",
 				"QUALIFICATION_DEADLINE": "2027-06-30",
 				"ORGANISER_FIGURES": "full",
 				"ORGANISER_PROGRESS_GRAPH": "on",
@@ -282,6 +287,7 @@
 				"STRAVA_CLUB_ID": "1088689",
 				"STRAVA_EXTRA_CLUB_IDS": "2372209",
 				"SEASON_START_DATE": "2026-09-01",
+				"QUALIFICATION_START_DATE": "2026-09-01",
 				"QUALIFICATION_DEADLINE": "2027-06-30",
 				"ORGANISER_FIGURES": "full",
 				"ORGANISER_PROGRESS_GRAPH": "on",
@@ -362,7 +368,8 @@
 			"vars": {
 				"STRAVA_CLUB_ID": "2292744",
 				"STRAVA_EXTRA_CLUB_IDS": "",
-				"SEASON_START_DATE": "2027-01-01",
+				"SEASON_START_DATE": "2026-09-01",
+				"QUALIFICATION_START_DATE": "2027-01-01",
 				"QUALIFICATION_DEADLINE": "2027-06-30",
 				"ORGANISER_FIGURES": "full",
 				"ORGANISER_PROGRESS_GRAPH": "on",

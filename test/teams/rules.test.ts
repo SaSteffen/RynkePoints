@@ -33,13 +33,13 @@ function otherTeam(base: TeamData, distanceStepKm: number): TeamData {
 	return { ...base, id: "synthetic", rules: [...base.rules, rules] };
 }
 
-/** A 79 km ride on the season's first day, inside every team's window. */
+/** A 79 km ride on the window's first day, inside every team's window. */
 async function seedRide(): Promise<void> {
 	await upsertActivity(
 		env.DB,
 		activityRecord(1, {
-			start_date: `${env.SEASON_START_DATE}T08:00:00Z`,
-			start_date_local: `${env.SEASON_START_DATE}T08:00:00Z`,
+			start_date: `${env.QUALIFICATION_START_DATE}T08:00:00Z`,
+			start_date_local: `${env.QUALIFICATION_START_DATE}T08:00:00Z`,
 			distance_m: 79000,
 		}),
 	);

@@ -14,7 +14,11 @@ import { CURRENT_RULES } from "../support/team-rules";
 // The tour's examples (feature 020 FR-006, FR-013): worked out by the rules
 // functions, so what the hints say holds on any day of the season.
 
-const WINDOW = { seasonStart: "2026-09-01", deadline: "2027-06-30" };
+const WINDOW = {
+	seasonStart: "2026-09-01",
+	windowStart: "2026-09-01",
+	deadline: "2027-06-30",
+};
 
 const statuses = (today: string) =>
 	exampleTeam(WINDOW, today, CURRENT_RULES).riders.map((r) =>

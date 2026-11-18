@@ -144,14 +144,14 @@ function daysBefore(date: string, days: number): string {
  */
 function dateFor(daysAgo: number, today: string, window: CountingWindow) {
 	const anchor =
-		today < window.seasonStart
-			? window.seasonStart
+		today < window.windowStart
+			? window.windowStart
 			: today > window.deadline
 				? window.deadline
 				: today;
 	const date = daysBefore(anchor, daysAgo);
 	// biome-ignore lint/complexity/useMathMinMax: ISO date strings, not numbers
-	return date < window.seasonStart ? window.seasonStart : date;
+	return date < window.windowStart ? window.windowStart : date;
 }
 
 /** The example as the pages read a rider, with `rules` (the rules in effect). */
@@ -434,7 +434,7 @@ function teamRiderRides(
 	const anchor = dateFor(0, today, window);
 	const span = Math.round(
 		(Date.parse(`${anchor}T00:00:00Z`) -
-			Date.parse(`${window.seasonStart}T00:00:00Z`)) /
+			Date.parse(`${window.windowStart}T00:00:00Z`)) /
 			DAY_MS,
 	);
 	let climbed = 0;
@@ -516,7 +516,7 @@ export function exampleTeam(
 	rules: RynkeRules,
 ): ExampleTeam {
 	const pace = (amount: number) =>
-		evenPace(amount, window.seasonStart, window.deadline, today);
+		evenPace(amount, window.windowStart, window.deadline, today);
 	const rides = new Map<number, ExampleTeamRide[]>();
 	// Without Team Rynke the example team has no Team Rynke and no events
 	// (feature 039).

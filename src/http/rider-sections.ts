@@ -142,11 +142,11 @@ export function renderSummary(
 	i18n: I18n,
 	summary: Summary,
 	status: RiderStatus,
-	countdown: { seasonStart: string; deadline: string; today: string },
+	countdown: { windowStart: string; deadline: string; today: string },
 ): SafeHtml {
 	const days = dayNumber(countdown.deadline) - dayNumber(countdown.today);
 	// Before the window opens there is no plan to be on or behind yet.
-	const before = countdown.today < countdown.seasonStart;
+	const before = countdown.today < countdown.windowStart;
 	const unmet = [
 		{
 			condition: summary.training,
@@ -176,7 +176,7 @@ ${statusArt(status, "banner")}<div>
 ${
 	// Before the window opens, no countdown yet: when it starts instead.
 	before
-		? html`<p class="rynke-deadline-start">${i18n.t("rynke.deadline.notStarted", { date: i18n.formatDate(countdown.seasonStart) })}</p>`
+		? html`<p class="rynke-deadline-start">${i18n.t("rynke.deadline.notStarted", { date: i18n.formatDate(countdown.windowStart) })}</p>`
 		: html`<p class="rynke-deadline-count">${
 				days < 0
 					? i18n.t("rynke.deadline.passed")
@@ -406,7 +406,7 @@ export function renderRules(
 	handout: RulesHandout,
 ): SafeHtml {
 	const window = i18n.t("rynke.rules.windowDeadline", {
-		start: day(i18n, rules.seasonStart),
+		start: day(i18n, rules.windowStart),
 		deadline: day(i18n, rules.deadline),
 	});
 	return html`<p>${i18n.t("rynke.rules.version", {

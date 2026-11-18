@@ -18,9 +18,17 @@ import { hamburg } from "../../src/teams/hamburg";
 // Christmas (feature 039). The catalog itself doesn't change.
 
 /** Hamburg's season, which holds every badge's days. */
-const SEPTEMBER = { seasonStart: "2026-09-01", deadline: "2027-06-30" };
+const SEPTEMBER = {
+	seasonStart: "2026-09-01",
+	windowStart: "2026-09-01",
+	deadline: "2027-06-30",
+};
 /** Team Europe's. */
-const JANUARY = { seasonStart: "2027-01-01", deadline: "2027-06-30" };
+const JANUARY = {
+	seasonStart: "2027-01-01",
+	windowStart: "2027-01-01",
+	deadline: "2027-06-30",
+};
 
 /** The badges a season from January to June holds no day for. */
 const OUT_OF_SEASON = [

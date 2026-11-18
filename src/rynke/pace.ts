@@ -34,10 +34,10 @@ export function riderStatus(
 	today: string,
 ): RiderStatus {
 	if (balance?.qualified) return "in";
-	const { seasonStart, deadline } = window;
+	const { windowStart, deadline } = window;
 	if (balance === null || today > deadline) return "push";
 	const behind = (value: number, amount: number) =>
-		value < evenPace(amount, seasonStart, deadline, today);
+		value < evenPace(amount, windowStart, deadline, today);
 	return behind(balance.trainingRynke, rules.trainingThreshold) ||
 		(rules.teamThreshold !== null &&
 			behind(balance.teamRynke, rules.teamThreshold)) ||

@@ -184,7 +184,7 @@ function reasonsFor(
 	const reasons: ReasonCode[] = [];
 	const date = ride.startLocal.slice(0, 10);
 	if (
-		date < window.seasonStart ||
+		date < window.windowStart ||
 		(window.deadline !== null && date > window.deadline)
 	) {
 		reasons.push("outside_window");

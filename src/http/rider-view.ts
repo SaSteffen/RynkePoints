@@ -47,8 +47,8 @@ export interface RulesInfo {
 	version: number;
 	/** `YYYY-MM-DD` */
 	effectiveDate: string;
-	/** `YYYY-MM-DD`, `SEASON_START_DATE`. */
-	seasonStart: string;
+	/** `YYYY-MM-DD`, `QUALIFICATION_START_DATE`. */
+	windowStart: string;
 	/** `YYYY-MM-DD`, `QUALIFICATION_DEADLINE`. */
 	deadline: string;
 	/** The version's minimum ride length; absent without one (feature 039). */
@@ -68,7 +68,7 @@ export function rulesInfo(
 	const info: RulesInfo = {
 		version,
 		effectiveDate,
-		seasonStart: window.seasonStart,
+		windowStart: window.windowStart,
 		deadline: window.deadline,
 	};
 	if (rules?.minRideKm !== undefined) info.minRideKm = rules.minRideKm;
@@ -242,7 +242,7 @@ export type ReasonLine =
 	| { code: "too_short"; distanceKmTenths: number; limitKm: number | null }
 	| { code: "climbing_rate"; mPerH: number; limitMPerH: number | null }
 	| { code: "excluded_sport_type"; sportType: CyclingSportType }
-	/** `SEASON_START_DATE`. */
+	/** `QUALIFICATION_START_DATE`. */
 	| { code: "before_season"; date: string }
 	/** `QUALIFICATION_DEADLINE`. */
 	| { code: "after_deadline"; date: string }
@@ -601,8 +601,8 @@ function reasonLines(
 			case "excluded_sport_type":
 				return { code, sportType: ride.sportType };
 			case "outside_window":
-				return ride.startDateLocal.slice(0, 10) < context.seasonStart
-					? { code: "before_season", date: context.seasonStart }
+				return ride.startDateLocal.slice(0, 10) < context.windowStart
+					? { code: "before_season", date: context.windowStart }
 					: {
 							code: "after_deadline",
 							date: context.deadline,

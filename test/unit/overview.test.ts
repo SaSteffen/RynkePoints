@@ -24,6 +24,7 @@ const de = createI18n("de", CATALOGS);
 
 const RUNNING: CountingWindow = {
 	seasonStart: "2026-01-01",
+	windowStart: "2026-01-01",
 	deadline: "2026-05-31", // 150 days after the season start
 };
 const TODAY = "2026-03-25"; // 83 days after the season start, 67 to go

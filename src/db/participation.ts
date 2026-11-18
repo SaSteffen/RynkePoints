@@ -11,11 +11,13 @@ import { LISTED_RIDER_IDS } from "./organiser";
 
 /**
  * The event `e` lies in the window, `?2` season start, `?3` deadline, `?4`
- * season end: a tour day counts to the season end (feature 021 FR-003), as
- * `eventInWindow` says.
+ * season end, `?5` window start: a tour day counts from the season start to
+ * the season end (feature 021 FR-003), every other event in the qualification
+ * window (feature 040), as `eventInWindow` says.
  */
-const IN_WINDOW = `e.event_date >= ?2 AND e.event_date <=
-	CASE e.kind WHEN 'tour_de_paris' THEN ?4 ELSE ?3 END`;
+const IN_WINDOW = `e.event_date >=
+	CASE e.kind WHEN 'tour_de_paris' THEN ?2 ELSE ?5 END
+	AND e.event_date <= CASE e.kind WHEN 'tour_de_paris' THEN ?4 ELSE ?3 END`;
 
 /** Reports of listed riders without attendance; `p` is the report. */
 const COUNTED = `p.athlete_id IN (${LISTED_RIDER_IDS})
@@ -51,13 +53,19 @@ export interface RiderEventRow {
 	reported: number;
 }
 
-/** `?1` today, then the window's `?2` to `?4` (`IN_WINDOW`). */
+/** `?1` today, then the window's `?2` to `?5` (`IN_WINDOW`). */
 function bindWindow(
 	statement: D1PreparedStatement,
 	today: string,
 	w: CountingWindow,
 ): D1PreparedStatement {
-	return statement.bind(today, w.seasonStart, w.deadline, seasonEnd(w));
+	return statement.bind(
+		today,
+		w.seasonStart,
+		w.deadline,
+		seasonEnd(w),
+		w.windowStart,
+	);
 }
 
 /** The number of open requests, for the organisers' navigation (FR-030). */
@@ -151,7 +159,7 @@ export function listRiderEventsStatement(
 			WHERE ${IN_WINDOW}
 			ORDER BY e.event_date, e.event_id`,
 		)
-		.bind(athleteId, w.seasonStart, w.deadline, seasonEnd(w));
+		.bind(athleteId, w.seasonStart, w.deadline, seasonEnd(w), w.windowStart);
 }
 
 /** Whether `athleteId` is a listed rider (004 FR-021): one row with `n` 0 or 1. */

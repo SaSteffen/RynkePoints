@@ -213,9 +213,14 @@ describe("countingWindow", () => {
 		expect(
 			countingWindow({
 				SEASON_START_DATE: "2026-01-01",
+				QUALIFICATION_START_DATE: "2026-01-01",
 				QUALIFICATION_DEADLINE: "2027-06-30",
 			}),
-		).toEqual({ seasonStart: "2026-01-01", deadline: "2027-06-30" });
+		).toEqual({
+			seasonStart: "2026-01-01",
+			windowStart: "2026-01-01",
+			deadline: "2027-06-30",
+		});
 	});
 
 	it.each(["", "2027-6-30", "30.06.2027", "2027-02-30"])(
@@ -224,6 +229,7 @@ describe("countingWindow", () => {
 			expect(() =>
 				countingWindow({
 					SEASON_START_DATE: "2026-01-01",
+					QUALIFICATION_START_DATE: "2026-01-01",
 					QUALIFICATION_DEADLINE: deadline,
 				}),
 			).toThrow("QUALIFICATION_DEADLINE");

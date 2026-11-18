@@ -137,7 +137,11 @@ describe("counting window (FR-011)", () => {
 	});
 
 	it("counts a ride on the deadline, not after it", () => {
-		const window = { seasonStart: "2026-01-01", deadline: "2026-08-31" };
+		const window = {
+			seasonStart: "2026-01-01",
+			windowStart: "2026-01-01",
+			deadline: "2026-08-31",
+		};
 		const { results } = evaluate(
 			[
 				makeRide({ id: 1, km: 100, movingH: 4, start: "2026-08-31T20:00:00Z" }),

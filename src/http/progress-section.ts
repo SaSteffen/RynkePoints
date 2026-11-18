@@ -52,7 +52,7 @@ function renderChart(
 	const outside = kind === "training" ? view.outside : null;
 	// The whole season at first; the script refills it on every change.
 	const ariaLabel = i18n.t(label, {
-		from: date(i18n, view.seasonStart),
+		from: date(i18n, view.windowStart),
 		to: date(i18n, view.deadline),
 		value: whole(i18n, series.values[view.lastIndex] ?? 0),
 		threshold: whole(i18n, series.threshold),
@@ -142,7 +142,8 @@ function chartData(view: Ready): SafeHtml {
 	const json = JSON.stringify({
 		axisDays: view.axisDays,
 		lastIndex: view.lastIndex,
-		seasonStart: view.seasonStart,
+		// Day 0 of the axis, the window start; the page script's key.
+		seasonStart: view.windowStart,
 		training: line(view.training),
 		team: view.team ? line(view.team) : null,
 		outside: view.outside
