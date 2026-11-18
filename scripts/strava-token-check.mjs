@@ -7,9 +7,6 @@
 //   node scripts/strava-token-check.mjs start            authorize twice, check at once
 //   node scripts/strava-token-check.mjs status           in between: still alive?
 //   node scripts/strava-token-check.mjs finish           about 5½ hours later
-//   node scripts/strava-token-check.mjs finish --revoke  then the revoke question too
-//   node scripts/strava-token-check.mjs revoke           the revoke question alone, any time
-//                                                        no check is running (minutes)
 //
 // `start` opens a one-off listener on localhost for Strava's redirect, so you
 // only approve twice in the browser. The tokens stay in a state file in your
@@ -18,13 +15,8 @@
 //
 // Outcomes: A, independent (a guest's rides can be read); B, a refresh at one
 // breaks the other (the guest site must not read); C, the second sign-in
-// already breaks the first (back to the spec).
-//
-// The revoke question decides whether a team may withdraw access when it
-// refuses a sign-in: a fresh authorization (the refused one) is revoked and
-// the other is checked, in outcome A and B alike. If revoking reaches the
-// other too and the app is the production one, your own connection to your
-// team ends as well: reconnect on your team's site afterwards.
+// already breaks the first (back to the spec). It never revokes: a revoke
+// ends the app's grant for the whole account, at every team (R1).
 import {
 	existsSync,
 	mkdirSync,
@@ -186,59 +178,6 @@ function noCheckRunning() {
 	}
 }
 
-/**
- * Does revoking one authorization's token end another's? A fresh
- * authorization stands for a sign-in a team refuses, `home` for the person's
- * connection to their own team.
- */
-async function revokeCheck(app, home) {
-	const first =
-		home ??
-		(await exchange(
-			app,
-			"1/2 First authorization (stands for your home team)",
-		));
-	const second = await exchange(
-		app,
-		`${home ? "Fresh" : "2/2 Second"} authorization (stands for a sign-in another team refuses)`,
-	);
-	const res = await fetch(`${STRAVA}/oauth/revoke`, {
-		method: "POST",
-		headers: {
-			Authorization: `Basic ${Buffer.from(`${app.id}:${app.secret}`).toString("base64")}`,
-		},
-		body: new URLSearchParams({ token: second.refresh }),
-	});
-	await res.arrayBuffer();
-	const revokedAccess = await athleteStatus(second.access);
-	const firstAccess = await athleteStatus(first.access);
-	const firstRefresh = await refresh(app, first.refresh);
-	const facts = [
-		`revoking the refused authorization's token → ${res.status}; its own access token after it → ${revokedAccess}`,
-		`the other authorization after it: access token → ${firstAccess}, refresh → ${firstRefresh.ok ? "ok" : `${firstRefresh.status} ${firstRefresh.message}`}`,
-	];
-	if (revokedAccess === 200) {
-		facts.push(
-			"the revoke didn't take effect, so nothing is learned: run `revoke` again",
-		);
-	} else if (firstAccess === 200 && firstRefresh.ok) {
-		facts.push(
-			"REVOKE: reaches only its own authorization, a refused sign-in can be revoked safely",
-		);
-	} else {
-		facts.push(
-			"REVOKE: reaches the other authorization too, a refused sign-in must not be revoked; reconnect on your team's site",
-		);
-	}
-	return facts;
-}
-
-async function revokeOnly() {
-	noCheckRunning();
-	const app = credentials();
-	report("of the revoke question", await revokeCheck(app));
-}
-
 async function start() {
 	noCheckRunning();
 	const app = credentials();
@@ -279,12 +218,10 @@ async function start() {
 	console.log(
 		`Strava renews tokens only in their last hour. Run this after ${when(ready)}:`,
 	);
-	console.log(
-		`\n  node scripts/strava-token-check.mjs finish            (add --revoke for the revoke question)\n`,
-	);
+	console.log(`\n  node scripts/strava-token-check.mjs finish\n`);
 }
 
-async function finish(withRevoke) {
+async function finish() {
 	const state = load();
 	const app = credentials();
 	const ready = Math.max(state.first.expiresAt, state.second.expiresAt) - 3500;
@@ -324,13 +261,6 @@ async function finish(withRevoke) {
 			: "B: a refresh at one breaks the other, a guest site must not read";
 
 	rmSync(STATE);
-	if (withRevoke) {
-		// The home token stands for the home connection if it still works;
-		// otherwise two fresh authorizations do.
-		facts.push(
-			...(await revokeCheck(app, firstStill === 200 ? first : undefined)),
-		);
-	}
 	report(outcome, facts);
 }
 
@@ -358,10 +288,5 @@ async function status() {
 const [command, flag] = process.argv.slice(2);
 if (command === "start") await start();
 else if (command === "status" && !flag) await status();
-else if (command === "finish" && (!flag || flag === "--revoke"))
-	await finish(flag === "--revoke");
-else if (command === "revoke" && !flag) await revokeOnly();
-else
-	die(
-		"Usage: node scripts/strava-token-check.mjs start | status | finish [--revoke] | revoke",
-	);
+else if (command === "finish" && !flag) await finish();
+else die("Usage: node scripts/strava-token-check.mjs start | status | finish");

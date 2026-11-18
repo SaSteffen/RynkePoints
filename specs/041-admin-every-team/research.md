@@ -29,7 +29,18 @@ of the feature is built ([quickstart.md](quickstart.md) §1). The design branche
 | **C. Exchange breaks the other** | The second code exchange already invalidates the home team's token | Signing in through Strava can't keep the home team working; stop and take the spec back to the user |
 
 Revoking is avoided in every outcome (R5), so the verification needn't test whether a revoke
-reaches the other chain, though §1 records it.
+reaches the other chain.
+
+**Observed in production, 2026-11-18**: whether a revoke reaches the other chain is settled, and the
+answer is yes. A Hamburg rider who wasn't in Europe's club signed in on Europe's site. Europe, still
+running the code from before this feature, refused the sign-in and revoked the token it had just
+exchanged. That ended the app's whole grant for the person. Strava then sent the deauthorization
+event, which the gateway passes to every team, and Hamburg deleted the rider at once (reason
+`deauthorized`). A revoke by one team therefore ends the person's connection at every team. The
+test in §1 no longer asks this question.
+
+**Observed later the same day**: `start` gave outcome A or B, not C. Two code exchanges left the
+first chain working.
 
 **Rationale**: reading the guest's rides is what makes their pages look like a rider's (US2), but
 it's worth nothing if it breaks the home connection (US3). One manual test settles it; the rest of
@@ -133,7 +144,12 @@ token on disconnect (`me.ts`), admin removal (`admin/remove.ts`) and `delete-rid
 - Disconnecting at the home team still revokes (they are no guest there), as the spec's edge case
   expects.
 
-**Rationale**: the outcome of R1 doesn't matter for this: not revoking is safe in all three.
+**Rationale**: the outcome of R1 doesn't matter for this: not revoking is safe in all three. A
+revoke is known to end the grant at every team (R1, observed in production), so this is required,
+not just careful. Revoking stays where it's right: a team's own rider who disconnects, is removed,
+leaves the club or doesn't reconnect. That person's grant ends everywhere, and a team where they
+are a guest deletes them on the deauthorization event. Someone a team refuses can withdraw access
+only themselves, in their Strava settings.
 
 **Alternatives considered**: keeping the revoke for the refusals FR-009 doesn't name (blocked,
 missing scopes, consent): the same Hamburg rider who tries Europe's site and unticks a scope, or is

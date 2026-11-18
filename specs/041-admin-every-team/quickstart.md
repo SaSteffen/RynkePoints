@@ -8,14 +8,11 @@ Settles research R1. The maintainer runs it with their own Strava account; tests
 V). It takes a handful of requests from the app's budget and about six hours of waiting for step 4.
 Tokens go nowhere but this terminal: not into a file in the repository, not into an issue.
 
-Use the Strava app from `.dev.vars` (`STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`). If that is the
-production app, step 5 may end your own connection to your team; reconnect there afterwards.
+Use the Strava app from `.dev.vars` (`STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`).
 
 `scripts/strava-token-check.mjs` runs these steps: `start` (steps 1–3, two approvals in the browser),
-then after the time it prints, `finish` (step 4) or `finish --revoke` (steps 4 and 5). `revoke`
-answers step 5 alone in a few minutes, whenever no check is running; it revokes a fresh
-authorization, so it answers in outcome A and B alike. It prints the outcome and keeps the tokens
-out of the repository and off the screen. By hand:
+`status` in between, then `finish` (step 4) after the time it prints. It prints the outcome and
+keeps the tokens out of the repository and off the screen. By hand:
 
 1. **Authorize twice.** Open this in the browser, approve, and copy `code` from the address Strava
    sends you to (the page itself won't load; `localhost` is allowed for every app):
@@ -45,15 +42,10 @@ out of the repository and off the screen. By hand:
 4. **Does a refresh at one break the other?** About five and a half hours after step 1 (a refresh
    only renews within the last hour), refresh with R1 as in step 3 and note the new refresh token
    R1'. Then refresh with R2. Refused: **outcome B**. Works: **outcome A**.
-5. **Optional, for the record: does a revoke reach the other?**
+Don't revoke any of these tokens. A revoke ends the app's grant for the whole account, and with it
+your connection to your team (R1, observed in production).
 
-   ```bash
-   curl -s -X POST https://www.strava.com/oauth/revoke -u <id>:<secret> -d token=<R2>
-   ```
-
-   Then refresh with R1'. The feature doesn't depend on the answer (R5).
-
-Write the outcome (A, B or C, and step 5's answer) into research R1 before `/speckit-tasks`, or
+Write the outcome (A, B or C) into research R1 before `/speckit-tasks`, or
 tell whoever runs it. Outcome C sends the spec back to the user.
 
 ## 2. Fake mode
