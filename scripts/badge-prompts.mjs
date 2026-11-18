@@ -1,6 +1,7 @@
 // The badge art inputs (feature 013, specs/013-badges-achievements/data-model.md):
 // checks art/badges/badges.json and puts a badge's Gemini prompt together from
-// art/badges/prompt.txt. No `node:` imports, so the tests load it in the
+// art/badges/prompt.txt, and checks a team's own scenes in
+// art/badges/teams/<team>/badges.json. No `node:` imports, so the tests load it in the
 // Workers runtime; badge-art.mjs and badge-build.mjs read the files and call it.
 
 const ID = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -56,13 +57,42 @@ export function validateBadges(data) {
 			groupOf.set(category, b.group);
 		}
 
-		const scene = typeof b?.scene === "string" ? b.scene : "";
-		if (!scene.trim()) problems.push(`${where}: empty scene`);
-		for (const [, name] of scene.matchAll(PLACEHOLDER)) {
-			if (name === "scene") problems.push(`${where}: scene contains {{scene}}`);
-			else if (!Object.hasOwn(snippets, name))
-				problems.push(`${where}: unknown snippet {{${name}}}`);
-		}
+		problems.push(...sceneProblems(where, b?.scene, snippets));
+	}
+	return problems;
+}
+
+/**
+ * Problems with a team's own scenes for badges whose shared picture shows
+ * another team's motifs (feature 026 FR-024), art/badges/teams/<team>/badges.json:
+ * each names a badge of the shared list once and may use its snippets.
+ */
+export function validateTeamBadges(data, shared) {
+	const badges = data?.badges;
+	if (!Array.isArray(badges)) return ["badges.json: no badges list"];
+	const known = new Set((shared?.badges ?? []).map((b) => b?.id));
+	const snippets = shared?.snippets ?? {};
+	const problems = [];
+	const seen = new Set();
+	for (const [i, b] of badges.entries()) {
+		const id = typeof b?.id === "string" ? b.id : "";
+		const where = id || `badge #${i + 1}`;
+		if (!known.has(id)) problems.push(`${where}: no such badge in art/badges`);
+		else if (seen.has(id)) problems.push(`${id}: duplicate id`);
+		seen.add(id);
+		problems.push(...sceneProblems(where, b?.scene, snippets));
+	}
+	return problems;
+}
+
+function sceneProblems(where, value, snippets) {
+	const scene = typeof value === "string" ? value : "";
+	const problems = [];
+	if (!scene.trim()) problems.push(`${where}: empty scene`);
+	for (const [, name] of scene.matchAll(PLACEHOLDER)) {
+		if (name === "scene") problems.push(`${where}: scene contains {{scene}}`);
+		else if (!Object.hasOwn(snippets, name))
+			problems.push(`${where}: unknown snippet {{${name}}}`);
 	}
 	return problems;
 }
