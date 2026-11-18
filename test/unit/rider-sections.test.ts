@@ -227,6 +227,52 @@ describe("renderRides card disclosure (011 FR-021, clarification Q5)", () => {
 	});
 });
 
+describe("renderRides pre-window ride (feature 040 US3)", () => {
+	const before = { code: "before_window", date: "2027-01-01" } as const;
+
+	it("is orange, with dashes and the open reason", () => {
+		const out = table(
+			line({
+				status: "not-yet",
+				reasons: [before],
+				fixHint: false,
+				elevationGainM: 412,
+			}),
+			de,
+		);
+		expect(out).toContain('<li class="ride-card ride-not-yet">');
+		expect(out).toContain(
+			`<span class="chip ride-status">${de.t("rynke.ride.notYet")}</span>`,
+		);
+		expect(out).toContain(
+			`<dt>${de.t("rynke.training")}</dt><dd>–</dd></div><div><dt>${de.t("rynke.rides.col.elevationTotal")}</dt><dd>–</dd>`,
+		);
+		expect(out).toContain('<details class="ride-why" open>');
+		expect(out).toContain(
+			de.t("rynke.reason.before_window", { date: "01.01.2027" }),
+		);
+		expect(out).not.toContain("ride-fix");
+	});
+
+	it("is a red not-counting ride when another rule fails too (FR-013)", () => {
+		const out = table(
+			line({
+				status: "does-not-count",
+				reasons: [
+					before,
+					{ code: "too_short", distanceKmTenths: 120, limitKm: 25 },
+				],
+				fixHint: false,
+			}),
+		);
+		expect(out).toContain('<li class="ride-card ride-not-counting">');
+		expect(out).toContain(
+			en.t("rynke.reason.before_window", { date: "01/01/2027" }),
+		);
+		expect(out).toContain("Too short");
+	});
+});
+
 describe("renderRides link to Strava (008 FR-009, FR-011)", () => {
 	const link =
 		'<p class="ride-strava"><a class="tap strava-activity" href="https://www.strava.com/activities/8000001">View on Strava</a></p>';
@@ -428,7 +474,7 @@ describe("coins", () => {
 			},
 		).toString();
 		expect(html).toContain(
-			`<p class="rynke-deadline-start">${en.t("rynke.deadline.notStarted", { date: en.formatDate("2027-01-01") })}</p>`,
+			`<p class="rynke-deadline-start">${escapeHtml(en.t("rynke.deadline.notStarted", { date: en.formatDate("2027-01-01") }))}</p>`,
 		);
 		expect(html).not.toContain("rynke-deadline-count");
 		expect(html).not.toContain("rynke-status");
@@ -449,6 +495,23 @@ describe("coins", () => {
 			},
 		).toString();
 		expect(first).toContain("180 days to go ⏳");
+		expect(first).not.toContain("rynke-deadline-start");
+	});
+
+	it("never says it on a season day when the window opens with the season (Hamburg)", () => {
+		const summary = {
+			training: condition(0, 250),
+			team: null,
+			withoutVirtual: null,
+			qualified: false,
+		};
+		for (const today of ["2026-09-01", "2026-11-18", "2027-06-30"]) {
+			const html = renderSummary(en, summary, "on_track", {
+				...COUNTDOWN,
+				today,
+			}).toString();
+			expect(html, today).not.toContain("rynke-deadline-start");
+		}
 	});
 
 	it("edges the Training and Team gauges in their colour, with a row of ten", () => {

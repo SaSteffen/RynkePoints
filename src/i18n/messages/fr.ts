@@ -131,7 +131,7 @@ export const fr: Catalog = {
 	"rynke.deadline.daysLeft": "Jours restants\u00a0: {n} ⏳",
 	"rynke.deadline.passed": "La date limite est passée",
 	"rynke.deadline.notStarted":
-		"La qualification commence le {date}. Tes sorties comptent à partir de ce jour-là.",
+		"La qualification commence le {date}. D'ici là, tes sorties ne comptent pas pour la qualification, mais tu peux déjà gagner des badges. 🏅",
 	"rynke.status.push": "Tu es en retard sur le plan.",
 	"rynke.status.onTrack": "Tu es dans le plan.",
 	"rynke.status.in": "En avance\u00a0: objectif d'entraînement atteint.",
@@ -158,6 +158,7 @@ export const fr: Catalog = {
 	"rynke.ride.counts": "compte 🪙",
 	"rynke.ride.countsWithoutRynke": "compte",
 	"rynke.ride.doesNotCount": "ne compte pas",
+	"rynke.ride.notYet": "ne compte pas encore",
 	"rynke.ride.beingEvaluated": "En cours d'évaluation",
 	"rynke.ride.virtual": "virtuelle",
 	"rynke.ride.fixHint":
@@ -202,6 +203,8 @@ export const fr: Catalog = {
 	"rynke.reason.outside_window": "Avant le début de saison, le {date}.",
 	"rynke.reason.outside_window.afterDeadline":
 		"Après la date limite du {date}.",
+	"rynke.reason.before_window":
+		"La qualification commence le {date}. Les sorties comme celle-ci comptent à partir de ce jour-là.",
 	"rynke.reason.overlap":
 		"Enregistrée deux fois\u00a0: ta sortie du {date}, {time}, {distance} compte à la place.",
 	"rynke.reason.overlap.noRide":

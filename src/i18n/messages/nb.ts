@@ -128,7 +128,7 @@ export const nb: Catalog = {
 	"rynke.deadline.daysLeft": "Dager igjen: {n} ⏳",
 	"rynke.deadline.passed": "Fristen har gått ut",
 	"rynke.deadline.notStarted":
-		"Kvalifiseringen starter {date}. Fra da av teller turene dine.",
+		"Kvalifiseringen starter {date}. Fram til da teller ikke turene dine med i kvalifiseringen, men du kan allerede samle merker. 🏅",
 	"rynke.status.push": "Du ligger bak planen.",
 	"rynke.status.onTrack": "Du følger planen.",
 	"rynke.status.in": "Foran planen: treningsmålet er nådd.",
@@ -153,6 +153,7 @@ export const nb: Catalog = {
 	"rynke.ride.counts": "teller 🪙",
 	"rynke.ride.countsWithoutRynke": "teller",
 	"rynke.ride.doesNotCount": "teller ikke",
+	"rynke.ride.notYet": "teller ikke ennå",
 	"rynke.ride.beingEvaluated": "Vurderes",
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint":
@@ -194,6 +195,8 @@ export const nb: Catalog = {
 	"rynke.reason.excluded_sport_type": "{sport} teller ikke for Rynke.",
 	"rynke.reason.outside_window": "Før sesongstart {date}.",
 	"rynke.reason.outside_window.afterDeadline": "Etter fristen {date}.",
+	"rynke.reason.before_window":
+		"Kvalifiseringen starter {date}. Fra da av teller turer som denne.",
 	"rynke.reason.overlap":
 		"Registrert to ganger: turen din fra {date}, {time}, {distance} teller i stedet.",
 	"rynke.reason.overlap.noRide":

@@ -468,6 +468,7 @@ ul.attendance-list{margin:0 0 var(--rp-space-4);padding:0;list-style:none}
 .chip,.status-chip{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:var(--md-shape-sm);font:var(--rp-type-status);background:var(--rp-neutral-container);color:var(--rp-on-neutral-container)}
 .ride-counting .chip{background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
 .ride-not-counting .chip{background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container)}
+.ride-not-yet .chip{background:var(--rp-push-container);color:var(--rp-on-push-container)}
 ol.ride-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:var(--rp-space-3)}
 .ride-card{min-width:0;padding:var(--rp-space-3) var(--rp-space-4);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container)}
 .ride-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--rp-space-2)}

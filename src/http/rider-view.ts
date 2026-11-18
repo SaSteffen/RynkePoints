@@ -7,7 +7,7 @@ import {
 	type RiderViewRead,
 } from "../db/rider-view";
 import type { StoredBalance } from "../db/rynke";
-import type { UnknownFigureCode } from "../rynke/rides";
+import { isPreWindow, type UnknownFigureCode } from "../rynke/rides";
 import {
 	type CountingWindow,
 	eventInWindow,
@@ -204,7 +204,8 @@ export interface RideLine {
 	sportType: CyclingSportType;
 	distanceM: number;
 	elevationGainM: number;
-	status: "being-evaluated" | "counts" | "does-not-count";
+	/** `not-yet`: a pre-window ride (feature 040 research R6). */
+	status: "being-evaluated" | "counts" | "does-not-count" | "not-yet";
 	/** 0 unless the ride counts. */
 	distanceRynke: number;
 	/** Metres towards the elevation total; 0 unless the ride counts. */
@@ -242,8 +243,10 @@ export type ReasonLine =
 	| { code: "too_short"; distanceKmTenths: number; limitKm: number | null }
 	| { code: "climbing_rate"; mPerH: number; limitMPerH: number | null }
 	| { code: "excluded_sport_type"; sportType: CyclingSportType }
-	/** `QUALIFICATION_START_DATE`. */
+	/** `SEASON_START_DATE`. */
 	| { code: "before_season"; date: string }
+	/** `QUALIFICATION_START_DATE`: a ride in the season before the window opens. */
+	| { code: "before_window"; date: string }
 	/** `QUALIFICATION_DEADLINE`. */
 	| { code: "after_deadline"; date: string }
 	| {
@@ -535,7 +538,13 @@ function rideLine(ride: RideRow, context: ViewContext): RideLine {
 		sportType: ride.sportType,
 		distanceM: ride.distanceM,
 		elevationGainM: ride.elevationGainM,
-		status: !result ? "being-evaluated" : counts ? "counts" : "does-not-count",
+		status: !result
+			? "being-evaluated"
+			: counts
+				? "counts"
+				: isPreWindow(result.reasons)
+					? "not-yet"
+					: "does-not-count",
 		distanceRynke: counts ? result.distanceRynke : 0,
 		elevationM: counts ? result.elevationDm / 10 : 0,
 		isVirtual: result?.isVirtual ?? false,
@@ -601,12 +610,14 @@ function reasonLines(
 			case "excluded_sport_type":
 				return { code, sportType: ride.sportType };
 			case "outside_window":
-				return ride.startDateLocal.slice(0, 10) < context.windowStart
-					? { code: "before_season", date: context.windowStart }
+				return ride.startDateLocal.slice(0, 10) < context.seasonStart
+					? { code: "before_season", date: context.seasonStart }
 					: {
 							code: "after_deadline",
 							date: context.deadline,
 						};
+			case "before_window":
+				return { code, date: context.windowStart };
 			case "overlap":
 				return { code, countedInstead: ride.countedInstead };
 			default:

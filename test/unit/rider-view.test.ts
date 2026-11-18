@@ -717,6 +717,48 @@ describe("buildRiderView ride reasons", () => {
 		).toEqual([{ code: "after_deadline", date: "2027-06-30" }]);
 	});
 
+	describe("with the window opening after the season start (feature 040)", () => {
+		const context = { seasonStart: "2026-09-01", windowStart: "2027-01-01" };
+
+		it("dates a ride before the season by the season start", () => {
+			expect(
+				lineOf(
+					["outside_window"],
+					{ startDateLocal: "2026-08-31T08:00:00Z" },
+					{ context },
+				).reasons,
+			).toEqual([{ code: "before_season", date: "2026-09-01" }]);
+		});
+
+		it("shows a pre-window ride as not yet counting, with no Rynke or elevation", () => {
+			const line = lineOf(
+				["before_window"],
+				{ startDateLocal: "2026-11-15T08:00:00Z", elevationGainM: 412 },
+				{ context, result: { elevationDm: 4120 } },
+			);
+			expect(line).toMatchObject({
+				status: "not-yet",
+				distanceRynke: 0,
+				elevationM: 0,
+				reasons: [{ code: "before_window", date: "2027-01-01" }],
+				fixHint: false,
+			});
+		});
+
+		it("keeps a pre-window ride failing another rule a not-counting one", () => {
+			const line = lineOf(
+				["before_window", "too_short"],
+				{ startDateLocal: "2026-11-15T08:00:00Z", distanceM: 12000 },
+				{ context },
+			);
+			expect(line.status).toBe("does-not-count");
+			expect(line.reasons.map((r) => r.code)).toEqual([
+				"before_window",
+				"too_short",
+			]);
+		});
+	});
+
 	it("S4-1: carries the ride that counted instead", () => {
 		const countedInstead = {
 			startDateLocal: "2026-10-06T08:00:00Z",

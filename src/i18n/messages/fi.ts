@@ -128,7 +128,7 @@ export const fi: Catalog = {
 	"rynke.deadline.daysLeft": "Päiviä jäljellä: {n} ⏳",
 	"rynke.deadline.passed": "Määräaika on mennyt",
 	"rynke.deadline.notStarted":
-		"Karsinta alkaa {date}. Siitä lähtien lenkkisi lasketaan.",
+		"Karsinta alkaa {date}. Siihen asti lenkkejäsi ei lasketa karsintaan, mutta voit jo kerätä merkkejä. 🏅",
 	"rynke.status.push": "Olet jäljessä suunnitelmasta.",
 	"rynke.status.onTrack": "Olet suunnitelmassa.",
 	"rynke.status.in": "Edellä suunnitelmaa: harjoitustavoite saavutettu.",
@@ -153,6 +153,7 @@ export const fi: Catalog = {
 	"rynke.ride.counts": "lasketaan 🪙",
 	"rynke.ride.countsWithoutRynke": "lasketaan",
 	"rynke.ride.doesNotCount": "ei lasketa",
+	"rynke.ride.notYet": "ei lasketa vielä",
 	"rynke.ride.beingEvaluated": "Arvioidaan",
 	"rynke.ride.virtual": "virtuaalinen",
 	"rynke.ride.fixHint": "Voit korjata ajon Stravassa tai kysyä järjestäjältä.",
@@ -195,6 +196,8 @@ export const fi: Catalog = {
 	"rynke.reason.excluded_sport_type": "{sport} ei kerrytä Rynkeä.",
 	"rynke.reason.outside_window": "Ennen kauden alkua {date}.",
 	"rynke.reason.outside_window.afterDeadline": "Määräajan {date} jälkeen.",
+	"rynke.reason.before_window":
+		"Karsinta alkaa {date}. Siitä lähtien tällaiset lenkit lasketaan.",
 	"rynke.reason.overlap":
 		"Tallennettu kahdesti: sen sijaan lasketaan ajosi {date}, {time}, {distance}.",
 	"rynke.reason.overlap.noRide":

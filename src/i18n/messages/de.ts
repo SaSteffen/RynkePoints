@@ -133,7 +133,7 @@ export const de = {
 	"rynke.deadline.daysLeft": "Noch {n} Tage ⏳",
 	"rynke.deadline.passed": "Der Stichtag ist vorbei",
 	"rynke.deadline.notStarted":
-		"Die Qualifikation beginnt am {date}. Ab dann zählen deine Fahrten.",
+		"Die Qualifikation beginnt am {date}. Bis dahin zählen deine Fahrten noch nicht für die Qualifikation, Badges sammelst du aber schon jetzt. 🏅",
 	"rynke.status.push": "Du liegst hinter dem Plan.",
 	"rynke.status.onTrack": "Du liegst im Plan.",
 	"rynke.status.in": "Plan übererfüllt: Trainingsziel erreicht.",
@@ -160,6 +160,7 @@ export const de = {
 	"rynke.ride.counts": "zählt 🪙",
 	"rynke.ride.countsWithoutRynke": "zählt",
 	"rynke.ride.doesNotCount": "zählt nicht",
+	"rynke.ride.notYet": "zählt noch nicht",
 	"rynke.ride.beingEvaluated": "Wird ausgewertet",
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint":
@@ -203,6 +204,8 @@ export const de = {
 	"rynke.reason.excluded_sport_type": "{sport} zählt nicht für Rynke.",
 	"rynke.reason.outside_window": "Vor dem Saisonstart am {date}.",
 	"rynke.reason.outside_window.afterDeadline": "Nach dem Stichtag am {date}.",
+	"rynke.reason.before_window":
+		"Die Qualifikation beginnt am {date}. Ab dann zählen Fahrten wie diese.",
 	"rynke.reason.overlap":
 		"Doppelt aufgezeichnet: Deine Fahrt vom {date}, {time}\u00a0Uhr, {distance} zählt stattdessen.",
 	"rynke.reason.overlap.noRide":
