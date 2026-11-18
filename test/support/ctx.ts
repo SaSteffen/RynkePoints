@@ -101,6 +101,22 @@ export interface SeedRiderOptions {
 	organiser?: boolean;
 	/** Defaults to false; true sets `riders.administrator` likewise (feature 025). */
 	administrator?: boolean;
+	/**
+	 * Defaults to false; true marks the row as a guest's and puts the ID on the
+	 * guest list, as a guest's sign-in would (feature 041).
+	 */
+	guest?: boolean;
+	/** With `guest`: false leaves the ID off the list, as after the maintainer removed it. */
+	onGuestList?: boolean;
+}
+
+/** Puts an ID on the team's guest list, as the maintainer would (feature 041). */
+export async function listGuest(ctx: Ctx, athleteId: number): Promise<void> {
+	await ctx.env.DB.prepare(
+		"INSERT OR IGNORE INTO guests (athlete_id) VALUES (?)",
+	)
+		.bind(athleteId)
+		.run();
 }
 
 /** Inserts a rider and encrypted credentials straight into D1. */
@@ -178,6 +194,20 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 					).bind(athleteId),
 				]
 			: []),
+		...(options.guest
+			? [
+					ctx.env.DB.prepare(
+						"UPDATE riders SET guest = 1 WHERE athlete_id = ?",
+					).bind(athleteId),
+				]
+			: []),
+		...(options.guest && options.onGuestList !== false
+			? [
+					ctx.env.DB.prepare(
+						"INSERT OR IGNORE INTO guests (athlete_id) VALUES (?)",
+					).bind(athleteId),
+				]
+			: []),
 	]);
 	return rider;
 }
@@ -191,6 +221,7 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM usage_alerts"),
 		env.DB.prepare("DELETE FROM recheck_daily"),
 		env.DB.prepare("DELETE FROM blocked_athletes"),
+		env.DB.prepare("DELETE FROM guests"),
 		env.DB.prepare("DELETE FROM removal_log"),
 		env.DB.prepare("DELETE FROM consent_records"),
 		env.DB.prepare("DELETE FROM push_subscriptions"),

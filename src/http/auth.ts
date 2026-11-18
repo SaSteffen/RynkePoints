@@ -9,6 +9,7 @@ import { currentRevision, currentVersion, grantedScopes } from "../consent";
 import type { Ctx } from "../ctx";
 import { isBlocked } from "../db/blocked";
 import { recordConsent } from "../db/consents";
+import { isOnGuestList } from "../db/guests";
 import {
 	deleteRider,
 	getRider,
@@ -23,7 +24,7 @@ import type { I18n } from "../i18n/i18n";
 import { evaluateChange } from "../rynke/apply";
 import { clubMembership } from "../strava/client";
 import { STRAVA_ORIGIN } from "../strava/result";
-import { exchangeCode, revokeToken } from "../strava/tokens";
+import { exchangeCode } from "../strava/tokens";
 import { forbidden } from "./errors";
 import { arrival, sectionNext } from "./lang";
 import type { NoticeId } from "./notice";
@@ -157,8 +158,10 @@ export async function handleCallback(
 	const token = exchange.value;
 	// Strava only reveals who is connecting here. A blocked rider gets no club
 	// request, and nothing they returned is kept (feature 025 FR-030, R7).
+	// No refusal here revokes the exchanged token: it is simply never stored.
+	// The grant belongs to the app every team shares, so revoking it could end
+	// the person's connection at another team (feature 041 FR-009, R5).
 	if (await isBlocked(ctx.env.DB, token.athleteId)) {
-		await revokeToken(ctx, token.accessToken);
 		return notice("blocked");
 	}
 	const auth = { accessToken: token.accessToken };
@@ -166,7 +169,6 @@ export async function handleCallback(
 
 	// Turns the rider away; an existing rider loses everything (FR-004, FR-006).
 	const refuse = async (id: NoticeId, deletedId: NoticeId) => {
-		await revokeToken(ctx, token.accessToken);
 		if (!existing) return notice(id);
 		await deleteRider(ctx.env.DB, token.athleteId);
 		return notice(deletedId, [clearSessionCookie()]);
@@ -181,25 +183,28 @@ export async function handleCallback(
 	// A new athlete who didn't agree on the way in is never stored (R21).
 	const version = currentVersion(ctx.consentVersions).version;
 	if (!existing && expected.consentVersion !== version) {
-		await revokeToken(ctx, token.accessToken);
 		return notice("consent-required");
 	}
 
+	// A person on the guest list gets in without the club and needs no club
+	// request; the list wins over the club (feature 041 FR-003, R8).
+	const guest = await isOnGuestList(ctx.env.DB, token.athleteId);
 	// A person waits for this page: it may use the reserve (feature 024 R5).
-	const membership = await clubMembership(
-		ctx,
-		auth,
-		memberClubIds(ctx.env),
-		ctx.team.otherClubIds,
-		"interactive",
-	);
-	if (membership.kind === "ok" && !membership.value.member) {
+	const membership = guest
+		? null
+		: await clubMembership(
+				ctx,
+				auth,
+				memberClubIds(ctx.env),
+				ctx.team.otherClubIds,
+				"interactive",
+			);
+	if (membership?.kind === "ok" && !membership.value.member) {
 		return refuse("not-member", "not-member-deleted");
 	}
-	if (membership.kind !== "ok" && !existing) {
+	if (membership && membership.kind !== "ok" && !existing) {
 		// Inconclusive: a new rider is turned away, an existing one is kept and
 		// the daily check decides later (research R4).
-		await revokeToken(ctx, token.accessToken);
 		return notice("strava-busy");
 	}
 
@@ -209,6 +214,7 @@ export async function handleCallback(
 		scopes,
 		scopeReadAll: granted.has("activity:read_all"),
 		now,
+		guest,
 	};
 	const credentials = {
 		accessToken: token.accessToken,
@@ -241,7 +247,7 @@ export async function handleCallback(
 			);
 		}
 		await saveCredentials(ctx.env, token.athleteId, credentials);
-		if (membership.kind === "ok") {
+		if (membership?.kind === "ok") {
 			await setMembershipChecked(ctx.env.DB, token.athleteId, now);
 		}
 		if (existing.scopeReadAll && !grant.scopeReadAll) {
@@ -272,7 +278,7 @@ export async function handleCallback(
 	const session = await createSessionCookie(token.athleteId, now, ctx.env);
 	// A new rider in another team's club too learns that one team at a time
 	// works, before they connect to the other (FR-012).
-	if (!existing && membership.kind === "ok" && membership.value.other) {
+	if (!existing && membership?.kind === "ok" && membership.value.other) {
 		return notice("one-team", [session]);
 	}
 	const next = await arrival(sectionNext(expected.next), ctx, token.athleteId);

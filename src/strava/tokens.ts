@@ -1,6 +1,6 @@
 import { clientId, clientSecret } from "../config";
 import { readRateLimitState } from "../db/rate-limit";
-import { getCredentials, saveCredentials } from "../db/riders";
+import { getCredentials, getRider, saveCredentials } from "../db/riders";
 import {
 	budgetDecision,
 	deferUntilNextWindow,
@@ -214,12 +214,17 @@ export async function revokeToken(
 /**
  * Revokes a stored rider's refresh token without refreshing first, so it also
  * works for `needs_reconnect` riders. No credentials, or credentials we can't
- * decrypt, mean nothing to revoke.
+ * decrypt, mean nothing to revoke; a guest's grant is never revoked here.
  */
 export async function revokeStoredToken(
 	ctx: StravaCtx,
 	athleteId: number,
 ): Promise<StravaResult<null>> {
+	// A guest's grant also serves their home team: the app every team shares
+	// holds it, so this team never revokes it (feature 041 FR-009, R5).
+	if ((await getRider(ctx.env.DB, athleteId))?.guest) {
+		return { kind: "ok", value: null };
+	}
 	let creds: Awaited<ReturnType<typeof getCredentials>>;
 	try {
 		creds = await getCredentials(ctx.env, athleteId);

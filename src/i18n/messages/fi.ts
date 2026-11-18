@@ -229,6 +229,8 @@ export const fi: Catalog = {
 	"disconnect.title": "Poistetaanko tietosi?",
 	"disconnect.explain":
 		"RynkePoints luopuu pääsystään Strava-tiliisi ja poistaa heti kaikki tietosi. Suorituksesi Stravassa säilyvät ennallaan.",
+	"disconnect.explain.guest":
+		"RynkePoints poistaa heti kaikki tietosi tästä tiimistä. Pääsy Strava-tiliisi säilyy, koska oma tiimisi tarvitsee sitä. Suorituksesi Stravassa säilyvät ennallaan.",
 	"disconnect.confirm": "Kyllä, poista kaikki",
 	"disconnect.cancel": "Peruuta",
 
@@ -1177,9 +1179,13 @@ export const fi: Catalog = {
 	"admin.riders.import.running": "Käynnissä",
 	"admin.riders.import.done": "Valmis",
 	"admin.riders.remove": "Poista",
+	"admin.riders.guests.heading": "Vieraat",
+	"admin.riders.guest": "Vieras",
 	"admin.remove.title": "Poistetaanko {name}?",
 	"admin.remove.explain":
 		"Tätä ei voi perua. Kaikki ajajan tiedot poistetaan ja Strava-pääsy perutaan. Ajaja ei voi enää yhdistää tähän tiimiin, ei edes klubin jäsenenä: Strava-tunnus jää estolistalle.",
+	"admin.remove.explain.guest":
+		"Tätä ei voi perua. Kaikki vieraan tiedot tässä tiimissä poistetaan; Strava-pääsy säilyy, koska vieraan oma tiimi tarvitsee sitä. Strava-tunnus jää estolistalle, vaikka se olisi vieraslistalla.",
 	"admin.remove.confirm": "Poista ja estä",
 	"admin.remove.cancel": "Peruuta",
 	"admin.remove.done.removed": "Ajaja poistettiin ja estettiin.",
@@ -1194,7 +1200,7 @@ export const fi: Catalog = {
 	"notification.usage.critical": "Kriittinen: {allowance} {percent} %",
 	"notice.blocked.title": "Et voi osallistua tässä tiimissä",
 	"notice.blocked.body":
-		"Ylläpitäjä on poistanut sinut tästä tiimistä. Säilytämme vain Strava-tunnuksesi, jotta et voi yhdistää uudelleen, ja olemme perineet juuri antamasi pääsyn.",
+		"Ylläpitäjä on poistanut sinut tästä tiimistä. Säilytämme vain Strava-tunnuksesi, jotta et voi yhdistää uudelleen.",
 	"notice.oneTeam.title": "Olet myös toisen tiimin klubissa",
 	"notice.oneTeam.body":
 		"RynkePointsissa voit olla mukana yhdessä tiimissä kerrallaan. Strava antaa sovellukselle yhden yhteyden henkilöä kohden, joten jos yhdistät toiseen tiimiin, yhteys ensimmäiseen päättyy. Olet nyt yhdistetty tänne.",

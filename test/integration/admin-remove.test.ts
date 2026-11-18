@@ -274,7 +274,7 @@ describe("after a removal", () => {
 		fake.revocations.length = 0;
 		const res = await approve(ctx, fake, TARGET);
 		expect(res.headers.get("Location")).toBe("/notice/blocked");
-		expect(fake.revocations).toHaveLength(1);
+		expect(fake.revocations).toEqual([]);
 		expect(await rowsNaming(TARGET)).toEqual({
 			"blocked_athletes.athlete_id": 1,
 		});

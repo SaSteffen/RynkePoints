@@ -351,6 +351,18 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(4, (i) => ride(...slot(i), 40, 200, 25)),
 	},
 	...ordinaryRiders(ORDINARY_NAMES, 990_020, "Kira"),
+	// Last, so the other riders' synthetic activity IDs stay as they were.
+	{
+		athleteId: 990019,
+		firstName: "Gesa Gast",
+		state:
+			"An administrator of another team on the guest list, not in the club: Orga and Admin, her rides count for nobody but her (feature 041)",
+		scopes: ALL_SCOPES,
+		clubMember: false,
+		behaviour: "normal",
+		guest: true,
+		rides: rides(4, (i) => ride(...slot(i), 50, 300, 25)),
+	},
 ];
 
 /** Records the team events below (feature 014 FR-040). */

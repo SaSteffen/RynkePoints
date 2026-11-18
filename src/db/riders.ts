@@ -38,6 +38,13 @@ export interface Rider {
 	organiserOnboardedAt: number | null;
 	/** When the hourly run last chose the rider for a re-check; null: never (036). */
 	recheckedAt: number | null;
+	/**
+	 * Set by the app at sign-in from the guest list: an administrator of another
+	 * team, never counted for this one (feature 041 FR-007).
+	 */
+	guest: boolean;
+	/** Whether the ID is on the guest list now; a guest off it is a visitor (041 R4). */
+	onGuestList: boolean;
 }
 
 export interface Credentials {
@@ -64,6 +71,8 @@ export interface RiderRow {
 	onboarded_at: number | null;
 	organiser_onboarded_at: number | null;
 	rechecked_at: number | null;
+	guest: number;
+	on_guest_list: number;
 }
 
 export interface RiderGrant {
@@ -71,16 +80,24 @@ export interface RiderGrant {
 	scopes: string;
 	scopeReadAll: boolean;
 	now: number;
+	/** On the guest list at this sign-in (feature 041 research R8). */
+	guest: boolean;
 }
 
-/** The rider's row, for `toRider`. */
+/** The rider's row and whether they are on the guest list, for `toRider`. */
 export function riderStatement(db: D1Database, athleteId: number) {
 	return db
-		.prepare("SELECT * FROM riders WHERE athlete_id = ?")
+		.prepare(
+			`SELECT r.*, EXISTS (SELECT 1 FROM guests g WHERE g.athlete_id = r.athlete_id)
+				AS on_guest_list
+			FROM riders r WHERE r.athlete_id = ?`,
+		)
 		.bind(athleteId);
 }
 
+/** A guest is an organiser and an administrator of the team (041 FR-004). */
 export function toRider(row: RiderRow): Rider {
+	const guest = row.guest === 1;
 	return {
 		athleteId: row.athlete_id,
 		firstName: row.first_name,
@@ -93,12 +110,14 @@ export function toRider(row: RiderRow): Rider {
 		importStatus: row.import_status,
 		reconnectRequestedAt: row.reconnect_requested_at,
 		figuresVersion: row.figures_version,
-		organiser: row.organiser === 1,
-		administrator: row.administrator === 1,
+		organiser: row.organiser === 1 || guest,
+		administrator: row.administrator === 1 || guest,
 		adminAlerts: row.admin_alerts === 1,
 		onboardedAt: row.onboarded_at,
 		organiserOnboardedAt: row.organiser_onboarded_at,
 		recheckedAt: row.rechecked_at,
+		guest,
+		onGuestList: row.on_guest_list === 1,
 	};
 }
 
@@ -126,8 +145,8 @@ export async function insertRider(
 				`INSERT INTO riders (athlete_id, first_name, status, scope_read_all,
 					scopes, connected_at, scopes_updated_at,
 					membership_checked_at, import_status, reconnect_requested_at,
-					figures_version)
-				VALUES (?1, ?2, 'connected', ?3, ?4, ?5, ?5, ?5, 'pending', NULL, ?6)`,
+					figures_version, guest)
+				VALUES (?1, ?2, 'connected', ?3, ?4, ?5, ?5, ?5, 'pending', NULL, ?6, ?7)`,
 			)
 			.bind(
 				rider.athleteId,
@@ -136,6 +155,7 @@ export async function insertRider(
 				rider.scopes,
 				rider.now,
 				ACTIVITY_FIGURES_VERSION,
+				rider.guest ? 1 : 0,
 			),
 		recordConsentStatement(
 			db,
@@ -148,7 +168,10 @@ export async function insertRider(
 	]);
 }
 
-/** Records a new grant and ends `needs_reconnect` (data-model.md, Reconnect). */
+/**
+ * Records a new grant and ends `needs_reconnect` (data-model.md, Reconnect).
+ * The guest mark follows the list at this sign-in (feature 041 R8).
+ */
 export async function updateRiderOnReconnect(
 	db: D1Database,
 	athleteId: number,
@@ -158,7 +181,7 @@ export async function updateRiderOnReconnect(
 		.prepare(
 			`UPDATE riders SET first_name = ?2, scopes = ?3, scope_read_all = ?4,
 				scopes_updated_at = ?5, status = 'connected',
-				reconnect_requested_at = NULL
+				reconnect_requested_at = NULL, guest = ?6
 			WHERE athlete_id = ?1`,
 		)
 		.bind(
@@ -167,6 +190,7 @@ export async function updateRiderOnReconnect(
 			grant.scopes,
 			grant.scopeReadAll ? 1 : 0,
 			grant.now,
+			grant.guest ? 1 : 0,
 		)
 		.run();
 }
@@ -262,6 +286,17 @@ export async function listConnectedRiderIds(db: D1Database): Promise<number[]> {
 	return results.map((r) => r.athlete_id);
 }
 
+/** Connected riders of the team, guests left out: whose club the daily run checks (041 FR-006). */
+export async function listClubRiderIds(db: D1Database): Promise<number[]> {
+	const { results } = await db
+		.prepare(
+			`SELECT athlete_id FROM riders
+			WHERE status = 'connected' AND guest = 0 ORDER BY athlete_id`,
+		)
+		.all<{ athlete_id: number }>();
+	return results.map((r) => r.athlete_id);
+}
+
 /** Connected riders whose activities were read with an older field set (R20). */
 export async function listRidersBehindFiguresVersion(
 	db: D1Database,
@@ -305,21 +340,28 @@ export async function listExpiredReconnectRiderIds(
 	return results.map((r) => r.athlete_id);
 }
 
-/** Who gets usage alerts: every administrator, with their own switch (025). */
+/**
+ * Who gets usage alerts: every administrator, guests included (041 FR-004),
+ * with their own switch (025).
+ */
 export async function listAlertRecipients(db: D1Database): Promise<number[]> {
 	const { results } = await db
 		.prepare(
 			`SELECT athlete_id FROM riders
-			WHERE administrator = 1 AND admin_alerts = 1 ORDER BY athlete_id`,
+			WHERE (administrator = 1 OR guest = 1) AND admin_alerts = 1
+			ORDER BY athlete_id`,
 		)
 		.all<{ athlete_id: number }>();
 	return results.map((r) => r.athlete_id);
 }
 
-/** The team's connected riders, against Strava's capacity (025 FR-005). */
+/**
+ * The team's connected riders, against Strava's capacity (025 FR-005). A guest
+ * already counts at their home team (041 R3).
+ */
 export function connectedCountStatement(db: D1Database): D1PreparedStatement {
 	return db.prepare(
-		"SELECT COUNT(*) AS n FROM riders WHERE status = 'connected'",
+		"SELECT COUNT(*) AS n FROM riders WHERE status = 'connected' AND guest = 0",
 	);
 }
 
@@ -344,62 +386,82 @@ export interface OverviewRider {
 	importStatus: ImportStatus;
 }
 
+const OVERVIEW_COLUMNS = `athlete_id, first_name, status, connected_at,
+	membership_checked_at, import_status`;
+
+type OverviewRow = Pick<
+	RiderRow,
+	| "athlete_id"
+	| "first_name"
+	| "status"
+	| "connected_at"
+	| "membership_checked_at"
+	| "import_status"
+>;
+
+function toOverviewRiders(rows: unknown[] | undefined): OverviewRider[] {
+	return ((rows ?? []) as OverviewRow[]).map((r) => ({
+		athleteId: r.athlete_id,
+		firstName: r.first_name,
+		status: r.status,
+		connectedAt: r.connected_at,
+		membershipCheckedAt: r.membership_checked_at,
+		importStatus: r.import_status,
+	}));
+}
+
 /**
  * The rider overview (025 FR-018, FR-038): riders with a recorded consent of any
- * version, and how many others there are, filtered inside SQL. Selects only
- * what the rows show, so nothing else can reach the page (FR-019).
+ * version, and how many others there are, filtered inside SQL; then the guests
+ * apart (041 FR-008), the only list that shows them. Selects only what the rows
+ * show, so nothing else can reach the page (FR-019).
  */
-export async function readRiderOverview(
-	db: D1Database,
-): Promise<{ riders: OverviewRider[]; unlisted: number }> {
+export async function readRiderOverview(db: D1Database): Promise<{
+	riders: OverviewRider[];
+	unlisted: number;
+	guests: OverviewRider[];
+}> {
 	const listed = SHARED_RIDER_IDS;
-	const [rows, unlisted] = await db.batch([
+	const [rows, unlisted, guests] = await db.batch([
 		db.prepare(
-			`SELECT athlete_id, first_name, status, connected_at,
-				membership_checked_at, import_status
+			`SELECT ${OVERVIEW_COLUMNS}
 			FROM riders WHERE athlete_id IN (${listed})
 			ORDER BY first_name COLLATE NOCASE, athlete_id`,
 		),
 		db.prepare(
-			`SELECT COUNT(*) AS n FROM riders WHERE athlete_id NOT IN (${listed})`,
+			`SELECT COUNT(*) AS n FROM riders
+			WHERE athlete_id NOT IN (${listed}) AND guest = 0`,
+		),
+		db.prepare(
+			`SELECT ${OVERVIEW_COLUMNS}
+			FROM riders WHERE guest = 1
+			ORDER BY first_name COLLATE NOCASE, athlete_id`,
 		),
 	]);
 	return {
-		riders: (
-			(rows?.results ?? []) as Pick<
-				RiderRow,
-				| "athlete_id"
-				| "first_name"
-				| "status"
-				| "connected_at"
-				| "membership_checked_at"
-				| "import_status"
-			>[]
-		).map((r) => ({
-			athleteId: r.athlete_id,
-			firstName: r.first_name,
-			status: r.status,
-			connectedAt: r.connected_at,
-			membershipCheckedAt: r.membership_checked_at,
-			importStatus: r.import_status,
-		})),
+		riders: toOverviewRiders(rows?.results),
 		unlisted: (unlisted?.results[0] as { n: number } | undefined)?.n ?? 0,
+		guests: toOverviewRiders(guests?.results),
 	};
 }
 
-/** One listed rider's first name; null when the ID is no rider the view lists. */
-export async function listedRiderName(
+/**
+ * One rider the overview lists, a guest included; null when the ID is no rider
+ * the view lists.
+ */
+export async function listedRider(
 	db: D1Database,
 	athleteId: number,
-): Promise<string | null> {
+): Promise<{ firstName: string; guest: boolean } | null> {
 	const listed = SHARED_RIDER_IDS;
-	return db
+	const row = await db
 		.prepare(
-			`SELECT first_name FROM riders WHERE athlete_id = ?
-			AND athlete_id IN (${listed})`,
+			`SELECT first_name, guest FROM riders WHERE athlete_id = ?
+			AND (athlete_id IN (${listed}) OR guest = 1)`,
 		)
 		.bind(athleteId)
-		.first<string>("first_name");
+		.first<{ first_name: string; guest: number }>();
+	return row ? { firstName: row.first_name, guest: row.guest === 1 } : null;
 }
 
 type CredentialEnv = Pick<Env, "DB" | "TOKEN_ENCRYPTION_KEY">;

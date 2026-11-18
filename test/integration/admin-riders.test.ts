@@ -150,3 +150,58 @@ describe("the results of a removal", () => {
 		expect(text).not.toContain("&lt;script");
 	});
 });
+
+// Feature 041 FR-008, research R7: guests in their own group, marked, and
+// removable like a rider; the only list on the site that shows them.
+describe("guests", () => {
+	beforeEach(async () => {
+		await seedRider(ctx, { athleteId: ATHLETE_B, firstName: "Bo" });
+		await seedRider(ctx, {
+			athleteId: ATHLETE_C,
+			firstName: "Gia",
+			guest: true,
+		});
+	});
+
+	it("are listed apart from the team's riders, marked", async () => {
+		const text = await page();
+		const [team, guests] = text.split(
+			escapeHtml(de["admin.riders.guests.heading"]),
+		);
+		expect(team).toContain("<h3>Bo</h3>");
+		expect(team).not.toContain("Gia");
+		expect(guests).toContain("<h3>Gia</h3>");
+		expect(guests).toContain(escapeHtml(de["admin.riders.guest"]));
+		expect(guests).toContain(`href="/admin/riders/${ATHLETE_C}/remove"`);
+	});
+
+	it("aren't counted among the team's riders or the unlisted", async () => {
+		expect(await page()).toContain(
+			escapeHtml(
+				de["admin.riders.counts"]
+					.replace("{listed}", "2")
+					.replace("{unlisted}", "0")
+					.replace("{blocked}", "0"),
+			),
+		);
+	});
+
+	it("can be removed, with the guest's own explanation", async () => {
+		const confirm = await handleFetch(
+			request(`/admin/riders/${ATHLETE_C}/remove`, {
+				cookies: await sessionCookie(ctx, ADMIN),
+			}),
+			ctx,
+		);
+		const text = await confirm.text();
+		expect(text).toContain(escapeHtml(de["admin.remove.explain.guest"]));
+		const res = await handleFetch(
+			request(`/admin/riders/${ATHLETE_C}/remove`, {
+				form: {},
+				cookies: await sessionCookie(ctx, ADMIN),
+			}),
+			ctx,
+		);
+		expect(res.headers.get("Location")).toBe("/admin/riders?done=removed");
+	});
+});

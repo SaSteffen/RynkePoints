@@ -240,6 +240,8 @@ export const de = {
 	"disconnect.title": "Daten löschen?",
 	"disconnect.explain":
 		"RynkePoints gibt den Zugriff auf dein Strava-Konto zurück und löscht sofort alle Daten über dich. Deine Aktivitäten auf Strava bleiben, wie sie sind.",
+	"disconnect.explain.guest":
+		"RynkePoints löscht sofort alle Daten über dich bei diesem Team. Der Zugriff auf dein Strava-Konto bleibt, weil dein eigenes Team ihn braucht. Deine Aktivitäten auf Strava bleiben, wie sie sind.",
 	"disconnect.confirm": "Ja, alles löschen",
 	"disconnect.cancel": "Abbrechen",
 
@@ -1215,9 +1217,13 @@ export const de = {
 	"admin.riders.import.running": "Läuft noch",
 	"admin.riders.import.done": "Fertig",
 	"admin.riders.remove": "Entfernen",
+	"admin.riders.guests.heading": "Gäste",
+	"admin.riders.guest": "Gast",
 	"admin.remove.title": "{name} entfernen?",
 	"admin.remove.explain":
 		"Das lässt sich nicht rückgängig machen. Alle Daten werden gelöscht und der Strava-Zugang widerrufen. Eine erneute Verbindung mit diesem Team ist nicht mehr möglich, auch nicht bei Mitgliedschaft im Club: Die Strava-ID bleibt auf der Sperrliste.",
+	"admin.remove.explain.guest":
+		"Das lässt sich nicht rückgängig machen. Alle Daten des Gasts bei diesem Team werden gelöscht; der Strava-Zugang bleibt, weil das eigene Team ihn braucht. Die Strava-ID bleibt auf der Sperrliste, auch wenn sie auf der Gästeliste steht.",
 	"admin.remove.confirm": "Entfernen und sperren",
 	"admin.remove.cancel": "Abbrechen",
 	"admin.remove.done.removed": "Entfernt und gesperrt.",
@@ -1232,7 +1238,7 @@ export const de = {
 	"notification.usage.critical": "Kritisch: {allowance} bei {percent}\u00a0%",
 	"notice.blocked.title": "Du kannst bei diesem Team nicht mitmachen",
 	"notice.blocked.body":
-		"Ein Admin hat dich aus diesem Team entfernt. Wir behalten nur deine Strava-ID, damit du dich nicht wieder verbinden kannst, und haben den gerade erteilten Zugang widerrufen.",
+		"Ein Admin hat dich aus diesem Team entfernt. Wir behalten nur deine Strava-ID, damit du dich nicht wieder verbinden kannst.",
 	"notice.oneTeam.title": "Du bist auch im Club eines anderen Teams",
 	"notice.oneTeam.body":
 		"Bei RynkePoints kannst du immer nur in einem Team mitmachen. Strava gibt der App eine Verbindung pro Person: Verbindest du dich bei einem zweiten Team, endet die Verbindung beim ersten. Hier bist du jetzt verbunden.",

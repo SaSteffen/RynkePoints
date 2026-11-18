@@ -128,8 +128,8 @@ sequenceDiagram
     S-->>G: Back to the one callback domain
     G-->>T: On to the rider's own team
     T->>S: Exchange the code for tokens
-    T->>S: Check the rider's clubs
-    Note over T: Refuse and keep nothing if the team is full,<br/>the rider is blocked, a required scope is missing,<br/>the consent doesn't match or they aren't a club member
+    T->>S: Check the rider's clubs (not for a guest)
+    Note over T: Refuse and keep nothing if the team is full,<br/>the rider is blocked, a required scope is missing,<br/>the consent doesn't match or they aren't a club member<br/>or on the guest list. Nothing is revoked: the grant<br/>may serve another team
     T->>T: Store the rider, the consent and the encrypted tokens
     T->>Q: import-page, page 1
     T-->>R: Signed in, waiting page until the first data arrives
@@ -215,7 +215,7 @@ it moves towards Strava's current state instead of adding to it.
 | `import-page` | Connecting, reconnecting, or newly allowing private activities | Reads 200 of the rider's activities since the season start, stores the rides, runs and swims, and queues the next page until the last one. | 1 per page |
 | `reread-page` | The daily job, once per rider after a new activity figure was added | The same as `import-page`. | 1 per page |
 | `check-membership` | The daily job | Checks the rider is still in the team's Strava club, and queues `delete-rider` if not. | 1 |
-| `delete-rider` | The app removed in Strava, leaving the club, or no reconnect within 7 days | Revokes the rider's Strava access where it still works, then deletes everything about them. Always finishes, even when Strava fails. | 0 or 1 |
+| `delete-rider` | The app removed in Strava, leaving the club, no reconnect within 7 days, or a guest taken off the guest list | Revokes the rider's Strava access where it still works (never a guest's), then deletes everything about them. Always finishes, even when Strava fails. | 0 or 1 |
 | `evaluate-rider` | Organisers' attendance and corrections, and the daily job | Works out the rider's Rynke and badges from what's stored. | 0 |
 | `send-notification` | Rynke that rose, a badge earned, a usage alert | Sends an empty Web Push message to each of the rider's devices. The device then fetches the text. | 0 |
 | `recheck-rider` | The hourly job | Reads the rider's newest 200 activities and passes only the differences to the usual processing. Never retried. | 1 |
@@ -259,9 +259,10 @@ shows in the logs.
 
 ```mermaid
 flowchart TD
-    cron["Daily cron, 03:17 UTC"] --> m["1. Membership: one check-membership per connected rider"]
+    cron["Daily cron, 03:17 UTC"] --> m["1. Membership: one check-membership per connected rider, guests left out"]
     m --> x["2. Expired reconnects: delete-rider for riders needing a reconnect for over 7 days"]
-    x --> f["3. Failed work: give up what first failed over 7 days ago, queue the rest again"]
+    x --> g["2a. Guests: delete-rider, without a revoke, for guests taken off the guest list"]
+    g --> f["3. Failed work: give up what first failed over 7 days ago, queue the rest again"]
     f --> r["4. Re-reads: reread-page for riders stored before a new activity figure"]
     r --> p["5. Pre-season: delete stored activities from before the season start"]
     p --> e["6. Evaluation: evaluate-rider where stored Rynke are missing or out of date"]
@@ -429,6 +430,30 @@ pnpm wrangler d1 execute DB --remote --env hamburg \
 pnpm wrangler d1 execute DB --remote --env hamburg \
   --command "DELETE FROM blocked_athletes WHERE athlete_id = <id>"
 ```
+
+An administrator of one team can look at another team's site as a guest
+([feature 041](../specs/041-admin-every-team/spec.md)). Each team has its own guest list of Strava IDs.
+A person on it signs in through Strava without being in the team's club and is an organiser and an
+administrator there. Their own rides show on their own pages, but they count in none of the team's
+figures, and the team never revokes their Strava grant, since their home team needs it.
+
+```bash
+# Put someone on Europe's guest list; they can sign in from then on.
+pnpm wrangler d1 execute DB --remote --env europe \
+  --command "INSERT OR IGNORE INTO guests (athlete_id) VALUES (<id>)"
+# Take them off: their next request is signed out, the next daily run deletes their data there.
+pnpm wrangler d1 execute DB --remote --env europe \
+  --command "DELETE FROM guests WHERE athlete_id = <id>"
+# Who is listed, and who has signed in as a guest.
+pnpm wrangler d1 execute DB --remote --env europe --command "SELECT athlete_id FROM guests"
+pnpm wrangler d1 execute DB --remote --env europe \
+  --command "SELECT athlete_id, first_name FROM riders WHERE guest = 1"
+```
+
+Only administrators of their home team belong on a guest list, and the teams don't see each other's
+data, so keeping it that way is the maintainer's job: whoever clears someone's administrator flag at
+home also takes their ID off every other team's guest list in the same sitting. A real Strava ID
+goes only into these commands, never into the repository.
 
 ### One-time setup
 

@@ -241,6 +241,8 @@ export const fr: Catalog = {
 	"disconnect.title": "Supprimer tes données\u00a0?",
 	"disconnect.explain":
 		"RynkePoints renonce à son accès à ton compte Strava et supprime immédiatement toutes les données te concernant. Tes activités sur Strava restent telles quelles.",
+	"disconnect.explain.guest":
+		"RynkePoints supprime immédiatement toutes les données te concernant dans cette équipe. Son accès à ton compte Strava reste, car ta propre équipe en a besoin. Tes activités sur Strava restent telles quelles.",
 	"disconnect.confirm": "Oui, tout supprimer",
 	"disconnect.cancel": "Annuler",
 
@@ -1243,9 +1245,13 @@ export const fr: Catalog = {
 	"admin.riders.import.running": "En cours",
 	"admin.riders.import.done": "Terminé",
 	"admin.riders.remove": "Retirer",
+	"admin.riders.guests.heading": "Invités",
+	"admin.riders.guest": "Invité·e",
 	"admin.remove.title": "Retirer {name}\u00a0?",
 	"admin.remove.explain":
 		"Impossible d'annuler. Toutes ses données sont supprimées et son accès Strava révoqué. La personne ne peut plus se connecter à cette équipe, même en restant au club\u00a0: son identifiant Strava reste sur la liste de blocage.",
+	"admin.remove.explain.guest":
+		"Impossible d'annuler. Toutes les données de l'invité·e dans cette équipe sont supprimées\u00a0; son accès Strava reste, car sa propre équipe en a besoin. Son identifiant Strava reste sur la liste de blocage, même s'il figure sur la liste des invités.",
 	"admin.remove.confirm": "Retirer et bloquer",
 	"admin.remove.cancel": "Annuler",
 	"admin.remove.done.removed": "Le ou la cycliste a été retiré·e et bloqué·e.",
@@ -1260,7 +1266,7 @@ export const fr: Catalog = {
 	"notification.usage.critical": "Critique\u00a0: {allowance} à {percent} %",
 	"notice.blocked.title": "Tu ne peux pas participer à cette équipe",
 	"notice.blocked.body":
-		"Un administrateur t'a retiré·e de cette équipe. Nous gardons seulement ton identifiant Strava, pour que tu ne puisses pas te reconnecter, et avons révoqué l'accès que tu viens d'accorder.",
+		"Un administrateur t'a retiré·e de cette équipe. Nous gardons seulement ton identifiant Strava, pour que tu ne puisses pas te reconnecter.",
 	"notice.oneTeam.title": "Tu fais aussi partie du club d'une autre équipe",
 	"notice.oneTeam.body":
 		"Sur RynkePoints, tu ne peux participer qu'à une équipe à la fois. Strava donne à l'application une seule connexion par personne : si tu te connectes à une deuxième équipe, la connexion à la première prend fin. Tu es maintenant connecté·e ici.",

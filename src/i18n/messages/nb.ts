@@ -228,6 +228,8 @@ export const nb: Catalog = {
 	"disconnect.title": "Slette dataene dine?",
 	"disconnect.explain":
 		"RynkePoints gir fra seg tilgangen til Strava-kontoen din og sletter straks alle data om deg. Aktivitetene dine på Strava blir som de er.",
+	"disconnect.explain.guest":
+		"RynkePoints sletter straks alle data om deg hos dette laget. Tilgangen til Strava-kontoen din blir stående, fordi ditt eget lag trenger den. Aktivitetene dine på Strava blir som de er.",
 	"disconnect.confirm": "Ja, slett alt",
 	"disconnect.cancel": "Avbryt",
 
@@ -1174,9 +1176,13 @@ export const nb: Catalog = {
 	"admin.riders.import.running": "Pågår fortsatt",
 	"admin.riders.import.done": "Ferdig",
 	"admin.riders.remove": "Fjern",
+	"admin.riders.guests.heading": "Gjester",
+	"admin.riders.guest": "Gjest",
 	"admin.remove.title": "Fjerne {name}?",
 	"admin.remove.explain":
 		"Dette kan ikke angres. Alle dataene til rytteren slettes og Strava-tilgangen trekkes tilbake. Rytteren kan ikke koble til dette laget igjen, heller ikke som klubbmedlem: Strava-ID-en blir stående på blokkeringslisten.",
+	"admin.remove.explain.guest":
+		"Dette kan ikke angres. Alle dataene til gjesten hos dette laget slettes; Strava-tilgangen blir stående, fordi gjestens eget lag trenger den. Strava-ID-en blir stående på blokkeringslisten, også om den står på gjestelisten.",
 	"admin.remove.confirm": "Fjern og blokker",
 	"admin.remove.cancel": "Avbryt",
 	"admin.remove.done.removed": "Rytteren ble fjernet og blokkert.",
@@ -1191,7 +1197,7 @@ export const nb: Catalog = {
 	"notification.usage.critical": "Kritisk: {allowance} på {percent} %",
 	"notice.blocked.title": "Du kan ikke være med på dette laget",
 	"notice.blocked.body":
-		"En administrator har fjernet deg fra dette laget. Vi beholder bare Strava-ID-en din, så du ikke kan koble til igjen, og vi har trukket tilbake tilgangen du nettopp ga.",
+		"En administrator har fjernet deg fra dette laget. Vi beholder bare Strava-ID-en din, så du ikke kan koble til igjen.",
 	"notice.oneTeam.title": "Du er også med i et annet lags klubb",
 	"notice.oneTeam.body":
 		"På RynkePoints kan du være med på ett lag om gangen. Strava gir appen én tilkobling per person, så kobler du deg til et annet lag, avsluttes tilkoblingen til det første. Du er nå koblet til her.",

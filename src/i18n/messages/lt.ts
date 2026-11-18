@@ -232,6 +232,8 @@ export const lt: Catalog = {
 	"disconnect.title": "Ištrinti tavo duomenis?",
 	"disconnect.explain":
 		"RynkePoints atsisako prieigos prie tavo Strava paskyros ir iš karto ištrina visus duomenis apie tave. Tavo veiklos Strava lieka nepakitusios.",
+	"disconnect.explain.guest":
+		"RynkePoints iš karto ištrina visus duomenis apie tave šioje komandoje. Prieiga prie tavo Strava paskyros lieka, nes jos reikia tavo komandai. Tavo veiklos Strava lieka nepakitusios.",
 	"disconnect.confirm": "Taip, ištrinti viską",
 	"disconnect.cancel": "Atšaukti",
 
@@ -1226,9 +1228,13 @@ export const lt: Catalog = {
 	"admin.riders.import.running": "Dar vyksta",
 	"admin.riders.import.done": "Baigta",
 	"admin.riders.remove": "Pašalinti",
+	"admin.riders.guests.heading": "Svečiai",
+	"admin.riders.guest": "Svečias",
 	"admin.remove.title": "Pašalinti {name}?",
 	"admin.remove.explain":
 		"To nebus galima atšaukti. Visi jo duomenys ištrinami, o Strava prieiga atšaukiama. Jis nebegalės prisijungti prie šios komandos, net būdamas klube: jo Strava ID lieka blokuojamųjų sąraše.",
+	"admin.remove.explain.guest":
+		"To nebus galima atšaukti. Visi svečio duomenys šioje komandoje ištrinami; Strava prieiga lieka, nes jos reikia svečio komandai. Jo Strava ID lieka blokuojamųjų sąraše, net jei jis yra svečių sąraše.",
 	"admin.remove.confirm": "Pašalinti ir užblokuoti",
 	"admin.remove.cancel": "Atšaukti",
 	"admin.remove.done.removed": "Dviratininkas pašalintas ir užblokuotas.",
@@ -1243,7 +1249,7 @@ export const lt: Catalog = {
 	"notification.usage.critical": "Kritinis: {allowance} – {percent} %",
 	"notice.blocked.title": "Negali dalyvauti šioje komandoje",
 	"notice.blocked.body":
-		"Administratorius tave pašalino iš šios komandos. Pasiliekame tik tavo Strava ID, kad negalėtum vėl prisijungti, ir atšaukėme ką tik suteiktą prieigą.",
+		"Administratorius tave pašalino iš šios komandos. Pasiliekame tik tavo Strava ID, kad negalėtum vėl prisijungti.",
 	"notice.oneTeam.title": "Tu taip pat esi kitos komandos klube",
 	"notice.oneTeam.body":
 		"RynkePoints gali dalyvauti tik vienoje komandoje vienu metu. Strava suteikia programėlei vieną ryšį vienam asmeniui, todėl prisijungus prie antros komandos ryšys su pirmąja nutrūksta. Dabar ryšys veikia čia.",

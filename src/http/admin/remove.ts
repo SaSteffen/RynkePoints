@@ -1,6 +1,6 @@
 import type { Ctx } from "../../ctx";
 import { removeRider } from "../../db/blocked";
-import { listedRiderName } from "../../db/riders";
+import { listedRider } from "../../db/riders";
 import type { I18n } from "../../i18n/i18n";
 import { revokeStoredToken } from "../../strava/tokens";
 import { html } from "../html";
@@ -23,11 +23,15 @@ export function handleRemoveConfirm(
 	const path = `/admin/riders/${athleteId}/remove`;
 	return adminPage(request, ctx, i18n, path, async ({ rider }) => {
 		if (athleteId === rider.athleteId) return back("error", "self");
-		const name = await listedRiderName(ctx.env.DB, athleteId);
-		if (name === null) return back("error", "unknown");
+		const target = await listedRider(ctx.env.DB, athleteId);
+		if (target === null) return back("error", "unknown");
+		// A guest's grant stays: their own team needs it (041 FR-009).
+		const explain = target.guest
+			? "admin.remove.explain.guest"
+			: "admin.remove.explain";
 		return html`${adminSwitch(i18n, "riders")}<section class="card">
-<h2>${i18n.t("admin.remove.title", { name })}</h2>
-<p>${i18n.t("admin.remove.explain")}</p>
+<h2>${i18n.t("admin.remove.title", { name: target.firstName })}</h2>
+<p>${i18n.t(explain)}</p>
 <form method="post" action="${path}"><button class="danger">${i18n.t("admin.remove.confirm")}</button></form>
 <p><a class="button-outlined" href="/admin/riders">${i18n.t("admin.remove.cancel")}</a></p>
 </section>
@@ -51,7 +55,7 @@ export async function handleRemoveRider(
 	if (administrator instanceof Response) return administrator;
 	if (athleteId === administrator.athleteId) return back("error", "self");
 	const db = ctx.env.DB;
-	if ((await listedRiderName(db, athleteId)) === null) {
+	if ((await listedRider(db, athleteId)) === null) {
 		return back("error", "unknown");
 	}
 	let revoked = await revokeStoredToken(ctx, athleteId);
