@@ -94,6 +94,12 @@ Every secret goes on the team's Worker with `--env <id>`, for example
 `pnpm exec wrangler secret put ADMIN_TOKEN --env <id>`. Each value is new, never one
 from `.dev.vars` or another team, except where a row says so.
 
+`node scripts/team-secrets.mjs <id>` does this step and the gateway secret of step 5
+at once. The Strava owner runs it, since it sets the Strava application's credentials
+from `.dev.vars`. It creates the new values, writes each one into `.dev.vars` as a
+comment before setting it, and on a later run sets the same values again. A secret
+already on the Worker with no record there stays as it is.
+
 | Secret | Who | Value |
 |---|---|---|
 | `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` | **Strava owner only** | the shared Strava application's |
