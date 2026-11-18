@@ -45,10 +45,6 @@ const GERMAN: Record<string, [string, string]> = {
 		"Deine Daten wurden gelöscht",
 		"Wir haben alle Daten über dich gelöscht.",
 	],
-	"deleted-revoke-failed": [
-		"Deine Daten wurden gelöscht",
-		"Wir konnten den Zugriff bei Strava nicht zurückgeben.",
-	],
 };
 
 const RETRY = [
@@ -120,12 +116,6 @@ describe("GET /notice/:id", () => {
 	it("mentions backup expiry on deleted", async () => {
 		const { page } = await get("/notice/deleted");
 		expect(page).toContain(BACKUPS);
-	});
-
-	it("points to „Meine Apps“ when the revoke failed", async () => {
-		const { page } = await get("/notice/deleted-revoke-failed");
-		expect(page).toContain(BACKUPS);
-		expect(page).toContain("„Meine Apps“");
 	});
 
 	it("links the club with the catalog's link text", async () => {

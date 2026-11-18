@@ -16,7 +16,7 @@ import { ACTIVITY_FIGURES_VERSION } from "../../src/strava/activity";
 import { teamFor } from "../../src/teams";
 import type { TeamData } from "../../src/teams/types";
 import type { WorkMessage } from "../../src/work/messages";
-import { initialTokens } from "./fake-strava";
+import { GATEWAY_ORIGIN, initialTokens } from "./fake-strava";
 import { ATHLETE_A, firstNameFor, NOW } from "./fixtures";
 
 export const ORIGIN = "https://rynke.test";
@@ -74,6 +74,15 @@ export function makeCtx(
 			pending.push(promise);
 		},
 	};
+}
+
+/**
+ * Puts the context behind the fake Strava's gateway, so a withdrawal asks
+ * whether another team holds the person (feature 041 R14).
+ */
+export function withGateway(ctx: TestCtx): TestCtx {
+	ctx.env = { ...ctx.env, STRAVA_RETURN_VIA: GATEWAY_ORIGIN };
+	return ctx;
 }
 
 export interface SeedRiderOptions {
@@ -222,6 +231,7 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM recheck_daily"),
 		env.DB.prepare("DELETE FROM blocked_athletes"),
 		env.DB.prepare("DELETE FROM guests"),
+		env.DB.prepare("DELETE FROM pending_revocations"),
 		env.DB.prepare("DELETE FROM removal_log"),
 		env.DB.prepare("DELETE FROM consent_records"),
 		env.DB.prepare("DELETE FROM push_subscriptions"),

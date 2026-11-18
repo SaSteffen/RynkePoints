@@ -260,8 +260,6 @@ export const da: Catalog = {
 	"notice.deleted.title": "Dine data er slettet",
 	"notice.deleted.body":
 		"Vi har slettet alle data om dig. Kopier i vores hostingudbyders sikkerhedskopier forsvinder senest efter 7 dage.",
-	"notice.revokeFailed.body":
-		"Vi kunne ikke opgive vores adgang hos Strava. Fjern RynkePoints under »Mine apps« i dine Strava-indstillinger.",
 
 	"install.button": "Installer som app",
 	"install.ios":
@@ -1184,8 +1182,6 @@ export const da: Catalog = {
 	"admin.remove.confirm": "Fjern og bloker",
 	"admin.remove.cancel": "Annuller",
 	"admin.remove.done.removed": "Rytteren blev fjernet og blokeret.",
-	"admin.remove.done.removed-revoke-failed":
-		"Rytteren blev fjernet og blokeret, men Strava kunne ikke nås for at tilbagekalde adgangen. Tokenet er alligevel slettet her.",
 	"admin.remove.error.self":
 		"Du kan ikke fjerne dig selv. For at stoppe, brug {leave}.",
 	"admin.remove.error.unknown":

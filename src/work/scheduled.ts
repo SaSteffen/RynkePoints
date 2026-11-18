@@ -19,6 +19,7 @@ import { pruneUsageAlerts, pruneUsageHistory } from "../db/usage";
 import { evaluateChange } from "../rynke/apply";
 import { countingWindow, currentRules } from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
+import { settleWithdrawals } from "../strava/withdraw";
 import { daysBefore, historyStart, utcDay } from "../usage/allowances";
 import { recordUsage } from "../usage/record";
 import { parseWorkMessage, sendAll, type WorkMessage } from "./messages";
@@ -62,8 +63,9 @@ export async function expireReconnectRiders(ctx: Ctx): Promise<void> {
 }
 
 /**
- * Deletes guests the maintainer took off the list, keeping their grant: it
- * serves their home team too (feature 041 FR-004, FR-009).
+ * Deletes guests the maintainer took off the list. Their grant is withdrawn
+ * only if no other team holds them, which their home team normally does
+ * (feature 041 FR-004, FR-009, R14).
  */
 export async function sweepRemovedGuests(ctx: Ctx): Promise<void> {
 	const ids = await listRemovedGuestIds(ctx.env.DB);
@@ -73,7 +75,7 @@ export async function sweepRemovedGuests(ctx: Ctx): Promise<void> {
 			kind: "delete-rider",
 			athleteId,
 			reason: "guest-removed",
-			revoke: false,
+			revoke: true,
 		})),
 	);
 }
@@ -207,6 +209,7 @@ export async function handleScheduled(
 		fanOutMembershipChecks,
 		expireReconnectRiders,
 		sweepRemovedGuests,
+		settleWithdrawals,
 		requeueFailedWork,
 		fanOutFiguresReread,
 		purgePreSeasonActivities,

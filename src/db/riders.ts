@@ -513,3 +513,20 @@ export async function saveCredentials(
 		)
 		.run();
 }
+
+/**
+ * Whether this team holds the person, for another team about to withdraw
+ * their grant (feature 041 research R14): `connected` with a working
+ * connection, `reconnect` only with a broken one, `none` without a row.
+ */
+export async function riderHold(
+	db: D1Database,
+	athleteId: number,
+): Promise<"connected" | "reconnect" | "none"> {
+	const row = await db
+		.prepare("SELECT status FROM riders WHERE athlete_id = ?")
+		.bind(athleteId)
+		.first<{ status: RiderStatus }>();
+	if (!row) return "none";
+	return row.status === "connected" ? "connected" : "reconnect";
+}

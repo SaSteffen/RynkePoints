@@ -260,8 +260,6 @@ export const is: Catalog = {
 	"notice.deleted.title": "Gögnunum þínum hefur verið eytt",
 	"notice.deleted.body":
 		"Við höfum eytt öllum gögnum um þig. Afrit í afritum hýsingaraðilans hverfa í síðasta lagi eftir 7 daga.",
-	"notice.revokeFailed.body":
-		"Við gátum ekki afsalað okkur aðganginum hjá Strava. Fjarlægðu RynkePoints undir „My Apps“ í Strava-stillingunum þínum.",
 
 	"install.button": "Setja upp sem app",
 	"install.ios":
@@ -1194,8 +1192,6 @@ export const is: Catalog = {
 	"admin.remove.cancel": "Hætta við",
 	"admin.remove.done.removed":
 		"Hjólreiðamaðurinn var fjarlægður og lokað á hann.",
-	"admin.remove.done.removed-revoke-failed":
-		"Hjólreiðamaðurinn var fjarlægður og lokað á hann, en ekki náðist í Strava til að afturkalla aðganginn. Tokeninu er samt eytt hér.",
 	"admin.remove.error.self":
 		"Þú getur ekki fjarlægt sjálfa/n þig. Til að hætta, notaðu {leave}.",
 	"admin.remove.error.unknown":

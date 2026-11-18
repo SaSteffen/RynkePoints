@@ -274,8 +274,6 @@ export const de = {
 	"notice.deleted.title": "Deine Daten wurden gelöscht",
 	"notice.deleted.body":
 		"Wir haben alle Daten über dich gelöscht. Kopien in den Sicherungen unseres Hosting-Anbieters verschwinden spätestens nach 7 Tagen.",
-	"notice.revokeFailed.body":
-		"Wir konnten den Zugriff bei Strava nicht zurückgeben. Bitte entferne RynkePoints in deinen Strava-Einstellungen unter „Meine Apps“.",
 
 	// Feature 010: the installable app and its notification. `push.body` reaches
 	// the device only through /notification-text and has no placeholder (SC-008);
@@ -1227,8 +1225,6 @@ export const de = {
 	"admin.remove.confirm": "Entfernen und sperren",
 	"admin.remove.cancel": "Abbrechen",
 	"admin.remove.done.removed": "Entfernt und gesperrt.",
-	"admin.remove.done.removed-revoke-failed":
-		"Entfernt und gesperrt, aber Strava war nicht erreichbar, um den Zugang zu widerrufen. Das Token ist hier trotzdem gelöscht.",
 	"admin.remove.error.self":
 		"Dich selbst kannst du nicht entfernen. Zum Aussteigen: {leave}.",
 	"admin.remove.error.unknown":

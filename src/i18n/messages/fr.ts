@@ -271,8 +271,6 @@ export const fr: Catalog = {
 	"notice.deleted.title": "Tes données ont été supprimées",
 	"notice.deleted.body":
 		"Nous avons supprimé toutes les données te concernant. Les copies dans les sauvegardes de notre hébergeur disparaissent au plus tard après 7 jours.",
-	"notice.revokeFailed.body":
-		"Nous n'avons pas pu renoncer à notre accès chez Strava. Retire RynkePoints sous «\u00a0Mes applications\u00a0» dans tes réglages Strava.",
 
 	"install.button": "Installer comme application",
 	"install.ios":
@@ -1255,8 +1253,6 @@ export const fr: Catalog = {
 	"admin.remove.confirm": "Retirer et bloquer",
 	"admin.remove.cancel": "Annuler",
 	"admin.remove.done.removed": "Le ou la cycliste a été retiré·e et bloqué·e.",
-	"admin.remove.done.removed-revoke-failed":
-		"Le ou la cycliste a été retiré·e et bloqué·e, mais Strava n'a pas pu être joint pour révoquer l'accès. Son jeton est quand même supprimé ici.",
 	"admin.remove.error.self":
 		"Tu ne peux pas te retirer toi-même. Pour partir, utilise {leave}.",
 	"admin.remove.error.unknown":

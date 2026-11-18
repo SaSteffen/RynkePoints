@@ -62,14 +62,14 @@ describe("the daily run and guests", () => {
 		]);
 	});
 
-	it("deletes a guest taken off the list, without a revoke", async () => {
+	it("deletes a guest taken off the list, withdrawing unless held elsewhere", async () => {
 		await daily();
 		expect(sent("delete-rider")).toEqual([
 			{
 				kind: "delete-rider",
 				athleteId: FORMER_GUEST,
 				reason: "guest-removed",
-				revoke: false,
+				revoke: true,
 			},
 		]);
 	});

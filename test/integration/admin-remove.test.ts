@@ -192,24 +192,15 @@ describe("the removal (scenario 2, FR-022 to FR-024, SC-005)", () => {
 		).toBeNull();
 	});
 
-	it("retries a transient revoke once", async () => {
+	it("deletes regardless when the revoke fails, keeping the token to withdraw later", async () => {
 		await seedTarget();
 		fake.failNext("revoke", { status: 503 });
 		const res = await remove(TARGET);
 		expect(res.headers.get("Location")).toBe("/admin/riders?done=removed");
-		expect(fake.callsTo("revoke")).toHaveLength(2);
-	});
-
-	it("deletes regardless, and says so, when the revoke keeps failing", async () => {
-		await seedTarget();
-		fake.failNext("revoke", { status: 503 });
-		fake.failNext("revoke", { status: 503 });
-		const res = await remove(TARGET);
-		expect(res.headers.get("Location")).toBe(
-			"/admin/riders?done=removed-revoke-failed",
-		);
+		expect(fake.callsTo("revoke")).toHaveLength(1);
 		expect(await rowsNaming(TARGET)).toEqual({
 			"blocked_athletes.athlete_id": 1,
+			"pending_revocations.athlete_id": 1,
 		});
 	});
 

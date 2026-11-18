@@ -16,6 +16,7 @@ import { handleCatchUp } from "./catch-up";
 import { handleConsent } from "./consent-gate";
 import { notFound } from "./errors";
 import { handleFetching } from "./fetching";
+import { handleHeld } from "./held";
 import { handleLanding } from "./landing";
 import { handleLang } from "./lang";
 import { handleDisconnect, handleDisconnectPage, handleLogout } from "./me";
@@ -70,6 +71,8 @@ import { handleWebhook } from "./webhook";
 // (feature 016). Administrators watch the allowances under `/admin` (feature 025).
 
 const WEBHOOK_PREFIX = "/strava/webhook/";
+/** The gateway asks whether this team holds a person (feature 041 R14). */
+const HELD_PREFIX = "/strava/held/";
 
 /**
  * `/organiser/events/{id}`, its `/delete` and its `/attendance`; `id` is a
@@ -117,6 +120,9 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	}
 	if (path.startsWith(WEBHOOK_PREFIX)) {
 		return handleWebhook(request, path.slice(WEBHOOK_PREFIX.length), ctx);
+	}
+	if (path.startsWith(HELD_PREFIX)) {
+		return handleHeld(request, path.slice(HELD_PREFIX.length), ctx);
 	}
 
 	// `?lang=` shows this one page in that language without picking it, for

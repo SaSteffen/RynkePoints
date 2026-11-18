@@ -25,6 +25,7 @@ import { evaluateChange } from "../rynke/apply";
 import { clubMembership } from "../strava/client";
 import { STRAVA_ORIGIN } from "../strava/result";
 import { exchangeCode } from "../strava/tokens";
+import { withdrawGrant } from "../strava/withdraw";
 import { forbidden } from "./errors";
 import { arrival, sectionNext } from "./lang";
 import type { NoticeId } from "./notice";
@@ -156,12 +157,23 @@ export async function handleCallback(
 	if (exchange.kind === "budget") return notice("strava-busy");
 	if (exchange.kind !== "ok") return notice("failed");
 	const token = exchange.value;
+	// Every refusal from here on withdraws the token just exchanged, unless
+	// another team holds the person: the grant belongs to the app every team
+	// shares, and a revoke ends it everywhere (feature 041 FR-009, R14). It
+	// settles after the answer, so the person doesn't wait for it.
+	const withdraw = () =>
+		ctx.waitUntil(
+			withdrawGrant(ctx, token.athleteId, token.refreshToken).catch((err) => {
+				// The daily run settles a kept token; one never kept is lost.
+				console.error(
+					`Withdrawal at sign-in failed: ${err instanceof Error ? err.name : "unknown error"}`,
+				);
+			}),
+		);
 	// Strava only reveals who is connecting here. A blocked rider gets no club
 	// request, and nothing they returned is kept (feature 025 FR-030, R7).
-	// No refusal here revokes the exchanged token: it is simply never stored.
-	// The grant belongs to the app every team shares, so revoking it could end
-	// the person's connection at another team (feature 041 FR-009, R5).
 	if (await isBlocked(ctx.env.DB, token.athleteId)) {
+		withdraw();
 		return notice("blocked");
 	}
 	const auth = { accessToken: token.accessToken };
@@ -169,6 +181,7 @@ export async function handleCallback(
 
 	// Turns the rider away; an existing rider loses everything (FR-004, FR-006).
 	const refuse = async (id: NoticeId, deletedId: NoticeId) => {
+		withdraw();
 		if (!existing) return notice(id);
 		await deleteRider(ctx.env.DB, token.athleteId);
 		return notice(deletedId, [clearSessionCookie()]);
@@ -183,6 +196,7 @@ export async function handleCallback(
 	// A new athlete who didn't agree on the way in is never stored (R21).
 	const version = currentVersion(ctx.consentVersions).version;
 	if (!existing && expected.consentVersion !== version) {
+		withdraw();
 		return notice("consent-required");
 	}
 
@@ -205,6 +219,7 @@ export async function handleCallback(
 	if (membership && membership.kind !== "ok" && !existing) {
 		// Inconclusive: a new rider is turned away, an existing one is kept and
 		// the daily check decides later (research R4).
+		withdraw();
 		return notice("strava-busy");
 	}
 

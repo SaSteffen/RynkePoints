@@ -258,8 +258,6 @@ export const fi: Catalog = {
 	"notice.deleted.title": "Tietosi on poistettu",
 	"notice.deleted.body":
 		"Olemme poistaneet kaikki tietosi. Kopiot palveluntarjoajamme varmuuskopioissa häviävät viimeistään 7 päivän kuluttua.",
-	"notice.revokeFailed.body":
-		"Emme voineet luopua pääsystämme Stravassa. Poista RynkePoints kohdasta ”Omat sovellukset” Strava-asetuksissasi.",
 
 	"install.button": "Asenna sovelluksena",
 	"install.ios":
@@ -1189,8 +1187,6 @@ export const fi: Catalog = {
 	"admin.remove.confirm": "Poista ja estä",
 	"admin.remove.cancel": "Peruuta",
 	"admin.remove.done.removed": "Ajaja poistettiin ja estettiin.",
-	"admin.remove.done.removed-revoke-failed":
-		"Ajaja poistettiin ja estettiin, mutta Stravaan ei saatu yhteyttä pääsyn perumiseksi. Token on silti poistettu täältä.",
 	"admin.remove.error.self":
 		"Et voi poistaa itseäsi. Lopettaaksesi käytä toimintoa {leave}.",
 	"admin.remove.error.unknown":

@@ -263,8 +263,6 @@ export const nl: Catalog = {
 	"notice.deleted.title": "Je gegevens zijn gewist",
 	"notice.deleted.body":
 		"We hebben alle gegevens over jou gewist. Kopieën in de back-ups van onze hostingprovider verdwijnen uiterlijk na 7 dagen.",
-	"notice.revokeFailed.body":
-		"We konden onze toegang bij Strava niet opgeven. Verwijder RynkePoints onder “Mijn apps” in je Strava-instellingen.",
 
 	"install.button": "Installeren als app",
 	"install.ios":
@@ -1201,8 +1199,6 @@ export const nl: Catalog = {
 	"admin.remove.confirm": "Verwijderen en blokkeren",
 	"admin.remove.cancel": "Annuleren",
 	"admin.remove.done.removed": "De renner is verwijderd en geblokkeerd.",
-	"admin.remove.done.removed-revoke-failed":
-		"De renner is verwijderd en geblokkeerd, maar Strava was niet bereikbaar om de toegang in te trekken. Hun token is hier toch gewist.",
 	"admin.remove.error.self":
 		"Je kunt jezelf niet verwijderen. Wil je stoppen, gebruik dan {leave}.",
 	"admin.remove.error.unknown":

@@ -259,8 +259,6 @@ export const en: Catalog = {
 	"notice.deleted.title": "Your data has been deleted",
 	"notice.deleted.body":
 		"We have deleted all data about you. Copies in our hosting provider's backups disappear after 7 days at the latest.",
-	"notice.revokeFailed.body":
-		'We couldn\'t give up our access at Strava. Please remove RynkePoints under "My Apps" in your Strava settings.',
 
 	"install.button": "Install as an app",
 	"install.ios":
@@ -1184,8 +1182,6 @@ export const en: Catalog = {
 	"admin.remove.confirm": "Remove and block",
 	"admin.remove.cancel": "Cancel",
 	"admin.remove.done.removed": "The rider was removed and blocked.",
-	"admin.remove.done.removed-revoke-failed":
-		"The rider was removed and blocked, but Strava couldn't be reached to revoke their access. Their token is deleted here anyway.",
 	"admin.remove.error.self":
 		"You can't remove yourself. To leave, use {leave}.",
 	"admin.remove.error.unknown":

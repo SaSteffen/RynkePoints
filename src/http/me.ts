@@ -5,7 +5,7 @@ import {
 } from "../db/push-subscriptions";
 import { deleteRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
-import { revokeStoredToken } from "../strava/tokens";
+import { withdrawStoredGrant } from "../strava/withdraw";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, pageLook } from "./html";
 import { redirect } from "./redirect";
@@ -57,14 +57,11 @@ export async function handleDisconnect(
 	if (viewer?.kind !== "rider") return forbidden(i18n, "/me/disconnect");
 	const { rider } = viewer;
 
-	let revoked = await revokeStoredToken(ctx, rider.athleteId);
-	if (revoked.kind === "transient") {
-		revoked = await revokeStoredToken(ctx, rider.athleteId);
-	}
+	// Unless another team holds them; a token not settled yet is kept and
+	// withdrawn later (feature 041 R14).
+	await withdrawStoredGrant(ctx, rider.athleteId);
 	await deleteRider(ctx.env.DB, rider.athleteId);
-	const notice =
-		revoked.kind === "ok" ? "/notice/deleted" : "/notice/deleted-revoke-failed";
-	return redirect(notice, 303, [clearSessionCookie()]);
+	return redirect("/notice/deleted", 303, [clearSessionCookie()]);
 }
 
 /**

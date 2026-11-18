@@ -154,33 +154,25 @@ describe("POST /me/disconnect", () => {
 		expect(text).toContain("spätestens nach 7 Tagen");
 	});
 
-	it("retries a 503 once", async () => {
+	it("still deletes when the revoke fails, keeping the token to withdraw later", async () => {
 		await seedConnected();
-		fake.failNext("revoke", { status: 503 });
-		const res = await disconnect();
-		expect(res.headers.get("Location")).toBe("/notice/deleted");
-		expect(fake.callsTo("revoke")).toHaveLength(2);
-		expect((await tableCounts()).riders).toBe(0);
-	});
-
-	it("still deletes when the revoke fails twice, and says so", async () => {
-		await seedConnected();
-		fake.failNext("revoke", { status: 503 });
 		fake.failNext("revoke", { status: 503 });
 		const res = await disconnect();
 		expect(res.status).toBe(303);
-		expect(res.headers.get("Location")).toBe("/notice/deleted-revoke-failed");
-		expect(fake.callsTo("revoke")).toHaveLength(2);
+		expect(res.headers.get("Location")).toBe("/notice/deleted");
+		expect(fake.callsTo("revoke")).toHaveLength(1);
 		expect(await tableCounts()).toMatchObject({
 			riders: 0,
 			strava_credentials: 0,
 			activities: 0,
 			consent_records: 0,
 		});
-
-		const { text } = await page("/notice/deleted-revoke-failed");
-		expect(text).toContain("Deine Daten wurden gelöscht");
-		expect(text).toContain("„Meine Apps“");
+		// Feature 041 R14: the daily run withdraws it.
+		expect(
+			await env.DB.prepare(
+				"SELECT COUNT(*) AS n FROM pending_revocations",
+			).first("n"),
+		).toBe(1);
 	});
 
 	it("shows the confirmation in English after a language switch", async () => {

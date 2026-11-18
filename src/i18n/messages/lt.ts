@@ -261,8 +261,6 @@ export const lt: Catalog = {
 	"notice.deleted.title": "Tavo duomenys ištrinti",
 	"notice.deleted.body":
 		"Ištrynėme visus duomenis apie tave. Kopijos mūsų prieglobos paslaugų teikėjo atsarginėse kopijose dingsta ne vėliau kaip po 7 dienų.",
-	"notice.revokeFailed.body":
-		"Nepavyko atsisakyti prieigos Strava. Pašalink RynkePoints savo Strava nustatymuose, skiltyje „My Apps“.",
 
 	"install.button": "Įdiegti kaip programėlę",
 	"install.ios":
@@ -1238,8 +1236,6 @@ export const lt: Catalog = {
 	"admin.remove.confirm": "Pašalinti ir užblokuoti",
 	"admin.remove.cancel": "Atšaukti",
 	"admin.remove.done.removed": "Dviratininkas pašalintas ir užblokuotas.",
-	"admin.remove.done.removed-revoke-failed":
-		"Dviratininkas pašalintas ir užblokuotas, bet nepavyko susisiekti su Strava ir atšaukti jo prieigos. Jo žetonas čia vis tiek ištrintas.",
 	"admin.remove.error.self":
 		"Negali pašalinti savęs. Jei nori išeiti, naudok {leave}.",
 	"admin.remove.error.unknown":

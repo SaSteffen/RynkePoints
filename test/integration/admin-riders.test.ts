@@ -10,6 +10,7 @@ import {
 	seedRider,
 	sessionCookie,
 } from "../support/ctx";
+import { installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C } from "../support/fixtures";
 import { seedBalance } from "../support/rider-view";
 
@@ -138,7 +139,6 @@ describe("the block list (FR-031)", () => {
 describe("the results of a removal", () => {
 	it.each([
 		["?done=removed", "admin.remove.done.removed"],
-		["?done=removed-revoke-failed", "admin.remove.done.removed-revoke-failed"],
 		["?error=unknown", "admin.remove.error.unknown"],
 	] as const)("%s", async (query, id) => {
 		expect(await page(query)).toContain(escapeHtml(de[id]));
@@ -187,6 +187,8 @@ describe("guests", () => {
 	});
 
 	it("can be removed, with the guest's own explanation", async () => {
+		// No other team holds them here, so the grant is withdrawn (R14).
+		const fake = installFakeStrava();
 		const confirm = await handleFetch(
 			request(`/admin/riders/${ATHLETE_C}/remove`, {
 				cookies: await sessionCookie(ctx, ADMIN),
@@ -203,5 +205,7 @@ describe("guests", () => {
 			ctx,
 		);
 		expect(res.headers.get("Location")).toBe("/admin/riders?done=removed");
+		expect(fake.revocations).toHaveLength(1);
+		fake.restore();
 	});
 });

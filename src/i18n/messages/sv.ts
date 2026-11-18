@@ -256,8 +256,6 @@ export const sv: Catalog = {
 	"notice.deleted.title": "Dina uppgifter har raderats",
 	"notice.deleted.body":
 		"Vi har raderat alla uppgifter om dig. Kopior i vår webbhotellsleverantörs säkerhetskopior försvinner senast efter 7 dagar.",
-	"notice.revokeFailed.body":
-		"Vi kunde inte lämna ifrån oss åtkomsten hos Strava. Ta bort RynkePoints under ”Mina appar” i dina Strava-inställningar.",
 
 	"install.button": "Installera som app",
 	"install.ios":
@@ -1186,8 +1184,6 @@ export const sv: Catalog = {
 	"admin.remove.confirm": "Ta bort och spärra",
 	"admin.remove.cancel": "Avbryt",
 	"admin.remove.done.removed": "Cyklisten togs bort och spärrades.",
-	"admin.remove.done.removed-revoke-failed":
-		"Cyklisten togs bort och spärrades, men vi nådde inte Strava för att återkalla åtkomsten. Token är raderad här ändå.",
 	"admin.remove.error.self":
 		"Du kan inte ta bort dig själv. För att sluta, använd {leave}.",
 	"admin.remove.error.unknown":

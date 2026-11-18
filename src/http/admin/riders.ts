@@ -11,7 +11,7 @@ import { adminPage, adminSwitch, whole } from "./access";
 // consent, and only counts of everyone else. No rides, Rynke or
 // tokens, and the athlete ID only in the remove link's address (research R6).
 
-const DONE_CODES = ["removed", "removed-revoke-failed"] as const;
+const DONE_CODES = ["removed"] as const;
 const ERROR_CODES = ["self", "unknown"] as const;
 
 function resultNotice(url: URL, i18n: I18n): SafeHtml | null {
