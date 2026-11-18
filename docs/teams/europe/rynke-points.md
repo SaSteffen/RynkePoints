@@ -221,7 +221,8 @@ ride you up the hill.
 # Which rides count?
 
 - Only rides from **1 January to 30 June** earn Rynke. Nothing before or after
-  does.
+  does. Your rides from before 1 January already show up on your RynkePoints
+  page, marked "doesn't count yet", and they count for the badges.
 - What matters is the ride's start date in your time zone.
 - If you change a ride on Strava (for example its route) or delete it,
   RynkePoints recalculates your Rynke.
@@ -240,7 +241,13 @@ On your RynkePoints page you see your Training Rynke, how many you're still
 missing, whether you're in, and where your Rynke come from. There
 you also see your elevation for the season and how much is missing for the next
 5 Training Rynke, and, if you ride virtually, how many Training Rynke you have
-without virtual rides. Only you see your total.
+without virtual rides.
+
+Besides you, the organisers see your total, with your first name: your Rynke
+and where they come from, what you're still missing, whether you're in, and
+how many kilometres and metres of elevation you rode per day. They don't see
+your individual rides. In the team's ranking everyone sees your number of
+rides, your kilometres and your elevation, but without your name.
 
 # Do the rules change?
 
