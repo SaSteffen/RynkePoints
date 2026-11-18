@@ -41,9 +41,9 @@ async function count(table: string): Promise<number> {
 	);
 }
 
-/** Three counting 40 km rides at the season start, which earn badges. */
+/** Three counting 40 km rides at the window start, which earn badges. */
 function rides(): ActivityChange {
-	const start = env.SEASON_START_DATE;
+	const start = env.QUALIFICATION_START_DATE;
 	return {
 		kind: "upsert",
 		records: [1, 2, 3].map((day) => {
@@ -72,10 +72,11 @@ it("is on for every switch by default", () => {
 
 describe("BADGES", () => {
 	beforeEach(() => {
-		// Evaluated the day after `rides()`: a team's season may start after NOW
+		// Evaluated the day after `rides()`: a team's window may open after NOW
 		// (Europe's on 1 January), and rides after now count for nothing.
 		const afterRides =
-			Date.parse(`${env.SEASON_START_DATE}T12:00:00Z`) / 1000 + 3 * 86_400;
+			Date.parse(`${env.QUALIFICATION_START_DATE}T12:00:00Z`) / 1000 +
+			3 * 86_400;
 		ctx = { ...ctx, now: () => Math.max(NOW, afterRides) };
 		return seedBalance(ATHLETE_A, { trainingRynke: 30 });
 	});

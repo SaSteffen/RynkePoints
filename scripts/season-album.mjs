@@ -68,11 +68,12 @@ const [vars] = Object.values(
 ).map((block) => block.vars);
 const setting = (name) => vars[name] || null;
 const seasonStart = setting("SEASON_START_DATE");
+const windowStart = setting("QUALIFICATION_START_DATE");
 const deadline = setting("QUALIFICATION_DEADLINE");
-if (!seasonStart || !deadline) {
+if (!seasonStart || !windowStart || !deadline) {
 	fail(
 		EXIT_PRECONDITION,
-		"wrangler.jsonc has no SEASON_START_DATE or QUALIFICATION_DEADLINE.",
+		"wrangler.jsonc has no SEASON_START_DATE, QUALIFICATION_START_DATE or QUALIFICATION_DEADLINE.",
 	);
 }
 // The team's switch (feature 026 FR-018): no albums while it is "off".
@@ -197,6 +198,8 @@ async function startWorker() {
 		String(PORT),
 		"--var",
 		`SEASON_START_DATE:${seasonStart}`,
+		"--var",
+		`QUALIFICATION_START_DATE:${windowStart}`,
 		"--var",
 		`QUALIFICATION_DEADLINE:${deadline}`,
 		"--var",

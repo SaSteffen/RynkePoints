@@ -130,7 +130,7 @@ export const lt: Catalog = {
 	"rynke.deadline.daysLeft": "Liko dienų: {n} ⏳",
 	"rynke.deadline.passed": "Terminas praėjo",
 	"rynke.deadline.notStarted":
-		"Kvalifikacija prasideda {date}. Nuo tada skaičiuojami tavo važiavimai.",
+		"Kvalifikacija prasideda {date}. Iki tol tavo važiavimai kvalifikacijai neskaičiuojami, bet ženklelius gali rinkti jau dabar. 🏅",
 	"rynke.status.push": "Atsilieki nuo plano.",
 	"rynke.status.onTrack": "Laikaisi plano.",
 	"rynke.status.in": "Lenki planą: treniruočių tikslas pasiektas.",
@@ -156,6 +156,7 @@ export const lt: Catalog = {
 	"rynke.ride.counts": "skaičiuojama 🪙",
 	"rynke.ride.countsWithoutRynke": "skaičiuojama",
 	"rynke.ride.doesNotCount": "neskaičiuojama",
+	"rynke.ride.notYet": "dar neskaičiuojama",
 	"rynke.ride.beingEvaluated": "Vertinama",
 	"rynke.ride.virtual": "virtualus",
 	"rynke.ride.fixHint":
@@ -198,6 +199,8 @@ export const lt: Catalog = {
 	"rynke.reason.excluded_sport_type": "{sport} Rynke neskaičiuojama.",
 	"rynke.reason.outside_window": "Prieš sezono pradžią {date}.",
 	"rynke.reason.outside_window.afterDeadline": "Po termino {date}.",
+	"rynke.reason.before_window":
+		"Kvalifikacija prasideda {date}. Nuo tada skaičiuojami tokie važiavimai kaip šis.",
 	"rynke.reason.overlap":
 		"Užregistruota du kartus: vietoj jo skaičiuojamas tavo važiavimas {date}, {time}, {distance}.",
 	"rynke.reason.overlap.noRide":

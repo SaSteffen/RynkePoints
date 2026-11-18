@@ -6,6 +6,7 @@
 import {
 	type CountingWindow,
 	eventInWindow,
+	inBadgeSeason,
 	inCountingWindow,
 	type RynkeRules,
 } from "../rynke/rules";
@@ -21,7 +22,11 @@ import {
 } from "./catalog";
 import { easterSunday } from "./easter";
 
-/** A counting ride (its result counts), by the ride's local start date. */
+/**
+ * A ride the badges count, by the ride's local start date: its result counts,
+ * or it is a pre-window ride, dated before the window opens with no Rynke
+ * (feature 040 research R3).
+ */
 export interface CountingRide {
 	/** `YYYY-MM-DD` */
 	date: string;
@@ -255,9 +260,9 @@ function personalSeries(
 				),
 			].map(([, date]) => ({ date, amount: 1 })),
 		);
-	const runs = inputs.runs.filter((r) => inCountingWindow(r.date, window));
+	const runs = inputs.runs.filter((r) => inBadgeSeason(r.date, window));
 	const swims = (inputs.swims ?? []).filter((s) =>
-		inCountingWindow(s.date, window),
+		inBadgeSeason(s.date, window),
 	);
 	const km = (items: readonly { date: string; distanceM: number }[]) =>
 		items.map((i) => ({ date: i.date, amount: i.distanceM / 1000 }));
@@ -284,9 +289,11 @@ function personalSeries(
 		),
 		team_events: events(),
 		technique: events("technique_training"),
+		// Only the rides that earned Rynke: a pre-window ride's elevation is
+		// for the other badges (feature 040 FR-015).
 		training_rynke: riderDays(
 			{
-				rides: inputs.rides,
+				rides: inputs.rides.filter((r) => inCountingWindow(r.date, window)),
 				attendance: inputs.attendance,
 				corrections: inputs.corrections,
 			},
@@ -329,11 +336,11 @@ function surpriseBadges(
 	inputs: PersonalInputs,
 	window: CountingWindow,
 ): EarnedBadge[] {
-	const rides = inputs.rides.filter((r) => inCountingWindow(r.date, window));
+	const rides = inputs.rides.filter((r) => inBadgeSeason(r.date, window));
 	const days = new Set(
 		[...rides, ...inputs.runs, ...(inputs.swims ?? [])]
 			.map((a) => a.date)
-			.filter((date) => inCountingWindow(date, window)),
+			.filter((date) => inBadgeSeason(date, window)),
 	);
 	const sorted = [...days].sort();
 	const first = (dates: readonly string[]) => [...dates].sort()[0];
@@ -408,7 +415,7 @@ function traditions(
 	window: CountingWindow,
 	days: ReadonlySet<string>,
 ): Record<string, string | undefined> {
-	const inWindow = (date: string) => inCountingWindow(date, window);
+	const inWindow = (date: string) => inBadgeSeason(date, window);
 	const monthDay = (date: string) => date.slice(5);
 	const outdoor = rides.filter((r) => !r.virtual);
 	// Per date, the counting rides' metres, for the stage days.

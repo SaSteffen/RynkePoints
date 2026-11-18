@@ -75,7 +75,7 @@ describe("buildProgressView (feature 009)", () => {
 	it("spans the season on a day axis up to today", () => {
 		const view = ready();
 		expect(view).toMatchObject({
-			seasonStart: "2026-09-01",
+			windowStart: "2026-09-01",
 			deadline: "2027-06-30",
 			lastDay: "2026-10-07",
 			axisDays: 302,

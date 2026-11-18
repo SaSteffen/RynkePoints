@@ -19,6 +19,9 @@ export function teamProblems(
 	},
 ): string[];
 
+/** The season and qualification window of one block's vars, one line each (feature 040). */
+export function seasonDateProblems(vars: Record<string, string>): string[];
+
 /** `--deployable <id>`: the team's placeholders, one line each. */
 export function placeholderProblems(
 	teams: readonly unknown[],

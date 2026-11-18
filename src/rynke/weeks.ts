@@ -282,7 +282,7 @@ export function riderCurve(
 	const outdoor = { distanceRynke: 0, elevationDm: 0 };
 	let next = 0;
 	const points: CurvePoint[] = [];
-	for (let day = dayNumber(window.seasonStart); day <= dayNumber(last); day++) {
+	for (let day = dayNumber(window.windowStart); day <= dayNumber(last); day++) {
 		const date = fromDayNumber(day);
 		for (
 			let ride = rides[next];

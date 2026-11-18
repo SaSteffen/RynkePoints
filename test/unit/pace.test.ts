@@ -13,6 +13,7 @@ const TODAY = "2026-03-25"; // 83 days after the season start
 
 const RUNNING: CountingWindow = {
 	seasonStart: SEASON_START,
+	windowStart: SEASON_START,
 	deadline: DEADLINE,
 };
 

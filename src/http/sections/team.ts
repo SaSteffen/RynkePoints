@@ -738,7 +738,7 @@ export function handleTeam(
 			]);
 			const today = berlinDate(ctx.now());
 			const ends = weekEnds(
-				window.seasonStart,
+				window.windowStart,
 				lastDay(today, window.deadline),
 			);
 			const riders = team.map((listed) => ({
@@ -838,7 +838,7 @@ async function singleView(
 	const figure = view.by === "rynke" ? "km" : view.by;
 	const window = countingWindow(ctx.env);
 	const today = berlinDate(ctx.now());
-	const ends = weekEnds(window.seasonStart, lastDay(today, window.deadline));
+	const ends = weekEnds(window.windowStart, lastDay(today, window.deadline));
 	const riders = rideFigures(ctx.env) ? await readTeamRides(ctx.env.DB) : [];
 	const season = periodOf("season", today, window);
 	const ranking = rideRanking(

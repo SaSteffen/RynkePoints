@@ -256,6 +256,17 @@ describe("another team's samples (026 FR-050)", { timeout: 20_000 }, () => {
 			await count("SELECT COUNT(*) AS n FROM riders WHERE organiser = 1"),
 		).toBe(2);
 	});
+
+	it("gives Europe's riders rides in November and December again (040 FR-020)", () => {
+		const dates = EUROPE_SAMPLES.riders.flatMap((r) =>
+			r.rides.flatMap((ride) =>
+				ride.onDate === undefined ? [] : [ride.onDate],
+			),
+		);
+		expect(dates.some((d) => d.startsWith("11-"))).toBe(true);
+		expect(dates.some((d) => d.startsWith("12-"))).toBe(true);
+		expect(dates).toContain("12-24");
+	});
 });
 
 describe("connect flow (FR-008)", () => {

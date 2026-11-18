@@ -7,7 +7,7 @@ import {
 	type RiderViewRead,
 } from "../db/rider-view";
 import type { StoredBalance } from "../db/rynke";
-import type { UnknownFigureCode } from "../rynke/rides";
+import { isPreWindow, type UnknownFigureCode } from "../rynke/rides";
 import {
 	type CountingWindow,
 	eventInWindow,
@@ -47,8 +47,8 @@ export interface RulesInfo {
 	version: number;
 	/** `YYYY-MM-DD` */
 	effectiveDate: string;
-	/** `YYYY-MM-DD`, `SEASON_START_DATE`. */
-	seasonStart: string;
+	/** `YYYY-MM-DD`, `QUALIFICATION_START_DATE`. */
+	windowStart: string;
 	/** `YYYY-MM-DD`, `QUALIFICATION_DEADLINE`. */
 	deadline: string;
 	/** The version's minimum ride length; absent without one (feature 039). */
@@ -68,7 +68,7 @@ export function rulesInfo(
 	const info: RulesInfo = {
 		version,
 		effectiveDate,
-		seasonStart: window.seasonStart,
+		windowStart: window.windowStart,
 		deadline: window.deadline,
 	};
 	if (rules?.minRideKm !== undefined) info.minRideKm = rules.minRideKm;
@@ -204,7 +204,8 @@ export interface RideLine {
 	sportType: CyclingSportType;
 	distanceM: number;
 	elevationGainM: number;
-	status: "being-evaluated" | "counts" | "does-not-count";
+	/** `not-yet`: a pre-window ride (feature 040 research R6). */
+	status: "being-evaluated" | "counts" | "does-not-count" | "not-yet";
 	/** 0 unless the ride counts. */
 	distanceRynke: number;
 	/** Metres towards the elevation total; 0 unless the ride counts. */
@@ -244,6 +245,8 @@ export type ReasonLine =
 	| { code: "excluded_sport_type"; sportType: CyclingSportType }
 	/** `SEASON_START_DATE`. */
 	| { code: "before_season"; date: string }
+	/** `QUALIFICATION_START_DATE`: a ride in the season before the window opens. */
+	| { code: "before_window"; date: string }
 	/** `QUALIFICATION_DEADLINE`. */
 	| { code: "after_deadline"; date: string }
 	| {
@@ -535,7 +538,13 @@ function rideLine(ride: RideRow, context: ViewContext): RideLine {
 		sportType: ride.sportType,
 		distanceM: ride.distanceM,
 		elevationGainM: ride.elevationGainM,
-		status: !result ? "being-evaluated" : counts ? "counts" : "does-not-count",
+		status: !result
+			? "being-evaluated"
+			: counts
+				? "counts"
+				: isPreWindow(result.reasons)
+					? "not-yet"
+					: "does-not-count",
 		distanceRynke: counts ? result.distanceRynke : 0,
 		elevationM: counts ? result.elevationDm / 10 : 0,
 		isVirtual: result?.isVirtual ?? false,
@@ -607,6 +616,8 @@ function reasonLines(
 							code: "after_deadline",
 							date: context.deadline,
 						};
+			case "before_window":
+				return { code, date: context.windowStart };
 			case "overlap":
 				return { code, countedInstead: ride.countedInstead };
 			default:

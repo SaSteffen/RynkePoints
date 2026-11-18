@@ -172,6 +172,7 @@ const CONTRACT_IDS = [
 	"rynke.ride.counts",
 	"rynke.ride.countsWithoutRynke",
 	"rynke.ride.doesNotCount",
+	"rynke.ride.notYet",
 	"rynke.ride.beingEvaluated",
 	"rynke.ride.virtual",
 	// Feature 005, US2
@@ -221,6 +222,7 @@ const CONTRACT_IDS = [
 	"rynke.reason.excluded_sport_type",
 	"rynke.reason.outside_window",
 	"rynke.reason.outside_window.afterDeadline",
+	"rynke.reason.before_window",
 	"rynke.reason.overlap",
 	"rynke.reason.overlap.noRide",
 	"rynke.reason.unknown",

@@ -11,6 +11,8 @@ import {
 
 const NOT_FIXABLE: readonly ReasonCode[] = [
 	"outside_window",
+	// The window opening is a date, nothing on Strava (feature 040).
+	"before_window",
 	"excluded_sport_type",
 	"flagged",
 	"manual",

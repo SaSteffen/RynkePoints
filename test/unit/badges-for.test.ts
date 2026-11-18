@@ -13,14 +13,24 @@ import { hamburg } from "../../src/teams/hamburg";
 
 // Feature 039 US5 (research R9): a team without events lists no badge that only
 // recorded events earn; a team with events lists every badge, the same array
-// as today. And no team lists a badge its season holds no day for: Team
-// Europe's season, 1 January to 30 June, has no November, December or
-// Christmas (feature 039). The catalog itself doesn't change.
+// as today. And no team lists a badge its season holds no day for: a season
+// from 1 January has no November, December or Christmas (feature 039). Since
+// feature 040 every team's season starts on 1 September, so Team Europe lists
+// those again, though its window opens in January. The catalog itself doesn't
+// change.
 
 /** Hamburg's season, which holds every badge's days. */
-const SEPTEMBER = { seasonStart: "2026-09-01", deadline: "2027-06-30" };
-/** Team Europe's. */
-const JANUARY = { seasonStart: "2027-01-01", deadline: "2027-06-30" };
+const SEPTEMBER = {
+	seasonStart: "2026-09-01",
+	windowStart: "2026-09-01",
+	deadline: "2027-06-30",
+};
+/** A season from January, as Team Europe's was before feature 040. */
+const JANUARY = {
+	seasonStart: "2027-01-01",
+	windowStart: "2027-01-01",
+	deadline: "2027-06-30",
+};
 
 /** The badges a season from January to June holds no day for. */
 const OUT_OF_SEASON = [
@@ -97,6 +107,19 @@ describe("badgesFor", () => {
 		]) {
 			expect(ids).toContain(kept);
 		}
+	});
+
+	it("lists Team Europe every badge of its season from September (040 FR-016)", () => {
+		const europeSeason = {
+			seasonStart: "2026-09-01",
+			windowStart: "2027-01-01",
+			deadline: "2027-06-30",
+		};
+		expect(badgesFor(europe, europeSeason)).toEqual(
+			BADGES.filter((b) => !EVENT_ONLY.includes(b.category)),
+		);
+		const ids = badgesFor(europe, europeSeason).map((b) => b.id);
+		for (const back of OUT_OF_SEASON) expect(ids).toContain(back);
 	});
 
 	it("is the same array on every call", () => {

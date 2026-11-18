@@ -196,6 +196,7 @@ describe(`${team.id}'s data checks (US3 scenario 4)`, () => {
 		"SEASON_ALBUM",
 		"FUN_THEMES",
 		"SEASON_START_DATE",
+		"QUALIFICATION_START_DATE",
 	])("names a missing var %s", (name) => {
 		const where = `env.${team.id}`;
 		const problems = teamProblems(TEAMS, withoutVar(name), options);
@@ -254,21 +255,23 @@ describe.runIf(team.id === "europe")("europe's club (039 FR-005)", () => {
 	});
 });
 
-// Team Europe's training period, the days Rynke count: 1 January to 30 June
-// (feature 039), in its block and its sandbox's, no longer a placeholder.
-describe.runIf(team.id === "europe")("europe's training period (039)", () => {
+// Team Europe's season, 1 September to 31 August like every team, and its
+// qualification window, 1 January to 30 June (feature 040), in its block and its
+// sandbox's, no longer a placeholder.
+describe.runIf(team.id === "europe")("europe's season and window (040)", () => {
 	it.each(["europe", "sandbox-europe"])(
-		"is 1 Jan to 30 Jun in env.%s",
+		"is a 1 Sep season with a 1 Jan to 30 Jun window in env.%s",
 		(name) => {
-			expect(wrangler.env[name]?.vars.SEASON_START_DATE).toBe("2027-01-01");
-			expect(wrangler.env[name]?.vars.QUALIFICATION_DEADLINE).toBe(
-				"2027-06-30",
-			);
+			const vars = wrangler.env[name]?.vars;
+			expect(vars?.SEASON_START_DATE).toBe("2026-09-01");
+			expect(vars?.QUALIFICATION_START_DATE).toBe("2027-01-01");
+			expect(vars?.QUALIFICATION_DEADLINE).toBe("2027-06-30");
 		},
 	);
 
 	it("is no placeholder", () => {
 		expect(team.placeholders).not.toContain("SEASON_START_DATE");
+		expect(team.placeholders).not.toContain("QUALIFICATION_START_DATE");
 		expect(team.placeholders).not.toContain("QUALIFICATION_DEADLINE");
 	});
 });

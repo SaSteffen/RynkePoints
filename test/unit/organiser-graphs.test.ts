@@ -8,7 +8,11 @@ import type { DayEntry, VirtualDayEntry } from "../../src/rynke/summary";
 // The pure step from stored rows to what the organiser's graphs receive (feature
 // 029 data-model.md "View"). Synthetic riders only.
 
-const window = { seasonStart: "2026-01-01", deadline: "2026-06-30" };
+const window = {
+	seasonStart: "2026-01-01",
+	windowStart: "2026-01-01",
+	deadline: "2026-06-30",
+};
 const TODAY = "2026-03-01";
 
 const rider = (

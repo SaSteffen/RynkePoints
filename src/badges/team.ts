@@ -7,6 +7,7 @@
 import {
 	type CountingWindow,
 	eventInWindow,
+	inBadgeSeason,
 	inCountingWindow,
 	type RynkeRules,
 } from "../rynke/rules";
@@ -92,7 +93,15 @@ export function evaluateTeamBadges(
 	const series: Partial<Record<BadgeCategoryId, Series>> = {
 		team_training_rynke: together(
 			sums.riders.map((rider) =>
-				riderDays(rider, window, rules).map((day) => ({
+				// Only the rides that earned Rynke (feature 040 FR-015).
+				riderDays(
+					{
+						...rider,
+						rides: rider.rides.filter((r) => inCountingWindow(r.date, window)),
+					},
+					window,
+					rules,
+				).map((day) => ({
 					date: day.date,
 					value: day.training,
 				})),
@@ -106,7 +115,7 @@ export function evaluateTeamBadges(
 		),
 		team_running: cumulative(
 			sums.runs
-				.filter((r) => inCountingWindow(r.date, window))
+				.filter((r) => inBadgeSeason(r.date, window))
 				.map((r) => ({ date: r.date, amount: r.distanceM / 1000 })),
 		),
 		big_training: largest(events),
@@ -146,7 +155,7 @@ function teamSurprises(
 	const riders = new Map<string, Set<number>>();
 	const hours = new Map<string, Set<number>>();
 	for (const a of sums.active ?? []) {
-		if (!inCountingWindow(a.date, window)) continue;
+		if (!inBadgeSeason(a.date, window)) continue;
 		if (!riders.has(a.date)) riders.set(a.date, new Set());
 		riders.get(a.date)?.add(a.athleteId);
 		if (!hours.has(a.date)) hours.set(a.date, new Set());
@@ -199,7 +208,7 @@ function festiveTeam(
 		date.slice(5) >= FESTIVE_FROM && date.slice(5) <= FESTIVE_TO;
 	const firstRide = new Map<number, string>();
 	for (const a of sums.active ?? []) {
-		if (!a.ride || !festive(a.date) || !inCountingWindow(a.date, window)) {
+		if (!a.ride || !festive(a.date) || !inBadgeSeason(a.date, window)) {
 			continue;
 		}
 		const known = firstRide.get(a.athleteId);

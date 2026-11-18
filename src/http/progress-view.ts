@@ -48,10 +48,10 @@ export type ProgressView =
 			rulesVersion: number;
 			/** Both totals are 0 (FR-015). */
 			nothingYet: boolean;
-			seasonStart: string;
+			windowStart: string;
 			deadline: string;
 			lastDay: string;
-			/** Day index of the deadline; the season start is 0. */
+			/** Day index of the deadline; the window start is 0. */
 			axisDays: number;
 			/** Day index of the last day. */
 			lastIndex: number;
@@ -95,11 +95,11 @@ export function buildProgressView(
 ): ProgressView {
 	const { balance, progress } = read;
 	if (!balance || !progress || !rules) return { state: "none" };
-	const { seasonStart, deadline } = window;
-	// Before the season starts, the axis still begins with its first day.
-	const last = maxDate(lastDay(today, deadline), seasonStart);
+	const { windowStart, deadline } = window;
+	// Before the window opens, the axis still begins with its first day.
+	const last = maxDate(lastDay(today, deadline), windowStart);
 	const points = riderCurve(progress, window, last, balance, rules);
-	const axisDays = dayNumber(deadline) - dayNumber(seasonStart);
+	const axisDays = dayNumber(deadline) - dayNumber(windowStart);
 	const lastIndex = points.length - 1;
 	const series = (
 		pick: (p: CurvePoint) => number,
@@ -123,12 +123,12 @@ export function buildProgressView(
 		state: "ready",
 		rulesVersion: rules.version,
 		nothingYet: balance.trainingRynke === 0 && balance.teamRynke === 0,
-		seasonStart,
+		windowStart,
 		deadline,
 		lastDay: last,
 		axisDays,
 		lastIndex,
-		presets: presets(seasonStart, last, axisDays, lastIndex),
+		presets: presets(windowStart, last, axisDays, lastIndex),
 		training,
 		team:
 			rules.teamThreshold === null
@@ -145,7 +145,7 @@ export function buildProgressView(
 			: null,
 		weeks: weekRows(
 			points,
-			seasonStart,
+			windowStart,
 			last,
 			withOutside,
 			rules.teamThreshold !== null,
@@ -167,12 +167,12 @@ function roundUp(value: number, step: number): number {
  * research R8).
  */
 function presets(
-	seasonStart: string,
+	windowStart: string,
 	last: string,
 	axisDays: number,
 	lastIndex: number,
 ): { preset: Preset; from: number; to: number }[] {
-	const index = (date: string) => dayNumber(date) - dayNumber(seasonStart);
+	const index = (date: string) => dayNumber(date) - dayNumber(windowStart);
 	const offered: { preset: Preset; from: number; to: number }[] = [
 		{ preset: "season", from: 0, to: axisDays },
 	];
@@ -204,16 +204,16 @@ export function monthsBefore(date: string, months: number): string {
  */
 function weekRows(
 	points: readonly CurvePoint[],
-	seasonStart: string,
+	windowStart: string,
 	last: string,
 	withOutside: boolean,
 	withTeam: boolean,
 ): WeekRow[] {
 	const at = (date: string) =>
-		points[dayNumber(date) - dayNumber(seasonStart)] ?? points.at(-1);
+		points[dayNumber(date) - dayNumber(windowStart)] ?? points.at(-1);
 	let previous: CurvePoint = { date: "", training: 0, team: 0, outside: 0 };
-	let firstDay = seasonStart;
-	return weekEnds(seasonStart, last).map((end) => {
+	let firstDay = windowStart;
+	return weekEnds(windowStart, last).map((end) => {
 		const point = at(end) ?? previous;
 		const earned = (key: "training" | "team" | "outside"): Earned => ({
 			earned: point[key] - previous[key],

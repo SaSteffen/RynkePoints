@@ -15,7 +15,11 @@ import { CURRENT_RULES, RULES_HISTORY } from "../support/team-rules";
 // figures only.
 
 const SEASON_START = "2026-01-01"; // a Thursday
-const WINDOW = { seasonStart: SEASON_START, deadline: "2027-06-30" };
+const WINDOW = {
+	seasonStart: SEASON_START,
+	windowStart: SEASON_START,
+	deadline: "2027-06-30",
+};
 
 const NO_INPUTS: RiderInputs = { rides: [], attendance: [], corrections: [] };
 

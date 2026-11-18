@@ -128,7 +128,7 @@ export const sv: Catalog = {
 	"rynke.deadline.daysLeft": "Dagar kvar: {n} ⏳",
 	"rynke.deadline.passed": "Sista dagen har passerat",
 	"rynke.deadline.notStarted":
-		"Kvalificeringen börjar {date}. Från och med då räknas dina turer.",
+		"Kvalificeringen börjar {date}. Fram till dess räknas dina turer inte för kvalificeringen, men du kan redan samla märken. 🏅",
 	"rynke.status.push": "Du ligger efter planen.",
 	"rynke.status.onTrack": "Du följer planen.",
 	"rynke.status.in": "Före planen: träningsmålet är nått.",
@@ -153,6 +153,7 @@ export const sv: Catalog = {
 	"rynke.ride.counts": "räknas 🪙",
 	"rynke.ride.countsWithoutRynke": "räknas",
 	"rynke.ride.doesNotCount": "räknas inte",
+	"rynke.ride.notYet": "räknas inte än",
 	"rynke.ride.beingEvaluated": "Bedöms",
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint": "Du kan rätta turen på Strava eller fråga en arrangör.",
@@ -193,6 +194,8 @@ export const sv: Catalog = {
 	"rynke.reason.excluded_sport_type": "{sport} räknas inte för Rynke.",
 	"rynke.reason.outside_window": "Före säsongsstart {date}.",
 	"rynke.reason.outside_window.afterDeadline": "Efter sista dagen {date}.",
+	"rynke.reason.before_window":
+		"Kvalificeringen börjar {date}. Från och med då räknas turer som den här.",
 	"rynke.reason.overlap":
 		"Registrerad två gånger: din tur från {date}, {time}, {distance} räknas i stället.",
 	"rynke.reason.overlap.noRide":

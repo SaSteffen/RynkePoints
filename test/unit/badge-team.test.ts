@@ -11,7 +11,11 @@ import { CURRENT_RULES } from "../support/team-rules";
 // The team's badges from sums over the listed riders (feature 013 US4,
 // FR-011, research R15). Synthetic sums only.
 
-const WINDOW = { seasonStart: "2026-01-01", deadline: "2027-06-30" };
+const WINDOW = {
+	seasonStart: "2026-01-01",
+	windowStart: "2026-01-01",
+	deadline: "2027-06-30",
+};
 const NONE: TeamBadgeSums = { riders: [], runs: [], events: [] };
 
 const evaluate = (sums: Partial<TeamBadgeSums>) =>
@@ -176,7 +180,11 @@ describe("evaluateTeamBadges", () => {
 // every team event, also after the qualification deadline, but only once its
 // day has come.
 describe("evaluateTeamBadges and the Tour de Paris", () => {
-	const SEASON = { seasonStart: "2026-09-01", deadline: "2027-06-30" };
+	const SEASON = {
+		seasonStart: "2026-09-01",
+		windowStart: "2026-09-01",
+		deadline: "2027-06-30",
+	};
 	const onDay = (events: ReturnType<typeof event>[], today: string) =>
 		evaluateTeamBadges(
 			{ ...NONE, events },
@@ -411,7 +419,11 @@ describe("evaluateTeamBadges for the team surprises", () => {
 
 describe("evaluateTeamBadges and future dates", () => {
 	it("finds no day off before a later activity dated today at the latest", () => {
-		const window = { seasonStart: "2026-01-01", deadline: "2026-05-04" };
+		const window = {
+			seasonStart: "2026-01-01",
+			windowStart: "2026-01-01",
+			deadline: "2026-05-04",
+		};
 		const result = evaluateTeamBadges(
 			{
 				...NONE,

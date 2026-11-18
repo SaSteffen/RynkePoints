@@ -2,10 +2,13 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { upsertActivity } from "../../src/db/activities";
 import { evaluateChange } from "../../src/rynke/apply";
+import { evaluateRides } from "../../src/rynke/rides";
 import {
+	countingWindow,
 	currentRules,
 	type RynkeRules,
 	rulesFingerprint,
+	seasonEnd,
 } from "../../src/rynke/rules";
 import { teamFor } from "../../src/teams";
 import { europe } from "../../src/teams/europe";
@@ -13,6 +16,7 @@ import { hamburg } from "../../src/teams/hamburg";
 import type { TeamData } from "../../src/teams/types";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A } from "../support/fixtures";
+import { makeRide } from "../support/rides";
 import { activityRecord } from "../support/rynke";
 
 // Each team's own rules (feature 026 US3 scenarios 1, 2, FR-019): the
@@ -33,13 +37,13 @@ function otherTeam(base: TeamData, distanceStepKm: number): TeamData {
 	return { ...base, id: "synthetic", rules: [...base.rules, rules] };
 }
 
-/** A 79 km ride on the season's first day, inside every team's window. */
+/** A 79 km ride on the window's first day, inside every team's window. */
 async function seedRide(): Promise<void> {
 	await upsertActivity(
 		env.DB,
 		activityRecord(1, {
-			start_date: `${env.SEASON_START_DATE}T08:00:00Z`,
-			start_date_local: `${env.SEASON_START_DATE}T08:00:00Z`,
+			start_date: `${env.QUALIFICATION_START_DATE}T08:00:00Z`,
+			start_date_local: `${env.QUALIFICATION_START_DATE}T08:00:00Z`,
 			distance_m: 79000,
 		}),
 	);
@@ -146,5 +150,36 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 			rulesFingerprint(inEffect),
 			"a rule value changed: raise Europe's version and effectiveDate, then update this fingerprint",
 		).toBe(fingerprint);
+	});
+});
+
+// Hamburg stays exactly as it is (feature 040 US1, FR-019): its window opens
+// on its season start, so no ride of its season is ever a pre-window ride.
+describe.runIf(team.id === "hamburg")("hamburg's window (040 US1)", () => {
+	const window = countingWindow(env);
+
+	it("opens on the season start", () => {
+		expect(window.windowStart).toBe(window.seasonStart);
+	});
+
+	it("never marks a ride of its season as before the window", () => {
+		const rules = currentRules(team.rules);
+		const last = seasonEnd(window);
+		const rides = [];
+		for (
+			let day = Date.parse(`${window.seasonStart}T08:00:00Z`), id = 1;
+			new Date(day).toISOString().slice(0, 10) <= last;
+			day += 86_400_000, id++
+		) {
+			const start = new Date(day).toISOString().replace(".000Z", "Z");
+			rides.push(makeRide({ id, km: 40, movingH: 1.6, start }));
+		}
+		const { results } = evaluateRides(rides, rules, window);
+		expect(results).toHaveLength(365);
+		for (const result of results) {
+			expect(result.reasons as readonly string[]).not.toContain(
+				"before_window",
+			);
+		}
 	});
 });

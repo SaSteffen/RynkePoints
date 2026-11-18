@@ -58,10 +58,11 @@ kilometres and the elevation of your rides.
 
 # When is the season?
 
-The season runs from **1 January to 30 June**. Only rides in these six months
-earn Rynke, counted by the day a ride starts in your time zone. Rides before 1 January
-or after 30 June earn nothing, and by 30 June you need all your Training Rynke
-for the Tour.
+The season runs from **1 September to 31 August**. Rides earn Rynke from
+**1 January to 30 June**, counted by the day a ride starts in your time zone.
+Rides before 1 January or after 30 June earn no Rynke, and by 30 June you need
+all your Training Rynke for the Tour. From 1 September on, your rides already
+count for the badges in RynkePoints.
 
 # What do I need for the Tour?
 
@@ -92,9 +93,9 @@ gives 1 Training Rynke. Whatever goes beyond the last full 10 km is lost. It is
 many short ones.
 
 **Elevation**, on the other hand, is **never lost**. RynkePoints adds up the
-elevation of all your rides in the season. Every **full 1000 m** in total gives
-5 Training Rynke. Whatever isn't enough for the next 1000 yet stays and keeps
-counting with your next rides.
+elevation of all your rides from 1 January to 30 June. Every **full 1000 m** in
+total gives 5 Training Rynke. Whatever isn't enough for the next 1000 yet stays
+and keeps counting with your next rides.
 
 | Ride(s)                         | Training Rynke | Why                                |
 |---------------------------------|---------------:|------------------------------------|
@@ -219,8 +220,8 @@ ride you up the hill.
 
 # Which rides count?
 
-- Only rides in the season, **1 January to 30 June**. Nothing before or after
-  counts.
+- Only rides from **1 January to 30 June** earn Rynke. Nothing before or after
+  does.
 - What matters is the ride's start date in your time zone.
 - If you change a ride on Strava (for example its route) or delete it,
   RynkePoints recalculates your Rynke.

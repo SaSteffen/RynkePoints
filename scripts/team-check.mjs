@@ -66,9 +66,11 @@ const FIELDS = [
 /**
  * Never a team's: the local gateway's and the fake Strava's (`pnpm dev`, feature
  * 026 contracts/dev-commands.md) and the test servers' (`pnpm test:e2e:server`,
- * `:europe`).
+ * `:europe`, `:europe-early`).
  */
-const RESERVED_PORTS = [8791, 9232, 8792, 9233, 8797, 9237, 8798, 9238];
+const RESERVED_PORTS = [
+	8791, 9232, 8792, 9233, 8797, 9237, 8798, 9238, 8799, 9239,
+];
 
 /**
  * A release sandbox's block, `sandbox-<team>` (feature 027): fake mode, not a
@@ -85,6 +87,62 @@ export const RECHECK_READS = 300;
 
 /** What only a team's Wrangler block may hold, never the top level. */
 const TEAM_KEYS = ["vars", "secrets", "d1_databases", "queues", "triggers"];
+
+/** `YYYY-MM-DD` that names a real day. */
+function isDay(value) {
+	const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+	if (!match) return false;
+	const [, y, m, d] = match.map(Number);
+	const date = new Date(Date.UTC(y, m - 1, d));
+	return date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
+}
+
+/**
+ * The season and qualification window of one block's vars (feature 040 FR-001,
+ * FR-003), one line each: the season starts on a 1 September and ends the day
+ * before the next; season start ≤ window start ≤ deadline ≤ season end. A
+ * missing var is the missing-var check's.
+ */
+export function seasonDateProblems(vars) {
+	const season = vars.SEASON_START_DATE;
+	const window = vars.QUALIFICATION_START_DATE;
+	const deadline = vars.QUALIFICATION_DEADLINE;
+	const problems = [];
+	const named = [
+		["SEASON_START_DATE", season],
+		["QUALIFICATION_START_DATE", window],
+		["QUALIFICATION_DEADLINE", deadline],
+	];
+	for (const [name, value] of named) {
+		if (value !== undefined && !isDay(value)) {
+			problems.push(`${name}: "${value}", not a date`);
+		}
+	}
+	if (problems.length > 0 || named.some(([, value]) => value === undefined)) {
+		return problems;
+	}
+	if (!season.endsWith("-09-01")) {
+		problems.push(`SEASON_START_DATE: "${season}", not a 1 September`);
+		return problems;
+	}
+	const seasonEnd = `${Number(season.slice(0, 4)) + 1}-08-31`;
+	if (window < season) {
+		problems.push(
+			`QUALIFICATION_START_DATE: "${window}", before SEASON_START_DATE "${season}"`,
+		);
+	}
+	if (window > deadline) {
+		problems.push(
+			`QUALIFICATION_START_DATE: "${window}", after QUALIFICATION_DEADLINE "${deadline}"`,
+		);
+	}
+	if (deadline > seasonEnd) {
+		problems.push(
+			`QUALIFICATION_DEADLINE: "${deadline}", after the season end "${seasonEnd}"`,
+		);
+	}
+	return problems;
+}
 
 /**
  * Every problem with `teams` against `wrangler`, one line each. `publicFile`
@@ -243,6 +301,9 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 		for (const name of Object.keys(reference)) {
 			if (vars[name] === undefined)
 				say(team, `${where} vars.${name}`, "missing");
+		}
+		for (const what of seasonDateProblems(vars)) {
+			say(team, `${where} vars`, what);
 		}
 		if (vars.TEAM_ID !== team.id) {
 			say(team, `${where} vars.TEAM_ID`, `"${vars.TEAM_ID}", not "${team.id}"`);

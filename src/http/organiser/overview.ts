@@ -76,7 +76,7 @@ function seasonSessions(
 ): { sessions: number; typicalM: number | null } | null {
 	const own = rides?.get(athleteId);
 	if (!own) return null;
-	return figuresOf(own, { from: window.seasonStart, to: window.deadline });
+	return figuresOf(own, { from: window.windowStart, to: window.deadline });
 }
 
 /** Each listed rider's open requests, newest event first (019 FR-034). */
@@ -135,7 +135,7 @@ export function overviewPace(
 ): Pace | null {
 	if (today > window.deadline) return null;
 	const pace = (amount: number) =>
-		evenPace(amount, window.seasonStart, window.deadline, today);
+		evenPace(amount, window.windowStart, window.deadline, today);
 	return {
 		training: pace(rules.trainingThreshold),
 		team: rules.teamThreshold === null ? null : pace(rules.teamThreshold),

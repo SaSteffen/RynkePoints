@@ -696,7 +696,11 @@ describe("a team's listed badges (feature 039 US5)", () => {
 			}),
 		);
 	const all = progress(near);
-	const SEASON = { seasonStart: "2026-09-01", deadline: "2027-06-30" };
+	const SEASON = {
+		seasonStart: "2026-09-01",
+		windowStart: "2026-09-01",
+		deadline: "2027-06-30",
+	};
 
 	it("names no event-only badge for a team without events", () => {
 		const list = full(

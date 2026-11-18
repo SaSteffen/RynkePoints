@@ -128,7 +128,7 @@ export const nl: Catalog = {
 	"rynke.deadline.daysLeft": "Nog {n} dagen ⏳",
 	"rynke.deadline.passed": "De deadline is voorbij",
 	"rynke.deadline.notStarted":
-		"De kwalificatie begint op {date}. Vanaf dan tellen je ritten mee.",
+		"De kwalificatie begint op {date}. Tot dan tellen je ritten nog niet mee voor de kwalificatie, maar badges kun je nu al verdienen. 🏅",
 	"rynke.status.push": "Je loopt achter op schema.",
 	"rynke.status.onTrack": "Je ligt op schema.",
 	"rynke.status.in": "Voor op schema: trainingsdoel gehaald.",
@@ -153,6 +153,7 @@ export const nl: Catalog = {
 	"rynke.ride.counts": "telt 🪙",
 	"rynke.ride.countsWithoutRynke": "telt",
 	"rynke.ride.doesNotCount": "telt niet",
+	"rynke.ride.notYet": "telt nog niet",
 	"rynke.ride.beingEvaluated": "Wordt beoordeeld",
 	"rynke.ride.virtual": "virtueel",
 	"rynke.ride.fixHint":
@@ -195,6 +196,8 @@ export const nl: Catalog = {
 	"rynke.reason.excluded_sport_type": "{sport} telt niet voor Rynke.",
 	"rynke.reason.outside_window": "Voor de seizoensstart op {date}.",
 	"rynke.reason.outside_window.afterDeadline": "Na de deadline op {date}.",
+	"rynke.reason.before_window":
+		"De kwalificatie begint op {date}. Vanaf dan tellen ritten zoals deze mee.",
 	"rynke.reason.overlap":
 		"Dubbel opgenomen: je rit van {date}, {time}, {distance} telt in plaats daarvan.",
 	"rynke.reason.overlap.noRide":

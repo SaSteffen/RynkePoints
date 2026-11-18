@@ -130,7 +130,7 @@ export const is: Catalog = {
 	"rynke.deadline.daysLeft": "Dagar eftir: {n} ⏳",
 	"rynke.deadline.passed": "Fresturinn er liðinn",
 	"rynke.deadline.notStarted":
-		"Tímabilið til að komast áfram hefst {date}. Frá þeim degi teljast ferðirnar þínar.",
+		"Tímabilið til að komast áfram hefst {date}. Fram að því teljast ferðirnar þínar ekki með, en þú getur þegar safnað merkjum. 🏅",
 	"rynke.status.push": "Þú ert á eftir áætlun.",
 	"rynke.status.onTrack": "Þú ert á áætlun.",
 	"rynke.status.in": "Á undan áætlun: æfingamarkmiði náð.",
@@ -155,6 +155,7 @@ export const is: Catalog = {
 	"rynke.ride.counts": "telst 🪙",
 	"rynke.ride.countsWithoutRynke": "telst",
 	"rynke.ride.doesNotCount": "telst ekki",
+	"rynke.ride.notYet": "telst ekki enn",
 	"rynke.ride.beingEvaluated": "Í mati",
 	"rynke.ride.virtual": "sýndar",
 	"rynke.ride.fixHint":
@@ -197,6 +198,8 @@ export const is: Catalog = {
 	"rynke.reason.excluded_sport_type": "{sport} telst ekki til Rynke.",
 	"rynke.reason.outside_window": "Fyrir upphaf tímabilsins {date}.",
 	"rynke.reason.outside_window.afterDeadline": "Eftir frestinn {date}.",
+	"rynke.reason.before_window":
+		"Tímabilið til að komast áfram hefst {date}. Frá þeim degi teljast ferðir eins og þessi.",
 	"rynke.reason.overlap":
 		"Skráð tvisvar: ferð þín {date}, {time}, {distance} telst í staðinn.",
 	"rynke.reason.overlap.noRide":

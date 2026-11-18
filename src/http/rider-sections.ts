@@ -41,6 +41,8 @@ const STATUS = {
 		cls: "ride-pending",
 		text: "rynke.ride.beingEvaluated",
 	},
+	// Orange, not red: the window hasn't opened yet (feature 040 research R6).
+	"not-yet": { cls: "ride-not-yet", text: "rynke.ride.notYet" },
 } as const;
 
 /**
@@ -142,11 +144,11 @@ export function renderSummary(
 	i18n: I18n,
 	summary: Summary,
 	status: RiderStatus,
-	countdown: { seasonStart: string; deadline: string; today: string },
+	countdown: { windowStart: string; deadline: string; today: string },
 ): SafeHtml {
 	const days = dayNumber(countdown.deadline) - dayNumber(countdown.today);
 	// Before the window opens there is no plan to be on or behind yet.
-	const before = countdown.today < countdown.seasonStart;
+	const before = countdown.today < countdown.windowStart;
 	const unmet = [
 		{
 			condition: summary.training,
@@ -176,7 +178,7 @@ ${statusArt(status, "banner")}<div>
 ${
 	// Before the window opens, no countdown yet: when it starts instead.
 	before
-		? html`<p class="rynke-deadline-start">${i18n.t("rynke.deadline.notStarted", { date: i18n.formatDate(countdown.seasonStart) })}</p>`
+		? html`<p class="rynke-deadline-start">${i18n.t("rynke.deadline.notStarted", { date: i18n.formatDate(countdown.windowStart) })}</p>`
 		: html`<p class="rynke-deadline-count">${
 				days < 0
 					? i18n.t("rynke.deadline.passed")
@@ -406,7 +408,7 @@ export function renderRules(
 	handout: RulesHandout,
 ): SafeHtml {
 	const window = i18n.t("rynke.rules.windowDeadline", {
-		start: day(i18n, rules.seasonStart),
+		start: day(i18n, rules.windowStart),
 		deadline: day(i18n, rules.deadline),
 	});
 	return html`<p>${i18n.t("rynke.rules.version", {
@@ -620,6 +622,10 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 			return i18n.t("rynke.reason.outside_window.afterDeadline", {
 				date: day(i18n, reason.date),
 			});
+		case "before_window":
+			return i18n.t("rynke.reason.before_window", {
+				date: day(i18n, reason.date),
+			});
 		case "overlap": {
 			const ride = reason.countedInstead;
 			return ride === null
@@ -676,7 +682,10 @@ function explanation(i18n: I18n, ride: RideLine): SafeHtml | null {
 		? html`<p>${i18n.t("rynke.ride.fixHint")}</p>${fixSteps(i18n, ride)}`
 		: null;
 	if (!reasons && !unknown && !fixHint) return null;
-	const open = ride.status === "does-not-count" ? html` open` : null;
+	const open =
+		ride.status === "does-not-count" || ride.status === "not-yet"
+			? html` open`
+			: null;
 	return html`<details class="ride-why"${open}><summary class="tap">${i18n.t("rynke.ride.why")}</summary>${reasons}${unknown}${fixHint}</details>
 `;
 }
@@ -691,8 +700,10 @@ function rideCard(
 	// The rider's local date: Strava writes local wall-clock time with a `Z`.
 	const date = i18n.formatDate(ride.startDateLocal);
 	const km = kilometres(i18n, ride.distanceM);
-	// Never 0 for a ride still being evaluated (FR-041).
-	const pending = ride.status === "being-evaluated";
+	// Never 0 for a ride still being evaluated (FR-041), nor for one that
+	// can't count yet (feature 040).
+	const pending =
+		ride.status === "being-evaluated" || ride.status === "not-yet";
 	const rynke = pending ? "–" : whole(i18n, ride.distanceRynke);
 	// A mini coin for each ride that earned Training Rynke (feature 012); a
 	// ride that counts without them gets no coin on its status either (020

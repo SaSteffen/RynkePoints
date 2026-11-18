@@ -102,9 +102,17 @@ function withoutTeamRynke(rules: RynkeRules): RynkeRules {
 	return { ...rules, teamThreshold: null, teamEvents };
 }
 
-/** Inclusive `YYYY-MM-DD` bounds a ride's local start date must fall in (FR-011). */
+/**
+ * A team's season and qualification window, inclusive `YYYY-MM-DD` days
+ * (feature 040 data-model.md). Hamburg's window opens on its season start;
+ * Europe's opens later.
+ */
 export interface CountingWindow {
+	/** The season's first day (fetch, season end, badges, tour days). */
 	seasonStart: string;
+	/** The first day a ride can count (Rynke, pace, graphs; FR-011). */
+	windowStart: string;
+	/** The last day a ride can count; badges end here too. */
 	deadline: string;
 	/**
 	 * The team's calendar day, set by feature 013's `badgeWindow` only: the
@@ -114,23 +122,45 @@ export interface CountingWindow {
 	today?: string;
 }
 
-/** `SEASON_START_DATE` to `QUALIFICATION_DEADLINE`, team settings like the club. */
+/**
+ * `SEASON_START_DATE`, `QUALIFICATION_START_DATE` and `QUALIFICATION_DEADLINE`,
+ * team settings like the club.
+ */
 export function countingWindow(
-	env: Pick<Env, "SEASON_START_DATE" | "QUALIFICATION_DEADLINE">,
+	env: Pick<
+		Env,
+		"SEASON_START_DATE" | "QUALIFICATION_START_DATE" | "QUALIFICATION_DEADLINE"
+	>,
 ): CountingWindow {
+	if (!isCalendarDate(env.QUALIFICATION_START_DATE)) {
+		throw new Error("QUALIFICATION_START_DATE must be a date YYYY-MM-DD");
+	}
 	if (!isCalendarDate(env.QUALIFICATION_DEADLINE)) {
 		throw new Error("QUALIFICATION_DEADLINE must be a date YYYY-MM-DD");
 	}
 	return {
 		seasonStart: env.SEASON_START_DATE,
+		windowStart: env.QUALIFICATION_START_DATE,
 		deadline: env.QUALIFICATION_DEADLINE,
 	};
 }
 
-/** Whether a `YYYY-MM-DD` date falls inside `window`. */
+/** Whether a ride dated `YYYY-MM-DD` falls inside the qualification window. */
 export function inCountingWindow(
 	date: string,
-	window: CountingWindow,
+	window: Pick<CountingWindow, "windowStart" | "deadline">,
+): boolean {
+	return date >= window.windowStart && date <= window.deadline;
+}
+
+/**
+ * Whether a day dated `YYYY-MM-DD` falls in the season, up to the deadline: the
+ * days whose activities the badges count (feature 040 research R5). Unlike
+ * `inCountingWindow`, the days before the window opens are in.
+ */
+export function inBadgeSeason(
+	date: string,
+	window: Pick<CountingWindow, "seasonStart" | "deadline">,
 ): boolean {
 	return date >= window.seasonStart && date <= window.deadline;
 }
@@ -155,7 +185,7 @@ export function seasonEnd(window: Pick<CountingWindow, "seasonStart">): string {
 /**
  * Whether an event of `kind` dated `date` counts: a tour day from the season
  * start to the season end (feature 021 FR-003), and to `window.today` when
- * that is set; every other kind inside the counting window, as rides
+ * that is set; every other kind inside the qualification window, as rides
  * (feature 003 FR-011). Every filter of events uses this; rides keep
  * `inCountingWindow`.
  */

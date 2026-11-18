@@ -277,7 +277,8 @@ export async function listRidersNeedingEvaluation(
 ): Promise<number[]> {
 	const attended = `SELECT e.kind, count(*) FROM attendances a
 		JOIN team_events e ON e.event_id = a.event_id
-		WHERE a.athlete_id = r.athlete_id AND e.event_date >= ?2
+		WHERE a.athlete_id = r.athlete_id
+			AND e.event_date >= CASE e.kind WHEN 'tour_de_paris' THEN ?2 ELSE ?6 END
 			AND e.event_date <= ?3
 		GROUP BY e.kind`;
 	const stored = `SELECT json_extract(value, '$.kind'),
@@ -315,6 +316,7 @@ export async function listRidersNeedingEvaluation(
 			window.deadline,
 			badgesVersion,
 			RIDER_SUMMARY_VERSION,
+			window.windowStart,
 		)
 		.all<{ athlete_id: number }>();
 	return results.map((r) => r.athlete_id);
