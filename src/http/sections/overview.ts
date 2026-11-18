@@ -160,7 +160,7 @@ ${teamRynke ? html`<p class="hero-total hero-team">${i18n.tHtml("hero.team", { n
 </section>
 ${example ? renderExampleNote(i18n) : null}${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}${fetching}
 ${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env), ctx.team.art.coin)}
-${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary, status) : null}
+${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary, status, { ...window, today: berlinDate(ctx.now()) }) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}
 ${ready ? renderBreakdown(i18n, ready.breakdown, hasEvents(ctx.team)) : null}
 ${ready ? progress : null}</div>`;

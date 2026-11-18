@@ -122,8 +122,12 @@ export const en: Catalog = {
 		other: "{n} activities fetched so far, more to come",
 	},
 	"rynke.verdict.in": "Qualified for Paris! 🗼",
-	"rynke.verdict.notYet": "Not qualified yet",
 	"rynke.verdict.missing": "You still need:",
+	"rynke.deadline.date": "Qualification deadline · {date}",
+	"rynke.deadline.daysLeft": "{n} days to go ⏳",
+	"rynke.deadline.passed": "The deadline has passed",
+	"rynke.deadline.notStarted":
+		"Qualifying starts on {date}. Your rides count from then on.",
 	"rynke.status.push": "You're behind the plan.",
 	"rynke.status.onTrack": "You're on plan.",
 	"rynke.status.in": "Ahead of plan: training goal reached.",

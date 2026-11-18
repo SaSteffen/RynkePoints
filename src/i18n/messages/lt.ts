@@ -125,8 +125,12 @@ export const lt: Catalog = {
 		other: "Kol kas gauta {n} veiklų, bus daugiau",
 	},
 	"rynke.verdict.in": "Kvalifikavaisi į Paryžių! 🗼",
-	"rynke.verdict.notYet": "Dar nesikvalifikavai",
 	"rynke.verdict.missing": "Tau dar trūksta:",
+	"rynke.deadline.date": "Kvalifikacijos terminas · {date}",
+	"rynke.deadline.daysLeft": "Liko dienų: {n} ⏳",
+	"rynke.deadline.passed": "Terminas praėjo",
+	"rynke.deadline.notStarted":
+		"Kvalifikacija prasideda {date}. Nuo tada skaičiuojami tavo važiavimai.",
 	"rynke.status.push": "Atsilieki nuo plano.",
 	"rynke.status.onTrack": "Laikaisi plano.",
 	"rynke.status.in": "Lenki planą: treniruočių tikslas pasiektas.",

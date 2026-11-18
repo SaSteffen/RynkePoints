@@ -4,6 +4,7 @@ import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import type { RiderStatus } from "../rynke/pace";
 import { FIXABLE_REASONS } from "../rynke/rides";
+import { dayNumber } from "../rynke/weeks";
 import { STRAVA_ORIGIN } from "../strava/result";
 import type { CoinArt, RulesHandout } from "../teams/types";
 import { coinArt, flippingCoin, miniCoin, SHARED_COIN } from "./coin";
@@ -141,7 +142,11 @@ export function renderSummary(
 	i18n: I18n,
 	summary: Summary,
 	status: RiderStatus,
+	countdown: { seasonStart: string; deadline: string; today: string },
 ): SafeHtml {
+	const days = dayNumber(countdown.deadline) - dayNumber(countdown.today);
+	// Before the window opens there is no plan to be on or behind yet.
+	const before = countdown.today < countdown.seasonStart;
 	const unmet = [
 		{
 			condition: summary.training,
@@ -162,11 +167,23 @@ export function renderSummary(
 				]
 			: [],
 	);
-	// The gauges below carry the figures; this says only where the rider stands.
+	// The gauges below carry the figures; this says only where the rider stands
+	// and how long is left until the qualification deadline, as on the
+	// organisers' overview.
 	return html`<section id="rynke" class="rynke-summary verdict card">
 ${statusArt(status, "banner")}<div>
-<p class="rynke-verdict">${i18n.t(summary.qualified ? "rynke.verdict.in" : "rynke.verdict.notYet")}</p>
-<p class="rynke-status">${i18n.t(STATUS_SENTENCE[status])}</p>
+<p class="rynke-deadline-date">${i18n.t("rynke.deadline.date", { date: i18n.formatDate(countdown.deadline) })}</p>
+${
+	// Before the window opens, no countdown yet: when it starts instead.
+	before
+		? html`<p class="rynke-deadline-start">${i18n.t("rynke.deadline.notStarted", { date: i18n.formatDate(countdown.seasonStart) })}</p>`
+		: html`<p class="rynke-deadline-count">${
+				days < 0
+					? i18n.t("rynke.deadline.passed")
+					: i18n.t("rynke.deadline.daysLeft", { n: whole(i18n, days) })
+			}</p>`
+}
+${before ? null : html`<p class="rynke-status">${i18n.t(STATUS_SENTENCE[status])}</p>\n`}${summary.qualified ? html`<p class="rynke-verdict">${i18n.t("rynke.verdict.in")}</p>\n` : null}
 ${
 	missing.length > 0
 		? html`<p>${i18n.t("rynke.verdict.missing")}</p>

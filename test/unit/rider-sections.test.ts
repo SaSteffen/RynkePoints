@@ -24,6 +24,12 @@ import { hamburg } from "../../src/teams/hamburg";
 
 const en = createI18n("en", CATALOGS);
 const de = createI18n("de", CATALOGS);
+// 224 days from 18 November 2026 to the deadline of 30 June 2027.
+const COUNTDOWN = {
+	seasonStart: "2026-09-01",
+	deadline: "2027-06-30",
+	today: "2026-11-18",
+};
 
 function line(overrides: Partial<RideLine> = {}): RideLine {
 	return {
@@ -319,6 +325,7 @@ describe("coins", () => {
 				qualified: false,
 			},
 			"push",
+			COUNTDOWN,
 		).toString();
 		expect(html).toContain(
 			'<span class="chip"><svg class="coin coin-mini" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#coin-mini"/></svg>3\u00a0Training Rynke</span>',
@@ -350,7 +357,7 @@ describe("coins", () => {
 			],
 		] as const;
 		for (const [summary, status, sentence] of cases) {
-			const html = renderSummary(en, summary, status).toString();
+			const html = renderSummary(en, summary, status, COUNTDOWN).toString();
 			expect(html).toContain(
 				`<img class="status-art status-art-banner" src="${artUrl(`/illustrations/status_${status}_fun.svg`)}" alt="" width="128" height="128">`,
 			);
@@ -370,9 +377,78 @@ describe("coins", () => {
 				qualified: true,
 			},
 			"in",
+			COUNTDOWN,
 		).toString();
 		expect(html).toContain("Qualified for Paris! 🗼");
 		expect(html).not.toContain("rynke-missing");
+	});
+
+	it("counts the days to the qualification deadline, then says it has passed", () => {
+		const summary = {
+			training: condition(17, 20),
+			team: condition(3, 4),
+			withoutVirtual: null,
+			qualified: false,
+		};
+		const html = renderSummary(en, summary, "push", COUNTDOWN).toString();
+		expect(html).toContain(
+			`<p class="rynke-deadline-date">${en.t("rynke.deadline.date", { date: en.formatDate("2027-06-30") })}</p>`,
+		);
+		expect(html).toContain(
+			`<p class="rynke-deadline-count">224 days to go ⏳</p>`,
+		);
+		const last = renderSummary(en, summary, "push", {
+			...COUNTDOWN,
+			today: "2027-06-30",
+		}).toString();
+		expect(last).toContain("0 days to go ⏳");
+		const after = renderSummary(en, summary, "push", {
+			...COUNTDOWN,
+			today: "2027-07-01",
+		}).toString();
+		expect(after).toContain(
+			`<p class="rynke-deadline-count">The deadline has passed</p>`,
+		);
+	});
+
+	it("says when qualifying starts instead of counting before the window opens", () => {
+		const html = renderSummary(
+			en,
+			{
+				training: condition(0, 250),
+				team: null,
+				withoutVirtual: null,
+				qualified: false,
+			},
+			"on_track",
+			{
+				seasonStart: "2027-01-01",
+				deadline: "2027-06-30",
+				today: "2026-11-18",
+			},
+		).toString();
+		expect(html).toContain(
+			`<p class="rynke-deadline-start">${en.t("rynke.deadline.notStarted", { date: en.formatDate("2027-01-01") })}</p>`,
+		);
+		expect(html).not.toContain("rynke-deadline-count");
+		expect(html).not.toContain("rynke-status");
+		// From the first day of the window, the countdown.
+		const first = renderSummary(
+			en,
+			{
+				training: condition(0, 250),
+				team: null,
+				withoutVirtual: null,
+				qualified: false,
+			},
+			"on_track",
+			{
+				seasonStart: "2027-01-01",
+				deadline: "2027-06-30",
+				today: "2027-01-01",
+			},
+		).toString();
+		expect(first).toContain("180 days to go ⏳");
 	});
 
 	it("edges the Training and Team gauges in their colour, with a row of ten", () => {
@@ -629,6 +705,7 @@ describe("renderGauges and renderSummary without Team Rynke (feature 039)", () =
 				qualified: false,
 			},
 			"push",
+			COUNTDOWN,
 		).toString();
 		expect(html).toContain("rynke-missing");
 		expect(html).not.toContain(en.t("rynke.team"));

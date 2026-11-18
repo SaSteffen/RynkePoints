@@ -123,8 +123,12 @@ export const fi: Catalog = {
 		other: "Haettu tähän mennessä {n} suoritusta, lisää tulossa",
 	},
 	"rynke.verdict.in": "Pariisin paikka varmistui! 🗼",
-	"rynke.verdict.notYet": "Ei vielä karsintaa läpi",
 	"rynke.verdict.missing": "Sinulta puuttuu vielä:",
+	"rynke.deadline.date": "Karsinnan määräaika · {date}",
+	"rynke.deadline.daysLeft": "Päiviä jäljellä: {n} ⏳",
+	"rynke.deadline.passed": "Määräaika on mennyt",
+	"rynke.deadline.notStarted":
+		"Karsinta alkaa {date}. Siitä lähtien lenkkisi lasketaan.",
 	"rynke.status.push": "Olet jäljessä suunnitelmasta.",
 	"rynke.status.onTrack": "Olet suunnitelmassa.",
 	"rynke.status.in": "Edellä suunnitelmaa: harjoitustavoite saavutettu.",
