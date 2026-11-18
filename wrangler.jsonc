@@ -224,7 +224,7 @@
 				"PRIVACY_CONTROLLER": "Sascha Steffen",
 				"CONTACT_EMAIL": "support@rynke-points.eu",
 				"TEAM_ID": "europe",
-				"STRAVA_RETURN_VIA": "",
+				"STRAVA_RETURN_VIA": "https://gateway.trhh-rynke-coins.link",
 				"USAGE_PEERS": "[{\"id\":\"hamburg\",\"origin\":\"https://trhh-rynke-coins.link\"}]"
 			},
 			"secrets": {
