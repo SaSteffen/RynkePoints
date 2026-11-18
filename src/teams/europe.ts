@@ -193,14 +193,8 @@ export const europe: TeamData = {
 	// The database ID is the Wrangler block's placeholder (`database_id`).
 	cloudflare: {
 		worker: "rynke-points-europe",
-		databaseId: "00000000-0000-0000-0000-000000000000",
+		databaseId: "ab5fb54c-2e8d-4ee3-8668-a27e99da58f5",
 		queueIds: [],
 	},
-	placeholders: [
-		"shortName",
-		"colours",
-		"art.icons",
-		"PRIVACY_CONTROLLER",
-		"database_id",
-	],
+	placeholders: ["shortName", "colours", "art.icons"],
 };
