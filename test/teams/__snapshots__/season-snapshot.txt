@@ -11925,6 +11925,682 @@ Abzeichen
 Termine
 Admin
 Einst. Einstellungen
+=== 990019 Gesa Gast
+rider [{"status":"connected","import_status":"done"}]
+balance [{"athlete_id":990019,"distance_rynke":20,"elevation_dm":12000,"elevation_rynke":5,"elevation_to_next_step_dm":8000,"training_rynke":25,"team_rynke":0,"training_missing":225,"team_missing":25,"training_without_virtual":25,"virtual_share_missing":142,"qualified":0,"rules_version":3,"rules_effective_date":"2026-10-09","computed_at":1791280800,"team_event_breakdown":"[{\"kind\":\"team_training\",\"attended\":0,\"team\":0,\"training\":0},{\"kind\":\"training_weekend_day\",\"attended\":0,\"team\":0,\"training\":0},{\"kind\":\"technique_training\",\"attended\":0,\"team\":0,\"training\":0}]"}]
+rides [{"strava_activity_id":8001010,"counts":1,"reasons":"[]","overlaps_activity_id":null,"distance_rynke":5,"elevation_dm":3000,"is_virtual":0,"unknown_figures":"[]","rules_version":3},{"strava_activity_id":8001011,"counts":1,"reasons":"[]","overlaps_activity_id":null,"distance_rynke":5,"elevation_dm":3000,"is_virtual":0,"unknown_figures":"[]","rules_version":3},{"strava_activity_id":8001012,"counts":1,"reasons":"[]","overlaps_activity_id":null,"distance_rynke":5,"elevation_dm":3000,"is_virtual":0,"unknown_figures":"[]","rules_version":3},{"strava_activity_id":8001013,"counts":1,"reasons":"[]","overlaps_activity_id":null,"distance_rynke":5,"elevation_dm":3000,"is_virtual":0,"unknown_figures":"[]","rules_version":3}]
+badges [{"badge_id":"distance-100","earned_on":"2026-10-03"},{"badge_id":"elevation-1000","earned_on":"2026-10-05"},{"badge_id":"ride-length-50","earned_on":"2026-10-02"},{"badge_id":"training-rynke-1","earned_on":"2026-10-02"},{"badge_id":"training-rynke-25","earned_on":"2026-10-05"}]
+--- /me 200
+Deine RynkePoints
+Rynke Points
+Du
+Farbschema
+Farbschema
+Automatisch Wie das Gerät: Rynke Tag oder Nacht
+Hell
+Rynke Tag Ostsee Paris Flieder Konfetti Glitzer
+Dunkel
+Rynke Nacht Nachtfahrt Wald Pflaume Disco Glitzer
+Hoher Kontrast
+Kontrast hell Kontrast dunkel
+Gilt nur für dieses Gerät.
+[img /coin/rynke-coin-hero-1.svg?v=dd23f1a749]
+Hallo Gesa Gast!
+25 Trainingsrynke
+0 Teamrynke
+[img /illustrations/status_push_fun.svg?v=ea2e9324b9]
+Stichtag · 30.06.2027
+Noch 267 Tage ⏳
+Du liegst hinter dem Plan.
+Dir fehlen noch:
+225 Trainingsrynke
+25 Teamrynke
+Dein Fortschritt 🪙
+Trainingsrynke: 25 von 250 · 10 %
+Distanz: 20
+Höhenmeter: 5
+Teamrynke: 0 von 25 · 0 %
+Höhenmeter: 200 m von 1.000 m, noch 800 m bis +5 Trainingsrynke
+Woher deine Rynke kommen
+Trainingsrynke Teamrynke
+Distanz 20
+Höhenmeter 1.200 m 5
+Teamtraining 0× dabei 0 0
+Tag Trainingswochenende 0× dabei 0 0
+Techniktraining 0× dabei 0 0
+Deine Teamtermine
+Für dich ist noch kein Teamtermin eingetragen.
+Dein Saisonverlauf
+Berechnet mit den Regeln Version 3, für die ganze Saison.
+Ganze Saison
+Letzte 3 Monate
+Letzte 4 Wochen
+Trainingsrynke
+Trainingsrynke
+Ziel (250)
+Gleichmäßiges Tempo bis zum Stichtag
+Teamrynke
+Teamrynke
+Ziel (25)
+Gleichmäßiges Tempo bis zum Stichtag
+Pfeiltasten wählen einen Tag, + und − zoomen, Bild auf/ab verschiebt, 0 zeigt die ganze Saison.
+Zahlen als Tabelle
+Woche ab Trainingsrynke Summe Teamrynke Summe
+01.01.2026 0 0 0 0
+05.01.2026 0 0 0 0
+12.01.2026 0 0 0 0
+19.01.2026 0 0 0 0
+26.01.2026 0 0 0 0
+02.02.2026 0 0 0 0
+09.02.2026 0 0 0 0
+16.02.2026 0 0 0 0
+23.02.2026 0 0 0 0
+02.03.2026 0 0 0 0
+09.03.2026 0 0 0 0
+16.03.2026 0 0 0 0
+23.03.2026 0 0 0 0
+30.03.2026 0 0 0 0
+06.04.2026 0 0 0 0
+13.04.2026 0 0 0 0
+20.04.2026 0 0 0 0
+27.04.2026 0 0 0 0
+04.05.2026 0 0 0 0
+11.05.2026 0 0 0 0
+18.05.2026 0 0 0 0
+25.05.2026 0 0 0 0
+01.06.2026 0 0 0 0
+08.06.2026 0 0 0 0
+15.06.2026 0 0 0 0
+22.06.2026 0 0 0 0
+29.06.2026 0 0 0 0
+06.07.2026 0 0 0 0
+13.07.2026 0 0 0 0
+20.07.2026 0 0 0 0
+27.07.2026 0 0 0 0
+03.08.2026 0 0 0 0
+10.08.2026 0 0 0 0
+17.08.2026 0 0 0 0
+24.08.2026 0 0 0 0
+31.08.2026 0 0 0 0
+07.09.2026 0 0 0 0
+14.09.2026 0 0 0 0
+21.09.2026 0 0 0 0
+28.09.2026 15 15 0 0
+05.10.2026 10 25 0 0
+[img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
+Neu hier? Wir zeigen dir kurz, wo du was findest.
+Zeig mal
+Überspringen
+Hol dir RynkePoints als App auf deinen Startbildschirm.
+Als App installieren
+Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
+Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
+Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
+Sollen wir dir Bescheid sagen, wenn du neue Rynke bekommst?
+Nicht jetzt
+Benachrichtigungen einschalten
+Team
+Du
+Fahrten
+Abzeichen
+5 Orga
+Admin
+Einst. Einstellungen
+--- /me/rides 200
+Fahrten – RynkePoints
+Rynke Points
+Fahrten
+Farbschema
+Farbschema
+Automatisch Wie das Gerät: Rynke Tag oder Nacht
+Hell
+Rynke Tag Ostsee Paris Flieder Konfetti Glitzer
+Dunkel
+Rynke Nacht Nachtfahrt Wald Pflaume Disco Glitzer
+Hoher Kontrast
+Kontrast hell Kontrast dunkel
+Gilt nur für dieses Gerät.
+Deine Fahrten
+05.10.2026 zählt 🪙
+Distanz
+50,0 km
+Trainingsrynke
+5
+Gezählte Höhenmeter
+300 m
+Ride on 2026-10-05 at 07:00 View on Strava
+Radfahrt · 300 m
+04.10.2026 zählt 🪙
+Distanz
+50,0 km
+Trainingsrynke
+5
+Gezählte Höhenmeter
+300 m
+Ride on 2026-10-04 at 17:00 View on Strava
+Radfahrt · 300 m
+03.10.2026 zählt 🪙
+Distanz
+50,0 km
+Trainingsrynke
+5
+Gezählte Höhenmeter
+300 m
+Ride on 2026-10-03 at 07:00 View on Strava
+Radfahrt · 300 m
+02.10.2026 zählt 🪙
+Distanz
+50,0 km
+Trainingsrynke
+5
+Gezählte Höhenmeter
+300 m
+Ride on 2026-10-02 at 17:00 View on Strava
+Radfahrt · 300 m
+[img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
+Neu hier? Wir zeigen dir kurz, wo du was findest.
+Zeig mal
+Überspringen
+Hol dir RynkePoints als App auf deinen Startbildschirm.
+Als App installieren
+Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
+Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
+Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
+Sollen wir dir Bescheid sagen, wenn du neue Rynke bekommst?
+Nicht jetzt
+Benachrichtigungen einschalten
+Team
+Du
+Fahrten
+Abzeichen
+5 Orga
+Admin
+Einst. Einstellungen
+--- /me/badges 200
+Abzeichen – RynkePoints
+Rynke Points
+Abzeichen
+Farbschema
+Farbschema
+Automatisch Wie das Gerät: Rynke Tag oder Nacht
+Hell
+Rynke Tag Ostsee Paris Flieder Konfetti Glitzer
+Dunkel
+Rynke Nacht Nachtfahrt Wald Pflaume Disco Glitzer
+Hoher Kontrast
+Kontrast hell Kontrast dunkel
+Gilt nur für dieses Gerät.
+[img /badges/distance-100.svg?v=d279cd99df] [img /badges/elevation-1000.svg?v=be22a1d975] [img /badges/training-rynke-1.svg?v=ecc11c6191] [img /badges/training-rynke-25.svg?v=9f2a636489] [img /badges/ride-length-50.svg?v=2ccedcf2de]
+6 neue Abzeichen
+Abzeichen
+Deine
+Team
+Zeigen Neueste Alle
+Deine Abzeichen Alle deine Abzeichen (5)
+Trainings-Rynke
+[img /badges/training-rynke-25.svg?v=9f2a636489] 25 Rynke
+Nächstes Abzeichen
+Noch 25 Rynke
+Höhenmeter
+[img /badges/elevation-1000.svg?v=be22a1d975] 1.000 m
+Nächstes Abzeichen
+Noch 3.800 m
+Distanz
+[img /badges/distance-100.svg?v=d279cd99df] 100 km
+Nächstes Abzeichen
+Noch 300 km
+Längste Fahrt
+[img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
+Nächstes Abzeichen
+Ab 100 km
+Teamtermine
+Jeder Teamtermin mit dir.
+Erstes Abzeichen
+Noch 1 Termin
+Techniktraining
+Eins fürs erste, eins für beide.
+Erstes Abzeichen
+Noch 1 Training
+Längster Lauf
+Längster Lauf am Stück, draußen.
+Erstes Abzeichen
+Ab 5 km
+Laufen gesamt
+Deine Lauf-Kilometer draußen.
+Erstes Abzeichen
+Noch 10 km
+Virtuell
+Kilometer auf der Rolle und virtuell.
+Erstes Abzeichen
+Noch 50 km
+Längstes Schwimmen
+Längstes Schwimmen am Stück.
+Erstes Abzeichen
+Ab 0,5 km
+Schwimmen gesamt
+Alle Schwimm-Kilometer.
+Erstes Abzeichen
+Noch 5,0 km
+Winter: November
+November-Tage mit Fahrt draußen.
+Erstes Abzeichen
+Noch 1 Tag
+Winter: Dezember
+Dezember-Tage mit Fahrt draußen.
+Erstes Abzeichen
+Noch 1 Tag
+Winter: Januar
+Januar-Tage mit Fahrt draußen.
+Winter: Februar
+Februar-Tage mit Fahrt draußen.
+Tour de Paris
+Jeder Tag der Tour mit dir.
+Überraschungen
+?
+Distanz
+Rad-Kilometer mit Trainings-Rynke.
+[img /badges/distance-100.svg?v=d279cd99df]
+100 km
+Höhenmeter
+Alle Höhenmeter mit Trainings-Rynke.
+[img /badges/elevation-1000.svg?v=be22a1d975]
+1.000 m
+Teamtermine
+Jeder Teamtermin mit dir.
+Techniktraining
+Eins fürs erste, eins für beide.
+Trainings-Rynke
+Alle deine Trainings-Rynke.
+[img /badges/training-rynke-25.svg?v=9f2a636489]
+25 Rynke
+[img /badges/training-rynke-1.svg?v=ecc11c6191]
+1 Rynke
+Längster Lauf
+Längster Lauf am Stück, draußen.
+Laufen gesamt
+Deine Lauf-Kilometer draußen.
+Längste Fahrt
+Längste Fahrt mit Trainings-Rynke.
+[img /badges/ride-length-50.svg?v=2ccedcf2de]
+50 km
+Virtuell
+Kilometer auf der Rolle und virtuell.
+Längstes Schwimmen
+Längstes Schwimmen am Stück.
+Schwimmen gesamt
+Alle Schwimm-Kilometer.
+Winter: November
+November-Tage mit Fahrt draußen.
+Winter: Dezember
+Dezember-Tage mit Fahrt draußen.
+Winter: Januar
+Januar-Tage mit Fahrt draußen.
+Winter: Februar
+Februar-Tage mit Fahrt draußen.
+Tour de Paris
+Jeder Tag der Tour mit dir.
+Überraschungen
+?
+Team-Abzeichen Alle Team-Abzeichen (18)
+Team-Überraschungen
+[img /badges/team-surprise-relay.svg?v=e68cf2d32b] Staffelstab
+Teilnahmen
+[img /badges/attendances-50.svg?v=b24caaabaf] 50 Teilnahmen
+Nächstes Abzeichen
+Noch 47 Teilnahmen
+Große Ausfahrt
+[img /badges/big-training-5.svg?v=4751abceba] 5 Rider
+Nächstes Abzeichen
+Ab 10 Rider
+Trainings-Rynke gemeinsam
+[img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
+Nächstes Abzeichen
+Noch 1.279 Rynke
+Höhenmeter gemeinsam
+[img /badges/team-elevation-250000.svg?v=adac4b119a] 250.000 m
+Nächstes Abzeichen
+Noch 192.200 m
+Kilometer gemeinsam
+[img /badges/team-distance-25000.svg?v=37ac0de71c] 25.000 km
+Nächstes Abzeichen
+Noch 553 km
+Laufen gemeinsam
+Die Lauf-Kilometer des ganzen Teams.
+Erstes Abzeichen
+Noch 72 km
+Trainings-Rynke gemeinsam
+Trainings-Rynke aller Rider.
+[img /badges/team-training-rynke-5000.svg?v=699a2ca5db]
+5.000 Rynke
+[img /badges/team-training-rynke-2500.svg?v=a3c2bbb1cf]
+2.500 Rynke
+[img /badges/team-training-rynke-1000.svg?v=fd92f0bb70]
+1.000 Rynke
+[img /badges/team-training-rynke-500.svg?v=1f14a75554]
+500 Rynke
+Kilometer gemeinsam
+Die Rad-Kilometer des ganzen Teams.
+[img /badges/team-distance-25000.svg?v=37ac0de71c]
+25.000 km
+[img /badges/team-distance-10000.svg?v=50858914bd]
+10.000 km
+[img /badges/team-distance-5000.svg?v=d6ffadab64]
+5.000 km
+[img /badges/team-distance-1000.svg?v=9b6dc4bdf2]
+1.000 km
+Höhenmeter gemeinsam
+Die Rad-Höhenmeter des ganzen Teams.
+[img /badges/team-elevation-250000.svg?v=adac4b119a]
+250.000 m
+[img /badges/team-elevation-100000.svg?v=8ae5ce6c86]
+100.000 m
+[img /badges/team-elevation-50000.svg?v=11120196ab]
+50.000 m
+[img /badges/team-elevation-10000.svg?v=58e1edc707]
+10.000 m
+Laufen gemeinsam
+Die Lauf-Kilometer des ganzen Teams.
+Große Ausfahrt
+Rekord: Rider an einem Termin.
+[img /badges/big-training-5.svg?v=4751abceba]
+5 Rider
+Teilnahmen
+Teilnahmen aller Rider zusammen.
+[img /badges/attendances-50.svg?v=b24caaabaf]
+50 Teilnahmen
+[img /badges/attendances-25.svg?v=72354acc25]
+25 Teilnahmen
+Team-Überraschungen
+?
+[img /badges/team-surprise-relay.svg?v=e68cf2d32b]
+Staffelstab
+[img /badges/team-surprise-sunday-outing.svg?v=b1fa13a879]
+Sonntagsausflug
+[img /badges/team-surprise-day-off.svg?v=2e01bd42e8]
+Teampause
+[img /badges/distance-100.svg?v=d279cd99df] 100 km
+Die ersten Hundert
+Du bist in dieser Saison 100 km Rad gefahren.
+erreicht am 03.10.2026
+Teilen
+[img /badges/elevation-1000.svg?v=be22a1d975] 1.000 m
+Erster Höhenkilometer
+Du bist in dieser Saison mit dem Rad 1.000 m bergauf gefahren.
+erreicht am 05.10.2026
+Teilen
+[img /badges/training-rynke-25.svg?v=9f2a636489] 25 Rynke
+Warmgefahren
+Du hast in dieser Saison 25 Rynke im Training gesammelt.
+erreicht am 05.10.2026
+Teilen
+[img /badges/training-rynke-1.svg?v=ecc11c6191] 1 Rynke
+Der erste Rynke
+Du hast in dieser Saison 1 Rynke im Training gesammelt.
+erreicht am 02.10.2026
+Teilen
+[img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
+Mit Proviant
+Deine längste Fahrt dieser Saison: 50 km am Stück.
+erreicht am 02.10.2026
+Teilen
+[img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
+Team in Form
+Alle Rider zusammen haben in dieser Saison 5.000 Rynke im Training gesammelt.
+erreicht am 27.09.2026
+Teilen
+[img /badges/team-training-rynke-2500.svg?v=a3c2bbb1cf] 2.500 Rynke
+Volle Truppe
+Alle Rider zusammen haben in dieser Saison 2.500 Rynke im Training gesammelt.
+erreicht am 15.08.2026
+Teilen
+[img /badges/team-training-rynke-1000.svg?v=fd92f0bb70] 1.000 Rynke
+Tausend zusammen
+Alle Rider zusammen haben in dieser Saison 1.000 Rynke im Training gesammelt.
+erreicht am 11.06.2026
+Teilen
+[img /badges/team-training-rynke-500.svg?v=1f14a75554] 500 Rynke
+Gemeinsam angerollt
+Alle Rider zusammen haben in dieser Saison 500 Rynke im Training gesammelt.
+erreicht am 04.05.2026
+Teilen
+[img /badges/team-distance-25000.svg?v=37ac0de71c] 25.000 km
+Halbe Weltreise
+Alle Rider zusammen sind in dieser Saison 25.000 km Rad gefahren.
+erreicht am 30.08.2026
+Teilen
+[img /badges/team-distance-10000.svg?v=50858914bd] 10.000 km
+Bis Kapstadt
+Alle Rider zusammen sind in dieser Saison 10.000 km Rad gefahren.
+erreicht am 25.06.2026
+Teilen
+[img /badges/team-distance-5000.svg?v=d6ffadab64] 5.000 km
+Quer durch Europa
+Alle Rider zusammen sind in dieser Saison 5.000 km Rad gefahren.
+erreicht am 09.05.2026
+Teilen
+[img /badges/team-distance-1000.svg?v=9b6dc4bdf2] 1.000 km
+Die ersten Tausend
+Alle Rider zusammen sind in dieser Saison 1.000 km Rad gefahren.
+erreicht am 02.03.2026
+Teilen
+[img /badges/team-elevation-250000.svg?v=adac4b119a] 250.000 m
+Im Orbit
+Alle Rider zusammen sind in dieser Saison 250.000 m bergauf gefahren.
+erreicht am 25.09.2026
+Teilen
+[img /badges/team-elevation-100000.svg?v=8ae5ce6c86] 100.000 m
+Kármán-Linie
+Alle Rider zusammen sind in dieser Saison 100.000 m bergauf gefahren.
+erreicht am 19.07.2026
+Teilen
+[img /badges/team-elevation-50000.svg?v=11120196ab] 50.000 m
+Fünfmal Everest
+Alle Rider zusammen sind in dieser Saison 50.000 m bergauf gefahren.
+erreicht am 29.05.2026
+Teilen
+[img /badges/team-elevation-10000.svg?v=58e1edc707] 10.000 m
+Everest als Team
+Alle Rider zusammen sind in dieser Saison 10.000 m bergauf gefahren.
+erreicht am 21.03.2026
+Teilen
+[img /badges/big-training-5.svg?v=4751abceba] 5 Rider
+Kleine Gruppe
+5 Rider waren bei einem einzigen Teamtermin zusammen dabei.
+erreicht am 29.09.2026
+Teilen
+[img /badges/attendances-50.svg?v=b24caaabaf] 50 Teilnahmen
+Volle Termine
+Alle Teamtermine dieser Saison zusammen hatten 50 Teilnahmen: Jeder Rider bei jedem Termin zählt eins.
+erreicht am 03.10.2026
+Teilen
+[img /badges/attendances-25.svg?v=72354acc25] 25 Teilnahmen
+Gut besucht
+Alle Teamtermine dieser Saison zusammen hatten 25 Teilnahmen: Jeder Rider bei jedem Termin zählt eins.
+erreicht am 24.09.2026
+Teilen
+[img /badges/team-surprise-relay.svg?v=e68cf2d32b] Staffelstab
+Staffel ohne Ende
+30 Tage am Stück war jeden Tag jemand aus dem Team aktiv.
+erreicht am 06.10.2026
+Teilen
+[img /badges/team-surprise-sunday-outing.svg?v=b1fa13a879] Sonntagsausflug
+Sonntagskarawane
+Mindestens zehn aus dem Team an einem Sonntag ohne Teamtermin.
+erreicht am 30.08.2026
+Teilen
+[img /badges/team-surprise-day-off.svg?v=2e01bd42e8] Teampause
+Kollektiver Couchtag
+Ein Tag, an dem das ganze Team die Füße hochgelegt hat.
+erreicht am 02.01.2026
+Teilen
+Abzeichen teilen
+Als Story GIF Bild
+Wird gerendert …
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
+Foto wählen
+Glitzernd
+Dein Foto bleibt auf deinem Gerät.
+Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
+Teilen …
+Speichern
+Kopieren
+[img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
+Neu hier? Wir zeigen dir kurz, wo du was findest.
+Zeig mal
+Überspringen
+Hol dir RynkePoints als App auf deinen Startbildschirm.
+Als App installieren
+Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
+Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
+Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
+Sollen wir dir Bescheid sagen, wenn du neue Rynke bekommst?
+Nicht jetzt
+Benachrichtigungen einschalten
+Team
+Du
+Fahrten
+Abzeichen
+5 Orga
+Admin
+Einst. Einstellungen
+--- /team 200
+Team – RynkePoints
+Rynke Points
+Team
+Farbschema
+Farbschema
+Automatisch Wie das Gerät: Rynke Tag oder Nacht
+Hell
+Rynke Tag Ostsee Paris Flieder Konfetti Glitzer
+Dunkel
+Rynke Nacht Nachtfahrt Wald Pflaume Disco Glitzer
+Hoher Kontrast
+Kontrast hell Kontrast dunkel
+Gilt nur für dieses Gerät.
+[img /coin/rynke-coin-front.svg?v=32a9403c5a]
+Team Rynkeby Hamburg
+6.294 Trainingsrynke
+gemeinsam gesammelt
++307 diese Woche 🔥
+Training
+Team
+Das Team, Woche für Woche Trainingsrynke
+Die Balken zeigen, was das Team in jeder Woche gesammelt hat, die Linie alles zusammengezählt.
+04.01.2026 diese Woche
+Beste Teamwoche bisher: +882 in der Woche bis 04.10.2026 🔥
+Alle Wochen
+Woche bis Gesamt Plus
+04.01.2026 3
+11.01.2026 14 11
+18.01.2026 14 0
+25.01.2026 14 0
+01.02.2026 18 4
+08.02.2026 39 21
+15.02.2026 51 12
+22.02.2026 81 30
+01.03.2026 104 23
+08.03.2026 117 13
+15.03.2026 143 26
+22.03.2026 184 41
+29.03.2026 214 30
+05.04.2026 252 38
+12.04.2026 285 33
+19.04.2026 331 46
+26.04.2026 395 64
+03.05.2026 495 100
+10.05.2026 615 120
+17.05.2026 691 76
+24.05.2026 775 84
+31.05.2026 831 56
+07.06.2026 950 119
+14.06.2026 1.048 98
+21.06.2026 1.147 99
+28.06.2026 1.278 131
+05.07.2026 1.397 119
+12.07.2026 1.527 130
+19.07.2026 1.730 203
+26.07.2026 1.893 163
+02.08.2026 2.114 221
+09.08.2026 2.321 207
+16.08.2026 2.556 235
+23.08.2026 2.805 249
+30.08.2026 3.113 308
+06.09.2026 3.345 232
+13.09.2026 3.722 377
+20.09.2026 4.381 659
+27.09.2026 5.105 724
+04.10.2026 5.987 882
+06.10.2026 6.294 307
+Rangliste
+41 Rider
+Ohne Namen. Die Linie zeigt die Saison bisher.
+Rangliste nach
+Rynke
+Fahrten
+km
+Höhenmeter
+🥇 Trainingsrynke 725 Teamrynke 28
+🥈 Trainingsrynke 332 Teamrynke 0
+🥉 Trainingsrynke 310 Teamrynke 7
+4 Trainingsrynke 219 Teamrynke 0
+5 Trainingsrynke 215 Teamrynke 0
+6 Trainingsrynke 202 Teamrynke 0
+6 Trainingsrynke 202 Teamrynke 0
+8 Trainingsrynke 196 Teamrynke 0
+9 Trainingsrynke 195 Teamrynke 0
+10 Trainingsrynke 192 Teamrynke 0
+11 Trainingsrynke 188 Teamrynke 0
+12 Trainingsrynke 187 Teamrynke 0
+13 Trainingsrynke 183 Teamrynke 0
+14 Trainingsrynke 173 Teamrynke 0
+15 Trainingsrynke 170 Teamrynke 0
+16 Trainingsrynke 167 Teamrynke 0
+17 Trainingsrynke 166 Teamrynke 0
+17 Trainingsrynke 166 Teamrynke 0
+19 Trainingsrynke 165 Teamrynke 0
+20 Trainingsrynke 162 Teamrynke 0
+21 Trainingsrynke 161 Teamrynke 0
+22 Trainingsrynke 154 Teamrynke 0
+23 Trainingsrynke 152 Teamrynke 0
+24 Trainingsrynke 151 Teamrynke 0
+25 Trainingsrynke 146 Teamrynke 0
+26 Trainingsrynke 140 Teamrynke 0
+27 Trainingsrynke 131 Teamrynke 0
+28 Trainingsrynke 130 Teamrynke 11
+29 Trainingsrynke 125 Teamrynke 0
+30 Trainingsrynke 122 Teamrynke 12
+31 Trainingsrynke 118 Teamrynke 0
+32 Trainingsrynke 90 Teamrynke 0
+33 Trainingsrynke 60 Teamrynke 7
+34 Trainingsrynke 35 Teamrynke 2
+35 Trainingsrynke 18 Teamrynke 2
+36 Trainingsrynke 17 Teamrynke 1
+37 Trainingsrynke 16 Teamrynke 0
+38 Trainingsrynke 8 Teamrynke 0
+39 Trainingsrynke 5 Teamrynke 0
+40 Trainingsrynke 0 Teamrynke 0
+40 Trainingsrynke 0 Teamrynke 0
+[img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
+1 von 11
+Team: wie das ganze Team dasteht und wo du in der Rangliste stehst. Die Rangliste gibt es auch nach Fahrten, Kilometern und Höhenmetern, für die Saison, den Monat oder die Woche.
+Weiter
+Überspringen
+Hol dir RynkePoints als App auf deinen Startbildschirm.
+Als App installieren
+Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
+Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
+Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
+Sollen wir dir Bescheid sagen, wenn du neue Rynke bekommst?
+Nicht jetzt
+Benachrichtigungen einschalten
+Team
+Du
+Fahrten
+Abzeichen
+5 Orga
+Admin
+Einst. Einstellungen
 === 990020 Alma
 rider [{"status":"connected","import_status":"done"}]
 balance [{"athlete_id":990020,"distance_rynke":103,"elevation_dm":33840,"elevation_rynke":15,"elevation_to_next_step_dm":6160,"training_rynke":118,"team_rynke":0,"training_missing":132,"team_missing":25,"training_without_virtual":60,"virtual_share_missing":107,"qualified":0,"rules_version":3,"rules_effective_date":"2026-10-09","computed_at":1791280800,"team_event_breakdown":"[{\"kind\":\"team_training\",\"attended\":0,\"team\":0,\"training\":0},{\"kind\":\"training_weekend_day\",\"attended\":0,\"team\":0,\"training\":0},{\"kind\":\"technique_training\",\"attended\":0,\"team\":0,\"training\":0}]"}]

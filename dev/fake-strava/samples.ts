@@ -71,6 +71,11 @@ export interface SampleRider {
 	organiser?: true;
 	/** The same for the administrator flag (feature 025 research R12). */
 	administrator?: true;
+	/**
+	 * An administrator of another team on this team's guest list, not in its
+	 * club: the seed lists the ID and connects them (feature 041 research R13).
+	 */
+	guest?: true;
 	/** Held back on this consent version, as a rider not asked yet (feature 029). */
 	consentVersion?: number;
 }

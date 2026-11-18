@@ -5,7 +5,7 @@ import {
 } from "../db/push-subscriptions";
 import { deleteRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
-import { revokeStoredToken } from "../strava/tokens";
+import { withdrawStoredGrant } from "../strava/withdraw";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, pageLook } from "./html";
 import { redirect } from "./redirect";
@@ -21,9 +21,15 @@ export async function handleDisconnectPage(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	const denied = requireRider(await readViewer(request, ctx));
+	const viewer = await readViewer(request, ctx);
+	const denied = requireRider(viewer);
 	if (denied) return denied;
 	const title = i18n.t("disconnect.title");
+	// A guest's grant stays: their own team needs it (041 FR-009).
+	const explain =
+		viewer.kind === "rider" && viewer.rider.guest
+			? "disconnect.explain.guest"
+			: "disconnect.explain";
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
@@ -31,7 +37,7 @@ export async function handleDisconnectPage(
 			title,
 			path: "/me/disconnect",
 			body: html`<h1>${title}</h1>
-<p>${i18n.t("disconnect.explain")}</p>
+<p>${i18n.t(explain)}</p>
 <form method="post" action="/me/disconnect"><button class="danger">${i18n.t("disconnect.confirm")}</button></form>
 <p><a class="button-outlined" href="/me/settings">${i18n.t("disconnect.cancel")}</a></p>`,
 		}),
@@ -51,14 +57,11 @@ export async function handleDisconnect(
 	if (viewer?.kind !== "rider") return forbidden(i18n, "/me/disconnect");
 	const { rider } = viewer;
 
-	let revoked = await revokeStoredToken(ctx, rider.athleteId);
-	if (revoked.kind === "transient") {
-		revoked = await revokeStoredToken(ctx, rider.athleteId);
-	}
+	// Unless another team holds them; a token not settled yet is kept and
+	// withdrawn later (feature 041 R14).
+	await withdrawStoredGrant(ctx, rider.athleteId);
 	await deleteRider(ctx.env.DB, rider.athleteId);
-	const notice =
-		revoked.kind === "ok" ? "/notice/deleted" : "/notice/deleted-revoke-failed";
-	return redirect(notice, 303, [clearSessionCookie()]);
+	return redirect("/notice/deleted", 303, [clearSessionCookie()]);
 }
 
 /**

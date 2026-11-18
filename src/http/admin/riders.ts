@@ -11,7 +11,7 @@ import { adminPage, adminSwitch, whole } from "./access";
 // consent, and only counts of everyone else. No rides, Rynke or
 // tokens, and the athlete ID only in the remove link's address (research R6).
 
-const DONE_CODES = ["removed", "removed-revoke-failed"] as const;
+const DONE_CODES = ["removed"] as const;
 const ERROR_CODES = ["self", "unknown"] as const;
 
 function resultNotice(url: URL, i18n: I18n): SafeHtml | null {
@@ -32,17 +32,20 @@ function dateOf(i18n: I18n, epochSeconds: number): string {
 	return i18n.formatDate(`${berlinDate(epochSeconds)}T00:00:00Z`);
 }
 
+/** A guest's card is marked and has no club check (feature 041 FR-008). */
 function riderCard(
 	i18n: I18n,
 	rider: OverviewRider,
 	viewerId: number,
+	guest = false,
 ): SafeHtml {
 	return html`<li class="card admin-rider">
 <h3>${rider.firstName}</h3>
+${guest ? html`<p><span class="chip">${i18n.t("admin.riders.guest")}</span></p>` : null}
 <dl>
 <div><dt>${i18n.t("admin.riders.status")}</dt><dd>${i18n.t(`admin.riders.status.${rider.status}`)}</dd></div>
 <div><dt>${i18n.t("admin.riders.connected")}</dt><dd>${dateOf(i18n, rider.connectedAt)}</dd></div>
-<div><dt>${i18n.t("admin.riders.checked")}</dt><dd>${dateOf(i18n, rider.membershipCheckedAt)}</dd></div>
+${guest ? null : html`<div><dt>${i18n.t("admin.riders.checked")}</dt><dd>${dateOf(i18n, rider.membershipCheckedAt)}</dd></div>`}
 <div><dt>${i18n.t("admin.riders.import")}</dt><dd>${i18n.t(`admin.riders.import.${rider.importStatus}`)}</dd></div>
 </dl>
 ${rider.athleteId === viewerId ? null : html`<p><a class="danger" href="/admin/riders/${rider.athleteId}/remove">${i18n.t("admin.riders.remove")}</a></p>`}
@@ -63,7 +66,7 @@ export function handleAdminRiders(
 		`/admin/riders${url.search}`,
 		async ({ rider: viewer }) => {
 			const db = ctx.env.DB;
-			const [{ riders, unlisted }, blocked] = await Promise.all([
+			const [{ riders, unlisted, guests }, blocked] = await Promise.all([
 				readRiderOverview(db),
 				blockedCountStatement(db).first<number>("n"),
 			]);
@@ -81,6 +84,13 @@ ${
 `
 		: html`<ul class="admin-riders">
 ${riders.map((rider) => riderCard(i18n, rider, viewer.athleteId))}</ul>
+`
+}${
+	guests.length === 0
+		? null
+		: html`<h2>${i18n.t("admin.riders.guests.heading")}</h2>
+<ul class="admin-riders">
+${guests.map((guest) => riderCard(i18n, guest, viewer.athleteId, true))}</ul>
 `
 }`;
 		},

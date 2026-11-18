@@ -10,8 +10,6 @@ import { upsertFailedWork } from "../../src/db/failed-work";
 import { getRider } from "../../src/db/riders";
 import { handleFetch, handleQueue } from "../../src/index";
 import { toActivityRecord } from "../../src/strava/activity";
-import { backoffSeconds } from "../../src/strava/rate-limit";
-import { MAX_ATTEMPTS } from "../../src/work/consumer";
 import type { DeleteRiderMessage, WorkMessage } from "../../src/work/messages";
 import { approve } from "../support/callback";
 import {
@@ -216,23 +214,17 @@ describe("delete-rider", () => {
 		await expectNoRiderRows();
 	});
 
-	it("retries a revoke that answers 503 and keeps the rider", async () => {
+	it("deletes at once when the revoke fails, keeping the token to withdraw later", async () => {
 		await seedEverything();
 		fake.failNext("revoke", { status: 503 });
-		const { result, retry } = await deliver(LEFT_CLUB, 2);
-		expect(result.retryMessages).toEqual([{ msgId: "m1" }]);
-		expect(retry).toHaveBeenCalledWith({ delaySeconds: backoffSeconds(2) });
-		expect(await getRider(env.DB, ATHLETE_A)).not.toBeNull();
-	});
-
-	it("deletes anyway when the revoke still fails on the last attempt", async () => {
-		await seedEverything();
-		fake.failNext("revoke", { status: 503 });
-		vi.spyOn(console, "error").mockImplementation(() => {});
-		const { result } = await deliver(LEFT_CLUB, MAX_ATTEMPTS);
+		const { result } = await deliver(LEFT_CLUB, 1);
 		expect(result.explicitAcks).toEqual(["m1"]);
-		// The seeded failed_work row goes with the rider; no new one is written.
 		await expectNoRiderRows();
+		expect(
+			await env.DB.prepare(
+				"SELECT COUNT(*) AS n FROM pending_revocations",
+			).first("n"),
+		).toBe(1);
 	});
 
 	it("lets no later activity event bring the rider back", async () => {

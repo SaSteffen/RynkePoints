@@ -230,6 +230,8 @@ export const en: Catalog = {
 	"disconnect.title": "Delete your data?",
 	"disconnect.explain":
 		"RynkePoints gives up its access to your Strava account and immediately deletes all data about you. Your activities on Strava stay as they are.",
+	"disconnect.explain.guest":
+		"RynkePoints immediately deletes all data about you at this team. Its access to your Strava account stays, since your own team needs it. Your activities on Strava stay as they are.",
 	"disconnect.confirm": "Yes, delete everything",
 	"disconnect.cancel": "Cancel",
 
@@ -257,8 +259,6 @@ export const en: Catalog = {
 	"notice.deleted.title": "Your data has been deleted",
 	"notice.deleted.body":
 		"We have deleted all data about you. Copies in our hosting provider's backups disappear after 7 days at the latest.",
-	"notice.revokeFailed.body":
-		'We couldn\'t give up our access at Strava. Please remove RynkePoints under "My Apps" in your Strava settings.',
 
 	"install.button": "Install as an app",
 	"install.ios":
@@ -1172,14 +1172,16 @@ export const en: Catalog = {
 	"admin.riders.import.running": "Still running",
 	"admin.riders.import.done": "Done",
 	"admin.riders.remove": "Remove",
+	"admin.riders.guests.heading": "Guests",
+	"admin.riders.guest": "Guest",
 	"admin.remove.title": "Remove {name}?",
 	"admin.remove.explain":
 		"This can't be undone. All their data is deleted and their Strava access revoked. They can't connect to this team again, even while in the club: their Strava ID stays on the block list.",
+	"admin.remove.explain.guest":
+		"This can't be undone. All the guest's data at this team is deleted; their Strava access stays, since their own team needs it. Their Strava ID stays on the block list, even while it's on the guest list.",
 	"admin.remove.confirm": "Remove and block",
 	"admin.remove.cancel": "Cancel",
 	"admin.remove.done.removed": "The rider was removed and blocked.",
-	"admin.remove.done.removed-revoke-failed":
-		"The rider was removed and blocked, but Strava couldn't be reached to revoke their access. Their token is deleted here anyway.",
 	"admin.remove.error.self":
 		"You can't remove yourself. To leave, use {leave}.",
 	"admin.remove.error.unknown":
@@ -1189,7 +1191,7 @@ export const en: Catalog = {
 	"notification.usage.critical": "Critical: {allowance} at {percent}\u00a0%",
 	"notice.blocked.title": "You can't take part in this team",
 	"notice.blocked.body":
-		"An administrator removed you from this team. We only keep your Strava ID, so you can't connect again, and we've revoked the access you just granted.",
+		"An administrator removed you from this team. We only keep your Strava ID, so you can't connect again.",
 	"notice.oneTeam.title": "You're in another team's club too",
 	"notice.oneTeam.body":
 		"On RynkePoints you can take part in one team at a time. Strava gives the app one connection per person, so connecting to a second team ends the connection to the first. You're connected here now.",

@@ -232,6 +232,8 @@ export const nl: Catalog = {
 	"disconnect.title": "Je gegevens wissen?",
 	"disconnect.explain":
 		"RynkePoints geeft zijn toegang tot je Strava-account op en wist meteen alle gegevens over jou. Je activiteiten op Strava blijven zoals ze zijn.",
+	"disconnect.explain.guest":
+		"RynkePoints wist meteen alle gegevens over jou bij dit team. De toegang tot je Strava-account blijft, omdat je eigen team die nodig heeft. Je activiteiten op Strava blijven zoals ze zijn.",
 	"disconnect.confirm": "Ja, alles wissen",
 	"disconnect.cancel": "Annuleren",
 
@@ -261,8 +263,6 @@ export const nl: Catalog = {
 	"notice.deleted.title": "Je gegevens zijn gewist",
 	"notice.deleted.body":
 		"We hebben alle gegevens over jou gewist. Kopieën in de back-ups van onze hostingprovider verdwijnen uiterlijk na 7 dagen.",
-	"notice.revokeFailed.body":
-		"We konden onze toegang bij Strava niet opgeven. Verwijder RynkePoints onder “Mijn apps” in je Strava-instellingen.",
 
 	"install.button": "Installeren als app",
 	"install.ios":
@@ -1189,14 +1189,16 @@ export const nl: Catalog = {
 	"admin.riders.import.running": "Loopt nog",
 	"admin.riders.import.done": "Klaar",
 	"admin.riders.remove": "Verwijderen",
+	"admin.riders.guests.heading": "Gasten",
+	"admin.riders.guest": "Gast",
 	"admin.remove.title": "{name} verwijderen?",
 	"admin.remove.explain":
 		"Dit kan niet ongedaan worden gemaakt. Al hun gegevens worden gewist en hun Strava-toegang ingetrokken. Ze kunnen niet meer met dit team verbinden, ook niet zolang ze in de club zitten: hun Strava-ID blijft op de blokkeerlijst.",
+	"admin.remove.explain.guest":
+		"Dit kan niet ongedaan worden gemaakt. Alle gegevens van de gast bij dit team worden gewist; de Strava-toegang blijft, omdat het eigen team van de gast die nodig heeft. Hun Strava-ID blijft op de blokkeerlijst, ook als het op de gastenlijst staat.",
 	"admin.remove.confirm": "Verwijderen en blokkeren",
 	"admin.remove.cancel": "Annuleren",
 	"admin.remove.done.removed": "De renner is verwijderd en geblokkeerd.",
-	"admin.remove.done.removed-revoke-failed":
-		"De renner is verwijderd en geblokkeerd, maar Strava was niet bereikbaar om de toegang in te trekken. Hun token is hier toch gewist.",
 	"admin.remove.error.self":
 		"Je kunt jezelf niet verwijderen. Wil je stoppen, gebruik dan {leave}.",
 	"admin.remove.error.unknown":
@@ -1206,7 +1208,7 @@ export const nl: Catalog = {
 	"notification.usage.critical": "Kritiek: {allowance} op {percent} %",
 	"notice.blocked.title": "Je kunt niet meedoen in dit team",
 	"notice.blocked.body":
-		"Een beheerder heeft je uit dit team verwijderd. We bewaren alleen je Strava-ID, zodat je niet opnieuw kunt verbinden, en we hebben de toegang die je net gaf ingetrokken.",
+		"Een beheerder heeft je uit dit team verwijderd. We bewaren alleen je Strava-ID, zodat je niet opnieuw kunt verbinden.",
 	"notice.oneTeam.title": "Je zit ook in de club van een ander team",
 	"notice.oneTeam.body":
 		"Op RynkePoints doe je mee met één team tegelijk. Strava geeft de app één koppeling per persoon, dus als je koppelt met een tweede team, stopt de koppeling met het eerste. Je bent nu hier gekoppeld.",

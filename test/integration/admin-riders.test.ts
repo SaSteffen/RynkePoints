@@ -10,6 +10,7 @@ import {
 	seedRider,
 	sessionCookie,
 } from "../support/ctx";
+import { installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C } from "../support/fixtures";
 import { seedBalance } from "../support/rider-view";
 
@@ -138,7 +139,6 @@ describe("the block list (FR-031)", () => {
 describe("the results of a removal", () => {
 	it.each([
 		["?done=removed", "admin.remove.done.removed"],
-		["?done=removed-revoke-failed", "admin.remove.done.removed-revoke-failed"],
 		["?error=unknown", "admin.remove.error.unknown"],
 	] as const)("%s", async (query, id) => {
 		expect(await page(query)).toContain(escapeHtml(de[id]));
@@ -148,5 +148,64 @@ describe("the results of a removal", () => {
 		const text = await page("?done=%3Cscript%3E");
 		expect(text).not.toContain('class="notice"');
 		expect(text).not.toContain("&lt;script");
+	});
+});
+
+// Feature 041 FR-008, research R7: guests in their own group, marked, and
+// removable like a rider; the only list on the site that shows them.
+describe("guests", () => {
+	beforeEach(async () => {
+		await seedRider(ctx, { athleteId: ATHLETE_B, firstName: "Bo" });
+		await seedRider(ctx, {
+			athleteId: ATHLETE_C,
+			firstName: "Gia",
+			guest: true,
+		});
+	});
+
+	it("are listed apart from the team's riders, marked", async () => {
+		const text = await page();
+		const [team, guests] = text.split(
+			escapeHtml(de["admin.riders.guests.heading"]),
+		);
+		expect(team).toContain("<h3>Bo</h3>");
+		expect(team).not.toContain("Gia");
+		expect(guests).toContain("<h3>Gia</h3>");
+		expect(guests).toContain(escapeHtml(de["admin.riders.guest"]));
+		expect(guests).toContain(`href="/admin/riders/${ATHLETE_C}/remove"`);
+	});
+
+	it("aren't counted among the team's riders or the unlisted", async () => {
+		expect(await page()).toContain(
+			escapeHtml(
+				de["admin.riders.counts"]
+					.replace("{listed}", "2")
+					.replace("{unlisted}", "0")
+					.replace("{blocked}", "0"),
+			),
+		);
+	});
+
+	it("can be removed, with the guest's own explanation", async () => {
+		// No other team holds them here, so the grant is withdrawn (R14).
+		const fake = installFakeStrava();
+		const confirm = await handleFetch(
+			request(`/admin/riders/${ATHLETE_C}/remove`, {
+				cookies: await sessionCookie(ctx, ADMIN),
+			}),
+			ctx,
+		);
+		const text = await confirm.text();
+		expect(text).toContain(escapeHtml(de["admin.remove.explain.guest"]));
+		const res = await handleFetch(
+			request(`/admin/riders/${ATHLETE_C}/remove`, {
+				form: {},
+				cookies: await sessionCookie(ctx, ADMIN),
+			}),
+			ctx,
+		);
+		expect(res.headers.get("Location")).toBe("/admin/riders?done=removed");
+		expect(fake.revocations).toHaveLength(1);
+		fake.restore();
 	});
 });

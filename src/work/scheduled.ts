@@ -5,10 +5,11 @@ import {
 	deleteFailedWorkFirstFailedBefore,
 	listFailedWorkFirstFailedSince,
 } from "../db/failed-work";
+import { listRemovedGuestIds } from "../db/guests";
 import { listPreSeasonActivities } from "../db/pre-season";
 import { pruneRecheckDays } from "../db/recheck";
 import {
-	listConnectedRiderIds,
+	listClubRiderIds,
 	listExpiredReconnectRiderIds,
 	listRidersBehindFiguresVersion,
 	setFiguresVersion,
@@ -18,6 +19,7 @@ import { pruneUsageAlerts, pruneUsageHistory } from "../db/usage";
 import { evaluateChange } from "../rynke/apply";
 import { countingWindow, currentRules } from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
+import { settleWithdrawals } from "../strava/withdraw";
 import { daysBefore, historyStart, utcDay } from "../usage/allowances";
 import { recordUsage } from "../usage/record";
 import { parseWorkMessage, sendAll, type WorkMessage } from "./messages";
@@ -34,9 +36,9 @@ const RECONNECT_GRACE_SECONDS = 7 * 24 * 3600;
  */
 export const USAGE_CRON = "58 * * * *";
 
-/** One `check-membership` per connected rider (FR-004a). */
+/** One `check-membership` per connected rider; never a guest (FR-004a, 041 FR-006). */
 export async function fanOutMembershipChecks(ctx: Ctx): Promise<void> {
-	const ids = await listConnectedRiderIds(ctx.env.DB);
+	const ids = await listClubRiderIds(ctx.env.DB);
 	await sendAll(
 		ctx,
 		ids.map((athleteId) => ({ kind: "check-membership", athleteId })),
@@ -55,6 +57,24 @@ export async function expireReconnectRiders(ctx: Ctx): Promise<void> {
 			kind: "delete-rider",
 			athleteId,
 			reason: "reconnect-expired",
+			revoke: true,
+		})),
+	);
+}
+
+/**
+ * Deletes guests the maintainer took off the list. Their grant is withdrawn
+ * only if no other team holds them, which their home team normally does
+ * (feature 041 FR-004, FR-009, R14).
+ */
+export async function sweepRemovedGuests(ctx: Ctx): Promise<void> {
+	const ids = await listRemovedGuestIds(ctx.env.DB);
+	await sendAll(
+		ctx,
+		ids.map((athleteId) => ({
+			kind: "delete-rider",
+			athleteId,
+			reason: "guest-removed",
 			revoke: true,
 		})),
 	);
@@ -188,6 +208,8 @@ export async function handleScheduled(
 	await runSteps(ctx, [
 		fanOutMembershipChecks,
 		expireReconnectRiders,
+		sweepRemovedGuests,
+		settleWithdrawals,
 		requeueFailedWork,
 		fanOutFiguresReread,
 		purgePreSeasonActivities,

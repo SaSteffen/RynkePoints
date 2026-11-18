@@ -53,11 +53,15 @@ export async function readViewer(request: Request, ctx: Ctx): Promise<Viewer> {
 	}
 	const row = (riders.results as RiderRow[])[0];
 	if (!row) return { kind: "visitor" };
+	// A guest the maintainer took off the list is a visitor from their next
+	// request; the daily run deletes their data (feature 041 FR-004, R4).
+	const rider = toRider(row);
+	if (rider.guest && !rider.onGuestList) return { kind: "visitor" };
 	const record = (consents.results as ConsentRow[])[0];
 	const consent = record ? toConsent(record) : null;
 	return {
 		kind: "rider",
-		rider: toRider(row),
+		rider,
 		consentVersion: consent?.version ?? null,
 		consent,
 	};

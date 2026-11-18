@@ -102,20 +102,32 @@ export async function consentVersionOf(
  * `athlete_id IN (${SHARED_RIDER_IDS})`, or
  * `sharedRiderIdsSince(SINCE_VERSION[item])` for an item shared later, so a
  * rider without that consent is in no row and no figure (004 FR-021, FR-013).
+ * A guest's data is never shared with the team, whatever consent they gave, so
+ * no team count includes them (feature 041 FR-007, research R3).
  */
 export function sharedRiderIdsSince(version: number): string {
+	return `${consentedRiderIdsSince(version)}
+		AND athlete_id NOT IN (SELECT athlete_id FROM riders WHERE guest = 1)`;
+}
+
+/**
+ * `sharedRiderIdsSince` without leaving guests out: only for a query that reads
+ * the rider's `riders` row anyway and checks `guest = 0` there, which costs no
+ * extra read (feature 041 FR-007).
+ */
+export function consentedRiderIdsSince(version: number): string {
 	return `SELECT athlete_id FROM consent_records WHERE version >= ${Math.trunc(version)}`;
 }
 
 /**
  * The same check as `sharedRiderIdsSince` as an `EXISTS` on one rider, for a
  * query that already goes through `riders` as `alias`: 80 rows instead of 200 at
- * 40 riders (feature 030 research R5). `alias` and `version` come from code,
- * never request input.
+ * 40 riders (feature 030 research R5), guests left out likewise. `alias` and
+ * `version` come from code, never request input.
  */
 export function sharedRiderExists(alias: string, version: number): string {
-	return `EXISTS (SELECT 1 FROM consent_records c
-		WHERE c.athlete_id = ${alias}.athlete_id AND c.version >= ${Math.trunc(version)})`;
+	return `(${alias}.guest = 0 AND EXISTS (SELECT 1 FROM consent_records c
+		WHERE c.athlete_id = ${alias}.athlete_id AND c.version >= ${Math.trunc(version)}))`;
 }
 
 /** SQL subquery: athlete IDs whose consent includes the FR-020 sharing. */

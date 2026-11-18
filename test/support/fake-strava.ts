@@ -66,6 +66,15 @@ export interface FakeStrava {
 	calls: FakeCall[];
 	revocations: FakeRevocation[];
 	unexpected: string[];
+	/**
+	 * The Strava gateway's answer to "does another team hold this person?"
+	 * (feature 041 R14), per athlete; `none` if not set. Answered on
+	 * `GATEWAY_ORIGIN`, which `withGateway` points a context at.
+	 */
+	held: Map<number, "connected" | "reconnect" | "none">;
+	/** The gateway answers 503. */
+	gatewayDown: boolean;
+	gatewayCalls: { team: string; athleteId: number; auth: string | null }[];
 	/** Rate headers on every /api/v3 response; `null` sends none. */
 	rateHeaders: RateHeaders | null;
 	/**
@@ -80,6 +89,9 @@ export interface FakeStrava {
 	callsTo(endpoint: FakeEndpoint): FakeCall[];
 	restore(): void;
 }
+
+/** The Strava gateway as tests see it (feature 041 R14). */
+export const GATEWAY_ORIGIN = "https://gateway.example.test";
 
 export const DEFAULT_SCOPES = ["read", "activity:read", "activity:read_all"];
 
@@ -112,6 +124,9 @@ export function installFakeStrava(): FakeStrava {
 		calls: [],
 		revocations: [],
 		unexpected: [],
+		held: new Map(),
+		gatewayDown: false,
+		gatewayCalls: [],
 		rateHeaders: {
 			usage: "1,1",
 			limit: "200,2000",
@@ -327,6 +342,17 @@ export function installFakeStrava(): FakeStrava {
 		.mockImplementation(async (input, init) => {
 			const request = new Request(input, init);
 			const url = new URL(request.url);
+			const held = /^\/teams\/([^/]+)\/held$/.exec(url.pathname);
+			if (url.origin === GATEWAY_ORIGIN && held && request.method === "POST") {
+				const { athleteId } = (await request.json()) as { athleteId: number };
+				fake.gatewayCalls.push({
+					team: held[1] ?? "",
+					athleteId,
+					auth: request.headers.get("Authorization"),
+				});
+				if (fake.gatewayDown) return new Response("down", { status: 503 });
+				return json({ held: fake.held.get(athleteId) ?? "none" });
+			}
 			if (url.origin !== "https://www.strava.com") {
 				fake.unexpected.push(url.href);
 				throw new Error(`Unexpected outbound fetch to ${url.href}`);

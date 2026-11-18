@@ -63,6 +63,10 @@ export async function gatewayFetch(
 		if (webhook?.[1]) {
 			return await handleWebhook(request, url, webhook[1], env);
 		}
+		const held = /^\/teams\/([^/]+)\/held$/.exec(url.pathname);
+		if (held?.[1] && request.method === "POST") {
+			return await askTeams(request, held[1], env);
+		}
 		const back = /^\/auth\/return\/([^/]+)$/.exec(url.pathname);
 		if (back?.[1] && request.method === "GET") {
 			return returnToTeam(url, back[1], env);
@@ -190,6 +194,98 @@ function returnToTeam(url: URL, teamId: string, env: GatewayEnv): Response {
 		status: 302,
 		headers: { Location: target.href, "Cache-Control": "no-store" },
 	});
+}
+
+const HOLDS = ["none", "reconnect", "connected"] as const;
+type Hold = (typeof HOLDS)[number];
+
+/**
+ * `POST /teams/<teamId>/held`: a team about to withdraw a person's grant asks
+ * whether any other team holds them (feature 041 research R14,
+ * contracts/withdrawal.md). The answer is the strongest of the other teams'
+ * (`connected` over `reconnect` over `none`); it never says which team. No
+ * answer from any of them is a 503: the asking team keeps the token and asks
+ * again. Logs a status per asked team, never the athlete.
+ */
+async function askTeams(
+	request: Request,
+	teamId: string,
+	env: GatewayEnv,
+): Promise<Response> {
+	const teams = parseTeams(env.TEAMS);
+	const token = env[webhookTokenName(teamId) as `TEAM_WEBHOOK_TOKEN_${string}`];
+	const bearer = /^Bearer (.+)$/.exec(
+		request.headers.get("Authorization") ?? "",
+	);
+	if (
+		!teams.some((t) => t.id === teamId) ||
+		!token ||
+		!bearer?.[1] ||
+		!(await secretEquals(bearer[1], token))
+	) {
+		return text("Forbidden", 403);
+	}
+	const body = await readBody(request);
+	let athleteId: unknown;
+	try {
+		athleteId = body === null ? undefined : JSON.parse(body)?.athleteId;
+	} catch {
+		athleteId = undefined;
+	}
+	if (!Number.isSafeInteger(athleteId) || (athleteId as number) <= 0) {
+		return text("Bad Request", 400);
+	}
+	const answers = await Promise.all(
+		teams
+			.filter((t) => t.id !== teamId)
+			.map((t) => askTeam(t, athleteId as number, env)),
+	);
+	if (answers.includes(null)) return text("Service Unavailable", 503);
+	const held = answers.reduce<Hold>(
+		(strongest, answer) =>
+			HOLDS.indexOf(answer as Hold) > HOLDS.indexOf(strongest)
+				? (answer as Hold)
+				: strongest,
+		"none",
+	);
+	return Response.json({ held });
+}
+
+/** One team's answer, `null` if it gave none. */
+async function askTeam(
+	team: GatewayTeam,
+	athleteId: number,
+	env: GatewayEnv,
+): Promise<Hold | null> {
+	const token =
+		env[webhookTokenName(team.id) as `TEAM_WEBHOOK_TOKEN_${string}`];
+	const service = env[serviceBindingName(team.id) as `TEAM_SERVICE_${string}`];
+	let status: string;
+	try {
+		if (!token) throw new Error("no webhook token");
+		// The token goes into the path unencoded, as for the forward.
+		const res = await (service ? service.fetch.bind(service) : fetch)(
+			new URL(`/strava/held/${token}`, team.origin),
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ athleteId }),
+				signal: AbortSignal.timeout(FORWARD_TIMEOUT_MS),
+				redirect: "manual",
+			},
+		);
+		status = String(res.status);
+		if (res.ok) {
+			const answer = ((await res.json()) as { held?: unknown }).held;
+			console.log(`held team=${team.id} status=${status}`);
+			return HOLDS.includes(answer as Hold) ? (answer as Hold) : null;
+		}
+		await res.body?.cancel();
+	} catch (err) {
+		status = err instanceof Error ? err.name : "error";
+	}
+	console.log(`held team=${team.id} status=${status}`);
+	return null;
 }
 
 /** Seconds before the next try: 30 s, 1 min, 2 min, … up to 12 h. */

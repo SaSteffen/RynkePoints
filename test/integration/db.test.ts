@@ -200,6 +200,7 @@ describe("riders", () => {
 				scopes: "read,activity:read",
 				scopeReadAll: false,
 				now: NOW,
+				guest: false,
 			},
 			{ version: 1, acceptedAt: NOW },
 		);
@@ -220,6 +221,7 @@ describe("riders", () => {
 				scopes: "read,activity:read",
 				scopeReadAll: false,
 				now: NOW,
+				guest: false,
 			},
 			{ version: 1, acceptedAt: NOW },
 		);
@@ -241,6 +243,8 @@ describe("riders", () => {
 			onboardedAt: null,
 			organiserOnboardedAt: null,
 			recheckedAt: null,
+			guest: false,
+			onGuestList: false,
 		});
 	});
 
@@ -261,6 +265,7 @@ describe("riders", () => {
 			scopes: "read,activity:read",
 			scopeReadAll: false,
 			now: NOW + 30,
+			guest: false,
 		});
 		expect((await getRider(db, ATHLETE_A))?.organiser).toBe(true);
 
@@ -273,6 +278,7 @@ describe("riders", () => {
 				scopes: "read,activity:read",
 				scopeReadAll: false,
 				now: NOW + 60,
+				guest: false,
 			},
 			{ version: 1, acceptedAt: NOW + 60 },
 		);
@@ -338,6 +344,7 @@ describe("riders", () => {
 			scopes: "read,activity:read",
 			scopeReadAll: false,
 			now: NOW + 30,
+			guest: false,
 		});
 		expect(await getRider(db, ATHLETE_A)).toMatchObject({
 			firstName: "Testrider A2",
@@ -405,6 +412,7 @@ describe("consent records", () => {
 				scopes: "read,activity:read,activity:read_all",
 				scopeReadAll: true,
 				now: NOW,
+				guest: false,
 			},
 			{ version: 1, acceptedAt: NOW },
 		);
@@ -471,6 +479,7 @@ describe("credentials", () => {
 				scopes: "read,activity:read",
 				scopeReadAll: false,
 				now: NOW,
+				guest: false,
 			},
 			{ version: 1, acceptedAt: NOW },
 		);

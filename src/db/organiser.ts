@@ -1,5 +1,5 @@
 import { SHARING_SINCE_VERSION } from "../consent";
-import { SHARED_RIDER_IDS, sharedRiderExists } from "./consents";
+import { consentedRiderIdsSince, sharedRiderExists } from "./consents";
 
 // The riders an organiser sees (feature 014 research R10): connected riders who
 // share their data with the team, filtered inside SQL (004 FR-021). That
@@ -20,7 +20,8 @@ export interface ListedRider extends ListedRiderRow {
  * `listListedRidersStatement` (feature 016 data-model.md).
  */
 export const LISTED_RIDER_IDS = `SELECT athlete_id FROM riders
-	WHERE status = 'connected' AND athlete_id IN (${SHARED_RIDER_IDS})`;
+	WHERE status = 'connected' AND guest = 0
+		AND athlete_id IN (${consentedRiderIdsSince(SHARING_SINCE_VERSION)})`;
 
 /**
  * `LISTED_RIDER_IDS` as a condition, for a query that starts from `riders` as

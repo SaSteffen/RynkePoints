@@ -210,25 +210,3 @@ export async function revokeToken(
 	}
 	return { kind: "ok", value: null };
 }
-
-/**
- * Revokes a stored rider's refresh token without refreshing first, so it also
- * works for `needs_reconnect` riders. No credentials, or credentials we can't
- * decrypt, mean nothing to revoke.
- */
-export async function revokeStoredToken(
-	ctx: StravaCtx,
-	athleteId: number,
-): Promise<StravaResult<null>> {
-	let creds: Awaited<ReturnType<typeof getCredentials>>;
-	try {
-		creds = await getCredentials(ctx.env, athleteId);
-	} catch {
-		// Undecryptable (corrupt, or the key changed): it can't be revoked, and
-		// it must not block the deletion.
-		console.warn(`Revoke for athlete ${athleteId}: stored token unreadable`);
-		return { kind: "ok", value: null };
-	}
-	if (!creds) return { kind: "ok", value: null };
-	return revokeToken(ctx, creds.refreshToken);
-}

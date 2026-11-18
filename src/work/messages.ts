@@ -8,6 +8,8 @@ export const DELETE_REASONS = [
 	"deauthorized",
 	"left-club",
 	"reconnect-expired",
+	// A guest the maintainer took off the list (feature 041 FR-004).
+	"guest-removed",
 ] as const;
 
 export interface ActivityEventMessage {

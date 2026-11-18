@@ -390,7 +390,8 @@ export function currentAlertStatement(
 			FROM riders r
 			JOIN usage_alerts a ON a.fired_at >= ?2
 			LEFT JOIN usage_daily d ON d.allowance = a.allowance AND d.day = ?3
-			WHERE r.athlete_id = ?1 AND r.administrator = 1 AND r.admin_alerts = 1
+			WHERE r.athlete_id = ?1 AND (r.administrator = 1 OR r.guest = 1)
+				AND r.admin_alerts = 1
 			ORDER BY a.fired_at DESC, a.level DESC
 			LIMIT 1`,
 		)

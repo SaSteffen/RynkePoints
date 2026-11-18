@@ -20,7 +20,6 @@ export const NOTICE_IDS = [
 	"not-member-deleted",
 	"strava-busy",
 	"deleted",
-	"deleted-revoke-failed",
 	"blocked",
 	"one-team",
 ] as const;
@@ -81,10 +80,6 @@ const NOTICES: Record<NoticeId, Notice> = {
 	deleted: {
 		title: "notice.deleted.title",
 		body: ["notice.deleted.body"],
-	},
-	"deleted-revoke-failed": {
-		title: "notice.deleted.title",
-		body: ["notice.deleted.body", "notice.revokeFailed.body"],
 	},
 	// Feature 025 FR-030: nothing beyond the block list entry is kept.
 	blocked: {

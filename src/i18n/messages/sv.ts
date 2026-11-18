@@ -227,6 +227,8 @@ export const sv: Catalog = {
 	"disconnect.title": "Radera dina uppgifter?",
 	"disconnect.explain":
 		"RynkePoints lämnar ifrån sig åtkomsten till ditt Strava-konto och raderar direkt alla uppgifter om dig. Dina aktiviteter på Strava blir kvar som de är.",
+	"disconnect.explain.guest":
+		"RynkePoints raderar direkt alla uppgifter om dig hos det här laget. Åtkomsten till ditt Strava-konto blir kvar, eftersom ditt eget lag behöver den. Dina aktiviteter på Strava blir kvar som de är.",
 	"disconnect.confirm": "Ja, radera allt",
 	"disconnect.cancel": "Avbryt",
 
@@ -254,8 +256,6 @@ export const sv: Catalog = {
 	"notice.deleted.title": "Dina uppgifter har raderats",
 	"notice.deleted.body":
 		"Vi har raderat alla uppgifter om dig. Kopior i vår webbhotellsleverantörs säkerhetskopior försvinner senast efter 7 dagar.",
-	"notice.revokeFailed.body":
-		"Vi kunde inte lämna ifrån oss åtkomsten hos Strava. Ta bort RynkePoints under ”Mina appar” i dina Strava-inställningar.",
 
 	"install.button": "Installera som app",
 	"install.ios":
@@ -1174,14 +1174,16 @@ export const sv: Catalog = {
 	"admin.riders.import.running": "Pågår fortfarande",
 	"admin.riders.import.done": "Klar",
 	"admin.riders.remove": "Ta bort",
+	"admin.riders.guests.heading": "Gäster",
+	"admin.riders.guest": "Gäst",
 	"admin.remove.title": "Ta bort {name}?",
 	"admin.remove.explain":
 		"Det går inte att ångra. Alla cyklistens uppgifter raderas och Strava-åtkomsten återkallas. Cyklisten kan inte ansluta till det här laget igen, inte ens som klubbmedlem: Strava-ID:t blir kvar på spärrlistan.",
+	"admin.remove.explain.guest":
+		"Det går inte att ångra. Alla gästens uppgifter hos det här laget raderas; Strava-åtkomsten blir kvar, eftersom gästens eget lag behöver den. Strava-ID:t blir kvar på spärrlistan, även om det står på gästlistan.",
 	"admin.remove.confirm": "Ta bort och spärra",
 	"admin.remove.cancel": "Avbryt",
 	"admin.remove.done.removed": "Cyklisten togs bort och spärrades.",
-	"admin.remove.done.removed-revoke-failed":
-		"Cyklisten togs bort och spärrades, men vi nådde inte Strava för att återkalla åtkomsten. Token är raderad här ändå.",
 	"admin.remove.error.self":
 		"Du kan inte ta bort dig själv. För att sluta, använd {leave}.",
 	"admin.remove.error.unknown":
@@ -1191,7 +1193,7 @@ export const sv: Catalog = {
 	"notification.usage.critical": "Kritiskt: {allowance} på {percent} %",
 	"notice.blocked.title": "Du kan inte vara med i det här laget",
 	"notice.blocked.body":
-		"En administratör har tagit bort dig från det här laget. Vi behåller bara ditt Strava-ID, så att du inte kan ansluta igen, och vi har återkallat åtkomsten du nyss gav.",
+		"En administratör har tagit bort dig från det här laget. Vi behåller bara ditt Strava-ID, så att du inte kan ansluta igen.",
 	"notice.oneTeam.title": "Du är också med i ett annat lags klubb",
 	"notice.oneTeam.body":
 		"På RynkePoints kan du vara med i ett lag i taget. Strava ger appen en anslutning per person, så om du ansluter till ett andra lag upphör anslutningen till det första. Du är nu ansluten här.",
