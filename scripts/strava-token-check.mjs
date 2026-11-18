@@ -5,6 +5,7 @@
 // their own Strava account and the app in .dev.vars. Never run by tests.
 //
 //   node scripts/strava-token-check.mjs start            authorize twice, check at once
+//   node scripts/strava-token-check.mjs status           in between: still alive?
 //   node scripts/strava-token-check.mjs finish           about 5½ hours later
 //   node scripts/strava-token-check.mjs finish --revoke  then the revoke question too
 //   node scripts/strava-token-check.mjs revoke           the revoke question alone, any time
@@ -29,6 +30,7 @@ import {
 	mkdirSync,
 	readFileSync,
 	rmSync,
+	statSync,
 	writeFileSync,
 } from "node:fs";
 import { createServer } from "node:http";
@@ -332,12 +334,34 @@ async function finish(withRevoke) {
 	report(outcome, facts);
 }
 
+/**
+ * Are the check's tokens still alive, without waiting for `finish`? Before
+ * their last hour a refresh renews nothing, so this only tells whether
+ * something else (your team renewing its own token in between) broke them.
+ */
+async function status() {
+	const state = load();
+	const app = credentials();
+	console.log(`Check started ${statSync(STATE).mtime.toLocaleString()}.`);
+	for (const key of ["first", "second"]) {
+		const token = await refresh(app, state[key].refresh);
+		if (token.ok && token.refresh !== state[key].refresh) {
+			state[key] = { refresh: token.refresh, expiresAt: token.expiresAt };
+			save(state);
+		}
+		console.log(
+			`  ${key} token → ${token.ok ? "alive" : `refused: ${token.status} ${token.message}`}`,
+		);
+	}
+}
+
 const [command, flag] = process.argv.slice(2);
 if (command === "start") await start();
+else if (command === "status" && !flag) await status();
 else if (command === "finish" && (!flag || flag === "--revoke"))
 	await finish(flag === "--revoke");
 else if (command === "revoke" && !flag) await revokeOnly();
 else
 	die(
-		"Usage: node scripts/strava-token-check.mjs start | finish [--revoke] | revoke",
+		"Usage: node scripts/strava-token-check.mjs start | status | finish [--revoke] | revoke",
 	);
