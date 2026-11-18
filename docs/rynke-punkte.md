@@ -2,7 +2,7 @@
 title: "Rynke-Punkte"
 subtitle: "So sammelst du deine Rynke für die Tour de Paris"
 author: "Team Rynkeby Hamburg"
-date: "Stand: Oktober 2026"
+date: "Stand: November 2026"
 lang: de
 ---
 
@@ -267,8 +267,14 @@ Auf deiner RynkePoints-Seite siehst du deine Trainingsrynke und Teamrynke, wie
 viele dir noch fehlen, ob du dabei bist und woher deine Rynke kommen. Dort siehst
 du auch deine Höhenmeter der Saison und wie viele bis zu den nächsten 5
 Trainingsrynke fehlen, und wenn du virtuell fährst, wie viele Trainingsrynke du
-ohne virtuelle Fahrten hast. Deinen Stand
-siehst nur du.
+ohne virtuelle Fahrten hast.
+
+Außer dir sehen die Organisatoren deinen Stand, mit deinem Vornamen: deine
+Rynke und woher sie kommen, was dir noch fehlt, ob du dabei bist, deine
+Teamtermine und wie viele Kilometer und Höhenmeter du pro Tag gefahren bist.
+Deine einzelnen Fahrten sehen sie nicht. In der Rangliste des Teams sehen alle
+die Zahl deiner Fahrten, deine Kilometer und Höhenmeter, aber ohne deinen
+Namen.
 
 # Ändern sich die Regeln?
 
