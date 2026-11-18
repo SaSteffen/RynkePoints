@@ -20,6 +20,12 @@ import {
 
 const QUEUE = "rynke-points-gateway-forward";
 const BODY = stravaEvent();
+// The gateway's settings with no team reached through a service binding.
+const NO_SERVICES: GatewayEnv = {
+	...gatewayEnv,
+	TEAM_SERVICE_HAMBURG: undefined,
+	TEAM_SERVICE_EUROPE: undefined,
+};
 
 function batch(teams: string[], attempts = 1) {
 	return createMessageBatch<ForwardMessage>(
@@ -39,7 +45,7 @@ function batch(teams: string[], attempts = 1) {
  */
 async function run(
 	b: MessageBatch<ForwardMessage>,
-	env: GatewayEnv = { ...gatewayEnv, TEAM_SERVICE_HAMBURG: undefined },
+	env: GatewayEnv = NO_SERVICES,
 ) {
 	const explicitAcks: string[] = [];
 	const retryMessages: { msgId: string; delaySeconds?: number }[] = [];
@@ -105,7 +111,7 @@ describe("forwarding", () => {
 			},
 		} as unknown as Fetcher;
 		const result = await run(batch(["hamburg", "europe"]), {
-			...gatewayEnv,
+			...NO_SERVICES,
 			TEAM_SERVICE_HAMBURG: service,
 		});
 		expect(viaService).toEqual([
@@ -126,8 +132,7 @@ describe("forwarding", () => {
 		const token = "a+b/c9Zx0Q==";
 		const calls = teams({ [HAMBURG]: 200 });
 		await run(batch(["hamburg"]), {
-			...gatewayEnv,
-			TEAM_SERVICE_HAMBURG: undefined,
+			...NO_SERVICES,
 			TEAM_WEBHOOK_TOKEN_HAMBURG: token,
 		});
 		expect(

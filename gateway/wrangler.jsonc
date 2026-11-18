@@ -42,19 +42,27 @@
 		{
 			"binding": "TEAM_SERVICE_HAMBURG",
 			"service": "rynke-points"
+		},
+		{
+			"binding": "TEAM_SERVICE_EUROPE",
+			"service": "rynke-points-europe"
 		}
 	],
 	"vars": {
 		// JSON list of { "id", "origin" }: ids unique and the team's TEAM_ID,
 		// origins `https:` (local: `http://<host>:<port>`). The gateway only ever
 		// sends riders and events to these origins (FR-007).
-		"TEAMS": "[{\"id\":\"hamburg\",\"origin\":\"https://trhh-rynke-coins.link\"}]"
+		"TEAMS": "[{\"id\":\"hamburg\",\"origin\":\"https://trhh-rynke-coins.link\"},{\"id\":\"europe\",\"origin\":\"https://rynke-points.eu\"}]"
 	},
 	// STRAVA_WEBHOOK_VERIFY_TOKEN: the token in the subscription's callback URL.
 	// TEAM_WEBHOOK_TOKEN_<ID> (e.g. TEAM_WEBHOOK_TOKEN_HAMBURG): that team's own
 	// STRAVA_WEBHOOK_VERIFY_TOKEN, for forwarding. Set with `wrangler secret put`.
 	"secrets": {
-		"required": ["STRAVA_WEBHOOK_VERIFY_TOKEN", "TEAM_WEBHOOK_TOKEN_HAMBURG"]
+		"required": [
+			"STRAVA_WEBHOOK_VERIFY_TOKEN",
+			"TEAM_WEBHOOK_TOKEN_HAMBURG",
+			"TEAM_WEBHOOK_TOKEN_EUROPE"
+		]
 	},
 	"routes": [
 		{

@@ -542,7 +542,10 @@ machine.
   team's data sits in the project's one Cloudflare account, which every maintainer can reach.
 - **Data responsibility**: The second team's responsible person is named as controller,
   while the project's maintainers operate the system and can technically reach its data. Whether that
-  needs a data processing agreement is to be settled before launch.
+  needs a data processing agreement is to be settled before launch. The second team's
+  controller agreed on 2026-11-18 that the maintainers operate the system and can reach its
+  riders' data (FR-044, 028 FR-017). The record is kept privately, without names in this
+  repository.
 - **Strava**: Serving a second team goes beyond the original application, and that is
   accepted. Whether to tell Strava, and whether new pages need another review, is to be
   checked (`docs/strava-developer-program.md`).
