@@ -28,7 +28,7 @@ Amends feature 003 (ride evaluation), feature 026 (team data) and feature 039 (b
 
 | Where | Pre-window ride |
 |---|---|
-| Rides page, You page recent rides, organiser rider rides | orange chip "zählt noch nicht", "–" Rynke and elevation, open "Warum?" with `rynke.reason.beforeWindow` |
+| Rides page, You page recent rides, organiser rider rides | orange chip "zählt noch nicht", "–" Rynke and elevation, open "Warum?" with `rynke.reason.before_window` |
 | Status box before window start | `rynke.deadline.notStarted` with the window start, no countdown or plan |
 | Every graph, total, ranking | absent |
 
@@ -37,5 +37,5 @@ Amends feature 003 (ride evaluation), feature 026 (team data) and feature 039 (b
 | Key | de |
 |---|---|
 | `rynke.ride.notYet` (new) | zählt noch nicht |
-| `rynke.reason.beforeWindow` (new) | Die Qualifikation beginnt am {date}. Ab dann zählen Fahrten wie diese. |
+| `rynke.reason.before_window` (new) | Die Qualifikation beginnt am {date}. Ab dann zählen Fahrten wie diese. |
 | `rynke.deadline.notStarted` (changed) | Die Qualifikation beginnt am {date}. Bis dahin zählen deine Fahrten noch nicht für die Qualifikation, Badges sammelst du aber schon jetzt. 🏅 |

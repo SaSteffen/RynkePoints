@@ -50,7 +50,7 @@ seen failing before its implementation task.
 **Independent test**: Hamburg's pages snapshot, season snapshot and every existing Hamburg test pass without edits.
 
 - [X] T011 [P] [US1] Add a case to `test/teams/rules.test.ts` (or the nearest team rules test): for Hamburg's `countingWindow`, `seasonStart === windowStart`, and `evaluateRides` over Hamburg's sample rides never yields `before_window`
-- [ ] T012 [US1] After every later phase, re-run the Hamburg snapshot tests; any diff in a `.snap` file is a bug, never an update (do not run with `-u`)
+- [X] T012 [US1] After every later phase, re-run the Hamburg snapshot tests; any diff in a `.snap` file is a bug, never an update (do not run with `-u`)
 
 ---
 
@@ -77,7 +77,7 @@ seen failing before its implementation task.
 
 ### Tests first
 
-- [ ] T017 [P] [US3] Write failing tests in `test/unit/rides-window.test.ts` for `evaluateRides` with season start 2026-09-01, window start 2027-01-01, deadline 2027-06-30:
+- [X] T017 [P] [US3] Write failing tests in `test/unit/rides-window.test.ts` for `evaluateRides` with season start 2026-09-01, window start 2027-01-01, deadline 2027-06-30:
   - a 2026-11-15 ride meeting every rule → `counts: false`, `reasons: ["before_window"]`, `distanceRynke: 0`, `elevationDm` = its real elevation
   - a 2026-11-15 ride under `minRideKm` → reasons contain `before_window` and `too_short`, `elevationDm: 0` (FR-013)
   - a 2027-01-01 ride → counts; a 2026-12-31 ride → `before_window`
@@ -85,19 +85,19 @@ seen failing before its implementation task.
   - two overlapping pre-window rides → the larger keeps `["before_window"]`, the other `["overlap"]`
   - a pre-window ride overlapping a counting ride cannot happen across days; skip
   - `riding` sums ignore pre-window rides
-- [ ] T018 [P] [US3] Write failing tests in `test/unit/rider-sections.test.ts`: a ride view with status `not-yet` renders class `ride-not-yet`, text `rynke.ride.notYet`, "–" for Training Rynke and counted elevation, and an open "Warum?" box with `rynke.reason.beforeWindow` and the window start date `01.01.2027`; a ride with `before_window` plus another reason renders red `ride-not-counting` with both reasons
-- [ ] T019 [P] [US3] Write a failing integration test in `test/integration/me-rynke.test.ts` (Europe): a rider with only pre-window rides has the same Rynke, gauges, ranking, pace, progress chart and ride figures as a rider with no rides (FR-009, FR-010), and the organiser's rider rides view shows the same orange mark
+- [X] T018 [P] [US3] Write failing tests in `test/unit/rider-sections.test.ts`: a ride view with status `not-yet` renders class `ride-not-yet`, text `rynke.ride.notYet`, "–" for Training Rynke and counted elevation, and an open "Warum?" box with `rynke.reason.before_window` and the window start date `01.01.2027`; a ride with `before_window` plus another reason renders red `ride-not-counting` with both reasons
+- [X] T019 [P] [US3] Write a failing integration test in `test/integration/me-rynke.test.ts` (Europe): a rider with only pre-window rides has the same Rynke, gauges, ranking, pace, progress chart and ride figures as a rider with no rides (FR-009, FR-010), and the organiser's rider rides view shows the same orange mark (done in `test/teams/pre-window.test.ts`, which runs with Europe's real dates; organisers see no ride cards, so that part has nothing to check)
 
 ### Implementation
 
-- [ ] T020 [US3] Add `"before_window"` to `REASON_CODES` in `src/rynke/rides.ts`; in `reasonsFor` push `before_window` for `seasonStart <= date < windowStart`, `outside_window` for `date < seasonStart` or `date > deadline`
-- [ ] T021 [US3] In `evaluateRides` (`src/rynke/rides.ts`): overlap candidates are rides with no reason or exactly `["before_window"]`; the overlap loop keeps them together; a result whose reasons are exactly `["before_window"]` stores its real `elevationDm`; `distanceRynke` stays 0 and `counts` false; `sums` still reads counting results only. Export `isPreWindow(reasons)` for reuse
-- [ ] T022 [US3] Mark `before_window` as not fixable in the fixable-reasons list (wherever `too_short` sits; see `test/unit/fixable-reasons.test.ts`)
-- [ ] T023 [US3] In `src/http/rider-view.ts`: add ride status `"not-yet"` for `isPreWindow(reasons)`; add reason line `{ code: "before_window"; date: windowStart }` (from `context.windowStart`, added next to `seasonStart` at line ~71); keep `before_season`/`after_deadline` mapping for `outside_window`
-- [ ] T024 [US3] In `src/http/rider-sections.ts` `rideCard`: `STATUS["not-yet"] = { cls: "ride-not-yet", text: "rynke.ride.notYet" }`; `pending` true for `being-evaluated` and `not-yet` (shows "–"); `explanation()` open for `does-not-count` and `not-yet`; reason text `case "before_window": i18n.t("rynke.reason.beforeWindow", { date: day(i18n, reason.date) })`
-- [ ] T025 [P] [US3] In `src/http/style.ts` add `.ride-not-yet .chip{background:color-mix(in srgb,var(--rp-bar-warning) 26%,var(--md-sys-color-surface));color:var(--rp-bar-warning)}` next to `.ride-not-counting`
-- [ ] T026 [P] [US3] Add to all ten catalogs in `src/i18n/messages/` (de first, en, then da, fi, fr, is, lt, nb, nl, sv): `"rynke.ride.notYet"` (de "zählt noch nicht", en "doesn't count yet") and `"rynke.reason.beforeWindow"` (de "Die Qualifikation beginnt am {date}. Ab dann zählen Fahrten wie diese.", en "Qualifying starts on {date}. Rides like this one count from then on."); `test/unit/catalogs.test.ts` must pass
-- [ ] T027 [US3] Check every `counts = 1` reader stays as is (`src/db/rider-view.ts`, `src/db/organiser-graphs.ts`, `src/db/rider-summaries.ts`) so no graph or total sees pre-window rides; make T017–T019 pass
+- [X] T020 [US3] Add `"before_window"` to `REASON_CODES` in `src/rynke/rides.ts`; in `reasonsFor` push `before_window` for `seasonStart <= date < windowStart`, `outside_window` for `date < seasonStart` or `date > deadline`
+- [X] T021 [US3] In `evaluateRides` (`src/rynke/rides.ts`): overlap candidates are rides with no reason or exactly `["before_window"]`; the overlap loop keeps them together; a result whose reasons are exactly `["before_window"]` stores its real `elevationDm`; `distanceRynke` stays 0 and `counts` false; `sums` still reads counting results only. Export `isPreWindow(reasons)` for reuse
+- [X] T022 [US3] Mark `before_window` as not fixable in the fixable-reasons list (wherever `too_short` sits; see `test/unit/fixable-reasons.test.ts`)
+- [X] T023 [US3] In `src/http/rider-view.ts`: add ride status `"not-yet"` for `isPreWindow(reasons)`; add reason line `{ code: "before_window"; date: windowStart }` (from `context.windowStart`, added next to `seasonStart` at line ~71); keep `before_season`/`after_deadline` mapping for `outside_window`
+- [X] T024 [US3] In `src/http/rider-sections.ts` `rideCard`: `STATUS["not-yet"] = { cls: "ride-not-yet", text: "rynke.ride.notYet" }`; `pending` true for `being-evaluated` and `not-yet` (shows "–"); `explanation()` open for `does-not-count` and `not-yet`; reason text `case "before_window": i18n.t("rynke.reason.before_window", { date: day(i18n, reason.date) })`
+- [X] T025 [P] [US3] In `src/http/style.ts` add `.ride-not-yet .chip{background:var(--rp-push-container);color:var(--rp-on-push-container)}` next to `.ride-not-counting` (the drafted `--rp-bar-warning` on a 26 % mix gives only about 3.4:1 contrast in the light theme)
+- [X] T026 [P] [US3] Add to all ten catalogs in `src/i18n/messages/` (de first, en, then da, fi, fr, is, lt, nb, nl, sv): `"rynke.ride.notYet"` (de "zählt noch nicht", en "doesn't count yet") and `"rynke.reason.before_window"` (de "Die Qualifikation beginnt am {date}. Ab dann zählen Fahrten wie diese.", en "Qualifying starts on {date}. Rides like this one count from then on."); `test/unit/catalogs.test.ts` must pass
+- [X] T027 [US3] Check every `counts = 1` reader stays as is (`src/db/rider-view.ts`, `src/db/organiser-graphs.ts`, `src/db/rider-summaries.ts`) so no graph or total sees pre-window rides; make T017–T019 pass
 
 **Checkpoint**: pre-window rides show orange and add nothing.
 
@@ -109,11 +109,11 @@ seen failing before its implementation task.
 
 **Independent test**: before 1 January, a Europe rider with November rides and a 24 December ride has the winter and Christmas Eve badges; Training Rynke badge unmoved.
 
-- [ ] T028 [P] [US4] Write failing tests in `test/unit/badges-for.test.ts`: Europe's `badgesFor` (season start 2026-09-01 to deadline) equals Hamburg's minus event-only categories, including the November/December winter badges, Christmas Eve, Christmas, Festive 500, Sonnenwende, Winterschlaf beendet, New Year's Eve sparkler, Festive gang (FR-016)
-- [ ] T029 [P] [US4] Write failing tests in `test/integration/badges-section.test.ts` (Europe): pre-window rides that meet every rule count for distance, elevation, longest ride, virtual, winter-month days, surprise days and team totals; a pre-window ride that also fails another rule counts for none; the Training Rynke and team Training Rynke badges don't move; badge news fires as for any badge (FR-014, FR-015)
-- [ ] T030 [US4] In `src/db/badges.ts` add `export const BADGE_RIDE = "(r.counts = 1 OR r.reasons = '[\"before_window\"]')"` with a comment pointing to research R4, and replace `r.counts = 1` with it in the badge queries only (`ownFiguresFromRides` and the team badge totals); add a test that the stored JSON of a pre-window result is exactly `["before_window"]`
-- [ ] T031 [US4] Make `badgesFor`, `src/badges/evaluate.ts` and `src/work/team-badge-news.ts` use the season start to the deadline (already chosen in T009); make T028–T029 pass
-- [ ] T032 [US4] Invert feature 039's "no rides in November or December" check for Europe samples in `test/integration/dev-fake-strava.test.ts` / `test/unit/badge-*.test.ts` (FR-020)
+- [X] T028 [P] [US4] Write failing tests in `test/unit/badges-for.test.ts`: Europe's `badgesFor` (season start 2026-09-01 to deadline) equals Hamburg's minus event-only categories, including the November/December winter badges, Christmas Eve, Christmas, Festive 500, Sonnenwende, Winterschlaf beendet, New Year's Eve sparkler, Festive gang (FR-016)
+- [X] T029 [P] [US4] Write failing tests in `test/integration/badges-section.test.ts` (Europe): pre-window rides that meet every rule count for distance, elevation, longest ride, virtual, winter-month days, surprise days and team totals; a pre-window ride that also fails another rule counts for none; the Training Rynke and team Training Rynke badges don't move; badge news fires as for any badge (FR-014, FR-015)
+- [X] T030 [US4] In `src/db/badges.ts` add `export const BADGE_RIDE = "(r.counts = 1 OR r.reasons = '[\"before_window\"]')"` with a comment pointing to research R4, and replace `r.counts = 1` with it in the badge queries only (`ownFiguresFromRides` and the team badge totals); add a test that the stored JSON of a pre-window result is exactly `["before_window"]`
+- [X] T031 [US4] Make `badgesFor`, `src/badges/evaluate.ts` and `src/work/team-badge-news.ts` use the season start to the deadline (already chosen in T009); make T028–T029 pass
+- [X] T032 [US4] Invert feature 039's "no rides in November or December" check for Europe samples in `test/integration/dev-fake-strava.test.ts` / `test/unit/badge-*.test.ts` (FR-020). There was no negative check to invert; a new test asserts November, December and 24 December rides
 
 **Checkpoint**: Europe earns ride badges before the window.
 
@@ -125,9 +125,9 @@ seen failing before its implementation task.
 
 **Independent test**: Europe You page before and on 1 January 2027.
 
-- [ ] T033 [P] [US5] Write failing tests in `test/unit/rider-sections.test.ts`: before `windowStart`, `renderSummary` shows `rynke.deadline.notStarted` with the window start date and no countdown or plan sentence; on `windowStart` the countdown and plan show; with `seasonStart === windowStart` (Hamburg) the pre-window text never shows on a season day
-- [ ] T034 [US5] Make the status box's "before" state in `src/http/rider-sections.ts` / `src/http/sections/overview.ts` compare today with `windowStart` and pass its date
-- [ ] T035 [P] [US5] Change `"rynke.deadline.notStarted"` in all ten catalogs: de "Die Qualifikation beginnt am {date}. Bis dahin zählen deine Fahrten noch nicht für die Qualifikation, Badges sammelst du aber schon jetzt. 🏅", en "Qualifying starts on {date}. Until then your rides don't count towards qualifying, but you can already earn badges. 🏅", the other eight translated from these
+- [X] T033 [P] [US5] Write failing tests in `test/unit/rider-sections.test.ts`: before `windowStart`, `renderSummary` shows `rynke.deadline.notStarted` with the window start date and no countdown or plan sentence; on `windowStart` the countdown and plan show; with `seasonStart === windowStart` (Hamburg) the pre-window text never shows on a season day
+- [X] T034 [US5] Make the status box's "before" state in `src/http/rider-sections.ts` / `src/http/sections/overview.ts` compare today with `windowStart` and pass its date
+- [X] T035 [P] [US5] Change `"rynke.deadline.notStarted"` in all ten catalogs: de "Die Qualifikation beginnt am {date}. Bis dahin zählen deine Fahrten noch nicht für die Qualifikation, Badges sammelst du aber schon jetzt. 🏅", en "Qualifying starts on {date}. Until then your rides don't count towards qualifying, but you can already earn badges. 🏅", the other eight translated from these
 
 **Checkpoint**: all stories done.
 
@@ -135,11 +135,11 @@ seen failing before its implementation task.
 
 ## Phase 8: Fake mode, e2e, polish
 
-- [ ] T036 Add September–December 2026 rides to Europe's sample riders in `dev/fake-strava/samples.europe.ts` (dated relative to `SEASON_START_DATE`): November rides for the winter badge, one on 24 December, one short pre-window ride (red with both reasons), so a rider seeded before 1 January has rides, badges and 0 Rynke (FR-020)
-- [ ] T037 Add a pre-window check to `e2e/europe-smoke.e2e.ts` on a second Europe server day before 1 January (e.g. `RYNKE_FAKE_SEASON_DAY:78`, 18 November 2026; a second webServer or project in `playwright.config.ts` on its own port): orange chip, open reason, status box text, Christmas Eve badge listed (FR-021)
-- [ ] T038 [P] Update Europe's rules handout `docs/teams/europe/rynke-points.md` if it names the season dates; rebuild `public/teams/europe/rynke-points.pdf` only if it changed
-- [ ] T039 Run the targeted tests touched above plus the Hamburg snapshots once more (T012); leave the full lint/typecheck/test/e2e run to CI
-- [ ] T040 Commit per phase with Conventional Commits; open the pull request into `develop` only when the user asks; after the release the user runs **Sandbox reseed** for Europe
+- [X] T036 Add September–December 2026 rides to Europe's sample riders in `dev/fake-strava/samples.europe.ts` (dated relative to `SEASON_START_DATE`): November rides for the winter badge, one on 24 December, one short pre-window ride (red with both reasons), so a rider seeded before 1 January has rides, badges and 0 Rynke (FR-020)
+- [X] T037 Add a pre-window check to `e2e/europe-smoke.e2e.ts` on a second Europe server day before 1 January (e.g. `RYNKE_FAKE_SEASON_DAY:78`, 18 November 2026; a second webServer or project in `playwright.config.ts` on its own port): orange chip, open reason, status box text, Christmas Eve badge listed (FR-021). Done in its own file `e2e/europe-pre-window.e2e.ts` (project `europe-pre-window`, port 8799); a badge still to earn shows only as an outline on `/me/badges`, so Christmas Eve is checked on `/_dev/badges`, which lists the same badges
+- [X] T038 [P] Update Europe's rules handout `docs/teams/europe/rynke-points.md` if it names the season dates; rebuild `public/teams/europe/rynke-points.pdf` only if it changed
+- [X] T039 Run the targeted tests touched above plus the Hamburg snapshots once more (T012); leave the full lint/typecheck/test/e2e run to CI
+- [X] T040 Commit per phase with Conventional Commits; open the pull request into `develop` only when the user asks; after the release the user runs **Sandbox reseed** for Europe
 
 ---
 

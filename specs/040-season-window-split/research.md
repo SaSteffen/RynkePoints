@@ -79,10 +79,12 @@ version change: Europe has no stored badges in production.
 ## R6. Ride status on the page
 
 **Decision**: The rider view gains a fourth ride status, `not-yet`, set when a result's only
-reason is `before_window`. `rideCard` maps it to the orange chip (`.ride-not-yet`,
-`--rp-bar-warning` mixed 26 % into the surface, as drafted), "–" for Training Rynke and counted
-elevation, and the open "Warum?" box with `rynke.reason.beforeWindow`. The organiser's rider rides
-use the same card.
+reason is `before_window`. `rideCard` maps it to the orange chip (`.ride-not-yet`, in the
+orange `--rp-push-container` / `--rp-on-push-container` pair of the status chips; the drafted
+`--rp-bar-warning` text on a 26 % mix reaches only about 3.4:1 in the light theme), "–" for Training
+Rynke and counted elevation, and the open "Warum?" box with `rynke.reason.before_window`.
+Organisers see no rider's ride cards (their rider page holds corrections), so there is no second
+place to mark.
 
 ## R7. Status box
 

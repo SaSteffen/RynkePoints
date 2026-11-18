@@ -92,7 +92,7 @@ src/http/rider-view.ts            # status not-yet; before_window reason line
 src/http/rider-sections.ts        # orange chip, "–", open reason, status box date
 src/http/style.ts                 # .ride-not-yet
 src/http/progress-view.ts, progress-section.ts, organiser/*, sections/*  # window vs season per R2
-src/i18n/messages/*.ts            # rynke.ride.notYet, rynke.reason.beforeWindow, rynke.deadline.notStarted
+src/i18n/messages/*.ts            # rynke.ride.notYet, rynke.reason.before_window, rynke.deadline.notStarted
 album/load.ts, scripts/season-album.mjs   # season start; pass the new var
 scripts/team-check.mjs            # date rules
 dev/fake-strava/samples.europe.ts # Sep–Dec rides incl. Nov/Dec
