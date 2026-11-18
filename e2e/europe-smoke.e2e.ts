@@ -48,16 +48,19 @@ test("a common phrase on the Team page", async ({ page }) => {
 	await expect(page.locator(".quote").first()).toBeVisible();
 });
 
-// Hamburg's badges with Hamburg motifs show the neutral picture (FR-024). Most
+// Hamburg's badges with Hamburg motifs show Europe's own take (FR-024). Most
 // sit in the large views, which stay hidden until opened.
-test("the placeholder badge picture", async ({ page }) => {
+test("its own pictures for badges with Hamburg motifs", async ({ page }) => {
 	await page.goto("/_dev/badges?lang=en");
-	await expect(
-		page.locator('img[src^="/badges/placeholder.svg"]').first(),
-	).toBeAttached();
 	for (const id of hamburg.art.teamSpecificBadges) {
+		await expect(
+			page.locator(`img[src^="/teams/europe/badges/${id}.svg"]`).first(),
+		).toBeAttached();
 		await expect(page.locator(`img[src^="/badges/${id}.svg"]`)).toHaveCount(0);
 	}
+	await expect(page.locator('img[src^="/badges/placeholder.svg"]')).toHaveCount(
+		0,
+	);
 });
 
 // Europe's 25 km minimum ride length (feature 039 US3).

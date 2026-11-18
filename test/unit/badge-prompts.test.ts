@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import data from "../../art/badges/badges.json";
-import { buildPrompt, validateBadges } from "../../scripts/badge-prompts.mjs";
+import europe from "../../art/badges/teams/europe/badges.json";
+import {
+	buildPrompt,
+	validateBadges,
+	validateTeamBadges,
+} from "../../scripts/badge-prompts.mjs";
+import { europe as europeTeam } from "../../src/teams/europe";
+import { hamburg } from "../../src/teams/hamburg";
 
 // The badge art inputs (feature 013 art pipeline, data-model.md): the badge
 // list in art/badges/badges.json and how a badge's Gemini prompt is put
@@ -106,6 +113,40 @@ describe("validateBadges", () => {
 
 	it("rejects data without a badge list", () => {
 		expect(validateBadges({ snippets: {} }).length).toBeGreaterThan(0);
+	});
+});
+
+describe("validateTeamBadges", () => {
+	it("accepts Team Europe's scenes", () => {
+		expect(validateTeamBadges(europe, data)).toEqual([]);
+	});
+
+	it("has a Europe scene and picture for each badge with Hamburg's motifs", () => {
+		expect(europe.badges.map((b) => b.id).sort()).toEqual(
+			[...hamburg.art.teamSpecificBadges].sort(),
+		);
+		for (const id of hamburg.art.teamSpecificBadges)
+			expect(europeTeam.art.badges[id]).toBe(`/teams/europe/badges/${id}.svg`);
+	});
+
+	it("refuses an unknown badge, a duplicate and an unknown snippet", () => {
+		const shared = valid([badge()]);
+		expect(
+			validateTeamBadges(
+				{
+					badges: [
+						{ id: "nope", scene: "x" },
+						{ id: "distance-100", scene: "Riding. {{bike}}" },
+						{ id: "distance-100", scene: "{{car}}" },
+					],
+				},
+				shared,
+			),
+		).toEqual([
+			"nope: no such badge in art/badges",
+			"distance-100: duplicate id",
+			"distance-100: unknown snippet {{car}}",
+		]);
 	});
 });
 
