@@ -109,8 +109,9 @@ and an organiser's view of the same rider; check the marks, the reason, the Rynk
 **Acceptance Scenarios**:
 
 1. **Given** a Europe ride on 15 November 2026 that meets every rule, **When** the rider opens their
-   rides, **Then** it shows a "doesn't count yet" mark in orange and the reason "before
-   qualification starts on 01.01.2027" (wording to be written), and 0 Rynke.
+   rides, **Then** it shows a "doesn't count yet" mark in orange, "–" for Training Rynke and
+   counted elevation, and, in its open "Why?" box, the reason that qualifying starts on
+   01.01.2027; it adds 0 Rynke.
 2. **Given** a Europe ride on 15 November 2026 that is also shorter than 25 km, **Then** it shows
    the red "doesn't count" mark, with the length reason and the pre-window reason.
 3. **Given** a rider with pre-window rides only, **Then** their Rynke, gauges, rankings, pace,
@@ -223,10 +224,14 @@ their rides don't count for it until then, and that they can already earn badges
 **Pre-window rides**
 
 - **FR-011**: A pre-window ride MUST be listed wherever rides are listed (the rides page, the You
-  page's recent rides, the organiser's rides of a rider) with its own mark, "doesn't count yet"
-  (wording to be written), in orange, never the red of a ride that doesn't count.
+  page's recent rides, the organiser's rides of a rider) with its own mark, "zählt noch nicht" /
+  "doesn't count yet", in orange, never the red of a ride that doesn't count. Its Training Rynke
+  and counted elevation MUST show "–", as for a ride still being evaluated (maintainer,
+  2026-11-18).
 - **FR-012**: A pre-window ride MUST give the reason that qualification starts on the window start
-  date, replacing today's "before the season start" reason for these rides.
+  date ("Die Qualifikation beginnt am 01.01.2027. Ab dann zählen Fahrten wie diese."), replacing
+  today's "before the season start" reason for these rides. Its "Warum?" box MUST be open, as
+  for a ride that doesn't count (maintainer, 2026-11-18).
 - **FR-013**: A ride before the window start that fails another rule MUST show as not counting
   (red), with its reasons and the pre-window reason.
 
@@ -242,7 +247,10 @@ their rides don't count for it until then, and that they can already earn badges
 **Telling riders**
 
 - **FR-017**: Before its window opens, a team's You page status box MUST say when qualification
-  starts, that rides don't count towards it until then, and that badges can already be earned. It
+  starts, that rides don't count towards it until then, and that badges can already be earned
+  ("Die Qualifikation beginnt am 01.01.2027. Bis dahin zählen deine Fahrten noch nicht für die
+  Qualifikation, Badges sammelst du aber schon jetzt. 🏅"; "für die Qualifikation", not "für
+  Paris", maintainer, 2026-11-18). It
   replaces today's pre-window text (feature "deadline countdown", pull request #359). From the
   window start, the countdown and plan sentence show as today.
 - **FR-018**: Every new or changed rider-facing text MUST be in all ten languages, German first.

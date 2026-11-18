@@ -34,5 +34,5 @@
 - Defaults taken without asking, recorded in Assumptions or requirements: badges still end at the
   deadline (FR-014); Training Rynke badges count Rynke only (FR-015); a pre-window ride failing
   another rule shows red with both reasons (FR-013).
-- Exact wording of the orange mark, the pre-window reason and the status box text is left to the
-  design; FR-018 requires all ten languages.
+- The orange mark, the pre-window reason and the status box text were drafted in Europe's fake
+  mode and settled with the maintainer on 2026-11-18 (FR-011, FR-012, FR-017).
