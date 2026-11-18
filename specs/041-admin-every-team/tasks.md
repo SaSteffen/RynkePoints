@@ -105,13 +105,13 @@ Strava check (research R1, quickstart §1); Phase 7 holds what outcome B adds.
 
 ---
 
-## Phase 7: Only if the Strava check gives outcome B (research R1, R10) — open until the check is run
+## Phase 7: Only if the Strava check gives outcome B (research R1, R10) — skipped: the check gave outcome A
 
 **Gate**: the maintainer runs quickstart §1 and writes the outcome into research R1. Outcome A: skip
 this phase. Outcome C: stop and take the spec back to the user.
 
-- [ ] T027 [US3] Write failing tests in `test/integration/guest-no-reading.test.ts`: a guest's sign-in stores no credentials and sends no `import-page`; an activity webhook event for a guest is acknowledged and dropped; the re-check never picks a guest; the guest's own pages show the "no rides yet" states
-- [ ] T028 [US3] In `src/http/auth.ts`, skip `saveCredentials` and the import for a guest; in the consumer, drop work for a rider without credentials; (the re-check already leaves guests out, done in Phase 3 since the admin view's active-rider count is a team count), until T027 passes; then mark T020 as not applicable in this file
+- [-] T027 [US3] Write failing tests in `test/integration/guest-no-reading.test.ts`: a guest's sign-in stores no credentials and sends no `import-page`; an activity webhook event for a guest is acknowledged and dropped; the re-check never picks a guest; the guest's own pages show the "no rides yet" states
+- [-] T028 [US3] In `src/http/auth.ts`, skip `saveCredentials` and the import for a guest; in the consumer, drop work for a rider without credentials; (the re-check already leaves guests out, done in Phase 3 since the admin view's active-rider count is a team count), until T027 passes; then mark T020 as not applicable in this file
 
 ---
 

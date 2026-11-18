@@ -42,6 +42,10 @@ test in §1 no longer asks this question.
 **Observed later the same day**: `start` gave outcome A or B, not C. Two code exchanges left the
 first chain working.
 
+**Outcome: A** (`finish`, 2026-11-18). After the wait, refreshing the first chain renewed it and
+the second chain still refreshed: each team's token keeps working while the other renews its own.
+Guests' rides are read as planned; R10 isn't built.
+
 **Rationale**: reading the guest's rides is what makes their pages look like a rider's (US2), but
 it's worth nothing if it breaks the home connection (US3). One manual test settles it; the rest of
 the feature (sign-in, roles, exclusion, no revoke) is the same in outcomes A and B.

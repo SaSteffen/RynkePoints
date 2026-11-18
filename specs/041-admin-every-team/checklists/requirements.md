@@ -33,5 +33,5 @@
 
 - Strava's grant is shared by all teams, so the spec names revoking and tokens (FR-009, FR-010):
   they are the rider-visible risk (losing the home team's connection), not an implementation choice.
-- One assumption needs checking with a real account: whether a second team's token leaves the home
-  team's working (plan research R1, quickstart §1).
+- One assumption needed checking with a real account: whether a second team's token leaves the home
+  team's working (plan research R1, quickstart §1). Checked 2026-11-18: it does (outcome A).
