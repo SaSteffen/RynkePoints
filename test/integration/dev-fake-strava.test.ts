@@ -156,7 +156,9 @@ beforeEach(async () => {
 	ctx = devCtx();
 });
 
-afterEach(() => {
+afterEach(async () => {
+	// Background work (a refusal's withdrawal) still talks to the fake.
+	await Promise.allSettled(ctx.pending);
 	logSpy.mockRestore();
 	removeStravaInterceptor();
 	// No token, code or secret ever reaches a log line.

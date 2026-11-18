@@ -32,6 +32,8 @@ const COLUMNS: Record<string, string[]> = {
 		"admin_alerts",
 		// Feature 036: when the hourly run last chose the rider for a check.
 		"rechecked_at",
+		// Feature 041: an administrator of another team, kept out of team counts.
+		"guest",
 	],
 	activities: [
 		"strava_activity_id",
@@ -207,6 +209,10 @@ const COLUMNS: Record<string, string[]> = {
 	],
 	blocked_athletes: ["athlete_id"],
 	removal_log: ["id", "removed_at", "administrator_id"],
+	// Feature 041: the guest list holds IDs only; a withdrawal keeps the
+	// encrypted token until it's settled (research R14).
+	guests: ["athlete_id"],
+	pending_revocations: ["athlete_id", "refresh_token_enc", "since"],
 };
 
 const FORBIDDEN = [
