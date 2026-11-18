@@ -47,15 +47,21 @@ a visitor.
                                   └──────────────────────────── off the list (row, guest = 1):
                                                                   every request → visitor;
                                                                   daily run deletes the row,
-                                                                  no revoke
- guest ── disconnects ──────────▶ row deleted, grant kept (R5); still listed
- guest ── removed by admin ─────▶ row deleted, blocked, grant kept; block wins over the list
- guest ── grant gone at home ───▶ needs_reconnect, deleted after 7 days, nothing revoked
+                                                                  withdraws unless held (R14)
+ guest ── disconnects ──────────▶ row deleted, grant withdrawn unless held (R14); still listed
+ guest ── removed by admin ─────▶ row deleted, blocked, the same; block wins over the list
+ guest ── grant gone at home ───▶ needs_reconnect, deleted after 7 days, the same
 ```
 
 ## Delete reasons (`src/work/messages.ts`)
 
-`DELETE_REASONS` gains `guest-removed` (daily run, `revoke: false`).
+`DELETE_REASONS` gains `guest-removed` (daily run, `revoke: true`, which withdraws unless held).
+
+## Pending revocations (R14)
+
+`pending_revocations (athlete_id INTEGER PRIMARY KEY, refresh_token_enc TEXT NOT NULL, since INTEGER NOT NULL)`:
+tokens let go of but not yet withdrawn, one per person, deleted once settled
+([contracts/withdrawal.md](contracts/withdrawal.md)).
 
 ## Unchanged
 

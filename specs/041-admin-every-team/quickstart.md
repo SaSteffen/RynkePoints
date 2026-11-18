@@ -75,7 +75,8 @@ pnpm dev
 Run the new and touched files only; CI runs everything:
 
 ```bash
-pnpm test test/integration/guest-*.test.ts test/integration/callback.test.ts \
+pnpm test test/integration/guest-*.test.ts test/integration/withdrawal.test.ts \
+  test/integration/held.test.ts test/gateway/held.test.ts test/integration/callback.test.ts \
   test/integration/admin-riders.test.ts test/integration/disconnect.test.ts \
   test/integration/admin-remove.test.ts test/integration/membership-check.test.ts
 ```
@@ -87,7 +88,8 @@ What they prove:
 | Team counts with and without a guest | every team page, organiser and admin figure and the album data byte-identical (FR-007, SC-002) |
 | Guest sign-in | let in without the club, no club request, Orga and Admin open, no "one team" notice (FR-003, FR-004, FR-008) |
 | Removed from the list | next request is a visitor's; daily run deletes, no revoke request (FR-004) |
-| No revoke | the fake Strava sees no `/oauth/revoke` for a guest's disconnect, removal or expiry, nor for any refusal at sign-in (FR-009) |
+| Withdrawal | every refusal at sign-in and every guest's disconnect, removal and deletion revoke when no other team holds the person, and don't when one does; an unsettled token is kept and settled by the daily run (FR-009, R14) |
+| Held | both `held` endpoints: the team's answer from its rider row, the gateway's strongest answer, never asking the asker (R14) |
 | Club check | guests get no `check-membership` (FR-006) |
 | Admin riders | the guest only in the guest group, marked (FR-008) |
 | Own pages | every rider section renders for a guest (US2) |

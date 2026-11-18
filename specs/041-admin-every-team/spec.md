@@ -148,11 +148,21 @@ rarely and by hand.
   happens on its own. The maintainer who clears the home flag takes them off the guest lists too
   (FR-002).
 - **An administrator removes a guest from the admin view**: As for any rider (feature 025): their
-  data there is deleted and they are blocked at that team. Their grant at Strava stays (FR-009).
+  data there is deleted and they are blocked at that team. Their grant at Strava stays while their
+  home team holds them (FR-009).
 - **A guest disconnects themselves**: Their data at that team is deleted; their grant at Strava
-  stays.
-- **A guest disconnects at home**: That revokes the grant, which ends the guest's connection too;
-  the guest site handles it as it handles any rider whose grant is gone.
+  stays while their home team holds them.
+- **A guest disconnects at home**: Their home data is deleted. The grant stays, since the guest
+  team still holds them, and is withdrawn when the last team lets them go.
+- **A Hamburg rider tries Europe's site**: Europe turns them away and asks whether another team
+  holds them. Hamburg does, so nothing is withdrawn and the Hamburg connection keeps working.
+- **Someone no team holds is turned away**: For example, a person outside every team's club. Their
+  grant is withdrawn right away, and RynkePoints disappears from their Strava settings.
+- **The question can't be answered** (a team or the gateway is down): The token is kept,
+  encrypted, and the question is asked again at the latest in the next daily run.
+- **Another team holds the person, but their connection there is broken**: That team's token may
+  be dead, so it could no longer withdraw the grant. The token is kept and the question asked again
+  until that team holds them with a working connection or lets them go.
 - **A guest's own Rynke and badges**: They follow the guest team's rules and season, from the
   guest's own rides. Badges for the team (team badges, team events) aren't earned through them.
 - **A guest as organiser**: Everything the organiser view lists or counts leaves the guest out, so
@@ -197,10 +207,16 @@ rarely and by hand.
 
 **Their home team's connection**
 
-- **FR-009**: The team MUST NOT revoke a guest's grant at Strava: not when they disconnect, not
-  when they are removed or taken off the list. The same MUST hold for a person turned away at
-  sign-in because they aren't in the team's club, so trying another team's site never ends a
-  rider's connection at their home team.
+- **FR-009**: Every team shares one Strava app, and revoking a person's grant ends it at every
+  team (research R1, observed in production). Whenever a team lets a person go or turns them away,
+  it MUST withdraw their grant at Strava unless another team holds them, so that no grant is left
+  that no team controls. "Letting go" means a disconnect, removal by an administrator, leaving the
+  club, no reconnect in time, or being taken off the guest list. "Turning away" means any refusal
+  at sign-in after Strava handed over a token. A team holds a person while it has them as a rider
+  or a guest. While another team holds them, the grant MUST stay, so trying or using another
+  team's site never ends a connection at the home team. If the team can't find out whether
+  another team holds them, it MUST keep the token only to ask again later, and withdraw once
+  nobody holds them.
 - **FR-010**: Reading a guest's rides MUST NOT break their home team's connection. If Strava allows
   only one working token per person for the shared app (see Assumptions), the guest team MUST NOT
   read their activities: the guest's own pages then stay empty, and everything else in this
@@ -212,7 +228,11 @@ rarely and by hand.
   administrators as people who run the app for the team and organisers by role, not as club
   members, and neither sees more than before. No new consent version or revision is needed.
 - **FR-012**: No rider data crosses teams: a guest sees, on a team's site, only that team's data,
-  and the team learns nothing about them from their home team.
+  and the team learns nothing about them from their home team. The one exception is FR-009's
+  question: a team letting someone go or turning them away asks whether any other team holds them.
+  It learns only the answer (another team holds them; one holds them but their connection there
+  is broken; nobody does), not which team. The answer is used only for that withdrawal and is
+  neither stored nor shown.
 - **FR-013**: All rider-facing text this feature adds MUST be in the catalogs, in all ten
   languages.
 

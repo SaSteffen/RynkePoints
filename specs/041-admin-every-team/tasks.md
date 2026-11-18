@@ -123,6 +123,23 @@ this phase. Outcome C: stop and take the spec back to the user.
 
 ---
 
+## Phase 9: Withdrawing a grant unless another team holds the person (FR-009, FR-012, research R14)
+
+**Goal**: no grant left that no team controls, and none withdrawn while another team holds the
+person. Contract: [contracts/withdrawal.md](contracts/withdrawal.md).
+
+- [X] T032 Add `migrations/0031_pending_revocations.sql`: `pending_revocations (athlete_id INTEGER PRIMARY KEY, refresh_token_enc TEXT NOT NULL, since INTEGER NOT NULL)`, add only; `resetDb` in `test/support/ctx.ts` empties it
+- [X] T033 [P] Fake gateway in `test/support/fake-strava.ts`: answers `POST https://gateway.example.test/teams/<id>/held` from a `held` map (default `none`), can be set down, records the calls; a `withGateway(ctx)` helper points `STRAVA_RETURN_VIA` at it
+- [X] T034 Write failing tests in `test/integration/withdrawal.test.ts` (replacing `guest-no-revoke.test.ts`): every refusal at sign-in revokes when nobody holds the person and doesn't when another team holds them (`connected`); `reconnect` and no answer keep a pending row; the daily run settles it once the answer is `none`; a guest's disconnect, removal and `guest-removed` deletion keep the grant while held and withdraw it when not; a rider of the team withdraws on disconnect; without a gateway the answer is `none`
+- [X] T035 Write failing tests for `POST /strava/held/<token>` in `test/integration/held.test.ts` (wrong token 404, bad body 400, `connected` / `reconnect` / `none` from the rider row, guests alike) and for the gateway's `POST /teams/<id>/held` in `test/gateway/held.test.ts` (wrong token or unknown team 403, the asking team never asked, strongest answer wins, any team failing 503, no other team `none`)
+- [X] T036 `src/db/pending-revocations.ts` (keep a stored or a fresh token, list, drop) and `src/strava/withdraw.ts` (`withdrawGrant`, `withdrawStoredGrant`, `settleWithdrawal`, `settleWithdrawals`, the gateway question); remove `revokeStoredToken`
+- [X] T037 Team endpoint `src/http/held.ts`, routed in `src/http/router.ts`
+- [X] T038 Gateway endpoint in `gateway/index.ts`
+- [X] T039 Callers: every refusal in `src/http/auth.ts` withdraws the exchanged token (in `waitUntil`); `src/http/me.ts`, `src/http/admin/remove.ts` and `src/work/delete-rider.ts` withdraw the stored one; the guest sweep in `src/work/scheduled.ts` sends `revoke: true`, and the daily run settles every pending row
+- [X] T040 Update the tests that expected no revoke or the old revoke paths (callback, disconnect, admin-remove, delete-rider, guest-daily) and `docs/how-it-runs.md` (sign-in note, `delete-rider` row, daily step); run the touched files and `pnpm typecheck`
+
+---
+
 ## Dependencies
 
 - Phase 2 blocks everything. Phase 3 (counting) before Phase 5 (sign-in), so no guest can ever be

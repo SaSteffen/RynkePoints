@@ -127,6 +127,9 @@ extra round trip.
 
 ## R5. Never revoking where it could end another team's connection (FR-009)
 
+**Superseded by R14.** Never revoking left grants that no team controls. R14 revokes unless another
+team holds the person. The text below is the first decision, kept for the record.
+
 Revocations today: `handleCallback` revokes the just-exchanged token on every refusal (blocked,
 missing scopes, consent missing, not a member, inconclusive); `revokeStoredToken` revokes the stored
 token on disconnect (`me.ts`), admin removal (`admin/remove.ts`) and `delete-rider` messages with
@@ -226,3 +229,55 @@ guest agrees to the team's current consent like anyone.
 rides, a fixed synthetic ID). The seed puts the ID on the list and connects them through the app like
 the other samples, so `pnpm dev` and the sandboxes show the feature. Any test that reads the sample
 set's team figures must stay unchanged; only the admin riders list gains the guest group.
+
+## R14. Withdrawing a grant unless another team holds the person (FR-009, FR-012)
+
+A revoke ends the whole grant, at every team (R1). Never revoking (R5) leaves grants nobody
+controls: anyone turned away keeps RynkePoints in their Strava settings, with a token nobody holds.
+
+**Decision**: every withdrawal goes one way ([contracts/withdrawal.md](contracts/withdrawal.md)):
+
+1. The team puts the refresh token, still encrypted, into `pending_revocations` (one row per
+   person; a newer token replaces an older one, since any revoke ends the whole grant). For a
+   stored rider it copies `strava_credentials.refresh_token_enc` before deleting the rider. At a
+   refusal it encrypts the token it just exchanged. Then it settles the row at once, in the
+   background of the request or message.
+2. To settle, it asks the gateway whether another team holds the person. The gateway asks every
+   other team in `TEAMS` and answers with the strongest of their answers:
+   - `connected`: another team holds them with a working connection. Drop the row; that team
+     withdraws the grant when it lets them go.
+   - `reconnect`: another team holds them, but only as `needs_reconnect`. Its token may be dead,
+     so keep the row and ask again later.
+   - `none`: revoke the token, then drop the row.
+   - No answer from the gateway or any team: keep the row.
+3. The daily run settles every row left.
+
+Who holds whom is read from `riders`: a row with `status = 'connected'` answers `connected`; only
+`needs_reconnect` answers `reconnect`. Guests are rows like any other. A team without the gateway
+(`STRAVA_RETURN_VIA` empty: tests, `pnpm dev`, sandboxes, a single team) has nobody to ask and
+answers `none` itself.
+
+Authentication needs no new secret. The gateway already holds each team's
+`STRAVA_WEBHOOK_VERIFY_TOKEN` as `TEAM_WEBHOOK_TOKEN_<ID>`. A team asks with its own token, the
+gateway checks it against the team it names, and asks each other team with that team's token, in
+the path as the forward does. The gateway logs only statuses, never an ID.
+
+This replaces the guest exception in `revokeStoredToken` and the "no revoke on refusal" of R5: a
+guest's home team holds them, so nothing is revoked, and a guest whose home team no longer holds
+them is revoked as FR-009 requires. It also replaces the old fallback where a failed revoke at
+disconnect or removal left the grant behind: the row stays until it settles. After a deauthorization
+event the revoke finds nothing left, which counts as done.
+
+**Rationale**: the gateway is the one place that knows every team and already holds a secret per
+team. Asking at the moment of withdrawal needs no copy of who is where. The yes/no crossing teams
+(FR-012) is the least that can decide it. Keeping the token only until it's settled is deletion
+work, not new use: it is read for nothing but the revoke.
+
+**Alternatives considered**:
+- Deciding from Strava's club list (revoke only if the person is in no team's club): needs a club
+  request blocked people mustn't get (feature 025), can't check someone without the `read` scope,
+  and leaves a grant behind for a club member of another team who never connected there.
+- A registry of who is where, kept in the gateway: a copy of rider IDs across teams that has to
+  stay right on every connect and delete; the question at withdrawal time needs none.
+- Revoking at once and accepting the damage: a rider who opens another team's sign-in loses their
+  home team (what happened in production, R1).
