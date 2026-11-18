@@ -18,8 +18,8 @@ seen failing before its implementation task.
 
 ## Phase 1: Setup
 
-- [ ] T001 Drop the draft working-tree changes (`git restore .` on the files listed in `git status`, after checking each holds only draft edits) and rebase `040-season-window-split` onto `origin/develop`, which holds the deadline countdown (#359)
-- [ ] T002 Run `pnpm vitest run test/teams/pages-snapshot.test.ts` and the season snapshot test on the rebased branch and confirm both pass untouched; these are US1's guard for every later task (`test/teams/__snapshots__/pages-snapshot.test.ts.snap`, `test/teams/__snapshots__/season-snapshot.txt` must not change)
+- [X] T001 Drop the draft working-tree changes (`git restore .` on the files listed in `git status`, after checking each holds only draft edits) and rebase `040-season-window-split` onto `origin/develop`, which holds the deadline countdown (#359)
+- [X] T002 Run `pnpm vitest run test/teams/pages-snapshot.test.ts` and the season snapshot test on the rebased branch and confirm both pass untouched; these are US1's guard for every later task (`test/teams/__snapshots__/pages-snapshot.test.ts.snap`, `test/teams/__snapshots__/season-snapshot.txt` must not change)
 
 ---
 
@@ -27,17 +27,17 @@ seen failing before its implementation task.
 
 **Purpose**: the window start as its own setting and its own field.
 
-- [ ] T003 Add `QUALIFICATION_START_DATE` to all four team blocks in `wrangler.jsonc`: `hamburg` and `sandbox-hamburg` `"2026-09-01"`, `europe` and `sandbox-europe` `"2027-01-01"`; change `SEASON_START_DATE` in `europe` and `sandbox-europe` from `"2027-01-01"` to `"2026-09-01"`; run `pnpm types` to regenerate `worker-configuration.d.ts`
-- [ ] T004 Add `"QUALIFICATION_START_DATE"` to the `Settings` keys in `src/config.ts` and to the album's env pick in `album/routes.ts`; pass it through in `scripts/season-album.mjs` (read with `setting("QUALIFICATION_START_DATE")`, add `QUALIFICATION_START_DATE:<value>` beside `SEASON_START_DATE`)
-- [ ] T005 [P] Write failing tests in `test/unit/team-check-dates.test.ts` for `scripts/team-check.mjs`: refuse a block whose `SEASON_START_DATE` isn't a 1 September, whose `QUALIFICATION_START_DATE` is before the season start or after `QUALIFICATION_DEADLINE`, or whose deadline is after the season end (day before the next 1 September); accept the four real blocks
-- [ ] T006 Implement the date rules in `scripts/team-check.mjs` (FR-001, FR-003) until T005 passes and `node scripts/team-check.mjs` passes
-- [ ] T007 Write failing tests in `test/unit/rules-window.test.ts`: `countingWindow(env)` returns `{ seasonStart, windowStart, deadline }` from `SEASON_START_DATE`, `QUALIFICATION_START_DATE`, `QUALIFICATION_DEADLINE` and throws on a non-date window start; `inCountingWindow` uses `windowStart` (window start day counts, day before doesn't); `seasonEnd` reads `seasonStart` (2026-09-01 → 2027-08-31); `eventInWindow` uses `windowStart` for non-tour kinds and `seasonStart` for `tour_de_paris`
-- [ ] T008 In `src/rynke/rules.ts`, add `windowStart` to `CountingWindow` with doc "first day a ride can count (Rynke, pace, graphs)", keep `seasonStart` as "the season's first day (fetch, season end, badges, tour days)", read both in `countingWindow`, and switch `inCountingWindow` and `eventInWindow`'s non-tour branch to `windowStart` until T007 passes
-- [ ] T009 Temporarily rename `CountingWindow.seasonStart` to `seasonStartX` and run `pnpm typecheck` to list every reader (research R2); for each, choose per the R2 table and rename back, writing season readers as `seasonStart` and window readers as `windowStart`:
+- [X] T003 Add `QUALIFICATION_START_DATE` to all four team blocks in `wrangler.jsonc`: `hamburg` and `sandbox-hamburg` `"2026-09-01"`, `europe` and `sandbox-europe` `"2027-01-01"`; change `SEASON_START_DATE` in `europe` and `sandbox-europe` from `"2027-01-01"` to `"2026-09-01"`; run `pnpm types` to regenerate `worker-configuration.d.ts`
+- [X] T004 Add `"QUALIFICATION_START_DATE"` to the `Settings` keys in `src/config.ts` and to the album's env pick in `album/routes.ts`; pass it through in `scripts/season-album.mjs` (read with `setting("QUALIFICATION_START_DATE")`, add `QUALIFICATION_START_DATE:<value>` beside `SEASON_START_DATE`)
+- [X] T005 [P] Write failing tests in `test/unit/team-check-dates.test.ts` for `scripts/team-check.mjs`: refuse a block whose `SEASON_START_DATE` isn't a 1 September, whose `QUALIFICATION_START_DATE` is before the season start or after `QUALIFICATION_DEADLINE`, or whose deadline is after the season end (day before the next 1 September); accept the four real blocks
+- [X] T006 Implement the date rules in `scripts/team-check.mjs` (FR-001, FR-003) until T005 passes and `node scripts/team-check.mjs` passes
+- [X] T007 Write failing tests in `test/unit/rules-window.test.ts`: `countingWindow(env)` returns `{ seasonStart, windowStart, deadline }` from `SEASON_START_DATE`, `QUALIFICATION_START_DATE`, `QUALIFICATION_DEADLINE` and throws on a non-date window start; `inCountingWindow` uses `windowStart` (window start day counts, day before doesn't); `seasonEnd` reads `seasonStart` (2026-09-01 → 2027-08-31); `eventInWindow` uses `windowStart` for non-tour kinds and `seasonStart` for `tour_de_paris`
+- [X] T008 In `src/rynke/rules.ts`, add `windowStart` to `CountingWindow` with doc "first day a ride can count (Rynke, pace, graphs)", keep `seasonStart` as "the season's first day (fetch, season end, badges, tour days)", read both in `countingWindow`, and switch `inCountingWindow` and `eventInWindow`'s non-tour branch to `windowStart` until T007 passes
+- [X] T009 Temporarily rename `CountingWindow.seasonStart` to `seasonStartX` and run `pnpm typecheck` to list every reader (research R2); for each, choose per the R2 table and rename back, writing season readers as `seasonStart` and window readers as `windowStart`:
   - season: `src/db/participation.ts`, `src/db/team-events.ts`, `src/badges/catalog.ts`, `src/badges/evaluate.ts`, `src/badges/hints.ts`, `src/badges/view.ts`, `src/db/badges.ts`, `src/http/sections/badges.ts`, `album/load.ts`, `src/http/tour-example.ts` tour days
   - window: `src/rynke/pace.ts`, `src/rynke/weeks.ts`, `src/rynke/ride-figures.ts`, `src/rynke/apply.ts`, `src/db/rynke.ts`, `src/http/progress-view.ts`, `src/http/progress-section.ts`, `src/http/organiser/progress-graphs.ts`, `src/http/organiser/overview.ts`, `src/http/sections/team.ts`, `src/http/rider-view.ts`, `src/http/rider-sections.ts`
   - `dev/fake-strava/samples.ts`: decide per use; sample dates stay relative to `SEASON_START_DATE`
-- [ ] T010 [US1] Re-run T002's snapshots and `pnpm vitest run test/unit/rides.test.ts test/unit/badges-for.test.ts`; Hamburg output must be unchanged (both dates equal)
+- [X] T010 [US1] Re-run T002's snapshots and `pnpm vitest run test/unit/rides.test.ts test/unit/badges-for.test.ts`; Hamburg output must be unchanged (both dates equal)
 
 **Checkpoint**: Europe's season and window are separate in data and type; Hamburg unchanged.
 
@@ -49,7 +49,7 @@ seen failing before its implementation task.
 
 **Independent test**: Hamburg's pages snapshot, season snapshot and every existing Hamburg test pass without edits.
 
-- [ ] T011 [P] [US1] Add a case to `test/teams/rules.test.ts` (or the nearest team rules test): for Hamburg's `countingWindow`, `seasonStart === windowStart`, and `evaluateRides` over Hamburg's sample rides never yields `before_window`
+- [X] T011 [P] [US1] Add a case to `test/teams/rules.test.ts` (or the nearest team rules test): for Hamburg's `countingWindow`, `seasonStart === windowStart`, and `evaluateRides` over Hamburg's sample rides never yields `before_window`
 - [ ] T012 [US1] After every later phase, re-run the Hamburg snapshot tests; any diff in a `.snap` file is a bug, never an update (do not run with `-u`)
 
 ---
@@ -60,10 +60,10 @@ seen failing before its implementation task.
 
 **Independent test**: a Europe rider connecting on 18 November 2026 has every ride from 1 September listed; season end shown is 31.08.2027.
 
-- [ ] T013 [P] [US2] Write a failing test in `test/integration/dev-fake-strava.test.ts` (Europe project): a sample rider seeded on a fake day in November 2026 gets activities fetched from `2026-09-01`, none before (fetch epoch `config.seasonStart`, used in `src/work/activity-page.ts`, `src/http/catch-up.ts`, `src/http/auth.ts`, `src/work/scheduled.ts`)
-- [ ] T014 [P] [US2] Write a failing test that Europe's season end in `album/load.ts` and `src/db/participation.ts` is `2027-08-31`, and that the "before the season" waiting state in `src/http/sections/overview.ts` follows `SEASON_START_DATE` (FR-006, FR-007)
-- [ ] T015 [US2] Fix whatever T013/T014 show still reads the window start for season things (should be nothing after T009 beyond `src/http/sections/overview.ts`'s `renderWaiting` and `src/http/sections/rides.ts` line using `SEASON_START_DATE`)
-- [ ] T016 [US2] Re-pick Europe's e2e day in `package.json` `test:e2e:server:europe`: `RYNKE_FAKE_SEASON_DAY:70` → `192` (70 + 122 days from 1 September to 1 January: the same calendar day as today; confirm with `dev/clock.ts`); also update any Europe day in `dev/fake.env` or the `pnpm dev:europe` script the same way
+- [X] T013 [P] [US2] Write a failing test in `test/integration/dev-fake-strava.test.ts` (Europe project): a sample rider seeded on a fake day in November 2026 gets activities fetched from `2026-09-01`, none before (fetch epoch `config.seasonStart`, used in `src/work/activity-page.ts`, `src/http/catch-up.ts`, `src/http/auth.ts`, `src/work/scheduled.ts`)
+- [X] T014 [P] [US2] Write a failing test that Europe's season end in `album/load.ts` and `src/db/participation.ts` is `2027-08-31`, and that the "before the season" waiting state in `src/http/sections/overview.ts` follows `SEASON_START_DATE` (FR-006, FR-007)
+- [X] T015 [US2] Fix whatever T013/T014 show still reads the window start for season things (should be nothing after T009 beyond `src/http/sections/overview.ts`'s `renderWaiting` and `src/http/sections/rides.ts` line using `SEASON_START_DATE`)
+- [X] T016 [US2] Re-pick Europe's e2e day in `package.json` `test:e2e:server:europe`: `RYNKE_FAKE_SEASON_DAY:70` → `192` (70 + 122 days from 1 September to 1 January: the same calendar day as today; confirm with `dev/clock.ts`); also update any Europe day in `dev/fake.env` or the `pnpm dev:europe` script the same way
 
 **Checkpoint**: Europe's season is 1 September – 31 August.
 
