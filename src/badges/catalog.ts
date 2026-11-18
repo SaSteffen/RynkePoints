@@ -3,8 +3,10 @@
 // ids, groups and thresholds as art/badges/badges.json, kept equal by
 // test/unit/badge-catalog.test.ts; the app never reads that file.
 
+import type { CountingWindow } from "../rynke/rules";
 import { hasEvents } from "../teams";
 import type { TeamData } from "../teams/types";
+import { easterSunday } from "./easter";
 
 export type BadgeGroup = "personal" | "team";
 
@@ -327,20 +329,98 @@ export const badgeOrder = (id: string): number =>
 export const categoryById = (id: BadgeCategoryId): BadgeCategory =>
 	BADGE_CATEGORIES.find((c) => c.id === id) as BadgeCategory;
 
-/** The badges a team without events lists: none of an event-only category. */
-const WITHOUT_EVENTS: readonly Badge[] = BADGES.filter(
-	(b) => !categoryById(b.category).events,
-);
+/** The day after `date`, `YYYY-MM-DD`. */
+function nextDay(date: string): string {
+	const ms = Date.parse(`${date}T00:00:00Z`) + 86_400_000;
+	return new Date(ms).toISOString().slice(0, 10);
+}
+
+/** Every date from `from` to `to`, `YYYY-MM-DD`, both included. */
+function datesFrom(from: string, to: string): string[] {
+	const dates: string[] = [];
+	for (let date = from; date <= to; date = nextDay(date)) dates.push(date);
+	return dates;
+}
+
+/** Christmas Eve to New Year's Eve, Festive 500's and Festive Team's days. */
+const FESTIVE = [
+	"12-24",
+	"12-25",
+	"12-26",
+	"12-27",
+	"12-28",
+	"12-29",
+	"12-30",
+	"12-31",
+];
+
+/** The calendar days (`MM-DD`) a dated surprise rule can be met on, any one. */
+const SURPRISE_DAYS: Readonly<Record<string, readonly string[]>> = {
+	"new-year": ["01-01"],
+	"christmas-eve": ["12-24"],
+	christmas: ["12-25", "12-26"],
+	"festive-500": FESTIVE,
+	"pi-day": ["03-14"],
+	"new-years-eve": ["12-31"],
+	"festive-team": FESTIVE,
+};
 
 /**
- * The badges a team lists, in catalog order (feature 039 research R9): every
- * one with events, the very same array; without, none that only recorded
- * events earn. Evaluation doesn't change: without events none is ever earned.
+ * Whether a season `window` holds the days `badge` can be earned on (feature
+ * 039): a winter category's month, a dated surprise's day, both solstices,
+ * Easter Sunday or Monday, and a new year after the season start for
+ * Winterschlaf beendet. Every other badge can be earned on any day.
+ */
+function inSeason(badge: Badge, dates: readonly string[]): boolean {
+	const category = categoryById(badge.category);
+	const has = (monthDay: string) => dates.some((d) => d.slice(5) === monthDay);
+	if (category.month !== undefined) {
+		const month = String(category.month).padStart(2, "0");
+		return dates.some((d) => d.slice(5, 7) === month);
+	}
+	const name = surpriseName(badge);
+	if (name === null) return true;
+	if (name === "solstice") return has("12-21") && has("06-21");
+	if (name === "easter") {
+		const days = new Set(dates);
+		const years = new Set(dates.map((d) => Number(d.slice(0, 4))));
+		return [...years].some((year) => {
+			const sunday = easterSunday(year);
+			return days.has(sunday) || days.has(nextDay(sunday));
+		});
+	}
+	if (name === "winter-sleep") {
+		return dates.includes(`${Number(dates[0]?.slice(0, 4)) + 1}-01-01`);
+	}
+	return SURPRISE_DAYS[name]?.some(has) ?? true;
+}
+
+/** `badgesFor`'s lists by team kind and season, worked out once each. */
+const LISTED = new Map<string, readonly Badge[]>();
+
+/**
+ * The badges a team lists, in catalog order: none that only recorded events
+ * earn on a team without events (feature 039 research R9), and none the
+ * season `window` holds no day for, such as Christmas Eve in a season from
+ * January to June (feature 039). With events and every day, the very same
+ * `BADGES`. Evaluation doesn't change: an unlisted badge is never earned.
  */
 export function badgesFor(
 	team: Pick<TeamData, "eventKinds">,
+	window: CountingWindow,
 ): readonly Badge[] {
-	return hasEvents(team) ? BADGES : WITHOUT_EVENTS;
+	const events = hasEvents(team);
+	const key = `${events}:${window.seasonStart}:${window.deadline}`;
+	let listed = LISTED.get(key);
+	if (!listed) {
+		const dates = datesFrom(window.seasonStart, window.deadline);
+		const kept = BADGES.filter(
+			(b) => (events || !categoryById(b.category).events) && inSeason(b, dates),
+		);
+		listed = kept.length === BADGES.length ? BADGES : kept;
+		LISTED.set(key, listed);
+	}
+	return listed;
 }
 
 /** The categories that show one decimal (spec Assumptions, research R28). */

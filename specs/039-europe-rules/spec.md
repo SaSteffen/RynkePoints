@@ -264,6 +264,11 @@ same results as before for every sample rider.
 - **FR-014**: A team without events MUST NOT show event-only badges (team events, technique, Tour de
   Paris, big training, attendances) or their hints anywhere; every other badge, personal and team,
   MUST stay.
+- **FR-022**: No team MUST show a badge its season holds no day for, nor count it among the
+  outlines: in Europe's season from 1 January to 30 June, the November and December winter badges,
+  Christmas Eve, Christmas, Festive 500, Sonnenwende (it needs 21 December too), Winterschlaf
+  beendet (no new year after the season start), New Year's Eve sparkler and Festive gang
+  (maintainer, 2026-11-17). Hamburg's season holds every badge's days, so it shows them all.
 
 **Training Rynke from outside virtual rides**
 
@@ -285,7 +290,9 @@ same results as before for every sample rider.
 - **FR-015**: A maintainer MUST be able to see all of the above for both teams side by side in
   local fake mode, with sample rides below and above 25 km for Europe.
 - **FR-016**: Europe's sample riders and the sandbox's data MUST contain no events, attendance or
-  Team Rynke.
+  Team Rynke, and no rides dated in a November or December of the season. Seeded before the season
+  starts, a sample ride keeps its own date and counts for nothing: a rider connecting before
+  1 January has rides and 0 Rynke.
 
 ### Key Entities
 

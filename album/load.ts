@@ -219,8 +219,9 @@ export async function loadAlbum(
 			badgeWindow(window, cutoff),
 		).earned.map((b) => [b.badgeId, b.earnedOn]),
 	);
-	// What the team lists: no event-only badge without events (feature 039).
-	const slots = badgesFor(teamData).map((badge) => ({
+	// What the team lists: no event-only badge without events, none its season
+	// holds no day for (feature 039).
+	const slots = badgesFor(teamData, window).map((badge) => ({
 		badgeId: badge.id,
 		group: badge.group,
 		category: badge.category,
