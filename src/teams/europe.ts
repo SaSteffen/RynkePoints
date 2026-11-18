@@ -68,9 +68,13 @@ export const europe: TeamData = {
 			icon512: "/teams/europe/icons/icon-512.png",
 			maskable512: "/teams/europe/icons/icon-maskable-512.png",
 		},
-		// The neutral picture for each badge with the founding team's motifs.
+		// Its own take of each badge with the founding team's motifs
+		// (art/badges/teams/europe/, pnpm badge-build).
 		badges: Object.fromEntries(
-			hamburg.art.teamSpecificBadges.map((id) => [id, "placeholder"]),
+			hamburg.art.teamSpecificBadges.map((id) => [
+				id,
+				`/teams/europe/badges/${id}.svg`,
+			]),
 		),
 		teamSpecificBadges: [],
 	},

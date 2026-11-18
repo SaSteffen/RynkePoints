@@ -1,0 +1,16 @@
+{
+	"badges": [
+		{
+			"id": "distance-1000",
+			"scene": "The character riding a road bike, side view, on a small road winding across rolling hills: behind him on the left a small wooden signpost with many blank arrows pointing in every direction, ahead on the right the tiny Eiffel Tower, both small and simple in black outline with cream and gold fills. Wide-eyed and amazed at how far he got. {{bike}}"
+		},
+		{
+			"id": "running-100",
+			"scene": "The character running along a river bank with small light blue waves, an old arched stone bridge in the background, side view, relaxed and smiling, one hand waving to the viewer. {{runner}}"
+		},
+		{
+			"id": "team-running-1000",
+			"scene": "Four characters running along a river bank with small light blue waves and an old arched stone bridge behind, a small seagull flying alongside, everyone smiling. {{team}} {{runner}}"
+		}
+	]
+}
