@@ -199,10 +199,7 @@ function reasonsFor(
 ): ReasonCode[] {
 	const reasons: ReasonCode[] = [];
 	const date = ride.startLocal.slice(0, 10);
-	if (
-		date < window.seasonStart ||
-		(window.deadline !== null && date > window.deadline)
-	) {
+	if (date < window.seasonStart || date > window.deadline) {
 		reasons.push("outside_window");
 	} else if (date < window.windowStart) {
 		reasons.push("before_window");
