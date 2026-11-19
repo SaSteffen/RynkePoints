@@ -333,10 +333,10 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			ride(8, "18:00", 5, 30, 10, { sportType: "Run" }),
 			// Kreiszahl: 32 km on 14 March.
 			ride(0, "10:00", 32, 150, 24, { onDate: "03-14" }),
-			// Sonnenwende: outdoors on both solstices, 21 December before the
+			// Sonnenwende: outdoors on both solstices, the December one before the
 			// window opens.
-			ride(0, "10:00", 25, 100, 24, { onDate: "12-21" }),
-			ride(0, "10:00", 25, 100, 24, { onDate: "06-21" }),
+			ride(0, "10:00", 25, 100, 24, { onSolstice: 12 }),
+			ride(0, "10:00", 25, 100, 24, { onSolstice: 6 }),
 			// Osterhase: a ride on Easter Monday.
 			ride(0, "10:00", 30, 150, 24, { onEaster: 1 }),
 			// Everesting: 9 × 1,000 m in May.

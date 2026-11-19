@@ -21,6 +21,7 @@ import {
 	surpriseName,
 } from "./catalog";
 import { easterSunday } from "./easter";
+import { isSolstice } from "./solstice";
 
 /**
  * A ride the badges count, by the ride's local start date: its result counts,
@@ -356,8 +357,9 @@ function surpriseBadges(
 		"new-year": on("01-01"),
 		"christmas-eve": on("12-24"),
 		christmas: on("12-25", "12-26"),
-		"night-owl": startingAt((time) => time >= "21:30"),
-		"early-bird": startingAt((time) => time < "06:00"),
+		// The night owl's night runs to 3:00; the early bird starts after it.
+		"night-owl": startingAt((time) => time >= "21:30" || time < "03:00"),
+		"early-bird": startingAt((time) => time >= "03:00" && time < "06:00"),
 		"rest-day": restDay(sorted, days),
 		...traditions(rides, inputs, window, days),
 		"winter-sleep": winterSleep(rides, window),
@@ -441,13 +443,13 @@ function traditions(
 	const triathlon = [...new Set(rides.map((r) => r.date))]
 		.sort()
 		.find((date) => runDays.has(date) && swimDays.has(date));
-	const firstOutdoor = (day: string) =>
+	const firstOutdoor = (month: 6 | 12) =>
 		outdoor
-			.filter((r) => monthDay(r.date) === day)
+			.filter((r) => isSolstice(r.date, month))
 			.map((r) => r.date)
 			.sort()[0];
-	const winterSolstice = firstOutdoor("12-21");
-	const summerSolstice = firstOutdoor("06-21");
+	const winterSolstice = firstOutdoor(12);
+	const summerSolstice = firstOutdoor(6);
 	const easter = [...days].sort().find((date) => {
 		const sunday = easterSunday(Number(date.slice(0, 4)));
 		return date === sunday || date === addDays(sunday, 1);
@@ -464,8 +466,8 @@ function traditions(
 			.filter((r) => monthDay(r.date) === "03-14" && r.distanceM >= PI_M)
 			.map((r) => r.date)
 			.sort()[0],
-		// Both days, dated with the later one (21 June in a season from
-		// September).
+		// Both days, dated with the later one (the June solstice in a season
+		// from September).
 		solstice:
 			winterSolstice && summerSolstice
 				? [winterSolstice, summerSolstice].sort()[1]

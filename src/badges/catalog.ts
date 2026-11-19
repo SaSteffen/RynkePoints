@@ -8,6 +8,7 @@ import { addDays } from "../rynke/weeks";
 import { hasEvents } from "../teams";
 import type { TeamData } from "../teams/types";
 import { easterSunday } from "./easter";
+import { isSolstice } from "./solstice";
 
 export type BadgeGroup = "personal" | "team";
 
@@ -375,7 +376,11 @@ function inSeason(badge: Badge, dates: readonly string[]): boolean {
 	}
 	const name = surpriseName(badge);
 	if (name === null) return true;
-	if (name === "solstice") return has("12-21") && has("06-21");
+	if (name === "solstice") {
+		return ([6, 12] as const).every((month) =>
+			dates.some((d) => isSolstice(d, month)),
+		);
+	}
 	if (name === "easter") {
 		const days = new Set(dates);
 		const years = new Set(dates.map((d) => Number(d.slice(0, 4))));
