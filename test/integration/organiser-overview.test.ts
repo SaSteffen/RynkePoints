@@ -188,8 +188,11 @@ describe("GET /organiser/riders, the overview", () => {
 			/<a class="group-tile tile-all" href="\/organiser\/riders\?group=all" data-swap aria-current="true">/,
 		);
 		expect(html).not.toMatch(/class="group-tile tile-push"[^>]*aria-current/);
+		// The graphs too, or a phone selects the empty "Need a push" there.
+		expect(html).toMatch(/id="organiser-graphs-data">[^<]*"group":"all"/);
 		const { html: started } = await overview();
 		expect(started).toContain('<nav class="group-tiles default"');
+		expect(started).toMatch(/id="organiser-graphs-data">[^<]*"group":null/);
 	});
 
 	it("shows the coin's back as the team's artwork", async () => {
