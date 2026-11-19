@@ -494,6 +494,9 @@ export const lt: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Komanda",
+	"team.beforeWindow":
+		"Rynke skaičiuojami nuo {date}. Čia atsiras duomenų, kai prasidės kvalifikacija.",
+	"team.total.beforeWindow": "Rynke skaičiuojami nuo {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Treniruočių Rynke",
 	"team.total.team": "{n} Komandos Rynke",
@@ -512,6 +515,8 @@ export const lt: Catalog = {
 	"team.peloton.front": "Priekis 🏁",
 	"team.peloton.label":
 		"Dviratininkai: {count}, nuo {min} iki {max} Rynke; tu turi {own}",
+	"team.peloton.label.guest":
+		"Dviratininkai: {count}, nuo {min} iki {max} Rynke.",
 	"team.peloton.you": "Tu",
 	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -519,6 +524,8 @@ export const lt: Catalog = {
 		"Kiekviena moneta – dviratininkas. Visai dešinėje, už tarpo, važiuoja breakaway.",
 	"team.peloton.label.breakaway":
 		"Dviratininkai: {count}, nuo {min} iki {max} Rynke, iš jų breakaway: {away}; tu turi {own}",
+	"team.peloton.label.breakaway.guest":
+		"Dviratininkai: {count}, nuo {min} iki {max} Rynke, iš jų breakaway: {away}.",
 	"team.list.heading": "Reitingas",
 	"team.list.count": "Dviratininkai sąraše: {n}",
 	"team.list.hint": "Be vardų. Linija rodo sezoną iki šiol.",

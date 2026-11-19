@@ -85,3 +85,33 @@ test("organisers see when qualifying starts", async ({ page }) => {
 		"The dashed line marks the start of qualifying",
 	);
 });
+
+test("the Team page leads with km and keeps Rynke waiting", async ({
+	page,
+}) => {
+	await signIn(page, RIDER);
+	await skipTours(page);
+	await page.goto("/team");
+	await expect(page.locator("nav.rank-by [aria-current]")).toHaveText("km");
+	await expect(page.locator(".team-total-week")).toContainText(
+		"Rynke count from 01/01/2027",
+	);
+	// Rank by sits above the place card it changes, then the peloton and the km
+	// chart follow (the leaderboard has its own column on wide screens).
+	const tops = await Promise.all(
+		[".rank-controls", ".my-place", "figure.peloton", "figure.team-chart"].map(
+			async (selector) => (await page.locator(selector).boundingBox())?.y,
+		),
+	);
+	expect(tops.every((y) => y !== undefined)).toBe(true);
+	expect(tops).toEqual([...tops].sort((a, b) => (a ?? 0) - (b ?? 0)));
+	await expect(
+		page.locator(".before-window", { has: page.locator("figure.peloton") }),
+	).toContainText("Rynke count from 01/01/2027");
+	await expect(page.locator(".leaderboard .before-window")).toHaveCount(0);
+	// Picking Rynke covers its ranking, and Rank by still switches back.
+	await page.locator("nav.rank-by a", { hasText: "Rynke" }).click();
+	await expect(page.locator(".leaderboard .before-window-note")).toBeVisible();
+	await page.locator("nav.rank-by a", { hasText: "km" }).click();
+	await expect(page.locator(".leaderboard .before-window")).toHaveCount(0);
+});

@@ -492,6 +492,9 @@ export const da: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Hold",
+	"team.beforeWindow":
+		"Rynke tæller fra den {date}. Her fyldes der op, når kvalifikationen begynder.",
+	"team.total.beforeWindow": "Rynke tæller fra den {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Trænings-Rynke",
 	"team.total.team": "{n} Team-Rynke",
@@ -509,6 +512,7 @@ export const da: Catalog = {
 	"team.peloton.front": "Front 🏁",
 	"team.peloton.label":
 		"{count} ryttere mellem {min} og {max} Rynke; du har {own}",
+	"team.peloton.label.guest": "{count} ryttere mellem {min} og {max} Rynke.",
 	"team.peloton.you": "Dig",
 	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -516,6 +520,8 @@ export const da: Catalog = {
 		"Hver mønt er en rytter. Yderst til højre, efter hullet, kører udbruddet.",
 	"team.peloton.label.breakaway":
 		"{count} ryttere mellem {min} og {max} Rynke, heraf {away} i udbruddet; du har {own}",
+	"team.peloton.label.breakaway.guest":
+		"{count} ryttere mellem {min} og {max} Rynke, heraf {away} i udbruddet.",
 	"team.list.heading": "Rangliste",
 	"team.list.count": "Ryttere på listen: {n}",
 	"team.list.hint": "Ingen navne. Linjen viser sæsonen indtil nu.",

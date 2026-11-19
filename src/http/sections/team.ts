@@ -84,6 +84,8 @@ interface TeamView {
 	by: RankBy;
 	period: Period;
 	defaultBy: RankBy;
+	/** Whether "Rank by" offers Rynke: with Rynke views, in the Training view. */
+	rynke: boolean;
 }
 
 /**
@@ -110,6 +112,7 @@ function teamViewOf(
 	query: URLSearchParams,
 	env: Ctx["env"],
 	team: Pick<TeamData, "rules">,
+	beforeWindow: boolean,
 ): TeamView {
 	const rides = rideFigures(env);
 	const rynke = rynkeViews(env);
@@ -119,14 +122,18 @@ function teamViewOf(
 		rynke && hasTeamRynke(team) && query.get("kind") === "team"
 			? "team"
 			: "training";
-	const defaultBy: RankBy = rynke ? "rynke" : "km";
-	const asked = RIDE_FIGURES.find((figure) => figure === query.get("by"));
+	// Before the qualification window opens every Rynke is 0, so the ranking
+	// opens on km while there are ride figures.
+	const defaultBy: RankBy = rynke && !(beforeWindow && rides) ? "rynke" : "km";
+	const asked = (
+		rynke ? ["rynke" as const, ...RIDE_FIGURES] : RIDE_FIGURES
+	).find((by) => by === query.get("by"));
 	const by: RankBy = kind === "training" && rides && asked ? asked : defaultBy;
 	const period =
 		by === "rynke"
 			? "season"
 			: (PERIODS.find((p) => p === query.get("period")) ?? "season");
-	return { kind, all: query.get("all") === "1", by, period, defaultBy };
+	return { kind, all: query.get("all") === "1", by, period, defaultBy, rynke };
 }
 
 /** The kind's mini coin; its name only for screen readers, the coin says it. */
@@ -139,6 +146,7 @@ function renderTeamTotal(
 	kind: RynkeKind,
 	totals: TeamTotals,
 	team: Pick<TeamData, "name" | "art">,
+	windowStart: string | null,
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	return html`<section class="team-total card">
@@ -147,6 +155,11 @@ ${coinArt(team.art.coin, kind === "training" ? "front" : "back", "large")}<div c
 <p class="team-total-value${kind === "team" ? " hero-team" : ""}">${i18n.tHtml(kind === "training" ? "team.total.training" : "team.total.team", { n: amount(i18n, totals.total) })}</p>
 <p class="team-total-kind">${i18n.t("team.total.kind")}</p>
 ${
+	windowStart
+		? html`<p class="team-total-week">${i18n.t("team.total.beforeWindow", { date: i18n.formatDate(windowStart) })}</p>
+`
+		: null
+}${
 	totals.thisWeek > 0
 		? html`<p class="team-total-week">${i18n.t("team.total.thisWeek", { n: whole(totals.thisWeek) })}</p>
 `
@@ -156,7 +169,7 @@ ${
 `;
 }
 
-/** Every listed rider on the road; only with the viewer among them. */
+/** Every listed rider on the road; "You" only with the viewer among them. */
 function renderPeloton(
 	i18n: I18n,
 	kind: RynkeKind,
@@ -172,13 +185,23 @@ function renderPeloton(
 		max: whole(Math.max(...totals)),
 		own: whole(rows[own]?.total ?? 0),
 	};
+	const awayCount = away
+		? whole(totals.filter((total) => total > away.fence).length)
+		: "";
 	const label =
-		away === null
-			? i18n.t("team.peloton.label", figures)
-			: i18n.t("team.peloton.label.breakaway", {
-					...figures,
-					away: whole(totals.filter((total) => total > away.fence).length),
-				});
+		own < 0
+			? away === null
+				? i18n.t("team.peloton.label.guest", figures)
+				: i18n.t("team.peloton.label.breakaway.guest", {
+						...figures,
+						away: awayCount,
+					})
+			: away === null
+				? i18n.t("team.peloton.label", figures)
+				: i18n.t("team.peloton.label.breakaway", {
+						...figures,
+						away: awayCount,
+					});
 	const text = {
 		label,
 		you: i18n.t("team.peloton.you"),
@@ -388,8 +411,9 @@ ${segment(to("team"), view.kind === "team", i18n.t("team.kind.team"), miniCoin("
  * without Rynke views there is no Rynke segment.
  */
 function renderRankBy(i18n: I18n, view: TeamView): SafeHtml {
-	const choices: RankBy[] =
-		view.defaultBy === "rynke" ? ["rynke", ...RIDE_FIGURES] : [...RIDE_FIGURES];
+	const choices: RankBy[] = view.rynke
+		? ["rynke", ...RIDE_FIGURES]
+		: [...RIDE_FIGURES];
 	const byLinks = choices.map((by) =>
 		segment(
 			teamHref({ ...view, by }),
@@ -406,11 +430,12 @@ function renderRankBy(i18n: I18n, view: TeamView): SafeHtml {
 ${PERIODS.map((period) => segment(teamHref({ ...view, period }), view.period === period, i18n.t(`team.period.${period}`)))}
 </nav>
 `;
-	return html`<p class="rank-label" id="rank-by-label">${i18n.t("team.rankBy.label")}</p>
+	return html`<div class="rank-controls"><p class="rank-label" id="rank-by-label">${i18n.t("team.rankBy.label")}</p>
 <nav class="list-scope rank-by" aria-labelledby="rank-by-label">
 ${byLinks}
 </nav>
-${periods}`;
+${periods}</div>
+`;
 }
 
 function renderPlace(i18n: I18n, viewer: Viewer): SafeHtml {
@@ -461,19 +486,21 @@ function renderRow(
 function renderLeaderboard(
 	i18n: I18n,
 	view: TeamView,
-	rankBy: boolean,
 	shown: Neighbourhood,
 	count: number,
 	days: readonly number[],
 	withOther: boolean,
+	waiting: (part: SafeHtml) => SafeHtml = (part) => part,
 ): SafeHtml {
 	const { kind } = view;
+	// Before the window only the rows wait; the heading stays readable.
+	const list = html`${renderScope(i18n, view, shown.toggle)}${hidden(i18n, "team.list.ahead", shown.hiddenAhead)}<ol start="${shown.rows[0]?.place ?? 1}">
+${shown.rows.map((row) => renderRow(i18n, kind, row, days, withOther))}</ol>
+${hidden(i18n, "team.list.behind", shown.hiddenBehind)}`;
 	return html`<section class="leaderboard card">
 <div class="leaderboard-head"><h2>${i18n.t("team.list.heading")}</h2><span>${i18n.t("team.list.count", { n: i18n.formatNumber(count, { fractionDigits: 0 }) })}</span></div>
 <p class="team-hint">${i18n.t("team.list.hint")}</p>
-${rankBy ? renderRankBy(i18n, view) : null}${renderScope(i18n, view, shown.toggle)}${hidden(i18n, "team.list.ahead", shown.hiddenAhead)}<ol start="${shown.rows[0]?.place ?? 1}">
-${shown.rows.map((row) => renderRow(i18n, kind, row, days, withOther))}</ol>
-${hidden(i18n, "team.list.behind", shown.hiddenBehind)}</section>
+${waiting(list)}</section>
 `;
 }
 
@@ -655,7 +682,7 @@ function renderRideLeaderboard(
 	return html`<section class="leaderboard card">
 <div class="leaderboard-head"><h2>${i18n.t("team.list.heading")}</h2><span>${i18n.t("team.list.count", { n: i18n.formatNumber(rows.length, { fractionDigits: 0 }) })}</span></div>
 <p class="team-hint">${i18n.t("team.ride.hint")}</p>
-${renderRankBy(i18n, view)}${renderTeamLine(i18n, view, team)}${renderScope(i18n, view, list.toggle)}${hidden(i18n, "team.list.ahead", list.hiddenAhead)}<ol start="${list.rows[0]?.place ?? 1}">
+${renderTeamLine(i18n, view, team)}${renderScope(i18n, view, list.toggle)}${hidden(i18n, "team.list.ahead", list.hiddenAhead)}<ol start="${list.rows[0]?.place ?? 1}">
 ${list.rows.map((row) => renderRideRow(i18n, figure, row, lead))}</ol>
 ${hidden(i18n, "team.list.behind", list.hiddenBehind)}</section>
 `;
@@ -702,7 +729,15 @@ export function handleTeam(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	const view = teamViewOf(new URL(request.url).searchParams, ctx.env, ctx.team);
+	const window = countingWindow(ctx.env);
+	const today = berlinDate(ctx.now());
+	const beforeWindow = today < window.windowStart;
+	const view = teamViewOf(
+		new URL(request.url).searchParams,
+		ctx.env,
+		ctx.team,
+		beforeWindow,
+	);
 	return shellPage(
 		request,
 		ctx,
@@ -715,7 +750,6 @@ export function handleTeam(
 			// Without Team Rynke: no kind switch, no Team figure in the rows
 			// (feature 039).
 			const teamRynke = hasTeamRynke(ctx.team);
-			const window = countingWindow(ctx.env);
 			const ranksTraining = trainingLeaderboard(ctx.env);
 			const rides = rideFigures(ctx.env);
 			const figure = view.by === "rynke" ? null : view.by;
@@ -726,7 +760,7 @@ export function handleTeam(
 			// only matter when the rider is on the leaderboard. The ride figures
 			// are read only when one is picked (032 research R2).
 			const [{ team, rides: rideRiders }, seenQuotes] = await Promise.all([
-				figure
+				figure || (beforeWindow && rides)
 					? readTeamAndRides(ctx.env.DB)
 					: readTeam(ctx.env.DB).then((listed) => ({
 							team: listed,
@@ -736,7 +770,6 @@ export function handleTeam(
 					? readSeenQuotes(ctx.env.DB, rider.athleteId)
 					: new Set<string>(),
 			]);
-			const today = berlinDate(ctx.now());
 			const ends = weekEnds(
 				window.windowStart,
 				lastDay(today, window.deadline),
@@ -758,6 +791,10 @@ export function handleTeam(
 				riders.map((listed) => listed.weeks),
 				kind,
 			);
+			const waiting = (card: SafeHtml) =>
+				beforeWindow
+					? renderBeforeWindow(i18n, window.windowStart, card)
+					: card;
 			const phrases = quoting ? phraseSet(ctx.team) : null;
 			const quote =
 				viewer && phrases
@@ -773,7 +810,7 @@ export function handleTeam(
 				);
 			}
 			// The quote's monkey stands on the team total, above everything else.
-			const head = html`${renderReconnect(i18n, rider)}${quote ? renderQuote(quote, holidaysOn(today, ctx.team.holidays)) : null}${renderTeamTotal(i18n, kind, totals, ctx.team)}${teamRynke ? renderKindSwitch(i18n, view) : null}`;
+			const head = html`${renderReconnect(i18n, rider)}${quote ? renderQuote(quote, holidaysOn(today, ctx.team.holidays)) : null}${renderTeamTotal(i18n, kind, totals, ctx.team, beforeWindow ? window.windowStart : null)}${teamRynke ? renderKindSwitch(i18n, view) : null}`;
 			// Team Rynke have no place card and no peloton and put the
 			// leaderboard first (feature 019 FR-045, FR-046); Training keeps
 			// feature 016's page.
@@ -783,7 +820,6 @@ export function handleTeam(
 				const leaderboard = renderLeaderboard(
 					i18n,
 					view,
-					false,
 					neighbourhood(rows, all),
 					rows.length,
 					ends.map(dayNumber),
@@ -795,11 +831,27 @@ export function handleTeam(
 			// Without the Training ranking (TRAINING_LEADERBOARD "off") only the
 			// peloton and the team chart stay: no place, no list.
 			if (!ranksTraining) {
-				return html`${head}<div class="team-grid">${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}</div>`;
+				return html`${head}<div class="team-grid">${rows.length > 0 ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}</div>`;
 			}
-			const pelotonAndChart = html`${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}`;
+			// One chart: before the window the team's km week by week from the
+			// season start, once it opens the Rynke chart.
+			const chart =
+				beforeWindow && rides
+					? renderKmChart(
+							i18n,
+							teamWeeksKm(
+								rideRiders,
+								weekEnds(window.seasonStart, lastDay(today, window.deadline)),
+							),
+						)
+					: waiting(renderTeamChart(i18n, kind, totals));
+			// "Rank by" sits above everything it changes: the place card and the
+			// leaderboard (on wide screens at the top of the left column).
+			const rankBy = rides ? renderRankBy(i18n, view) : null;
+			const pelotonCard =
+				rows.length > 0 ? waiting(renderPeloton(i18n, kind, rows)) : null;
 			// A ride figure: only the place card and the leaderboard follow it
-			// (032 contracts/pages.md); the rest stays the Rynke page.
+			// (032 contracts/pages.md).
 			if (figure) {
 				const ranking = rideRanking(
 					rideRiders,
@@ -808,18 +860,28 @@ export function handleTeam(
 					periodOf(view.period, today, window),
 					rideRiders.find((r) => r.athleteId === rider.athleteId),
 				);
-				return html`${head}<div class="team-grid">${renderRidePlaceCard(i18n, view, ranking)}${pelotonAndChart}${renderRideLeaderboard(i18n, view, figure, ranking.rows, ranking.team)}</div>`;
+				const place = renderRidePlaceCard(i18n, view, ranking);
+				const list = renderRideLeaderboard(
+					i18n,
+					view,
+					figure,
+					ranking.rows,
+					ranking.team,
+				);
+				return html`${head}<div class="team-grid">${rankBy}${place}${pelotonCard}${chart}${list}</div>`;
 			}
 			const leaderboard = renderLeaderboard(
 				i18n,
 				view,
-				rides,
 				neighbourhood(rows, all),
 				rows.length,
 				ends.map(dayNumber),
 				teamRynke,
+				// The Rynke ranking before the window: everyone on 0, so the
+				// place and the rows wait under the note too.
+				waiting,
 			);
-			return html`${head}<div class="team-grid">${viewer ? renderPlace(i18n, viewer) : null}${pelotonAndChart}${leaderboard}</div>`;
+			return html`${head}<div class="team-grid">${rankBy}${viewer ? waiting(renderPlace(i18n, viewer)) : null}${pelotonCard}${chart}${leaderboard}</div>`;
 		},
 	);
 }
@@ -849,7 +911,20 @@ async function singleView(
 		riders.find((r) => r.athleteId === rider.athleteId),
 	);
 	const weeks = teamWeeksKm(riders, ends);
-	return html`${renderReconnect(i18n, rider)}${renderRideTeamTotal(i18n, teamRideTotals(riders, season), weeks, ctx.team.name)}<div class="team-grid">${renderRidePlaceCard(i18n, view, ranking)}${renderKmChart(i18n, weeks)}${renderRideLeaderboard(i18n, view, figure, ranking.rows, ranking.team)}</div>`;
+	return html`${renderReconnect(i18n, rider)}${renderRideTeamTotal(i18n, teamRideTotals(riders, season), weeks, ctx.team.name)}<div class="team-grid">${renderRankBy(i18n, view)}${renderRidePlaceCard(i18n, view, ranking)}${renderKmChart(i18n, weeks)}${renderRideLeaderboard(i18n, view, figure, ranking.rows, ranking.team)}</div>`;
+}
+
+/**
+ * A Rynke part before the qualification window opens: it stays in place,
+ * faded and out of reach, under a note saying when it fills.
+ */
+function renderBeforeWindow(
+	i18n: I18n,
+	windowStart: string,
+	part: SafeHtml,
+): SafeHtml {
+	return html`<div class="before-window"><div class="before-window-card" inert aria-hidden="true">${part}</div><p class="before-window-note">${i18n.t("team.beforeWindow", { date: i18n.formatDate(windowStart) })}</p></div>
+`;
 }
 
 /** The team card without Rynke: season km, sessions, elevation, this week. */

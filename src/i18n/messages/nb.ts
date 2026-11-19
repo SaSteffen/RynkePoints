@@ -490,6 +490,9 @@ export const nb: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lag",
+	"team.beforeWindow":
+		"Rynke teller fra {date}. Her fylles det på når kvalifiseringen starter.",
+	"team.total.beforeWindow": "Rynke teller fra {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Trenings-Rynke",
 	"team.total.team": "{n} Team-Rynke",
@@ -507,6 +510,7 @@ export const nb: Catalog = {
 	"team.peloton.front": "Front 🏁",
 	"team.peloton.label":
 		"{count} ryttere mellom {min} og {max} Rynke; du har {own}",
+	"team.peloton.label.guest": "{count} ryttere mellom {min} og {max} Rynke.",
 	"team.peloton.you": "Deg",
 	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -514,6 +518,8 @@ export const nb: Catalog = {
 		"Hver mynt er en rytter. Lengst til høyre, etter luken, sykler bruddet.",
 	"team.peloton.label.breakaway":
 		"{count} ryttere mellom {min} og {max} Rynke, {away} av dem i bruddet; du har {own}",
+	"team.peloton.label.breakaway.guest":
+		"{count} ryttere mellom {min} og {max} Rynke, {away} av dem i bruddet.",
 	"team.list.heading": "Rangering",
 	"team.list.count": "Ryttere på listen: {n}",
 	"team.list.hint": "Ingen navn. Linjen viser sesongen så langt.",
