@@ -3,14 +3,14 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { upsertActivity } from "../../src/db/activities";
 import { insertReportStatement } from "../../src/db/participation";
 import { readRynke } from "../../src/db/rynke";
+import { applyAndEvaluate } from "../../src/rynke/apply";
+import { countingWindow, type RynkeRules } from "../../src/rynke/rules";
 import {
-	applyAndEvaluate,
 	applyTeamEventChange,
 	type TeamEventChange,
 	TeamEventRefused,
 	teamEventChange,
-} from "../../src/rynke/apply";
-import { countingWindow, type RynkeRules } from "../../src/rynke/rules";
+} from "../../src/rynke/team-event-change";
 import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
 import {
 	makeCtx,

@@ -12,14 +12,11 @@ import {
 } from "../../src/db/riders";
 import { readTeam, readTeamBadgeSums } from "../../src/db/team";
 import { handleScheduled } from "../../src/index";
-import {
-	applyAndEvaluate,
-	applyCorrectionChange,
-	applyTeamEventChange,
-	evaluateChange,
-} from "../../src/rynke/apply";
+import { applyAndEvaluate, evaluateChange } from "../../src/rynke/apply";
+import { applyCorrectionChange } from "../../src/rynke/correction-change";
 import { countingWindow } from "../../src/rynke/rules";
 import { RIDER_SUMMARY_VERSION, summaryOf } from "../../src/rynke/summary";
+import { applyTeamEventChange } from "../../src/rynke/team-event-change";
 import type { RunRecord, SwimRecord } from "../../src/strava/activity";
 import { purgePreSeasonActivities } from "../../src/work/scheduled";
 import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";

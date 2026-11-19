@@ -11,7 +11,10 @@ import {
 	withProfileLinks,
 } from "../../db/organiser";
 import type { I18n } from "../../i18n/i18n";
-import { CorrectionRefused, correctionChange } from "../../rynke/apply";
+import {
+	CorrectionRefused,
+	correctionChange,
+} from "../../rynke/correction-change";
 import { hasTeamRynke } from "../../teams";
 import { notFound } from "../errors";
 import { html, type SafeHtml } from "../html";

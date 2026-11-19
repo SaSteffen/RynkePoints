@@ -1,10 +1,10 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
+import { countingWindow } from "../../src/rynke/rules";
 import {
 	applyTeamEventChange,
 	type TeamEventChange,
-} from "../../src/rynke/apply";
-import { countingWindow } from "../../src/rynke/rules";
+} from "../../src/rynke/team-event-change";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
 import { CURRENT_RULES } from "../support/team-rules";

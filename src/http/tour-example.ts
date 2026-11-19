@@ -19,7 +19,7 @@ import {
 	TEAM_EVENT_KINDS,
 	type TeamEventKind,
 } from "../rynke/team-events";
-import type { CurveRideSum } from "../rynke/weeks";
+import { addDays, type CurveRideSum } from "../rynke/weeks";
 import type { CyclingSportType } from "../strava/activity";
 
 // The example rider of the tour's Du and Fahrten steps (feature 020 FR-005 –
@@ -131,13 +131,6 @@ const EVENTS: readonly { id: number; kind: TeamEventKind; daysAgo: number }[] =
 
 const DAY_MS = 86_400_000;
 
-/** `date` moved back by `days`, both `YYYY-MM-DD`. */
-function daysBefore(date: string, days: number): string {
-	return new Date(Date.parse(`${date}T00:00:00Z`) - days * DAY_MS)
-		.toISOString()
-		.slice(0, 10);
-}
-
 /**
  * The example's dates: counted back from today, held inside the counting
  * window, so every example counts by the window rule (research R4).
@@ -149,7 +142,7 @@ function dateFor(daysAgo: number, today: string, window: CountingWindow) {
 			: today > window.deadline
 				? window.deadline
 				: today;
-	const date = daysBefore(anchor, daysAgo);
+	const date = addDays(anchor, -daysAgo);
 	// biome-ignore lint/complexity/useMathMinMax: ISO date strings, not numbers
 	return date < window.windowStart ? window.windowStart : date;
 }
@@ -592,7 +585,7 @@ export function exampleTeam(
 			(event): TeamEventListRow => ({
 				event_id: event.id,
 				kind: event.kind,
-				event_date: daysBefore(today, -event.days),
+				event_date: addDays(today, event.days),
 				name: event.name,
 				attendees: event.attendees,
 				changed_at: null,

@@ -7,7 +7,7 @@
 import type { TeamTotals, TeamWeek } from "./leaderboard";
 import type { CountingWindow } from "./rules";
 import type { RideEntry } from "./summary";
-import { weekEndOf } from "./weeks";
+import { addDays, weekEndOf } from "./weeks";
 
 export type RideFigure = "sessions" | "km" | "elevation";
 export type RankBy = "rynke" | RideFigure;
@@ -73,20 +73,6 @@ export function shownElevationM(elevationDm: number): number {
 	return Math.round(elevationDm / 10);
 }
 
-function utcDate(date: string): Date {
-	return new Date(`${date}T00:00:00Z`);
-}
-
-function isoDate(date: Date): string {
-	return date.toISOString().slice(0, 10);
-}
-
-function addDays(date: string, days: number): string {
-	const d = utcDate(date);
-	d.setUTCDate(d.getUTCDate() + days);
-	return isoDate(d);
-}
-
 const later = (a: string, b: string) => (a > b ? a : b);
 const earlier = (a: string, b: string) => (a < b ? a : b);
 
@@ -106,9 +92,9 @@ export function periodOf(
 		range = { from: window.seasonStart, to: window.deadline };
 	} else if (period === "month") {
 		const first = `${today.slice(0, 7)}-01`;
-		const next = utcDate(first);
+		const next = new Date(`${first}T00:00:00Z`);
 		next.setUTCMonth(next.getUTCMonth() + 1);
-		range = { from: first, to: addDays(isoDate(next), -1) };
+		range = { from: first, to: addDays(next.toISOString().slice(0, 10), -1) };
 	} else {
 		const sunday = weekEndOf(today);
 		range = { from: addDays(sunday, -6), to: sunday };

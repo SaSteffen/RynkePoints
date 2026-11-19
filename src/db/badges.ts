@@ -1,6 +1,6 @@
 // A rider's personal badges and their catalog version (feature 013
 // data-model.md, research R13, R18). Writes are statements for the evaluation
-// batch of `rynke/apply.ts`, so badges never disagree with the Rynke.
+// batch of `rynke/reevaluate.ts`, so badges never disagree with the Rynke.
 
 import type { EarnedBadge } from "../badges/evaluate";
 import type { DailyFigures } from "../badges/hints";

@@ -2,6 +2,8 @@
 // RynkePoints (research R4). `PUSH_VAPID_KEY` is an EC P-256 JWK with `d`; the
 // public part is the `applicationServerKey` the page subscribes with.
 
+import { fromBase64Url, toBase64Url } from "../crypto/base64";
+
 type VapidEnv = Pick<Env, "PUSH_VAPID_KEY" | "PUSH_SUBJECT">;
 
 interface VapidJwk {
@@ -15,18 +17,6 @@ const TOKEN_MIN_LEFT = 3600;
 
 const keys = new Map<string, Promise<CryptoKey>>();
 const tokens = new Map<string, { token: string; exp: number }>();
-
-function toBase64Url(bytes: Uint8Array): string {
-	return btoa(String.fromCharCode(...bytes))
-		.replaceAll("+", "-")
-		.replaceAll("/", "_")
-		.replace(/=+$/, "");
-}
-
-function fromBase64Url(value: string): Uint8Array {
-	const binary = atob(value.replaceAll("-", "+").replaceAll("_", "/"));
-	return Uint8Array.from(binary, (c) => c.charCodeAt(0));
-}
 
 const encodeJson = (value: unknown) =>
 	toBase64Url(new TextEncoder().encode(JSON.stringify(value)));

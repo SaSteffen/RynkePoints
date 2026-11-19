@@ -4,6 +4,7 @@ import { upsertActivity } from "../../src/db/activities";
 import { evaluateChange } from "../../src/rynke/apply";
 import { evaluateRides } from "../../src/rynke/rides";
 import {
+	assertValidRules,
 	countingWindow,
 	currentRules,
 	type RynkeRules,
@@ -72,6 +73,14 @@ beforeEach(async () => {
 });
 
 describe(`${team.id}'s own rules (US3)`, () => {
+	// The evaluation trusts the rules it is given: they are checked once, as
+	// the team registry loads, not on each call.
+	it("holds only valid rules in every version", () => {
+		for (const rules of team.rules) {
+			expect(() => assertValidRules(rules)).not.toThrow();
+		}
+	});
+
 	it("scores the same ride with each team's rules", async () => {
 		const step = currentRules(team.rules).distanceStepKm;
 		const own = await scoredAs(team);

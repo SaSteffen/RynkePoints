@@ -18,7 +18,6 @@ import {
 	type TeamEventRecordRow,
 } from "../../db/team-events";
 import type { I18n } from "../../i18n/i18n";
-import { TeamEventRefused, teamEventChange } from "../../rynke/apply";
 import { hasTakenPlace } from "../../rynke/participation";
 import {
 	countingWindow,
@@ -26,6 +25,10 @@ import {
 	eventInWindow,
 	isCalendarDate,
 } from "../../rynke/rules";
+import {
+	TeamEventRefused,
+	teamEventChange,
+} from "../../rynke/team-event-change";
 import {
 	EVENT_KINDS,
 	type EventKind,

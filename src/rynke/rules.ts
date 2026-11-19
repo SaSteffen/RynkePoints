@@ -139,6 +139,9 @@ export function countingWindow(
 		"SEASON_START_DATE" | "QUALIFICATION_START_DATE" | "QUALIFICATION_DEADLINE"
 	>,
 ): CountingWindow {
+	if (!isCalendarDate(env.SEASON_START_DATE)) {
+		throw new Error("SEASON_START_DATE must be a date YYYY-MM-DD");
+	}
 	if (!isCalendarDate(env.QUALIFICATION_START_DATE)) {
 		throw new Error("QUALIFICATION_START_DATE must be a date YYYY-MM-DD");
 	}

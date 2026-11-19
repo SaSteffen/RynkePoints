@@ -2,13 +2,10 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { BADGE_CATALOG_VERSION } from "../../src/badges/catalog";
 import { upsertActivity } from "../../src/db/activities";
-import {
-	type ActivityChange,
-	applyAndEvaluate,
-	applyCorrectionChange,
-	applyTeamEventChange,
-} from "../../src/rynke/apply";
+import { type ActivityChange, applyAndEvaluate } from "../../src/rynke/apply";
+import { applyCorrectionChange } from "../../src/rynke/correction-change";
 import { countingWindow } from "../../src/rynke/rules";
+import { applyTeamEventChange } from "../../src/rynke/team-event-change";
 import type { ActivityRecord } from "../../src/strava/activity";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";

@@ -14,9 +14,11 @@ import { CATALOGS } from "../../src/i18n/catalogs";
 import {
 	CorrectionRefused,
 	correctionChange,
+} from "../../src/rynke/correction-change";
+import {
 	TeamEventRefused,
 	teamEventChange,
-} from "../../src/rynke/apply";
+} from "../../src/rynke/team-event-change";
 import { hasEvents, hasTeamRynke, teamFor } from "../../src/teams";
 import { makeCtx, type TestCtx } from "../support/ctx";
 import { NOW } from "../support/fixtures";

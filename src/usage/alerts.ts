@@ -31,9 +31,10 @@ export function alertPeriod(allowance: RecordedAllowance, day: string): string {
 
 /**
  * Checks this run's freshly recorded values. A level newly reached is inserted
- * even without recipients, so turning the switch on later doesn't send it. Both
- * levels newly reached in one run send one notification, which the device words
- * by the higher one. Never holds up recording: the caller keeps a failure out.
+ * even without recipients, so turning the switch on later doesn't send it. Each
+ * allowance with a level newly reached sends one notification, one even when it
+ * reached both levels in this run, which the device words by the higher one.
+ * Never holds up recording: the caller keeps a failure out.
  */
 export async function checkAlerts(
 	ctx: Ctx,

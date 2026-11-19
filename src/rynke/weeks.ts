@@ -52,6 +52,11 @@ function fromDayNumber(day: number): string {
 	return new Date(day * DAY_MS).toISOString().slice(0, 10);
 }
 
+/** `date` moved by `days`, back when negative; both `YYYY-MM-DD`. */
+export function addDays(date: string, days: number): string {
+	return fromDayNumber(dayNumber(date) + days);
+}
+
 /** The Sunday ending the Monday-to-Sunday week that holds `date`. */
 function sundayOf(date: string): number {
 	const day = dayNumber(date);
