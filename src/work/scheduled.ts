@@ -6,7 +6,10 @@ import {
 	listFailedWorkFirstFailedSince,
 } from "../db/failed-work";
 import { listRemovedGuestIds } from "../db/guests";
-import { listPreSeasonActivities } from "../db/pre-season";
+import {
+	deletePreSeasonActivities,
+	listPreSeasonRiders,
+} from "../db/pre-season";
 import { pruneRecheckDays } from "../db/recheck";
 import {
 	listClubRiderIds,
@@ -16,7 +19,6 @@ import {
 } from "../db/riders";
 import { listRidersNeedingEvaluation } from "../db/rynke";
 import { pruneUsageAlerts, pruneUsageHistory } from "../db/usage";
-import { evaluateChange } from "../rynke/apply";
 import { countingWindow, currentRules } from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
 import { settleWithdrawals } from "../strava/withdraw";
@@ -29,6 +31,8 @@ import { recheckRun } from "./recheck-run";
 
 const GIVE_UP_AFTER_SECONDS = 7 * 24 * 3600;
 const RECONNECT_GRACE_SECONDS = 7 * 24 * 3600;
+/** Long enough for the purge's deletion to land first (review L-11). */
+const PURGE_EVALUATION_DELAY_SECONDS = 60;
 
 /**
  * The hourly cron in `wrangler.jsonc`: usage (feature 025 research R2), then
@@ -122,19 +126,28 @@ export async function fanOutFiguresReread(ctx: Ctx): Promise<void> {
 
 /**
  * Deletes every stored ride, run and swim whose local date is before the
- * season start date, with the rider's Rynke: what was stored before nothing
- * older could be, or by Berlin's midnight rather than the local date (review
- * L-16), and the last season's after the season start moves on. Such a ride
- * never counted, so the balance stays as it was.
+ * season start date: what was stored before nothing older could be, or by
+ * Berlin's midnight rather than the local date (review L-16), and the last
+ * season's after the season start moves on. Such a ride never counted, so the
+ * balance stays as it was; the rider's summaries follow in an `evaluate-rider`
+ * each. On the day the season start moves on, that is every rider, more than
+ * one invocation's CPU allows, so they run in the queue (review L-11).
+ *
+ * The evaluations are sent first, a minute late: should sending fail, nothing
+ * is deleted and the next day tries again; should the deletion fail, they find
+ * nothing changed.
  */
 export async function purgePreSeasonActivities(ctx: Ctx): Promise<void> {
-	const byRider = await listPreSeasonActivities(
-		ctx.env.DB,
-		ctx.env.SEASON_START_DATE,
+	const db = ctx.env.DB;
+	const start = ctx.env.SEASON_START_DATE;
+	const riders = await listPreSeasonRiders(db, start);
+	if (riders.length === 0) return;
+	await sendAll(
+		ctx,
+		riders.map((athleteId) => ({ kind: "evaluate-rider", athleteId })),
+		{ delaySeconds: PURGE_EVALUATION_DELAY_SECONDS },
 	);
-	for (const [athleteId, activityIds] of byRider) {
-		await evaluateChange(ctx, athleteId, { kind: "delete", activityIds });
-	}
+	await deletePreSeasonActivities(db, start);
 }
 
 /**

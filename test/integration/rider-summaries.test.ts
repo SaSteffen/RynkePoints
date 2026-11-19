@@ -375,6 +375,12 @@ describe("a rider's summary follows every change (US3)", () => {
 		});
 		expect((await storedRow())?.active).toContain("2025-05-02");
 		await purgePreSeasonActivities(ctx);
+		// The evaluation the purge queued (review L-11), as `evaluate-rider`
+		// runs it.
+		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
+			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
+		]);
+		await evaluateChange(ctx, ATHLETE_A, { kind: "none" });
 		await expectRowMatches();
 		expect((await storedRow())?.active).not.toContain("2025-05-02");
 	});

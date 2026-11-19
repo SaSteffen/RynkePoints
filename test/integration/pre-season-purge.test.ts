@@ -123,5 +123,34 @@ describe("purgePreSeasonActivities", () => {
 		await seedRide(ATHLETE_A, { id: 2, ...AT_START });
 		await purgePreSeasonActivities(ctx);
 		expect(await ids("activities")).toEqual([2]);
+		expect(ctx.queue.sent).toEqual([]);
+	});
+
+	it("leaves each rider's evaluation to the queue, a minute late (review L-11)", async () => {
+		await seedRider(ctx);
+		await seedRider(ctx, { athleteId: ATHLETE_B });
+		await seedRide(ATHLETE_A, { id: 1, ...BEFORE });
+		await seedRunOrSwim("runs", 2, ATHLETE_A, BEFORE);
+		await seedRunOrSwim("swims", 3, ATHLETE_B, BEFORE);
+
+		await purgePreSeasonActivities(ctx);
+
+		expect(ctx.queue.sent).toEqual(
+			[ATHLETE_A, ATHLETE_B].map((athleteId) => ({
+				body: { kind: "evaluate-rider", athleteId },
+				delaySeconds: 60,
+			})),
+		);
+	});
+
+	it("deletes nothing when the evaluations can't be sent", async () => {
+		await seedRider(ctx);
+		await seedRide(ATHLETE_A, { id: 1, ...BEFORE });
+		ctx.queue.sendBatch = async () => {
+			throw new Error("queue down");
+		};
+
+		await expect(purgePreSeasonActivities(ctx)).rejects.toThrow("queue down");
+		expect(await ids("activities")).toEqual([1]);
 	});
 });
