@@ -11,7 +11,8 @@ import { readBodyUpTo } from "./body";
 
 // Strava's push subscription (research R3, contracts/http-routes.md). Strava
 // signs nothing, so the unguessable path secret and the subscription ID are the
-// checks. Answers are for Strava, not riders: plain English, no catalogue. An
+// checks; a deauthorization is checked with Strava before it deletes anyone
+// (`delete-rider`, review L-05). Answers are for Strava, not riders: plain English, no catalogue. An
 // event is only queued here, never processed, and Strava is never called
 // (FR-011).
 

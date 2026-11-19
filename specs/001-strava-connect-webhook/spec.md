@@ -382,7 +382,10 @@ and no one else's.
 - **FR-022**: On a deauthorization notification from Strava, the system MUST
   permanently delete the rider's credentials, rider record, all their activity
   records and their consent records (feature 004, FR-013) (no soft delete, no
-  anonymised remainder).
+  anonymised remainder). Strava signs no notification, so the system first asks
+  Strava whether the grant ended, with one token refresh: while Strava still
+  renews it, the notification is false and the rider is kept. While Strava can't
+  answer, the system retries and deletes on its last try.
 - **FR-022a**: Deletion removes the data from the live database immediately.
   Copies in the hosting platform's always-on backup history cannot be deleted by
   the app and expire after at most 7 days. The system MUST NOT restore deleted
