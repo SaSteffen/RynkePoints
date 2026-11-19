@@ -5,3 +5,6 @@ export function validateMonkeys(data: unknown): string[];
 
 /** Problems with the page-switch shows' list, empty when it is valid. */
 export function validateShows(data: unknown): string[];
+
+/** Problems with the teams' coin backs' list, empty when it is valid. */
+export function validateCoins(data: unknown): string[];

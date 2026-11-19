@@ -90,3 +90,8 @@ export function validateShows(data) {
 		problems.push(`shows.json: the shows must be ${SHOW_IDS.join(" and ")}`);
 	return problems;
 }
+
+/** Problems with the German teams' coin backs (art/coin/teams/coins.json). */
+export function validateCoins(data) {
+	return validatePictures(data, "coins", "coins.json");
+}

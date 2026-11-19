@@ -1,0 +1,57 @@
+{
+	"snippets": {
+		"roadside": "small, about the size of one of the riders, at the roadside where the road starts to climb"
+	},
+	"coins": [
+		{
+			"id": "coin-berlin",
+			"name": "Berlin",
+			"scene": "Main motif: the Berlin TV tower (Fernsehturm), tall and slim with its ball and antenna, its tip staying below the arc line. Support: the Brandenburg Gate with its columns and the quadriga on top, smaller, at the left. Ground: the river Spree running along the bottom, a few calm wave lines. Dry touch: the East German traffic-light man (Ampelmännchen, the little walking man with his hat) walking along the road beside the riders, {{roadside}}."
+		},
+		{
+			"id": "coin-muenchen",
+			"name": "München",
+			"scene": "Main motif: the Frauenkirche in Munich, its two tall towers with their round onion-shaped domes. Support: a tall Bavarian maypole (Maibaum) with its spiral stripes, with a big pretzel hanging off it. Ground: a meadow. Dry touch: a one-litre beer mug (Maßkrug) with a foam head standing at the roadside like a feed station, {{roadside}}."
+		},
+		{
+			"id": "coin-black-forest",
+			"name": "Black Forest",
+			"scene": "Main motif: a Black Forest farmhouse with its huge hipped roof reaching almost to the ground, among tall fir trees on a hillside. A cuckoo pops out of a small cuckoo clock under the roof's gable. Support: a Bollenhut, the traditional Black Forest hat with its big pompoms, at the left. Ground: a hillside meadow with fir trees. Dry touch: a slice of Black Forest cherry cake with cream and a cherry on top, on a small plate at the roadside, {{roadside}}."
+		},
+		{
+			"id": "coin-rheinruhr",
+			"name": "RheinRuhr",
+			"scene": "Main motif: the double headframe of the Zollverein coal mine (Schacht XII), the steel winding tower with its two big wheels on top. Support: a gasometer, the tall round industrial gas holder, at the left. Ground: flat industrial land. Dry touch: the climb is a spoil heap (a mining slag heap), not a mountain; a small signpost on it reads \"GLÜCK AUF\", {{roadside}}."
+		},
+		{
+			"id": "coin-niederrhein",
+			"name": "Niederrhein",
+			"scene": "Main motif: a Lower Rhine windmill, a tall tower mill with four sails. Support: a row of pollarded willows (Kopfweiden), short thick trunks with bushy heads of thin branches. Ground: completely flat land with a dyke along the river Rhine. Dry touch: everything is dead flat all the way, the road a dead straight line, until the climb starts abruptly and steeply right before Paris."
+		},
+		{
+			"id": "coin-nieder-olm",
+			"name": "Nieder-Olm",
+			"scene": "Main motif: a small round vineyard hut (Weinbergshäuschen, a little round stone hut with a cone roof) among rolling hills covered with rows of vines. Support: a big glass of wine on a stem. Ground: gentle rolling vineyard hills. Dry touch: the lead rider wears a carnival jester's cap (Narrenkappe) over the helmet."
+		},
+		{
+			"id": "coin-frankfurt",
+			"name": "Frankfurt",
+			"scene": "Main motif: the Frankfurt skyline, a group of skyscrapers including the Messeturm with its pyramid top, the tallest staying below the arc line. Support: the stepped gables of the Römer, the old half-timbered town hall facades, in front of the skyline at the left. Ground: the river Main along the bottom, a few calm wave lines. Dry touch: an apple-wine jug (Bembel, a grey stoneware jug) with a ribbed glass (Geripptes) next to it at the roadside, {{roadside}}."
+		},
+		{
+			"id": "coin-flensburg",
+			"name": "Flensburg",
+			"scene": "Main motif: an old sailing ship with two masts and furled sails in the harbour of the Flensburg fjord (Förde). Support: a lighthouse at the left. Ground: the fjord's water along the bottom, a few calm wave lines. Dry touch: a wooden rum barrel at the roadside with a swing-top beer bottle on it, its stopper just popping open with a few short lines, {{roadside}}."
+		},
+		{
+			"id": "coin-mecklenburg",
+			"name": "Mecklenburg",
+			"scene": "Main motif: Schwerin Castle on its island in the lake, the fairy-tale palace with its many towers, turrets and golden dome. Support: a wicker beach chair (Strandkorb) on a bit of beach at the left. Ground: the lake along the bottom, a few calm wave lines. Dry touch: three cranes (the birds, long necks and legs stretched out) flying over the lake in a loose row."
+		},
+		{
+			"id": "coin-100-germany",
+			"name": "100 Germany",
+			"scene": "Main motif: the outline of Germany as a simple map shape, with a road running out of it towards the climb and Paris. Support: a small kilometre stone at the start of the road reading \"100\". Ground: a gentle meadow. Dry touch: a cup of coffee and a croissant on a small café table at the roadside, {{roadside}}."
+		}
+	]
+}

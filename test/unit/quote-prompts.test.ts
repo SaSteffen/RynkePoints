@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import coins from "../../art/coin/teams/coins.json";
 import data from "../../art/quotes/monkeys.json";
 import shows from "../../art/shows/shows.json";
 import { buildPrompt } from "../../scripts/badge-prompts.mjs";
 import {
+	validateCoins,
 	validateMonkeys,
 	validateShows,
 } from "../../scripts/quote-prompts.mjs";
@@ -227,5 +229,16 @@ describe("validateShows", () => {
 		});
 		expect(prompt).toContain(shows.snippets.kit);
 		expect(prompt).not.toMatch(/{{\w+}}/);
+	});
+});
+
+describe("validateCoins", () => {
+	it("accepts the German teams' coin backs, one per team", () => {
+		expect(validateCoins(coins)).toEqual([]);
+		expect(coins.coins).toHaveLength(10);
+	});
+
+	it("rejects a list without coins", () => {
+		expect(validateCoins({})).toEqual(["coins.json: no coins list"]);
 	});
 });

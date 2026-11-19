@@ -1,7 +1,8 @@
 # Art: the Rynke coin
 
 The team's own coin designs, and the SVGs the app traces from them. Team Europe's
-are in [`europe/`](europe/README.md).
+are in [`europe/`](europe/README.md), the drafts for the other German teams in
+[`teams/`](teams/README.md).
 
 | File | What it is |
 | --- | --- |

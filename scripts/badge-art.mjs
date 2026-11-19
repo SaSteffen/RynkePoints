@@ -28,7 +28,9 @@
 // art/quotes/monkeys.json with its art/quotes/prompt.txt and the hero coin's
 // reference sheet, into art/quotes/originals/ (art/quotes/README.md); so do
 // the two pictures of Rynke in the fun themes' page-switch shows, from
-// art/shows/ (art/shows/README.md). Their ids work like badge ids here. A
+// art/shows/ (art/shows/README.md), and the German teams' coin backs, from
+// art/coin/teams/ (art/coin/teams/README.md, ids coin-<team>). Their ids work
+// like badge ids here. A
 // team's own take of a badge with another team's motifs, from
 // art/badges/teams/<team>/, has the id <team>/<badge>, e.g. europe/running-100.
 //
@@ -56,7 +58,11 @@ import {
 	validateBadges,
 	validateTeamBadges,
 } from "./badge-prompts.mjs";
-import { validateMonkeys, validateShows } from "./quote-prompts.mjs";
+import {
+	validateCoins,
+	validateMonkeys,
+	validateShows,
+} from "./quote-prompts.mjs";
 
 const GEMINI = "https://gemini.google.com/app";
 
@@ -120,10 +126,14 @@ const REFERENCE = {
 	// The quote monkeys and the shows go with the hero coin's sheet of badge
 	// pictures.
 	monkey: root("art/coin/reference/rynke-hero-reference.png"),
+	// The teams' coin backs go with Hamburg's back, its scene and lettering
+	// wiped (pnpm team-coins writes it).
+	coin: root("art/coin/teams/reference/coin-back-blank.png"),
 };
 
-// Three lists: the badges, the Team page's quote monkeys (art/quotes) and
-// Rynke in the page-switch shows (art/shows); then the teams' own badges.
+// Four lists: the badges, the Team page's quote monkeys (art/quotes),
+// Rynke in the page-switch shows (art/shows) and the German teams' coin
+// backs (art/coin/teams); then the teams' own badges.
 const SETS = [
 	{
 		dir: "art/badges",
@@ -143,9 +153,16 @@ const SETS = [
 		key: "shows",
 		check: validateShows,
 	},
+	{
+		dir: "art/coin/teams",
+		list: "coins.json",
+		key: "coins",
+		check: validateCoins,
+		group: "coin",
+	},
 ];
 const problems = [];
-const items = SETS.flatMap(({ dir, list, key, check }) => {
+const items = SETS.flatMap(({ dir, list, key, check, group }) => {
 	const data = JSON.parse(readFileSync(root(`${dir}/${list}`), "utf8"));
 	const template = readFileSync(root(`${dir}/prompt.txt`), "utf8").trim();
 	problems.push(...check(data).map((p) => `${dir}: ${p}`));
@@ -156,7 +173,7 @@ const items = SETS.flatMap(({ dir, list, key, check }) => {
 		...item,
 		file: item.id,
 		out: root(`${dir}/originals`),
-		reference: REFERENCE[item.group ?? "monkey"],
+		reference: REFERENCE[item.group ?? group ?? "monkey"],
 		prompt: () => buildPrompt(template, data.snippets ?? {}, item),
 	}));
 });
