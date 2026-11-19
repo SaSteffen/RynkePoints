@@ -90,9 +90,10 @@ Then:
    ```
 
    This queues a re-read of every connected rider's rides since `T0`. It stores new and
-   changed rides with their Rynke. A ride *deleted* in the gap stays until its rider
-   changes or deletes it again. A rider who revoked access in the gap is found by the
-   daily run, whose Strava calls then fail.
+   changed rides with their Rynke. A ride *deleted* in the gap is removed by the ride edit
+   re-check when it next reads that rider, if they have an activity in the last 30 days.
+   A rider who revoked access in the gap is found by the daily run, whose Strava calls
+   then fail.
 2. Put the new ID in `STRAVA_SUBSCRIPTION_ID` for every team in `wrangler.jsonc`, and merge
    that through a pull request; there's no hurry. Once it is live, remove the secret:
    `pnpm exec wrangler secret delete STRAVA_SUBSCRIPTION_ID_OVERRIDE --env hamburg` (and each
@@ -105,7 +106,7 @@ For a day, check the following:
 
 - The gateway's logs in Cloudflare show `forward team=hamburg status=200 attempt=1` lines.
   A growing `attempt` means Hamburg answers with errors, and the gateway keeps retrying
-  with longer and longer delays.
+  with longer and longer delays, for about 17 hours ([A team was down](#a-team-was-down)).
 - New rides show up on the site, and the admin view shows no failed work.
 
 ## Switching back
@@ -120,6 +121,25 @@ Do the same steps in reverse:
    secret.
 
 The gateway can stay deployed: without the subscription it gets nothing.
+
+## A team was down
+
+When a team doesn't answer, the gateway retries each event with longer and longer delays,
+but the queue keeps a message only 24 hours on the Workers Free plan. The last try comes
+about 17 hours after the event (`attempt=12` in the gateway's logs). After that the event
+is gone for that team, without a log line. A team that is back sooner gets every event late.
+
+After a longer outage, re-read what the team missed. The start is the first
+`forward team=<team> status=…` line in the gateway's logs that isn't `200`. Use that team's
+own `ADMIN_TOKEN` and address:
+
+```bash
+RYNKE_URL=https://rynke-points.eu ADMIN_TOKEN=… pnpm catch-up "2026-11-20 10:00 UTC"
+```
+
+As after the switch, this stores new and changed rides, the ride edit re-check removes
+deleted ones, and the daily run finds riders who revoked access. The catch-up reaches back
+at most 30 days.
 
 ## Locally
 

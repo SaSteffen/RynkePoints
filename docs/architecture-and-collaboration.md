@@ -136,8 +136,9 @@ sequenceDiagram
     end
 ```
 
-If one team can't be reached, the other isn't held up, and the missed events arrive later. Repeats
-don't double-count.
+If one team can't be reached, the other isn't held up, and the missed events arrive later, as long
+as the team is back within about 17 hours ([after a longer outage](gateway-switch.md#a-team-was-down)).
+Repeats don't double-count.
 
 ### Connecting with Strava through the gateway
 
