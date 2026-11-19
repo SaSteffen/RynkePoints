@@ -9,8 +9,9 @@ import { test } from "./test";
 // badges, not for Rynke.
 
 /**
- * A Europe sample rider whose rides all lie in November so far, among them
- * 14 November's (dev/fake-strava/samples.europe.ts).
+ * A Europe sample rider with rides before the window, among them 14 November's;
+ * seeded before it opens, the rest lie in the window
+ * (dev/fake-strava/samples.europe.ts).
  */
 const RIDER = "Wouter Winter";
 

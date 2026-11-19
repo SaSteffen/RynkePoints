@@ -8,6 +8,7 @@ import {
 } from "../../src/db/usage";
 import { handleFetch } from "../../src/index";
 import { teamEventChange } from "../../src/rynke/apply";
+import { countingWindow } from "../../src/rynke/rules";
 import {
 	ATHLETE_CAPACITY,
 	CLOUDFLARE_ALLOWANCES,
@@ -18,7 +19,12 @@ import {
 	utcDay,
 } from "../../src/usage/allowances";
 import { samplesFor } from "./sample-sets";
-import { eventDay, recipeToActivity, type SampleRider } from "./samples";
+import {
+	eventDay,
+	recipeDay,
+	recipeToActivity,
+	type SampleRider,
+} from "./samples";
 import {
 	clearActivities,
 	ensureTable,
@@ -112,7 +118,8 @@ export async function sampleFingerprint(teamId: string): Promise<string> {
  * budget, then stores the recipes of `ctx.team`'s sample riders, connects
  * every club member and enters
  * their team events, then the shared ones. `seedDay` is the Europe/Berlin day
- * (`YYYY-MM-DD`) the recipes count back from. Only a seeding that finishes is
+ * (`YYYY-MM-DD`) of the seeding; the recipes count back from `recipeDay`'s day.
+ * Only a seeding that finishes is
  * recorded, so one that fails is tried again.
  */
 export async function seed(
@@ -145,13 +152,14 @@ export async function seed(
 		db.prepare("DELETE FROM removal_log"),
 	]);
 	await clearActivities(db);
+	const day = recipeDay(seedDay, countingWindow(ctx.env));
 
 	await insertActivities(
 		db,
 		riders.flatMap((rider) =>
 			rider.rides.map((recipe) => ({
 				athleteId: rider.athleteId,
-				body: recipeToActivity(recipe, seedDay, ctx.env.SEASON_START_DATE, 0),
+				body: recipeToActivity(recipe, day, ctx.env.SEASON_START_DATE, 0),
 			})),
 		),
 	);
@@ -191,7 +199,7 @@ export async function seed(
 				kind: "create-event",
 				event: {
 					kind: recipe.kind,
-					date: eventDay(recipe, seedDay, ctx.env.SEASON_START_DATE),
+					date: eventDay(recipe, day, ctx.env.SEASON_START_DATE),
 					name: recipe.name,
 				},
 				by: organiser,
@@ -210,7 +218,7 @@ export async function seed(
 			kind: "create-event",
 			event: {
 				kind: recipe.kind,
-				date: eventDay(recipe, seedDay, ctx.env.SEASON_START_DATE),
+				date: eventDay(recipe, day, ctx.env.SEASON_START_DATE),
 				name: recipe.name,
 			},
 			by: organiser,
