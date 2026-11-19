@@ -8,14 +8,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { seasonStartEpoch } from "../../src/config";
 import { upsertActivity } from "../../src/db/activities";
 import { handleQueue } from "../../src/index";
+import { type ActivityChange, applyAndEvaluate } from "../../src/rynke/apply";
+import { countingWindow } from "../../src/rynke/rules";
 import {
-	type ActivityChange,
-	applyAndEvaluate,
 	applyTeamEventChange,
 	type TeamEventChange,
 	teamEventChange,
-} from "../../src/rynke/apply";
-import { countingWindow } from "../../src/rynke/rules";
+} from "../../src/rynke/team-event-change";
 import type { ActivityRecord } from "../../src/strava/activity";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
