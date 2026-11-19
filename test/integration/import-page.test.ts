@@ -67,6 +67,9 @@ function addActivities(
 	}
 }
 
+/** The start of activity `i` that `addActivities` adds from a day into the season. */
+const hourly = (i: number) => SEASON_START + 86400 + i * 3600;
+
 /** Delivers one message through the Worker's queue handler. */
 async function deliver(body: unknown) {
 	const batch = createMessageBatch("rynke-points-work", [
@@ -99,19 +102,25 @@ describe("import-page", () => {
 			queued.push(...ctx.queue.sent.slice(sentBefore).map((m) => m.body));
 		}
 
+		// Each page after the newest start listed, one second earlier (review
+		// L-21).
+		const second = hourly(199) - 1;
+		const third = hourly(398) - 1;
 		const calls = fake.callsTo("activities");
-		expect(calls.map((c) => c.url.searchParams.get("page"))).toEqual([
-			"1",
-			"2",
-			"3",
+		expect(
+			calls.map((c) => [
+				c.url.searchParams.get("after"),
+				c.url.searchParams.get("page"),
+				c.url.searchParams.get("per_page"),
+			]),
+		).toEqual([
+			[String(SEASON_START), "1", "200"],
+			[String(second), "1", "200"],
+			[String(third), "1", "200"],
 		]);
-		for (const call of calls) {
-			expect(call.url.searchParams.get("after")).toBe(String(SEASON_START));
-			expect(call.url.searchParams.get("per_page")).toBe("200");
-		}
 		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
-			{ ...FIRST, page: 2 },
-			{ ...FIRST, page: 3 },
+			{ ...FIRST, after: second },
+			{ ...FIRST, after: third },
 		]);
 		expect((await tableCounts()).activities).toBe(430);
 		expect(statuses).toEqual(["running", "running", "done"]);
@@ -169,6 +178,78 @@ describe("import-page", () => {
 		expect(fake.callsTo("activities")[0]?.url.searchParams.get("after")).toBe(
 			String(after),
 		);
+	});
+
+	describe("pages by start (review L-21)", () => {
+		/** Delivers `first` and what it queues, at most `limit` messages. */
+		async function drain(first: ImportPageMessage, limit = 5) {
+			const queued: unknown[] = [first];
+			for (let n = 0; n < limit && queued.length > 0; n++) {
+				const sentBefore = ctx.queue.sent.length;
+				await deliver(queued.shift());
+				queued.push(...ctx.queue.sent.slice(sentBefore).map((m) => m.body));
+			}
+			return queued;
+		}
+
+		async function storedIds() {
+			const { results } = await env.DB.prepare(
+				"SELECT strava_activity_id FROM activities ORDER BY 1",
+			).all<{ strava_activity_id: number }>();
+			return results.map((r) => r.strava_activity_id);
+		}
+
+		it("misses nothing when an activity is deleted between two pages", async () => {
+			fake.addAthlete({ id: ATHLETE_A });
+			await seedRider(ctx);
+			addActivities(250, SEASON_START + 86400);
+			const all = [...fake.activities.keys()].sort((a, b) => a - b);
+			await deliver(FIRST);
+			// Deleted on Strava after the first page was read.
+			const [deleted] = [...fake.activities.values()].sort(
+				(a, b) => Date.parse(a.start_date) - Date.parse(b.start_date),
+			);
+			if (!deleted) throw new Error("nothing added");
+			fake.activities.delete(deleted.id);
+			expect(await drain(ctx.queue.sent[0]?.body as ImportPageMessage)).toEqual(
+				[],
+			);
+			expect(await storedIds()).toEqual(all);
+			expect(await importStatus()).toBe("done");
+		});
+
+		it("lists again what starts in the same second as a page's newest", async () => {
+			fake.addAthlete({ id: ATHLETE_A });
+			await seedRider(ctx);
+			const tie = new Date(hourly(PER_PAGE - 1) * 1000).toISOString();
+			addActivities(PER_PAGE + 1, SEASON_START + 86400, (i) =>
+				i === PER_PAGE ? { start_date: tie, start_date_local: tie } : {},
+			);
+			expect(await drain(FIRST)).toEqual([]);
+			expect(await storedIds()).toHaveLength(PER_PAGE + 1);
+		});
+
+		it("ends when a whole page starts in the same second", async () => {
+			fake.addAthlete({ id: ATHLETE_A });
+			await seedRider(ctx);
+			const same = new Date(hourly(0) * 1000).toISOString();
+			addActivities(PER_PAGE + 50, SEASON_START + 86400, () => ({
+				start_date: same,
+				start_date_local: same,
+			}));
+			expect(await drain(FIRST)).toEqual([]);
+			expect(await importStatus()).toBe("done");
+		});
+	});
+
+	it("goes on by start from a page sent by number before", async () => {
+		fake.addAthlete({ id: ATHLETE_A });
+		await seedRider(ctx);
+		addActivities(PER_PAGE * 2, SEASON_START + 86400);
+		await deliver({ ...FIRST, page: 2 });
+		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
+			{ ...FIRST, after: hourly(2 * PER_PAGE - 1) - 1 },
+		]);
 	});
 
 	it("is idempotent when a page is processed twice", async () => {
@@ -261,7 +342,7 @@ describe("import-page", () => {
 			addActivities(PER_PAGE, SEASON_START + 86400);
 			await deliver({ ...FIRST, startedAt: NOW - 60 });
 			expect(ctx.queue.sent.map((m) => m.body)).toEqual([
-				{ ...FIRST, startedAt: NOW - 60, page: 2 },
+				{ ...FIRST, startedAt: NOW - 60, after: hourly(PER_PAGE - 1) - 1 },
 			]);
 		});
 	});

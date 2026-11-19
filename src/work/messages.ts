@@ -23,8 +23,15 @@ export interface ActivityEventMessage {
 export interface ImportPageMessage {
 	kind: "import-page";
 	athleteId: number;
+	/**
+	 * Page of the list after `after`: always 1 since the import pages by start
+	 * (review L-21); higher on messages sent before.
+	 */
 	page: number;
-	/** Season start (epoch seconds) when the import was started. */
+	/**
+	 * Lists what started after it (epoch seconds): the season start when the
+	 * import was started, then one second before the newest start listed.
+	 */
 	after: number;
 	/**
 	 * When the import was started (epoch seconds). After its last page, a
@@ -38,8 +45,9 @@ export interface ImportPageMessage {
 export interface RereadPageMessage {
 	kind: "reread-page";
 	athleteId: number;
+	/** As for `ImportPageMessage`. */
 	page: number;
-	/** Season start (epoch seconds) when the re-read was started. */
+	/** As for `ImportPageMessage`, from the season start when it was started. */
 	after: number;
 }
 

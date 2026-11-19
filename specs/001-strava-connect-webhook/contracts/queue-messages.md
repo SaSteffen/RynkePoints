@@ -69,14 +69,20 @@ scheduled step, and Rynke storage in the activity handlers: see
   startedAt?: number }
 ```
 
-`after` is the season start (epoch seconds) at the time the import was started.
-It is carried from page to page, so changing `SEASON_START_DATE` only affects
-imports started afterwards (spec Edge Cases). `startedAt` is when the import was
-started, also carried; messages sent before it existed lack it.
+The first page's `after` is the season start (epoch seconds) at the time the
+import was started, so changing `SEASON_START_DATE` only affects imports started
+afterwards (spec Edge Cases). With `after`, Strava lists oldest first, so each
+next page is `page: 1` after the newest start listed so far, one second earlier:
+by page number, an activity deleted between two pages would shift one onto the
+page already read (review L-21), and one starting in the same second as the
+newest is listed again rather than missed. The next `after` is always past the
+current one, so the import ends. `page` is above 1 only on messages sent before
+this rule; such a page goes on by start too. `startedAt` is when the import was
+started, carried from page to page; messages sent before it existed lack it.
 
 1. `GET /athlete/activities?after=<after>&per_page=200&page=<page>`.
 2. Upsert the cycling activities and set `import_status=running`.
-3. If 200 items came back, enqueue `page+1` with the same `after` and
+3. If 200 items came back, enqueue the next page as above, with the same
    `startedAt`. Otherwise set `import_status=done`, and, given `startedAt`,
    enqueue `activity-event { aspect: "update", changed: [] }` for each stored
    ride, run or swim with `refreshed_at < startedAt`: the list didn't hold it
@@ -92,13 +98,13 @@ started, also carried; messages sent before it existed lack it.
 
 This is the one-time re-read for a rider whose stored activities lack a figure
 that was added to FR-013 later (research R20). It is enqueued by the daily cron
-(step 4), and `after` is the season start at that moment, carried from page to
-page.
+(step 4), and the first page's `after` is the season start at that moment. It
+pages as `import-page` does.
 
 1. `GET /athlete/activities?after=<after>&per_page=200&page=<page>`.
 2. Upsert the cycling activities with the same scope rule as `import-page`.
    `import_status` is not touched.
-3. If 200 items came back, enqueue `page+1` with the same `after`.
+3. If 200 items came back, enqueue the next page as `import-page` does.
 4. Otherwise, for every row of the rider that still has a `NULL` figure
    (`elapsed_time_s`, `is_manual`, `is_trainer` or `is_flagged`), enqueue
    `activity-event { aspect: "update", changed: [] }` (batches of 100). The
