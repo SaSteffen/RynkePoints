@@ -102,15 +102,17 @@ Content-Length: 0
 ## What the device shows (`public/sw.js`, `push` event)
 
 The text is `/me/notification-text` when it answers `200` (issue #45), else the
-cached `/notification-text`, else the server's, else the title alone.
+cached `/notification-text`, else the server's, else the title alone. The icons
+always come from `/notification-text` (cached, else the server's): they are the
+team's, and without that text the device shows none.
 
 ```js
 showNotification(text.title, {
   body: text.body,
   tag: "new-rynke",
   renotify: true,
-  icon: "/icons/icon-192.png",
-  badge: "/icons/badge-96.png",
+  icon: text.icon, // the team's, from /notification-text
+  badge: text.badge,
   data: { url: text.url }, // "/me" or "/team" (#125); anything else is "/me"
 });
 ```

@@ -101,7 +101,7 @@ export function handleOrganiserRider(
 		const rider = (await listedRiders(ctx)).find(
 			(r) => r.athlete_id === athleteId,
 		);
-		if (!rider) return notFound(i18n, path);
+		if (!rider) return notFound(ctx, i18n, path);
 		const { results } = await listRiderCorrectionsStatement(
 			ctx.env.DB,
 			athleteId,

@@ -58,12 +58,6 @@ export function coin(side: "front" | "back", size: CoinSize): SafeHtml {
 
 const ART_SIZE = 144;
 
-/** The shared coin, for a page without a team at hand. */
-export const SHARED_COIN: CoinArt = {
-	front: "/coin/rynke-coin-front.svg",
-	back: "/coin/rynke-coin-back.svg",
-};
-
 const art = (coin: CoinArt, side: "front" | "back", extra = "") =>
 	`<img class="coin-art${extra}" src="${artUrl(coin[side])}" alt="" width="${ART_SIZE}" height="${ART_SIZE}">`;
 

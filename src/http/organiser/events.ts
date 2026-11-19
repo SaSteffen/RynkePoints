@@ -292,7 +292,7 @@ export function handleOrganiserEvent(
 			ctx.env.DB,
 			eventId,
 		).first<TeamEventRecordRow>();
-		if (!event) return notFound(i18n, path);
+		if (!event) return notFound(ctx, i18n, path);
 		const { riders, attendees, reports } = await readAttendance(ctx, eventId);
 		const future = isFutureEvent(ctx, event.event_date);
 		return html`${attendanceNotice(new URL(request.url), i18n)}

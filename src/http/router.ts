@@ -138,7 +138,7 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	// A team without events has no events pages, and Orga opens on the riders
 	// (feature 039 contracts/team-surfaces.md).
 	if (!hasEvents(ctx.team)) {
-		if (isEventPath(path)) return notFound(i18n, path);
+		if (isEventPath(path)) return notFound(ctx, i18n, path);
 		if (path === "/organiser" && (method === "GET" || method === "HEAD")) {
 			return redirect("/organiser/riders", 302);
 		}
@@ -232,7 +232,7 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 			return handleRemoveCorrection(request, ctx, i18n, Number(correction[1]));
 		}
 	}
-	return notFound(i18n, path);
+	return notFound(ctx, i18n, path);
 }
 
 async function page(
@@ -259,7 +259,7 @@ async function page(
 		case "/me/badges":
 			return badges(ctx.env)
 				? handleBadges(request, ctx, i18n)
-				: notFound(i18n, path);
+				: notFound(ctx, i18n, path);
 		case "/team":
 			return handleTeam(request, ctx, i18n);
 		case "/events":

@@ -54,7 +54,7 @@ export async function handleDisconnect(
 	i18n: I18n,
 ): Promise<Response> {
 	const viewer = isSameOrigin(request) ? await readViewer(request, ctx) : null;
-	if (viewer?.kind !== "rider") return forbidden(i18n, "/me/disconnect");
+	if (viewer?.kind !== "rider") return forbidden(ctx, i18n, "/me/disconnect");
 	const { rider } = viewer;
 
 	// Unless another team holds them; a token not settled yet is kept and
@@ -74,7 +74,7 @@ export async function handleLogout(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	if (!isSameOrigin(request)) return forbidden(i18n, "/me");
+	if (!isSameOrigin(request)) return forbidden(ctx, i18n, "/me");
 	const form = await request.formData().catch(() => null);
 	const endpoint = form?.get("push_endpoint");
 	if (

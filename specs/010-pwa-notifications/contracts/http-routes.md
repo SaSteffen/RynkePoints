@@ -59,8 +59,12 @@ language is resolved as for any page (`resolveLocale`).
 The same `lang` handling as `/offline`. It returns JSON:
 
 ```json
-{ "title": "<app.name>", "body": "<push.body>" }
+{ "title": "<app.name>", "body": "<push.body>", "icon": "<icon192>", "badge": "<notificationBadge>" }
 ```
+
+`icon` and `badge` are the team's notification icons (feature 026, its
+`art.icons`); the service worker is the same file for every team and takes them
+from here.
 
 - No session, no D1, `Cache-Control: no-cache`.
 - The texts are fixed per language and contain no rider data (FR-015).

@@ -39,7 +39,7 @@ import { hasEvents } from "../../teams";
 import type { CoinArt, TeamData } from "../../teams/types";
 import { SINCE_VERSION } from "../../visibility";
 import { thresholdBars } from "../charts";
-import { coinArt, miniCoin, SHARED_COIN } from "../coin";
+import { coinArt, miniCoin } from "../coin";
 import { FUN_BURSTS, FUN_SPARKLES } from "../fun";
 import { html, type SafeHtml } from "../html";
 import { CHART_SCRIPTS } from "../progress-section";
@@ -332,9 +332,6 @@ function hasRequests(rider: OverviewRider, requests: RiderRequests): boolean {
  * (feature 039), which picks the texts that name Team Rynke.
  */
 export type Wording = Pick<TeamData, "eventKinds">;
-
-/** Today's wording, with events, for a caller that doesn't say. */
-const WITH_EVENTS: Wording = { eventKinds: ["team_training"] };
 
 function missingItems(
 	i18n: I18n,
@@ -896,8 +893,9 @@ ${
 }
 
 /**
- * The page's body below the notice, in the order of contracts/pages.md;
- * `inert` for the organiser tour's example team (feature 020 FR-014).
+ * The page's body below the notice, in the order of contracts/pages.md, with
+ * `team`'s wording and coin; `inert` for the organiser tour's example team
+ * (feature 020 FR-014).
  */
 export function overviewBody(
 	read: readonly TeamRider[],
@@ -906,15 +904,15 @@ export function overviewBody(
 	today: string,
 	group: Group | null,
 	i18n: I18n,
+	team: Wording & Pick<TeamData, "art">,
 	requests: RiderRequests = new Map(),
 	inert = false,
 	figures: OrganiserFigures = "full",
 	graphs: SafeHtml | null = null,
 	view: "graphs" | "riders" = "riders",
 	rides: RiderRides = null,
-	coin: CoinArt = SHARED_COIN,
-	wording: Wording = WITH_EVENTS,
 ): SafeHtml {
+	const wording = team;
 	const passed = today > window.deadline;
 	const sessionsOf =
 		rides === null || figures === "percent"
@@ -948,7 +946,7 @@ ${hasGraphs ? graphs : null}<div class="overview-qualified">${renderQualified(i1
 `;
 	return html`<div class="team-overview"${hasGraphs ? html` data-view="${view}"` : null}${inert ? html` inert` : null}>
 <h2>${i18n.t("organiser.overview.heading")}</h2>
-${renderDeadline(i18n, window, today, riders, coin)}${renderTiles(i18n, riders, group, passed, requests, hasEvents(wording))}${body}</div>`;
+${renderDeadline(i18n, window, today, riders, team.art.coin)}${renderTiles(i18n, riders, group, passed, requests, hasEvents(wording))}${body}</div>`;
 }
 
 /**
@@ -1073,7 +1071,7 @@ export function handleOrganiserOverview(
 		// The organiser tour's graphs step asks for them (020 FR-012).
 		const view =
 			url.searchParams.get("view") === "graphs" ? "graphs" : "riders";
-		const body = html`${organiserSwitch(i18n, "riders", team.requests.length, ctx.team)}${notices}${overviewBody(team.read, rules, window, today, shownGroup, i18n, requests, example, figures, graphs, view, team.rides, ctx.team.art.coin, ctx.team)}`;
+		const body = html`${organiserSwitch(i18n, "riders", team.requests.length, ctx.team)}${notices}${overviewBody(team.read, rules, window, today, shownGroup, i18n, ctx.team, requests, example, figures, graphs, view, team.rides)}`;
 		return graphs ? { body, scripts: CHART_SCRIPTS } : body;
 	});
 }

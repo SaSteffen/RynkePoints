@@ -50,7 +50,7 @@ function call(
 }
 
 async function unknownAddressBody(): Promise<string> {
-	return notFound(createI18n("de", CATALOGS), PATH).text();
+	return notFound(ctx, createI18n("de", CATALOGS), PATH).text();
 }
 
 describe("POST /admin/run-daily without the right token (US2)", () => {

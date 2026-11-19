@@ -72,7 +72,7 @@ describe("POST /admin/catch-up", () => {
 		const res = await call(`?since=${NOW - 60}`, auth, method);
 		expect(res.status).toBe(404);
 		expect(await res.text()).toBe(
-			await notFound(createI18n("de", CATALOGS), PATH).text(),
+			await notFound(ctx, createI18n("de", CATALOGS), PATH).text(),
 		);
 		expect(ctx.queue.sent).toEqual([]);
 	});

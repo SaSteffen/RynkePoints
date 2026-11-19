@@ -3,7 +3,7 @@ import { funThemes } from "../config";
 import type { Ctx } from "../ctx";
 import type { I18n } from "../i18n/i18n";
 import type { CoinArt, InstallIcons } from "../teams/types";
-import { COIN_SPRITE, coin, SHARED_COIN } from "./coin";
+import { COIN_SPRITE, coin } from "./coin";
 import { STYLE } from "./style";
 import { STYLESHEET_PATH } from "./stylesheet";
 import { THEMES, type Theme, teamThemes } from "./themes";
@@ -108,19 +108,6 @@ export function pageLook(ctx: Pick<Ctx, "env" | "team">): PageLook {
 }
 
 /**
- * A page that has no team at hand (the 404 and 403 pages): every theme and
- * the shared icons and coin.
- */
-export const SHARED_LOOK: PageLook = {
-	themes: THEMES,
-	icons: {
-		favicon: "/icons/favicon.svg",
-		appleTouch: "/icons/apple-touch-icon.png",
-	},
-	coin: SHARED_COIN,
-};
-
-/**
  * The brand name, the same in every language (011 contracts/pages.md), behind
  * the Rynke coin (feature 012).
  */
@@ -157,8 +144,8 @@ export interface LayoutOptions {
 	 * offline notice, which the service worker shows without a network.
 	 */
 	inlineStyle?: boolean;
-	/** The team's themes and icons (`pageLook(ctx)`); `SHARED_LOOK` without. */
-	look?: PageLook;
+	/** The team's themes and icons (`pageLook(ctx)`). */
+	look: PageLook;
 }
 
 // The picker's icons, here rather than in icons.ts, which imports this module.
@@ -207,7 +194,7 @@ export function layout(
 		shell,
 		scripts = [],
 		inlineStyle = false,
-		look = SHARED_LOOK,
+		look,
 	}: LayoutOptions,
 ): SafeHtml {
 	const header = shell

@@ -101,7 +101,7 @@ export async function handleConnectForm(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	if (!isSameOrigin(request)) return forbidden(i18n, "/");
+	if (!isSameOrigin(request)) return forbidden(ctx, i18n, "/");
 	let form: FormData;
 	try {
 		form = await request.formData();
