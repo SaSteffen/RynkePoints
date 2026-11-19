@@ -4,6 +4,7 @@
 // test/unit/badge-catalog.test.ts; the app never reads that file.
 
 import type { CountingWindow } from "../rynke/rules";
+import { addDays } from "../rynke/weeks";
 import { hasEvents } from "../teams";
 import type { TeamData } from "../teams/types";
 import { easterSunday } from "./easter";
@@ -329,16 +330,10 @@ export const badgeOrder = (id: string): number =>
 export const categoryById = (id: BadgeCategoryId): BadgeCategory =>
 	BADGE_CATEGORIES.find((c) => c.id === id) as BadgeCategory;
 
-/** The day after `date`, `YYYY-MM-DD`. */
-function nextDay(date: string): string {
-	const ms = Date.parse(`${date}T00:00:00Z`) + 86_400_000;
-	return new Date(ms).toISOString().slice(0, 10);
-}
-
 /** Every date from `from` to `to`, `YYYY-MM-DD`, both included. */
 function datesFrom(from: string, to: string): string[] {
 	const dates: string[] = [];
-	for (let date = from; date <= to; date = nextDay(date)) dates.push(date);
+	for (let date = from; date <= to; date = addDays(date, 1)) dates.push(date);
 	return dates;
 }
 
@@ -386,7 +381,7 @@ function inSeason(badge: Badge, dates: readonly string[]): boolean {
 		const years = new Set(dates.map((d) => Number(d.slice(0, 4))));
 		return [...years].some((year) => {
 			const sunday = easterSunday(year);
-			return days.has(sunday) || days.has(nextDay(sunday));
+			return days.has(sunday) || days.has(addDays(sunday, 1));
 		});
 	}
 	if (name === "winter-sleep") {

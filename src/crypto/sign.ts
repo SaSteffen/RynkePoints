@@ -1,4 +1,4 @@
-import { fromBase64 } from "./encrypt";
+import { fromBase64, fromBase64Url, toBase64Url } from "./base64";
 
 // HMAC-SHA256 signed values: `<value>.<expiresAt>.<base64url signature>`.
 // Used for the session and OAuth state cookies (research R9). `value` must not
@@ -22,18 +22,11 @@ function importKey(keyB64: string): Promise<CryptoKey> {
 	return key;
 }
 
-function toBase64Url(bytes: Uint8Array): string {
-	return btoa(String.fromCharCode(...bytes))
-		.replaceAll("+", "-")
-		.replaceAll("/", "_")
-		.replace(/=+$/, "");
-}
-
 /** Decodes canonical base64url only, so each signature has one spelling. */
-function fromBase64Url(value: string): Uint8Array<ArrayBuffer> | null {
+function canonicalBase64Url(value: string): Uint8Array<ArrayBuffer> | null {
 	if (!/^[A-Za-z0-9_-]+$/.test(value)) return null;
 	try {
-		const bytes = fromBase64(value.replaceAll("-", "+").replaceAll("_", "/"));
+		const bytes = fromBase64Url(value);
 		return toBase64Url(bytes) === value ? bytes : null;
 	} catch {
 		return null;
@@ -78,7 +71,7 @@ export async function verifySignedValue(
 	if (parts.length !== 3) return null;
 	const [value, expires, sigText] = parts as [string, string, string];
 	if (!value || !/^\d+$/.test(expires)) return null;
-	const sig = fromBase64Url(sigText);
+	const sig = canonicalBase64Url(sigText);
 	if (!sig) return null;
 	// subtle.verify compares in constant time.
 	const valid = await crypto.subtle.verify(

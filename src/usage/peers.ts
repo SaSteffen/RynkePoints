@@ -2,6 +2,7 @@ import type { Ctx } from "../ctx";
 import { readStravaUsage } from "../db/rate-limit";
 import { connectedCountStatement } from "../db/riders";
 import { ownCountsStatement } from "../db/usage";
+import { parseTeamOrigins, type TeamOrigin } from "../team-origins";
 import {
 	daysBefore,
 	historyStart,
@@ -16,10 +17,7 @@ import { currentStrava } from "./figures";
 // counts per allowance and day cross: no rider identifiers. The admin view then
 // reads D1 alone, so a team that doesn't answer can't slow it down or break it.
 
-export interface Peer {
-	id: string;
-	origin: string;
-}
+export type Peer = TeamOrigin;
 
 /** The allowances whose own count a team exports: Strava's daily, and riders. */
 export const EXCHANGED = STRAVA_RECORDED;
@@ -36,8 +34,6 @@ export interface UsageExport {
 	days: TeamCount[];
 }
 
-const TEAM_ID = /^[a-z][a-z0-9-]{0,30}$/;
-const LOCAL_HOST = /^(localhost|[a-z0-9-]+\.localhost|127\.0\.0\.1)$/;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const FETCH_TIMEOUT_MS = 5_000;
 /** Thirteen months of three allowances, with room to spare. */
@@ -45,35 +41,11 @@ const MAX_COUNTS = 1_500;
 /** How far back a team asks after it missed days. */
 const MAX_CATCH_UP_DAYS = 31;
 
-function originOf(value: unknown): string | null {
-	if (typeof value !== "string") return null;
-	let url: URL;
-	try {
-		url = new URL(value);
-	} catch {
-		return null;
-	}
-	if (url.origin !== value) return null;
-	if (url.protocol === "https:") return value;
-	if (url.protocol === "http:" && LOCAL_HOST.test(url.hostname)) return value;
-	return null;
-}
-
 /** Parses `USAGE_PEERS`; throws on anything but a valid list without this team. */
 export function parsePeers(raw: string, self: string): Peer[] {
-	const json: unknown = JSON.parse(raw);
-	if (!Array.isArray(json)) throw new Error("USAGE_PEERS is not a list");
-	const peers: Peer[] = [];
-	for (const entry of json) {
-		const id = (entry as { id?: unknown })?.id;
-		const origin = originOf((entry as { origin?: unknown })?.origin);
-		if (typeof id !== "string" || !TEAM_ID.test(id) || origin === null) {
-			throw new Error("USAGE_PEERS has an invalid entry");
-		}
-		if (id === self || peers.some((peer) => peer.id === id)) {
-			throw new Error("USAGE_PEERS repeats a team");
-		}
-		peers.push({ id, origin });
+	const peers = parseTeamOrigins(raw, "USAGE_PEERS");
+	if (peers.some((peer) => peer.id === self)) {
+		throw new Error("USAGE_PEERS repeats a team");
 	}
 	return peers;
 }

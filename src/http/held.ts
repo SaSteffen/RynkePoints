@@ -3,6 +3,7 @@ import { secretEquals } from "../crypto/secret";
 import type { Ctx } from "../ctx";
 import { riderHold } from "../db/riders";
 import { isId } from "../work/messages";
+import { readBodyUpTo } from "./body";
 
 // `POST /strava/held/<token>`: the gateway asks, for another team about to
 // withdraw a grant, whether this team holds the person (feature 041 FR-012,
@@ -25,13 +26,13 @@ export async function handleHeld(
 			headers: { Allow: "POST" },
 		});
 	}
-	const body = await request.text();
+	const body = await readBodyUpTo(request, MAX_BODY_BYTES);
 	let athleteId: unknown;
 	try {
 		athleteId =
-			body.length <= MAX_BODY_BYTES
-				? (JSON.parse(body) as { athleteId?: unknown })?.athleteId
-				: undefined;
+			body === null
+				? undefined
+				: (JSON.parse(body) as { athleteId?: unknown })?.athleteId;
 	} catch {
 		athleteId = undefined;
 	}

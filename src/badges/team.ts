@@ -12,7 +12,12 @@ import {
 	type RynkeRules,
 } from "../rynke/rules";
 import type { EventKind } from "../rynke/team-events";
-import { type DailyInputs, type DailyRideSum, riderDays } from "../rynke/weeks";
+import {
+	addDays,
+	type DailyInputs,
+	type DailyRideSum,
+	riderDays,
+} from "../rynke/weeks";
 import { BADGES, type BadgeCategoryId, surpriseName } from "./catalog";
 import {
 	type CategoryProgress,
@@ -228,17 +233,10 @@ function festiveTeam(
 	return undefined;
 }
 
-/** `YYYY-MM-DD` shifted by `days`. */
-function shift(date: string, days: number): string {
-	return new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000)
-		.toISOString()
-		.slice(0, 10);
-}
-
 /** The first date without anyone active between two active dates. */
 function dayOff(dates: readonly string[]): string | undefined {
 	for (let i = 1; i < dates.length; i++) {
-		const next = shift(dates[i - 1] as string, 1);
+		const next = addDays(dates[i - 1] as string, 1);
 		if (next !== dates[i]) return next;
 	}
 	return undefined;
@@ -249,7 +247,7 @@ function relay(dates: readonly string[]): string | undefined {
 	let run = 0;
 	let previous: string | undefined;
 	for (const date of dates) {
-		run = previous !== undefined && shift(previous, 1) === date ? run + 1 : 1;
+		run = previous !== undefined && addDays(previous, 1) === date ? run + 1 : 1;
 		if (run >= RELAY_DAYS) return date;
 		previous = date;
 	}
