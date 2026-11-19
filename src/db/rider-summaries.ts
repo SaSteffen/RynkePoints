@@ -10,7 +10,7 @@ import {
 	TEAM_SUMMARY_SINCE,
 	type WeekEntry,
 } from "../rynke/summary";
-import { BADGE_RIDE } from "./badges";
+import { SEASON_RIDE } from "./badges";
 import { sharedRiderIdsSince } from "./consents";
 import { LISTED_RIDER_IDS } from "./organiser";
 
@@ -165,8 +165,9 @@ function entriesByRider<Row extends { athlete_id: number }, Entry>(
 }
 
 /**
- * Every counting ride of the listed riders in `athleteIds` whose consent is at
- * least `consentSince`, as `summaryOf` stores them (feature 032 research R1):
+ * Every counting and pre-window ride of the listed riders in `athleteIds` whose
+ * consent is at least `consentSince`, as `summaryOf` stores them (feature 032
+ * research R1):
  * for riders without a version 3 row, so they get correct figures, never a
  * false zero. The consent is checked again here, since this isn't the first
  * batch's snapshot.
@@ -182,7 +183,7 @@ export async function readRidesAddedUp(
 				a.distance_m, r.elevation_dm
 			FROM ride_results r
 			JOIN activities a ON a.strava_activity_id = r.strava_activity_id
-			WHERE r.counts = 1 AND ${OF_THESE_LISTED("r.athlete_id")}
+			WHERE ${SEASON_RIDE} AND ${OF_THESE_LISTED("r.athlete_id")}
 				AND r.athlete_id IN (${sharedRiderIdsSince(consentSince)})
 			ORDER BY 1, 2, 3, 4`,
 		)
@@ -265,7 +266,7 @@ export async function readDaysAddedUp(
 					SUM(r.elevation_dm) AS elevation_dm
 				FROM ride_results r
 				JOIN activities a ON a.strava_activity_id = r.strava_activity_id
-				WHERE ${BADGE_RIDE} AND ${OF_THESE_LISTED("r.athlete_id")}
+				WHERE ${SEASON_RIDE} AND ${OF_THESE_LISTED("r.athlete_id")}
 				GROUP BY 1, 2
 				ORDER BY 1, 2`,
 			)
@@ -288,7 +289,7 @@ export async function readDaysAddedUp(
 					SELECT a.athlete_id, a.start_date_local, 1 AS ride
 					FROM ride_results r
 					JOIN activities a ON a.strava_activity_id = r.strava_activity_id
-					WHERE ${BADGE_RIDE} AND ${OF_THESE_LISTED("r.athlete_id")}
+					WHERE ${SEASON_RIDE} AND ${OF_THESE_LISTED("r.athlete_id")}
 					UNION ALL
 					SELECT athlete_id, start_date_local, 0 FROM runs
 					WHERE ${OF_THESE_LISTED("athlete_id")}

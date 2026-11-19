@@ -580,6 +580,8 @@ export const en: Catalog = {
 	"organiser.overview.deadline": "Qualification deadline · {date}",
 	"organiser.overview.daysLeft": "{n} days to go ⏳",
 	"organiser.overview.deadlinePassed": "The deadline has passed",
+	"organiser.overview.beforeWindow":
+		"Qualifying starts on {date}. Until then nobody can fall behind, so everyone is on track.",
 	"organiser.overview.qualified":
 		"{n} of {count} reached their training goal 🎯",
 	"organiser.overview.groups": "Groups",
@@ -1240,6 +1242,9 @@ export const en: Catalog = {
 		"Drag across a graph to choose dates. “Season” shows everything again.",
 	"organiser.graphs.hint.touch":
 		"Pinch to zoom, drag sideways to move, tap for a day. “Season” shows everything again.",
+	"organiser.graphs.windowStart": "Qualifying starts",
+	"organiser.graphs.windowStart.hint":
+		"The dashed line marks the start of qualifying on {date}. Rides before it earn no Rynke.",
 	"organiser.graphs.note.one":
 		"1 rider has no line, not agreed to showing daily figures yet.",
 	"organiser.graphs.note.other":

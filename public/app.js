@@ -2853,6 +2853,45 @@ function organiserGraphs(signal) {
 		},
 	};
 
+	// The day qualifying starts, when it comes after the season start: a dashed
+	// line with its name, behind the riders' lines (feature 040).
+	// Not clamped: before the window opens, the line lies past today, unseen.
+	const windowIndex = data.windowStart
+		? Math.round(
+				(Date.parse(`${data.windowStart}T00:00:00Z`) - dateOf(0).getTime()) /
+					86400000,
+			)
+		: null;
+	const windowLabel = text("windowStart");
+	const windowLine = {
+		id: "organiserWindowStart",
+		beforeDatasetsDraw(chart) {
+			if (windowIndex === null) return;
+			const x = chart.scales.x.getPixelForValue(windowIndex);
+			const { top, bottom, left, right } = chart.chartArea;
+			if (x < left || x > right) return;
+			const { ctx } = chart;
+			ctx.save();
+			ctx.strokeStyle = colours.muted;
+			ctx.lineWidth = 1;
+			ctx.setLineDash([4, 4]);
+			ctx.beginPath();
+			ctx.moveTo(Math.round(x) + 0.5, top);
+			ctx.lineTo(Math.round(x) + 0.5, bottom);
+			ctx.stroke();
+			ctx.setLineDash([]);
+			ctx.fillStyle = colours.muted;
+			ctx.font = `12px ${colours.font}`;
+			ctx.textBaseline = "top";
+			// The name stays inside the plot: left of the line near the right edge.
+			const width = ctx.measureText(windowLabel).width;
+			const after = x + 4 + width <= right;
+			ctx.textAlign = after ? "left" : "right";
+			ctx.fillText(windowLabel, after ? x + 4 : x - 4, top + 2);
+			ctx.restore();
+		},
+	};
+
 	const xBounds = () =>
 		kept.from === kept.to
 			? { min: kept.from - 0.5, max: kept.to + 0.5 }
@@ -2867,7 +2906,7 @@ function organiserGraphs(signal) {
 		return new Chart(canvas, {
 			type: "line",
 			data: { datasets: [] },
-			plugins: [crosshair],
+			plugins: [windowLine, crosshair],
 			options: {
 				animation: false,
 				responsive: true,

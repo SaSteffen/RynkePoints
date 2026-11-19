@@ -284,8 +284,8 @@ describe("summaryOf", () => {
 		expect(parseRides(text)[0]).toHaveLength(3);
 	});
 
-	it("is version 3, the first with rides", () => {
-		expect(RIDER_SUMMARY_VERSION).toBe(3);
+	it("is version 4, the first with pre-window rides; rides since 3", () => {
+		expect(RIDER_SUMMARY_VERSION).toBe(4);
 		expect(RIDE_SUMMARY_SINCE).toBe(3);
 	});
 });
