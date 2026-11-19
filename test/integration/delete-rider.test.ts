@@ -10,6 +10,7 @@ import { upsertFailedWork } from "../../src/db/failed-work";
 import { getRider } from "../../src/db/riders";
 import { handleFetch, handleQueue } from "../../src/index";
 import { toActivityRecord } from "../../src/strava/activity";
+import { MAX_ATTEMPTS } from "../../src/work/handler";
 import type { DeleteRiderMessage, WorkMessage } from "../../src/work/messages";
 import { approve } from "../support/callback";
 import {
@@ -68,6 +69,12 @@ async function deliver(body: WorkMessage, attempts = 1) {
 		result: await getQueueResult(batch, createExecutionContext()),
 		retry,
 	};
+}
+
+/** Rider A revokes access on Strava, which then sends the event. */
+function deauthorized() {
+	fake.deauthorize(ATHLETE_A);
+	return deliver(DEAUTHORIZED);
 }
 
 /**
@@ -145,21 +152,49 @@ describe("deauthorization webhook", () => {
 });
 
 describe("delete-rider", () => {
-	it("deletes every row of the rider without calling Strava", async () => {
+	it("deletes every row of the rider once Strava refuses the grant", async () => {
 		await seedEverything();
-		const { result } = await deliver(DEAUTHORIZED);
+		const { result } = await deauthorized();
 		expect(result.explicitAcks).toEqual(["m1"]);
 		await expectNoRiderRows();
 		// 008 SC-006: no ride name is left.
 		expect(await namedActivities()).toBe(0);
-		expect(fake.calls).toEqual([]);
+		expect(fake.callsTo("token")).toHaveLength(1);
+		expect(fake.callsTo("revoke")).toEqual([]);
+	});
+
+	it("keeps a rider whose grant Strava still renews (review L-05)", async () => {
+		await seedEverything();
+		const { result } = await deliver(DEAUTHORIZED);
+		expect(result.explicitAcks).toEqual(["m1"]);
+		expect(await getRider(env.DB, ATHLETE_A)).not.toBeNull();
+		expect(await tableCounts()).toMatchObject({
+			riders: 1,
+			strava_credentials: 1,
+			activities: 1,
+			push_subscriptions: 2,
+		});
+	});
+
+	it("retries while Strava can't answer, and deletes on the last attempt", async () => {
+		await seedEverything();
+		fake.failNext("token", { status: 503 });
+		const { result, retry } = await deliver(DEAUTHORIZED);
+		expect(result.explicitAcks).toEqual([]);
+		expect(retry).toHaveBeenCalled();
+		expect(await getRider(env.DB, ATHLETE_A)).not.toBeNull();
+
+		fake.failNext("token", { status: 503 });
+		const last = await deliver(DEAUTHORIZED, MAX_ATTEMPTS);
+		expect(last.result.explicitAcks).toEqual(["m1"]);
+		await expectNoRiderRows();
 	});
 
 	it("leaves another rider's devices (010 FR-013, SC-005)", async () => {
 		await seedEverything();
 		await seedRider(ctx, { athleteId: ATHLETE_B });
 		await seedSubscription(ATHLETE_B, pushEndpoint(3));
-		await deliver(DEAUTHORIZED);
+		await deauthorized();
 		const { results } = await env.DB.prepare(
 			"SELECT athlete_id, endpoint FROM push_subscriptions",
 		).all();
@@ -229,7 +264,7 @@ describe("delete-rider", () => {
 
 	it("lets no later activity event bring the rider back", async () => {
 		const { activity } = await seedEverything();
-		await deliver(DEAUTHORIZED);
+		await deauthorized();
 		fake.calls.length = 0;
 		const { result } = await deliver({
 			kind: "activity-event",
@@ -245,7 +280,7 @@ describe("delete-rider", () => {
 
 	it("lets a deleted rider reconnect fresh", async () => {
 		await seedEverything({ importStatus: "done" });
-		await deliver(DEAUTHORIZED);
+		await deauthorized();
 		const res = await approve(ctx, fake, ATHLETE_A);
 		expect(res.status).toBe(302);
 		expect(res.headers.get("Location")).toBe("/me");

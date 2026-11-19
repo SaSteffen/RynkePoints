@@ -143,6 +143,7 @@ describe("deleting Rynke rows", () => {
 		await seedEvaluated(ATHLETE_B);
 		const other = await snapshot(ATHLETE_B);
 
+		fake.deauthorize(ATHLETE_A);
 		await deliver({
 			kind: "delete-rider",
 			athleteId: ATHLETE_A,
@@ -174,6 +175,7 @@ describe("deleting Rynke rows", () => {
 		await seedEvaluated(ATHLETE_B);
 		const other = await snapshot(ATHLETE_B);
 
+		fake.deauthorize(ATHLETE_A);
 		await deliver({
 			kind: "delete-rider",
 			athleteId: ATHLETE_A,

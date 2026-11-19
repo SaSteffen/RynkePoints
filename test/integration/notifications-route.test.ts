@@ -125,6 +125,17 @@ describe("POST /me/notifications", () => {
 		).toEqual({ status: 401, body: null });
 	});
 
+	it("needs a rider, not just their session (review L-20)", async () => {
+		await env.DB.prepare("DELETE FROM riders WHERE athlete_id = ?")
+			.bind(ATHLETE_A)
+			.run();
+		expect(await post({ action: "on", endpoint: pushEndpoint(1) })).toEqual({
+			status: 401,
+			body: null,
+		});
+		expect(await rows()).toEqual([]);
+	});
+
 	it.each<[string, Record<string, string>]>([
 		["an unknown action", { action: "toggle", endpoint: pushEndpoint(1) }],
 		["a missing endpoint", { action: "on" }],

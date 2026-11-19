@@ -29,7 +29,7 @@ R12).
 |---|---|
 | `2xx` | Success. Record `X-RateLimit-*` and `X-ReadRateLimit-*` usage. |
 | `401` on an API call | Refresh once and retry. If still `401`, `needs_reconnect`. |
-| `400`/`401` on refresh | `needs_reconnect`. |
+| `400`/`401` on refresh | `needs_reconnect`; for the refresh that checks a deauthorization, delete the rider (queue-messages.md `delete-rider`). |
 | `403`/`404` on a single activity | Inaccessible, treated as deleted. |
 | `403` on token exchange | Capacity reached (R14). |
 | `429` | Rate-limited: defer to the next window (budget deferral, not a transient error). |

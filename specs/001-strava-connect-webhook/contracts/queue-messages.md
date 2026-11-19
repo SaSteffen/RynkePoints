@@ -36,7 +36,7 @@ scheduled step, and Rynke storage in the activity handlers: see
    ack (R7).
 4. **Refresh refused** (400/401 on token refresh): set the rider to
    `needs_reconnect` with `reconnect_requested_at=now`, then ack. Does not apply
-   to `delete-rider`, which never refreshes (see below).
+   to `delete-rider`, which refreshes only to check a deauthorization (see below).
 5. **Success.** After a handler returns `ok`, delete any `failed_work` row whose
    `message` equals this message's canonical JSON, so a re-enqueued failure that
    now succeeds stops being retried (R7).
@@ -133,6 +133,11 @@ pages as `import-page` does.
   reason: "deauthorized" | "left-club" | "reconnect-expired"; revoke: boolean }
 ```
 
+0. For `reason: "deauthorized"`: Strava signs no event, so refresh the token once
+   (forced, `interactive` priority) to ask Strava whether the grant ended (review
+   L-05). A new token means the event wasn't Strava's: log it, keep the rider and
+   ack. A refused refresh (or no credentials) deletes. Anything else (network,
+   5xx, 429, budget) retries, and the last attempt deletes anyway.
 1. If `revoke` and the rider has credentials, call `POST /oauth/revoke` with the
    stored **refresh token**. No token refresh happens first, so this also works
    for `needs_reconnect` riders. On a transient error (network, 5xx, 429), retry;

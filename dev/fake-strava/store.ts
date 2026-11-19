@@ -34,6 +34,11 @@ export async function ensureTable(db: D1Database): Promise<void> {
 		db.prepare(
 			"CREATE TABLE IF NOT EXISTS fake_strava_slow (id INTEGER PRIMARY KEY)",
 		),
+		// Athletes who revoked access on the fake's page: their refresh tokens
+		// are refused until they sign in again (review L-05).
+		db.prepare(
+			"CREATE TABLE IF NOT EXISTS fake_strava_revoked (athlete_id INTEGER PRIMARY KEY)",
+		),
 	]);
 }
 
@@ -93,6 +98,38 @@ export async function markSlow(
 				.bind(id),
 		),
 	);
+}
+
+// The two below create the tables first: a database seeded before the revoked
+// table existed isn't seeded again.
+
+/** Records that `athleteId` revoked access, or with false, signed in again. */
+export async function markRevoked(
+	db: D1Database,
+	athleteId: number,
+	revoked: boolean,
+): Promise<void> {
+	await ensureTable(db);
+	await db
+		.prepare(
+			revoked
+				? "INSERT INTO fake_strava_revoked (athlete_id) VALUES (?) ON CONFLICT DO NOTHING"
+				: "DELETE FROM fake_strava_revoked WHERE athlete_id = ?",
+		)
+		.bind(athleteId)
+		.run();
+}
+
+export async function isRevoked(
+	db: D1Database,
+	athleteId: number,
+): Promise<boolean> {
+	await ensureTable(db);
+	const row = await db
+		.prepare("SELECT 1 AS found FROM fake_strava_revoked WHERE athlete_id = ?")
+		.bind(athleteId)
+		.first();
+	return row !== null;
 }
 
 /** Whether this fetch of the activity is the one that fails; uses it up. */

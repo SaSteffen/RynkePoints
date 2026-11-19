@@ -84,6 +84,8 @@ export interface FakeStrava {
 	newestFirst: boolean;
 	addAthlete(athlete: Partial<FakeAthlete> & { id: number }): FakeAthlete;
 	addActivity(ownerId: number, activity: StravaActivityFixture): void;
+	/** The athlete revokes access on Strava: none of their tokens work. */
+	deauthorize(athleteId: number): void;
 	/** Answers the next call to `endpoint` with `status` (or a network error). */
 	failNext(endpoint: FakeEndpoint, override: Override): void;
 	callsTo(endpoint: FakeEndpoint): FakeCall[];
@@ -150,6 +152,10 @@ export function installFakeStrava(): FakeStrava {
 		addActivity(ownerId, activity) {
 			fake.activities.set(activity.id, { ...activity, ownerId });
 		},
+		deauthorize(athleteId) {
+			const athlete = fake.athletes.get(athleteId);
+			if (athlete) endGrant(athlete);
+		},
 		failNext(endpoint, override) {
 			overrides.set(endpoint, [...(overrides.get(endpoint) ?? []), override]);
 		},
@@ -171,6 +177,11 @@ export function installFakeStrava(): FakeStrava {
 		athlete.accessToken = `access-${athlete.id}-${athlete.tokenGeneration}`;
 		athlete.refreshToken = `refresh-${athlete.id}-${athlete.tokenGeneration}`;
 		athlete.expiresAt = fake.now + TOKEN_LIFETIME;
+	}
+
+	function endGrant(athlete: FakeAthlete) {
+		athlete.accessToken = `revoked-${athlete.id}`;
+		athlete.refreshToken = `revoked-${athlete.id}`;
 	}
 
 	function apiHeaders(): Record<string, string> {
@@ -277,10 +288,7 @@ export function installFakeStrava(): FakeStrava {
 				? "access"
 				: "refresh";
 		fake.revocations.push({ token: value, kind });
-		if (athlete) {
-			athlete.accessToken = `revoked-${athlete.id}`;
-			athlete.refreshToken = `revoked-${athlete.id}`;
-		}
+		if (athlete) endGrant(athlete);
 		return new Response(null, { status: 200 });
 	}
 

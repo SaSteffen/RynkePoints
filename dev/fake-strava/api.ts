@@ -1,7 +1,13 @@
 import { teamFor } from "../../src/teams";
 import { sampleRider } from "./sample-sets";
 import type { SampleRider } from "./samples";
-import { getActivity, listActivities, takeSlow } from "./store";
+import {
+	getActivity,
+	isRevoked,
+	listActivities,
+	markRevoked,
+	takeSlow,
+} from "./store";
 import {
 	ACCESS_LIFETIME,
 	type AccessGrant,
@@ -65,7 +71,7 @@ async function dispatch(
 ): Promise<Answer | null> {
 	const { pathname } = url;
 	if (request.method === "POST") {
-		if (pathname === "/oauth/token") return token(request, env, now);
+		if (pathname === "/oauth/token") return token(request, env, db, now);
 		if (pathname === "/oauth/revoke") return revoke(request, env);
 		return null;
 	}
@@ -92,7 +98,12 @@ function tokenBody(grant: Grant, rider: SampleRider, now: number) {
 	};
 }
 
-async function token(request: Request, env: Env, now: number): Promise<Answer> {
+async function token(
+	request: Request,
+	env: Env,
+	db: D1Database,
+	now: number,
+): Promise<Answer> {
 	const form = new URLSearchParams(await request.text());
 	if (
 		form.get("client_id") !== env.STRAVA_CLIENT_ID ||
@@ -105,12 +116,18 @@ async function token(request: Request, env: Env, now: number): Promise<Answer> {
 		const grant = decodeCode(form.get("code") ?? "");
 		const rider = grant && sampleRider(env.TEAM_ID, grant.athleteId);
 		if (!grant || !rider) return answer({ message: "Bad Request" }, 400);
+		await markRevoked(db, rider.athleteId, false);
 		return answer(tokenBody(grant, rider, now), 200, rider.athleteId);
 	}
 	if (grantType === "refresh_token") {
 		const grant = decodeRefresh(form.get("refresh_token") ?? "");
 		const rider = grant && sampleRider(env.TEAM_ID, grant.athleteId);
-		if (!grant || !rider || rider.behaviour === "refused") {
+		if (
+			!grant ||
+			!rider ||
+			rider.behaviour === "refused" ||
+			(await isRevoked(db, rider.athleteId))
+		) {
 			return answer({ message: "Bad Request" }, 400, grant?.athleteId);
 		}
 		return answer(tokenBody(grant, rider, now), 200, rider.athleteId);

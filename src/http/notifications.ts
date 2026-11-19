@@ -6,7 +6,8 @@ import {
 	trimSubscriptionsStatement,
 	upsertSubscriptionStatement,
 } from "../db/push-subscriptions";
-import { isSameOrigin, readSession } from "./session";
+import { isSameOrigin } from "./session";
+import { readViewer } from "./viewer";
 
 // `POST /me/notifications`, called by `public/app.js` only (feature 010
 // contracts/http-routes.md). It turns this device's notifications on or off
@@ -34,8 +35,11 @@ export async function handleNotifications(
 	ctx: Ctx,
 ): Promise<Response> {
 	if (!isSameOrigin(request)) return empty(403);
-	const athleteId = await readSession(request, ctx.env, ctx.now());
-	if (athleteId === null) return empty(401);
+	// The rider, not just the session: a deleted rider's cookie still verifies
+	// (review L-20).
+	const viewer = await readViewer(request, ctx);
+	if (viewer.kind !== "rider") return empty(401);
+	const { athleteId } = viewer.rider;
 
 	let form: FormData;
 	try {
