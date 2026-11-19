@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
 	type RideRecipe,
+	recipeDay,
 	recipeToActivity,
 	ride,
 } from "../../dev/fake-strava/samples";
@@ -52,5 +53,31 @@ describe("a sample ride on a set day of the season", () => {
 		expect(dateOf(onDate("03-14"), "2026-11-18")).toBe("2026-03-14");
 		expect(dateOf(onDate("01-01"), "2026-11-18")).toBe("2026-01-01");
 		expect(dateOf(onEaster(1), "2026-11-18")).toBe("2026-04-06");
+	});
+});
+
+// The day the seeding counts the rides back from (feature 040): seeded in the
+// season before the qualification window opens, the window's last day, so
+// Europe's sample rides lie mostly in the window.
+describe("the day the sample rides count back from", () => {
+	const window = {
+		seasonStart: "2026-09-01",
+		windowStart: "2027-01-01",
+		deadline: "2027-06-30",
+	};
+
+	it("is the window's last day when seeded before the window opens", () => {
+		expect(recipeDay("2026-11-19", window)).toBe("2027-06-30");
+	});
+
+	it("is the seeding day inside the window and before the season", () => {
+		expect(recipeDay("2027-03-12", window)).toBe("2027-03-12");
+		expect(recipeDay("2026-08-20", window)).toBe("2026-08-20");
+	});
+
+	it("is the seeding day when the window opens with the season", () => {
+		expect(
+			recipeDay("2026-11-19", { ...window, windowStart: "2026-09-01" }),
+		).toBe("2026-11-19");
 	});
 });
