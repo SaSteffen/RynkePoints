@@ -3,9 +3,15 @@
 // corrections (`correction-change.ts`, feature 014). Each reads its riders
 // with `readRiders`, edits their state, and has `reevaluate` work out a full
 // evaluation before and after the edit; the caller stores its change and
-// those writes in one D1 batch, so a reader never sees an input, its ride
-// results and the balance disagree (research R11, R21, FR-014b). Only rows
-// that changed are written (research R13).
+// those writes in one D1 batch with `storeEvaluated`, so a reader never sees
+// an input, its ride results and the balance disagree (research R11, R21,
+// FR-014b). Only rows that changed are written (research R13).
+//
+// Changes outside the serial queue consumer (the organiser pages, a
+// reconnect, the daily run) can read a rider while another change of theirs
+// is being stored. Of the two, the later to store then fails as a whole
+// rather than store an evaluation of the state before the other, and
+// `withCurrentRiders` works it out again (review L-18).
 //
 // Each change also reports whether a rider's Training or Team Rynke rose,
 // comparing the state before and after it, both evaluated now (feature 010
@@ -53,6 +59,10 @@ import {
 	readSummariesOfRidersStatement,
 	upsertSummaryStatement,
 } from "../db/rider-summaries";
+import {
+	countEvaluationsStatement,
+	readEvaluationsStatement,
+} from "../db/riders";
 import { listRunsOfRidersStatement } from "../db/runs";
 import {
 	type BalanceRow,
@@ -113,6 +123,8 @@ export interface RiderState {
 	tourEvents: TourEvent[];
 	/** The stored summary of any version (feature 030), `null` without one. */
 	summary: RiderSummaryRow | null;
+	/** How many evaluations stored this state; 0 without a rider row (L-18). */
+	evaluations: number;
 }
 
 /** What a change did to one rider, and the writes that store it. */
@@ -196,6 +208,7 @@ export async function readRiders(
 		swimRows,
 		tourRows,
 		summaryRows,
+		evaluationRows,
 		...extra
 	] = await db.batch([
 		listActivitiesOfRidersStatement(db, athleteIds),
@@ -209,6 +222,7 @@ export async function readRiders(
 		listSwimsOfRidersStatement(db, athleteIds),
 		listTourEventsStatement(db),
 		readSummariesOfRidersStatement(db, athleteIds),
+		readEvaluationsStatement(db, athleteIds),
 		...extraReads,
 	]);
 	if (
@@ -222,7 +236,8 @@ export async function readRiders(
 		!runRows ||
 		!swimRows ||
 		!tourRows ||
-		!summaryRows
+		!summaryRows ||
+		!evaluationRows
 	) {
 		throw new Error("D1 batch returned too few results");
 	}
@@ -242,6 +257,7 @@ export async function readRiders(
 				swims: new Map(),
 				tourEvents,
 				summary: null,
+				evaluations: 0,
 			},
 		]),
 	);
@@ -283,7 +299,83 @@ export async function readRiders(
 		const rider = riders.get(row.athlete_id);
 		if (rider) rider.summary = row;
 	}
+	for (const row of evaluationRows.results as EvaluationsRow[]) {
+		const rider = riders.get(row.athlete_id);
+		if (rider) rider.evaluations = row.evaluations;
+	}
 	return { riders, extra };
+}
+
+interface EvaluationsRow {
+	athlete_id: number;
+	evaluations: number;
+}
+
+/** A rider's state changed between `readRiders` and `storeEvaluated`. */
+class StaleRiders extends Error {
+	constructor() {
+		super("a rider's state changed while it was evaluated");
+		this.name = "StaleRiders";
+	}
+}
+
+/**
+ * Stores `writes`, the change and the evaluations of `riders` as read, in one
+ * batch that counts each rider's evaluation. Should another change have
+ * stored one meanwhile, nothing is stored and `StaleRiders` is thrown
+ * (review L-18). Without writes nothing is stored, nor counted.
+ */
+export async function storeEvaluated(
+	db: D1Database,
+	riders: ReadonlyMap<number, RiderState>,
+	writes: D1PreparedStatement[],
+): Promise<void> {
+	if (writes.length === 0) return;
+	const read = new Map(
+		[...riders].map(([athleteId, state]) => [athleteId, state.evaluations]),
+	);
+	try {
+		await db.batch(
+			read.size > 0 ? [countEvaluationsStatement(db, read), ...writes] : writes,
+		);
+	} catch (err) {
+		// The count's refusal is an error like any other; a count that moved
+		// tells them apart.
+		if (read.size > 0 && (await countsMoved(db, read))) throw new StaleRiders();
+		throw err;
+	}
+}
+
+async function countsMoved(
+	db: D1Database,
+	read: Map<number, number>,
+): Promise<boolean> {
+	const { results } = await readEvaluationsStatement(db, [
+		...read.keys(),
+	]).all<EvaluationsRow>();
+	const now = new Map(results.map((r) => [r.athlete_id, r.evaluations]));
+	return [...read].some(
+		([athleteId, count]) => (now.get(athleteId) ?? 0) !== count,
+	);
+}
+
+/** One try and two more after another change stored first. */
+const STALE_ATTEMPTS = 3;
+
+/**
+ * Runs `attempt`, which reads its riders, evaluates and stores, again while
+ * it finds them stale (review L-18).
+ */
+export async function withCurrentRiders<T>(
+	attempt: () => Promise<T>,
+): Promise<T> {
+	for (let tries = 1; ; tries++) {
+		try {
+			return await attempt();
+		} catch (err) {
+			if (!(err instanceof StaleRiders) || tries >= STALE_ATTEMPTS) throw err;
+		}
+	}
 }
 
 /**

@@ -125,7 +125,7 @@ async function processMessage(
 			return;
 		}
 		if (result.kind === "refresh-refused") {
-			await markNeedsReconnect(ctx.env.DB, body.athleteId, ctx.now());
+			await markNeedsReconnect(ctx.env.DB, rider, ctx.now());
 		}
 		message.ack();
 		return;
@@ -162,7 +162,7 @@ async function processMessage(
 			await transientFailure(message, body, ctx, attempt, result.reason);
 			return;
 		case "refresh-refused":
-			await markNeedsReconnect(ctx.env.DB, body.athleteId, ctx.now());
+			await markNeedsReconnect(ctx.env.DB, rider, ctx.now());
 			message.ack();
 			return;
 	}

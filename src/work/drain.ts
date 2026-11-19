@@ -168,7 +168,7 @@ async function runItem(
 			);
 			break;
 		case "refresh-refused":
-			await markNeedsReconnect(db, item.athleteId, ctx.now());
+			await markNeedsReconnect(db, rider, ctx.now());
 			await dropRiderWork(db, item.athleteId);
 			return null;
 	}

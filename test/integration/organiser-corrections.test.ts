@@ -153,9 +153,9 @@ describe("POST /organiser/riders/{id}/corrections", () => {
 			},
 		]);
 		expect(await balance()).toEqual({ training: 10, team: 0 });
-		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
-			{ kind: "evaluate-rider", athleteId: RIDER },
-		]);
+		// No evaluate-rider follows: a ride stored meanwhile makes the change
+		// start again from it (review L-18).
+		expect(ctx.queue.sent).toEqual([]);
 		await expectConsistent(RIDER);
 	});
 

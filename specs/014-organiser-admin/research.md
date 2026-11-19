@@ -130,8 +130,9 @@ The spec has no open questions. These are the design decisions for Stories 1–3
   - `correction_missing`;
   - `rider_not_connected`.
 
-  `correctionChange(ctx, change)` wraps it like `teamEventChange`: it sends one
-  `evaluate-rider` and notifies on a rise.
+  `correctionChange(ctx, change)` wraps it like `teamEventChange` and notifies
+  on a rise. It sends no `evaluate-rider`: a correction is its rider's alone,
+  so a change stored meanwhile makes it start again (003 R11, review L-18).
 - **Rationale**: it mirrors the existing pattern, so a reader never sees a
   correction without its balance (003 R21).
 - **Note**: the ±10000 bound is a guard against typos that the spec doesn't

@@ -12,7 +12,6 @@ import {
 } from "../db/corrections";
 import { riderStatusesStatement } from "../db/team-events";
 import { hasTeamRynke } from "../teams";
-import { sendAll } from "../work/messages";
 import { notifyRiders } from "../work/send-notification";
 import { teamBadgeNews } from "../work/team-badge-news";
 import {
@@ -21,6 +20,8 @@ import {
 	type RiderState,
 	readRiders,
 	reevaluate,
+	storeEvaluated,
+	withCurrentRiders,
 } from "./reevaluate";
 import {
 	type CountingWindow,
@@ -85,6 +86,20 @@ export async function applyCorrectionChange(
 	now: number,
 	news: BadgeNewsSwitch = BADGE_NEWS_ON,
 ): Promise<CorrectionResult> {
+	return withCurrentRiders(() =>
+		storeCorrectionChange(db, change, rules, window, now, news),
+	);
+}
+
+/** One try of `applyCorrectionChange`. */
+async function storeCorrectionChange(
+	db: D1Database,
+	change: CorrectionChange,
+	rules: RynkeRules,
+	window: CountingWindow,
+	now: number,
+	news: BadgeNewsSwitch,
+): Promise<CorrectionResult> {
 	let athleteId: number;
 	let statement: D1PreparedStatement;
 	let edit: (state: RiderState) => void;
@@ -143,15 +158,16 @@ export async function applyCorrectionChange(
 		news,
 		edit,
 	);
-	await db.batch([statement, ...result.writes]);
+	await storeEvaluated(db, riders, [statement, ...result.writes]);
 	return { athleteId, rose: result.rose, badges: result.badges };
 }
 
 /**
  * `applyCorrectionChange` under the current rules, for the organiser pages:
- * one `evaluate-rider` settles a race with an activity event, and a rise or
- * a new badge notifies the rider, and a new team badge the listed riders, as
- * `teamEventChange` does.
+ * a rise or a new badge notifies the rider, and a new team badge the listed
+ * riders, as `teamEventChange` does. A correction is the rider's alone, so no
+ * `evaluate-rider` follows: an activity event stored meanwhile makes the
+ * change start again from it (review L-18).
  */
 export async function correctionChange(
 	ctx: Ctx,
@@ -173,7 +189,6 @@ export async function correctionChange(
 		ctx.now(),
 		{ badges: badgesOn(ctx.env) },
 	);
-	await sendAll(ctx, [{ kind: "evaluate-rider", athleteId: result.athleteId }]);
 	const team = await teamBadgeNews(
 		ctx,
 		result.badges.length > 0 ? [result.athleteId] : [],

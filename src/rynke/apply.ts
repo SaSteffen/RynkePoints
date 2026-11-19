@@ -30,6 +30,8 @@ import {
 	type RiderState,
 	readRiders,
 	reevaluate,
+	storeEvaluated,
+	withCurrentRiders,
 } from "./reevaluate";
 import {
 	type CountingWindow,
@@ -83,30 +85,31 @@ export async function applyAndEvaluate(
 					swimOwnersStatement(db, ids),
 				]
 			: [];
-	const { riders, extra } = await readRiders(db, [athleteId], ownerReads);
-	const owners = new Map<number, number>();
-	for (const row of extra.flatMap((rows) => rows.results) as {
-		strava_activity_id: number;
-		athlete_id: number;
-	}[]) {
-		owners.set(row.strava_activity_id, row.athlete_id);
-	}
-	const changes: D1PreparedStatement[] = [];
-	const { writes, ...result } = reevaluate(
-		db,
-		athleteId,
-		riders.get(athleteId) as RiderState,
-		rules,
-		window,
-		now,
-		news,
-		(state) => {
-			changes.push(...changeWrites(db, athleteId, state, change, owners));
-		},
-	);
-	const batch = [...changes, ...writes];
-	if (batch.length > 0) await db.batch(batch);
-	return result;
+	return withCurrentRiders(async () => {
+		const { riders, extra } = await readRiders(db, [athleteId], ownerReads);
+		const owners = new Map<number, number>();
+		for (const row of extra.flatMap((rows) => rows.results) as {
+			strava_activity_id: number;
+			athlete_id: number;
+		}[]) {
+			owners.set(row.strava_activity_id, row.athlete_id);
+		}
+		const changes: D1PreparedStatement[] = [];
+		const { writes, ...result } = reevaluate(
+			db,
+			athleteId,
+			riders.get(athleteId) as RiderState,
+			rules,
+			window,
+			now,
+			news,
+			(state) => {
+				changes.push(...changeWrites(db, athleteId, state, change, owners));
+			},
+		);
+		await storeEvaluated(db, riders, [...changes, ...writes]);
+		return result;
+	});
 }
 
 /**

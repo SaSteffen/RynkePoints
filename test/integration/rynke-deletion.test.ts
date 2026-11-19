@@ -120,9 +120,7 @@ describe("deleting Rynke rows", () => {
 		]);
 		expect(await balanceRow()).toMatchObject({ distance_rynke: 10 });
 		await expectConsistent();
-		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
-			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
-		]);
+		expect(ctx.queue.sent).toEqual([]);
 	});
 
 	it("a reconnect with the same scope sends no evaluate-rider", async () => {
