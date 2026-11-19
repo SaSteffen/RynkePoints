@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
-import { seasonStart, seasonStartEpoch } from "../../src/config";
+import { seasonFetchAfter, seasonStartEpoch } from "../../src/config";
 import type { Rider } from "../../src/db/riders";
 import { countingWindow, seasonEnd } from "../../src/rynke/rules";
 import { teamFor } from "../../src/teams";
@@ -20,7 +20,8 @@ const rider = { athleteId: ATHLETE_A, scopeReadAll: true } as Rider;
 describe(`${team.id}'s season (040 US2)`, () => {
 	it("starts on 1 September 2026", () => {
 		expect(window.seasonStart).toBe("2026-09-01");
-		expect(seasonStart(env)).toBe(seasonStartEpoch("2026-09-01"));
+		// The list starts a day earlier; the local date decides (review L-16).
+		expect(seasonFetchAfter(env)).toBe(seasonStartEpoch("2026-09-01") - 86_400);
 	});
 
 	it("ends on 31 August 2027", () => {

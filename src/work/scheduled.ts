@@ -1,5 +1,5 @@
 import { BADGE_CATALOG_VERSION } from "../badges/catalog";
-import { seasonStart } from "../config";
+import { seasonFetchAfter } from "../config";
 import type { Ctx } from "../ctx";
 import {
 	deleteFailedWorkFirstFailedBefore,
@@ -113,7 +113,7 @@ export async function fanOutFiguresReread(ctx: Ctx): Promise<void> {
 		ctx.env.DB,
 		ACTIVITY_FIGURES_VERSION,
 	);
-	const after = seasonStart(ctx.env);
+	const after = seasonFetchAfter(ctx.env);
 	for (const athleteId of ids) {
 		await ctx.queue.send({ kind: "reread-page", athleteId, page: 1, after });
 		await setFiguresVersion(ctx.env.DB, athleteId, ACTIVITY_FIGURES_VERSION);
@@ -121,16 +121,17 @@ export async function fanOutFiguresReread(ctx: Ctx): Promise<void> {
 }
 
 /**
- * Deletes every stored ride, run and swim that starts before the season
- * start, with the rider's Rynke: what was stored before nothing older could
- * be, and the last season's after the season start moves on. Such a ride never
- * counted, so the balance stays as it was.
+ * Deletes every stored ride, run and swim whose local date is before the
+ * season start date, with the rider's Rynke: what was stored before nothing
+ * older could be, or by Berlin's midnight rather than the local date (review
+ * L-16), and the last season's after the season start moves on. Such a ride
+ * never counted, so the balance stays as it was.
  */
 export async function purgePreSeasonActivities(ctx: Ctx): Promise<void> {
-	const before = new Date(seasonStart(ctx.env) * 1000)
-		.toISOString()
-		.replace(".000Z", "Z");
-	const byRider = await listPreSeasonActivities(ctx.env.DB, before);
+	const byRider = await listPreSeasonActivities(
+		ctx.env.DB,
+		ctx.env.SEASON_START_DATE,
+	);
 	for (const [athleteId, activityIds] of byRider) {
 		await evaluateChange(ctx, athleteId, { kind: "delete", activityIds });
 	}

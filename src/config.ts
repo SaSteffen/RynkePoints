@@ -183,9 +183,17 @@ export function verifyToken(
 	return env.STRAVA_WEBHOOK_VERIFY_TOKEN;
 }
 
-/** The season start of the configured `SEASON_START_DATE`. */
-export function seasonStart(env: Pick<Settings, "SEASON_START_DATE">): number {
-	return seasonStartEpoch(env.SEASON_START_DATE);
+/**
+ * Strava's `after` for the season (epoch seconds): a day before 00:00
+ * Europe/Berlin on `SEASON_START_DATE`. A ride counts by its local date
+ * (`startsInSeason`), and one ridden just after local midnight east of Berlin
+ * starts before Berlin's midnight (as far as UTC+14), so the list starts a day
+ * earlier and the local-date rule decides what is kept (review L-16).
+ */
+export function seasonFetchAfter(
+	env: Pick<Settings, "SEASON_START_DATE">,
+): number {
+	return seasonStartEpoch(env.SEASON_START_DATE) - 24 * 60 * 60;
 }
 
 /** 00:00 Europe/Berlin on `date` (`YYYY-MM-DD`), in epoch seconds. */
