@@ -259,10 +259,12 @@ const MAX_BATCH = 100;
 export async function sendAll(
 	ctx: Ctx,
 	messages: WorkMessage[],
+	options?: QueueSendBatchOptions,
 ): Promise<void> {
 	for (let i = 0; i < messages.length; i += MAX_BATCH) {
 		await ctx.queue.sendBatch(
 			messages.slice(i, i + MAX_BATCH).map((body) => ({ body })),
+			options,
 		);
 	}
 }
