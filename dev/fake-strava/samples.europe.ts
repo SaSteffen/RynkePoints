@@ -18,7 +18,10 @@ import {
 // attends anything, and an outdoor ride is 25 km or longer unless it is there
 // to show a shorter one. The season runs from 1 September like
 // Hamburg's, the qualification window opens on 1 January (feature 040): rides
-// from September to December count for the badges, not for Rynke.
+// from September to December count for the badges, not for Rynke. Seeded
+// before the window opens, the rides count back from its last day
+// (`recipeDay`), so most of them lie in the window; those before it are on set
+// days (`onDate`).
 
 /** One to three per country, accents and all. */
 const ORDINARY_NAMES = [

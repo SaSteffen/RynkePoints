@@ -1,4 +1,5 @@
 import { easterSunday } from "../../src/badges/easter";
+import type { CountingWindow } from "../../src/rynke/rules";
 import type { EventKind } from "../../src/rynke/team-events";
 import type { FakeActivity } from "./store";
 
@@ -266,6 +267,19 @@ function berlinToUtcMs(day: string, time: string): number {
 
 function iso(epochMs: number): string {
 	return new Date(epochMs).toISOString().replace(/\.\d{3}Z$/, "Z");
+}
+
+/**
+ * The day a seeding on `seedDay` counts the recipes back from: the seeding day,
+ * or, seeded in the season before the qualification window opens (Europe's
+ * autumn, feature 040), the window's last day, so most sample rides fall inside
+ * the window, dated ahead like the rides on a set day of the season. Rides on a
+ * set day (`onDate`) still show the time before the window.
+ */
+export function recipeDay(seedDay: string, window: CountingWindow): string {
+	return seedDay >= window.seasonStart && seedDay < window.windowStart
+		? window.deadline
+		: seedDay;
 }
 
 /** `YYYY-MM-DD` one year before `day`. */
