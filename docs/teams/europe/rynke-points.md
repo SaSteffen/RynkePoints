@@ -82,7 +82,8 @@ Of these 250 Training Rynke, at least 84 have to come from outside virtual rides
 | every full 1000 m of elevation (season) |              5 |
 
 Kilometres bring Rynke only from **25 km** on outdoors and from **1 km** on
-virtual rides. Elevation always counts.
+virtual rides. Elevation brings Rynke too, and it counts from the **first
+metre**, on every ride, however short.
 
 ## Kilometres and elevation
 
@@ -98,8 +99,9 @@ A ride outdoors needs at least **25 km** for its kilometres to bring Rynke, a
 virtual ride at least **1 km**. A shorter ride still counts: its elevation goes
 into your season total like any other.
 
-**Elevation**, on the other hand, is **never lost**. RynkePoints adds up the
-elevation of all your rides from 1 January to 30 June. Every **full 1000 m** in
+**Elevation**, on the other hand, is **never lost**. RynkePoints adds up every
+metre of elevation of all your rides from 1 January to 30 June, short rides
+included. There is no minimum for elevation. Every **full 1000 m** in
 total gives 5 Training Rynke. Whatever isn't enough for the next 1000 yet stays
 and keeps counting with your next rides.
 
@@ -113,6 +115,7 @@ and keeps counting with your next rides.
 | 2 rides of 25 km each           |              4 | 2 + 2, not 50 km = 5               |
 | 15 km virtual                   |              1 | at least 1 km virtual              |
 | 20 km with 1000 m elevation     |              5 | 0 for km + 5 for elevation         |
+| 12 km outdoors with 400 m       |              0 | 400 m go into your season total    |
 | 1999 m of elevation in one ride |              5 | 1 full 1000, 999 m stay            |
 | 2 rides of 600 m elevation each |              5 | 1200 m together, 200 m stay        |
 | 1999 + 1 m elevation in 2 rides |             10 | 2000 m together                    |
@@ -198,8 +201,9 @@ don't count.
 
 Rides on an indoor trainer count as normal, with Zwift or similar apps just as
 without. Short sessions count too: their kilometres bring Rynke from 1 km on,
-and their elevation always counts. A virtual ride is any ride that Strava marks as a virtual ride or as an
-indoor trainer ride. For the Tour, though: you need at least **84 Training
+and their elevation counts from the first metre. A virtual ride is any ride
+that Strava marks as a virtual ride or as an indoor trainer ride. For the Tour,
+though: you need at least **84 Training
 Rynke**, a third of the 250, from rides outdoors and corrections. The rest may
 come from virtual rides. Whatever you collect virtually stays in your total, but
 on its own it won't get you to Paris.
