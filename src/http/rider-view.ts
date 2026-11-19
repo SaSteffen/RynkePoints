@@ -53,6 +53,8 @@ export interface RulesInfo {
 	deadline: string;
 	/** The version's minimum ride length; absent without one (feature 039). */
 	minRideKm?: number;
+	/** The version's minimum for kilometre Rynke; absent without one. */
+	distanceMinKm?: { outdoor: number; virtual: number };
 }
 
 /**
@@ -72,6 +74,9 @@ export function rulesInfo(
 		deadline: window.deadline,
 	};
 	if (rules?.minRideKm !== undefined) info.minRideKm = rules.minRideKm;
+	if (rules?.distanceMinKm !== undefined) {
+		info.distanceMinKm = rules.distanceMinKm;
+	}
 	return info;
 }
 

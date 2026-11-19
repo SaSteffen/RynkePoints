@@ -153,6 +153,8 @@ export const fr: Catalog = {
 	"rynke.rules.windowDeadline":
 		"Tout ce qui va du {start} au {deadline} compte.",
 	"rynke.rules.minRide": "Les sorties de {limit} ou plus comptent.",
+	"rynke.rules.distanceMin":
+		"Les kilomètres rapportent des Rynke à partir de {outdoor} en extérieur et de {virtual} en virtuel. Les sorties plus courtes comptent pour leur dénivelé.",
 	"rynke.rules.handout": "Les règles en PDF (en allemand)",
 	"rynke.rules.handoutEnglish": "Les règles en PDF (en anglais)",
 	"rynke.ride.counts": "compte 🪙",

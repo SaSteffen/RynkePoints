@@ -136,6 +136,19 @@ describe("renderRules minimum ride length (feature 039)", () => {
 			expect(html.match(/<p>/g)).toHaveLength(3);
 		}
 	});
+
+	it("names the outdoor and the virtual minimum for kilometre Rynke", () => {
+		const split = {
+			...rules,
+			version: 5,
+			distanceMinKm: { outdoor: 25, virtual: 1 },
+		};
+		const html = renderRules(en, split, europe.rulesHandout).toString();
+		expect(html).toContain(
+			"<p>Kilometres earn Rynke on outdoor rides from 25\u00a0km and on virtual rides from 1\u00a0km. Shorter rides count with their elevation.</p>",
+		);
+		expect(html).not.toContain("Rides of 25 km or more count.");
+	});
 });
 
 describe("renderRules window", () => {

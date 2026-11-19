@@ -35,6 +35,18 @@ const EUROPE_RULES_V4: RynkeRules = {
 	},
 };
 
+// Version 5 (decided with Team Europe on 2026-11-19): a ride under the minimum
+// counts again, its elevation included, and only its kilometres earn nothing.
+// The minimum is 25 km outdoors and 1 km for virtual rides, so short, hard
+// indoor sessions earn their full 10 km and their elevation.
+const { minRideKm: _minRideKm, ...EUROPE_RULES_V4_VALUES } = EUROPE_RULES_V4;
+const EUROPE_RULES_V5: RynkeRules = {
+	...EUROPE_RULES_V4_VALUES,
+	version: 5,
+	effectiveDate: "2026-11-19",
+	distanceMinKm: { outdoor: 25, virtual: 1 },
+};
+
 // Team Rynkeby Europe (feature 026). English by default, the common phrases and
 // badge names, its own coin. Everything it hasn't supplied yet is copied from
 // the founding team and named in `placeholders` (FR-053), so `team-check
@@ -49,7 +61,7 @@ export const europe: TeamData = {
 	foreignLocale: "en",
 	// The founding team's versions 1–3, which Europe ran on since feature 026,
 	// then its own (feature 039 research R4).
-	rules: [...hamburg.rules.slice(0, 3), EUROPE_RULES_V4],
+	rules: [...hamburg.rules.slice(0, 3), EUROPE_RULES_V4, EUROPE_RULES_V5],
 	// No team events and no Tour de Paris days (feature 039 research R3).
 	eventKinds: [],
 	colours: hamburg.colours,

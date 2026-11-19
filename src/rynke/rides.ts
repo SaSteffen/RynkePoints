@@ -254,7 +254,18 @@ function interval(ride: Ride): [number, number] {
 	return [start, start + (ride.elapsedS ?? ride.movingS) * 1000];
 }
 
+/**
+ * Per ride, floored (FR-004a); 0 below the version's minimum for the ride's
+ * kind, metres against metres, while the ride itself still counts.
+ */
 function distanceRynke(ride: Ride, rules: RynkeRules): number {
+	const min = rules.distanceMinKm;
+	if (
+		min !== undefined &&
+		ride.distanceM < (isVirtual(ride) ? min.virtual : min.outdoor) * 1000
+	) {
+		return 0;
+	}
 	return (
 		Math.floor(ride.distanceM / (rules.distanceStepKm * 1000)) *
 		rules.distanceStepRynke

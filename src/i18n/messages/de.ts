@@ -155,6 +155,8 @@ export const de = {
 	"rynke.rules.windowDeadline":
 		"Es zählt alles vom {start} bis zum {deadline}.",
 	"rynke.rules.minRide": "Es zählen Fahrten ab {limit}.",
+	"rynke.rules.distanceMin":
+		"Kilometer bringen Rynke bei Fahrten draußen ab {outdoor}, bei virtuellen Fahrten ab {virtual}. Kürzere Fahrten zählen mit ihren Höhenmetern.",
 	"rynke.rules.handout": "Die Regeln als PDF",
 	"rynke.rules.handoutEnglish": "Die Regeln als PDF (auf Englisch)",
 	"rynke.ride.counts": "zählt 🪙",

@@ -47,11 +47,18 @@ const HANDOUTS = import.meta.glob("../../docs/**/rynke-p*.md", {
 });
 
 describe("minimum ride length in the handouts (feature 039)", () => {
-	it("Europe's states the 25 km minimum with its examples", () => {
+	it("Europe's states the outdoor and virtual minimums with their examples", () => {
 		const text = HANDOUTS["../../docs/teams/europe/rynke-points.md"];
+		expect(currentRules(europe.rules).distanceMinKm).toEqual({
+			outdoor: 25,
+			virtual: 1,
+		});
 		expect(text).toContain("at least **25 km**");
-		expect(text).toMatch(/24\.9 km +\| +0 \|/);
-		expect(text).toMatch(/\| 25 km +\| +2 \|/);
+		expect(text).toContain("at least **1 km**");
+		expect(text).toMatch(/24\.9 km outdoors +\| +0 \|/);
+		expect(text).toMatch(/\| 25 km outdoors +\| +2 \|/);
+		expect(text).toMatch(/\| 15 km virtual +\| +1 \|/);
+		expect(text).not.toContain("not even for its elevation");
 	});
 
 	it("Hamburg's names no minimum ride length", () => {
