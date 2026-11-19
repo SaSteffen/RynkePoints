@@ -508,8 +508,8 @@ D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
   the season that meets it (FR-013). `CountingRide` gains `startTime`
   (`HH:MM`, characters 12 to 16 of `start_date_local`); runs and swims add
   their dates to the activity days. Holidays look at the date's `MM-DD`;
-  night owl and early bird at counting rides' `startTime` (`>= "21:30"`,
-  `< "06:00"`); the rest day is the first date D with no activity, an
+  night owl and early bird at counting rides' `startTime` (`>= "21:30"` or
+  `< "03:00"`, and `"03:00"` to before `"06:00"`); the rest day is the first date D with no activity, an
   activity on each of the seven dates before it and one on a date after it.
   The surprise category's progress is `{ value: earned count, next: null }`,
   so no bar ever shows (FR-015).
@@ -649,7 +649,7 @@ D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
   | Etappenfahrer | per date, the sum of rides' km; the third of the first three consecutive dates each ≥ 100 km |
   | Dreikampf | the first date with a ride, a run and a swim |
   | Kreiszahl | the first ride on 03-14 with `distanceM >= 31400` |
-  | Sonnenwende | the first non-virtual ride on 12-21 and the first on 06-21; dated with the later of the two (21 June in a season from September) |
+  | Sonnenwende | the first non-virtual ride on the year's December solstice and the first on its June solstice (a stored table: 20 or 21 June, 21 or 22 December); dated with the later of the two (the June one in a season from September) |
   | Osterhase | the first activity day equal to Easter Sunday or the day after it, for the date's year |
   | Everesting | per `YYYY-MM`, rides in date order; the first date a month's running elevation reaches 8,848 m |
 

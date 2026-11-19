@@ -478,6 +478,37 @@ describe("surprise hints", () => {
 		).toBe(false);
 	});
 
+	it("Sonnenwende: the week before the solstice when it moves (22 Dec, 20 Jun)", () => {
+		const late = { seasonStart: "2027-09-01", seasonEnd: "2028-06-30" };
+		window(
+			"solstice",
+			"2027-12-15",
+			"2027-12-22",
+			"2027-12-14",
+			"2027-12-23",
+			late,
+		);
+		expect(
+			find(hintCandidates(input("2027-12-15", late)), "surprise:solstice")
+				?.windowEnd,
+		).toBe("2027-12-22");
+		const rode = { ...late, daily: { ownDays: [own("2027-12-22", 15)] } };
+		window(
+			"solstice",
+			"2028-06-13",
+			"2028-06-20",
+			"2028-06-12",
+			"2028-06-21",
+			rode,
+		);
+		expect(
+			has("solstice", "2028-06-15", {
+				...late,
+				daily: { ownDays: [own("2027-12-21", 15)] },
+			}),
+		).toBe(false);
+	});
+
 	it("Easter: the 7 days before Easter Monday, and Easter Monday", () => {
 		for (const year of [2027]) {
 			const monday = new Date(

@@ -504,19 +504,25 @@ describe("evaluateBadges for the surprise badges", () => {
 		).toEqual([{ badgeId: "surprise-christmas", earnedOn: "2026-12-25" }]);
 	});
 
-	it("makes a night owl from 21:30 on (US6 4)", () => {
+	it("makes a night owl from 21:30 until 3:00 (US6 4)", () => {
 		expect(surprises({ rides: [at("2026-10-03", "21:29")] })).toEqual([]);
 		expect(surprises({ rides: [at("2026-10-04", "21:30")] })).toEqual([
 			{ badgeId: "surprise-night-owl", earnedOn: "2026-10-04" },
 		]);
+		expect(surprises({ rides: [at("2026-10-05", "00:30")] })).toEqual([
+			{ badgeId: "surprise-night-owl", earnedOn: "2026-10-05" },
+		]);
+		expect(surprises({ rides: [at("2026-10-06", "02:59")] })).toEqual([
+			{ badgeId: "surprise-night-owl", earnedOn: "2026-10-06" },
+		]);
 	});
 
-	it("makes an early bird before 6:00, from rides only (US6 5)", () => {
+	it("makes an early bird from 3:00 until 6:00, from rides only (US6 5)", () => {
 		expect(surprises({ rides: [at("2026-10-03", "06:00")] })).toEqual([]);
 		expect(surprises({ rides: [at("2026-10-04", "05:59")] })).toEqual([
 			{ badgeId: "surprise-early-bird", earnedOn: "2026-10-04" },
 		]);
-		expect(surprises({ rides: [at("2026-10-05", "00:30")] })).toEqual([
+		expect(surprises({ rides: [at("2026-10-05", "03:00")] })).toEqual([
 			{ badgeId: "surprise-early-bird", earnedOn: "2026-10-05" },
 		]);
 	});
@@ -776,6 +782,26 @@ describe("evaluateBadges for the surprise badges of part F", () => {
 		it("needs both days", () => {
 			expect(surprises({ rides: [outdoor("2027-06-21", 20)] })).toEqual([]);
 			expect(surprises({ rides: [outdoor("2026-12-21", 20)] })).toEqual([]);
+		});
+
+		it("follows the solstices when they move (22 December, 20 June)", () => {
+			const nextSeason = {
+				seasonStart: "2027-09-01",
+				windowStart: "2027-09-01",
+				deadline: "2028-07-31",
+			};
+			expect(
+				surprises(
+					{ rides: [outdoor("2027-12-22", 20), outdoor("2028-06-20", 20)] },
+					nextSeason,
+				),
+			).toEqual([{ badgeId: "surprise-solstice", earnedOn: "2028-06-20" }]);
+			expect(
+				surprises(
+					{ rides: [outdoor("2027-12-21", 20), outdoor("2028-06-21", 20)] },
+					nextSeason,
+				),
+			).toEqual([]);
 		});
 	});
 

@@ -49,6 +49,23 @@ describe("a sample ride on a set day of the season", () => {
 		expect(dateOf(onEaster(1), "2027-01-05")).toBe("2027-03-29");
 	});
 
+	it("is on the season's solstice, which moves with the year", () => {
+		const onSolstice = (month: 6 | 12): RideRecipe => ({
+			...ride(0, "10:00", 40, 200, 24),
+			onSolstice: month,
+		});
+		expect(dateOf(onSolstice(6), "2027-01-05")).toBe("2027-06-21");
+		expect(dateOf(onSolstice(12), "2027-01-05")).toBe("2027-12-22");
+		expect(
+			recipeToActivity(
+				onSolstice(6),
+				"2028-03-01",
+				"2027-09-01",
+				0,
+			).start_date_local.slice(0, 10),
+		).toBe("2028-06-20");
+	});
+
 	it("is in the season before when seeded before the season", () => {
 		expect(dateOf(onDate("03-14"), "2026-11-18")).toBe("2026-03-14");
 		expect(dateOf(onDate("01-01"), "2026-11-18")).toBe("2026-01-01");

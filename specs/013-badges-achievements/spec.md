@@ -126,7 +126,8 @@ next one."
 - Q (raised by the project owner): Which surprise badges? → A: New Year (an
   activity on 1 January), Christmas Eve (on 24 December), Christmas (on 25 or
   26 December), night owl (a ride started after 21:30), early bird (a ride
-  started before 6:00) and rest day (a day off after at least a full week with
+  started before 6:00; the hours after midnight belong to the night owl, see
+  below) and rest day (a day off after at least a full week with
   an activity every day). The rest day badge shows the figure on a couch,
   wrapped in a warm cream and black striped blanket, with a cup of cocoa.
 - Q: Which activities count for the holiday and rest-day badges? → A: Every
@@ -134,8 +135,9 @@ next one."
   included), outdoor runs and swims. Night owl and early bird count counting
   rides only, as asked.
 - Q: Where exactly are the time limits? → A: By the activity's local start
-  time: night owl from 21:30 on (21:30 counts), early bird before 6:00 (5:59
-  counts, 6:00 doesn't). A ride starting at 0:30 is an early bird.
+  time: night owl from 21:30 until 3:00 (21:30 and 2:59 count), early bird
+  from 3:00 until 6:00 (3:00 and 5:59 count, 6:00 doesn't). A ride starting at
+  0:30 is a night owl (changed after a review; it was an early bird before).
 - Q: When is a rest day known? → A: With the rider's next activity after it:
   the day is a rest day when the seven days before it each had an activity, it
   had none, and a later activity shows the day is over. The badge is dated with
@@ -474,10 +476,10 @@ rider without them sees only "?".
    Christmas Eve badge is earned; **given** one on 25 or 26 December, the
    Christmas badge is earned.
 4. **Given** a counting ride starting at 21:30 local time, **When** it is
-   evaluated, **Then** the night owl badge is earned; a ride starting at 21:29
-   earns nothing.
-5. **Given** a counting ride starting at 5:59 local time, **When** it is
-   evaluated, **Then** the early bird badge is earned; one starting at 6:00
+   evaluated, **Then** the night owl badge is earned, as for one at 0:30 or
+   2:59; a ride starting at 21:29 earns nothing.
+5. **Given** a counting ride starting at 3:00 or 5:59 local time, **When** it
+   is evaluated, **Then** the early bird badge is earned; one starting at 6:00
    earns nothing. A run at 5:00 earns nothing (rides only).
 6. **Given** activities on seven days in a row, none on the eighth day and one
    on the ninth, **When** the ninth day's activity is evaluated, **Then** the
@@ -565,7 +567,8 @@ outlines.
    badge is earned; two rides of 20 km that day are not enough.
 6. **Given** an outdoor ride on 21 December and another on 21 June, **Then**
    the Sonnenwende badge is earned, dated 21 June; a Zwift ride on either day
-   doesn't count.
+   doesn't count. In a season whose solstices fall on 22 December and 20 June
+   (2027/28), those are the days, and rides on the 21st earn nothing.
 7. **Given** an activity on Easter Sunday 28 March 2027 or Easter Monday 29
    March 2027, **Then** the Osterhase badge is earned; Good Friday earns
    nothing.
@@ -789,8 +792,8 @@ their badge names examples.
   - New Year: an activity on 1 January;
   - Christmas Eve: an activity on 24 December;
   - Christmas: an activity on 25 or 26 December;
-  - Night owl: a counting ride starting at 21:30 or later;
-  - Early bird: a counting ride starting before 6:00;
+  - Night owl: a counting ride starting at 21:30 or later, or before 3:00;
+  - Early bird: a counting ride starting from 3:00 and before 6:00;
   - Rest day: a day without any activity directly after seven days in a row
     each with at least one, once a later activity shows the day is over;
     dated with the rest day.
@@ -816,8 +819,11 @@ their badge names examples.
     counting rides added up, dated the third;
   - Dreikampf: a counting ride, an outdoor run and a swim on the same date;
   - Kreiszahl: one counting ride of at least 31.4 km on 14 March;
-  - Sonnenwende: an outdoor (not virtual) counting ride on 21 December and
-    another on 21 June of the same season, dated 21 June;
+  - Sonnenwende: an outdoor (not virtual) counting ride on the December
+    solstice and another on the June solstice of the same season, dated the
+    June one. The solstice is the year's own date in Central European time
+    (20 or 21 June, 21 or 22 December), stored through the season 2046/47;
+    later years fall back to 21 June and 21 December;
   - Osterhase: an activity (counting ride, outdoor run or swim) on Easter
     Sunday or Easter Monday (Gregorian Easter of that year);
   - Everesting: at least 8,848 m of climbing from counting rides within one
