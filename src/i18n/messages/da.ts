@@ -154,6 +154,10 @@ export const da: Catalog = {
 	"rynke.rules.handoutEnglish": "Reglerne som PDF (på engelsk)",
 	"rynke.ride.counts": "tæller 🪙",
 	"rynke.ride.countsWithoutRynke": "tæller",
+	"rynke.ride.belowMinimum.outdoor":
+		"Under {limit} udendørs: ingen Rynke for kilometerne. Højdemetrene tæller stadig.",
+	"rynke.ride.belowMinimum.virtual":
+		"Virtuel tur under {limit}: ingen Rynke for kilometerne. Højdemetrene tæller stadig.",
 	"rynke.ride.doesNotCount": "tæller ikke",
 	"rynke.ride.notYet": "tæller ikke endnu",
 	"rynke.ride.beingEvaluated": "Vurderes",
@@ -305,6 +309,8 @@ export const da: Catalog = {
 		"Ture: hver tur og hvad den gav. Denne her tæller ikke. »Hvorfor?« fortæller, hvad der gik galt, og hvad du kan gøre.",
 	"tour.rider.shortRide":
 		"Hver hele {distanceKm} km af en tur giver {distanceRynke} Trænings-Rynke. Denne tur var kortere: den tæller, men giver ingen Rynke for distancen. Højdemeterne kommer stadig med på tælleren.",
+	"tour.rider.shortRide.minimum":
+		"Kilometer giver Rynke udendørs fra {outdoorMinKm}\u00a0km og på virtuelle ture fra {virtualMinKm}\u00a0km; derefter giver hver hele {distanceKm}\u00a0km {distanceRynke}\u00a0Trænings-Rynke. Denne tur var kortere: den tæller, men giver ingen Rynke for distancen. Dens højdemeter kommer stadig på tælleren, fra første meter.",
 	"tour.rider.badges":
 		"Badges: dine og holdets, og hvor langt der er til det næste.",
 	"tour.rider.events":

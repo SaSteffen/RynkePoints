@@ -479,7 +479,7 @@ dl.ride-figures>div{min-width:0}
 dl.ride-figures dt{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 dl.ride-figures dd{margin:0;font:var(--md-type-title);white-space:nowrap}
 .ride-card p{margin:var(--rp-space-1) 0}
-.ride-meta{font:var(--md-type-body);color:var(--md-sys-color-on-surface-variant)}
+.ride-meta,.ride-note{font:var(--md-type-body);color:var(--md-sys-color-on-surface-variant)}
 .ride-why{font:var(--md-type-body)}
 summary,.more>summary,.ride-why>summary{display:flex;align-items:center;gap:var(--rp-space-2);min-height:var(--rp-tap);cursor:pointer;list-style:none;color:var(--rp-primary-text);font:var(--rp-type-control)}
 summary::-webkit-details-marker{display:none}

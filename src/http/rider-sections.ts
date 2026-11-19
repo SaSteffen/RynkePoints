@@ -697,6 +697,18 @@ function explanation(i18n: I18n, ride: RideLine): SafeHtml | null {
 `;
 }
 
+/** Why a counting ride under its kind's minimum earned no km Rynke. */
+function belowMinimum(i18n: I18n, ride: RideLine): SafeHtml | null {
+	if (ride.belowMinKm === null) return null;
+	return html`<p class="ride-note">${i18n.t(
+		ride.isVirtual
+			? "rynke.ride.belowMinimum.virtual"
+			: "rynke.ride.belowMinimum.outdoor",
+		{ limit: wholeKm(i18n, ride.belowMinKm) },
+	)}</p>
+`;
+}
+
 /** One ride as a card (011 contracts/pages.md "Rides", research R7). */
 function rideCard(
 	i18n: I18n,
@@ -751,6 +763,6 @@ function rideCard(
 <div class="ride-head"><span class="ride-date">${date}</span> <span class="chip ride-status">${i18n.t(statusText)}</span></div>
 <dl class="ride-figures"${figures}><div><dt>${i18n.t("me.recent.col.distance")}</dt><dd>${km}</dd></div><div><dt>${i18n.t("rynke.training")}</dt><dd>${rynke}${earned}</dd></div><div><dt>${i18n.t("rynke.rides.col.elevationTotal")}</dt><dd>${metres}</dd></div></dl>
 ${strava}<p class="ride-meta">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</p>
-${explanation(i18n, ride)}</li>
+${belowMinimum(i18n, ride)}${explanation(i18n, ride)}</li>
 `;
 }

@@ -1044,6 +1044,9 @@ const CONTRACT_IDS = [
 	"tour.organiser.groups.noEvents",
 	"tour.organiser.riders.noEvents",
 	"tour.rider.outdoor.noEvents",
+	"rynke.ride.belowMinimum.outdoor",
+	"rynke.ride.belowMinimum.virtual",
+	"tour.rider.shortRide.minimum",
 	// specs/026-second-team/contracts/phrases.md: one common name per badge.
 	...BADGES.map((badge) => `badge.name.${badge.id}`),
 ];

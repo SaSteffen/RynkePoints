@@ -361,6 +361,12 @@ function ruleParams(i18n: I18n, rules: RynkeRules): Record<string, string> {
 			: { teamThreshold: whole(rules.teamThreshold) }),
 		outside: whole(rules.minOutsideTraining),
 		trainingThreshold: whole(rules.trainingThreshold),
+		...(rules.distanceMinKm === undefined
+			? {}
+			: {
+					outdoorMinKm: whole(rules.distanceMinKm.outdoor),
+					virtualMinKm: whole(rules.distanceMinKm.virtual),
+				}),
 	};
 }
 
@@ -371,11 +377,20 @@ const EVENTS_TEXTS: readonly NoEventsId[] = [
 	"tour.organiser.groups",
 ];
 
-/** The step's text, its `.noEvents` variant for a team without events. */
+/**
+ * The step's text, its `.noEvents` variant for a team without events, and the
+ * short ride's `.minimum` variant for rules with kilometre minimums.
+ */
 function stepText(
 	step: TourStep,
-	team: Pick<TeamData, "eventKinds">,
+	team: Pick<TourTeam, "eventKinds" | "rules">,
 ): MessageId {
+	if (
+		step.text === "tour.rider.shortRide" &&
+		team.rules.distanceMinKm !== undefined
+	) {
+		return "tour.rider.shortRide.minimum";
+	}
 	const id = EVENTS_TEXTS.find((candidate) => candidate === step.text);
 	return id ? eventsText(team, id) : step.text;
 }
