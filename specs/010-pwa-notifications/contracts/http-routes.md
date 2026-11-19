@@ -18,7 +18,7 @@ Called by `public/app.js` only, with `fetch` and a `FormData` body.
 Checks, in order:
 
 1. `Origin` must equal the site's origin (`isSameOrigin`). Otherwise `403`.
-2. A valid session. Otherwise `401`.
+2. A valid session whose rider still exists (`readViewer`). Otherwise `401`.
 3. `action` must be one of the three values, and `endpoint` must pass the
    validation in [data-model.md](../data-model.md). Otherwise `400`.
 
