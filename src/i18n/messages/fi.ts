@@ -487,6 +487,9 @@ export const fi: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Tiimi",
+	"team.beforeWindow":
+		"Rynkeä lasketaan {date} alkaen. Tämä täyttyy, kun karsinta alkaa.",
+	"team.total.beforeWindow": "Rynkeä lasketaan {date} alkaen",
 	"team.total.label": "{team}",
 	"team.total.training": "Harjoitus-Rynke: {n}",
 	"team.total.team": "Tiimi-Rynke: {n}",
@@ -504,6 +507,7 @@ export const fi: Catalog = {
 	"team.peloton.front": "Kärki 🏁",
 	"team.peloton.label":
 		"Ajajia {count}, välillä {min}–{max} Rynkeä; sinulla {own}",
+	"team.peloton.label.guest": "Ajajia {count}, välillä {min}–{max} Rynkeä.",
 	"team.peloton.you": "Sinä",
 	"team.peloton.total": "{n} Rynkeä",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -511,6 +515,8 @@ export const fi: Catalog = {
 		"Jokainen kolikko on ajaja. Oikealla, välin jälkeen, ajaa karkujoukko.",
 	"team.peloton.label.breakaway":
 		"Ajajia {count}, välillä {min}–{max} Rynkeä, joista karkumatkalla {away}; sinulla {own}",
+	"team.peloton.label.breakaway.guest":
+		"Ajajia {count}, välillä {min}–{max} Rynkeä, joista karkumatkalla {away}.",
 	"team.list.heading": "Ranking",
 	"team.list.count": "Ajajia listalla: {n}",
 	"team.list.hint": "Ei nimiä. Viiva näyttää kauden tähän asti.",

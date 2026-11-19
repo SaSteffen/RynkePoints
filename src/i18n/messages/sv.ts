@@ -487,6 +487,9 @@ export const sv: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lag",
+	"team.beforeWindow":
+		"Rynke räknas från {date}. Det här fylls på när kvalificeringen börjar.",
+	"team.total.beforeWindow": "Rynke räknas från {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Tränings-Rynke",
 	"team.total.team": "{n} Team-Rynke",
@@ -504,6 +507,7 @@ export const sv: Catalog = {
 	"team.peloton.front": "Täten 🏁",
 	"team.peloton.label":
 		"{count} cyklister mellan {min} och {max} Rynke; du har {own}",
+	"team.peloton.label.guest": "{count} cyklister mellan {min} och {max} Rynke.",
 	"team.peloton.you": "Du",
 	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -511,6 +515,8 @@ export const sv: Catalog = {
 		"Varje mynt är en cyklist. Längst till höger, efter luckan, cyklar utbrytningen.",
 	"team.peloton.label.breakaway":
 		"{count} cyklister mellan {min} och {max} Rynke, varav {away} i utbrytningen; du har {own}",
+	"team.peloton.label.breakaway.guest":
+		"{count} cyklister mellan {min} och {max} Rynke, varav {away} i utbrytningen.",
 	"team.list.heading": "Ranking",
 	"team.list.count": "Cyklister på listan: {n}",
 	"team.list.hint": "Inga namn. Linjen visar säsongen hittills.",

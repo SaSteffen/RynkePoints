@@ -510,6 +510,9 @@ export const fr: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Équipe",
+	"team.beforeWindow":
+		"Les Rynke comptent à partir du {date}. Cette section se remplira quand la qualification commencera.",
+	"team.total.beforeWindow": "Les Rynke comptent à partir du {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Rynke d'entraînement",
 	"team.total.team": "{n} Rynke d'équipe",
@@ -528,6 +531,8 @@ export const fr: Catalog = {
 	"team.peloton.front": "Tête 🏁",
 	"team.peloton.label":
 		"Cyclistes\u00a0: {count}, entre {min} et {max} Rynke\u00a0; tu en as {own}",
+	"team.peloton.label.guest":
+		"Cyclistes\u00a0: {count}, entre {min} et {max} Rynke.",
 	"team.peloton.you": "Toi",
 	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -535,6 +540,8 @@ export const fr: Catalog = {
 		"Chaque pièce est un·e cycliste. Tout à droite, après l'écart, roule l'échappée.",
 	"team.peloton.label.breakaway":
 		"Cyclistes\u00a0: {count}, entre {min} et {max} Rynke, dont {away} dans l'échappée\u00a0; tu en as {own}",
+	"team.peloton.label.breakaway.guest":
+		"Cyclistes\u00a0: {count}, entre {min} et {max} Rynke, dont {away} dans l'échappée.",
 	"team.list.heading": "Classement",
 	"team.list.count": "Cyclistes listés\u00a0: {n}",
 	"team.list.hint": "Pas de noms. La ligne montre la saison jusqu'ici.",

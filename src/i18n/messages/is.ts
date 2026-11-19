@@ -489,6 +489,9 @@ export const is: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lið",
+	"team.beforeWindow":
+		"Rynke teljast frá {date}. Þetta fyllist þegar tímabilið til að komast áfram hefst.",
+	"team.total.beforeWindow": "Rynke teljast frá {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Æfinga-Rynke",
 	"team.total.team": "{n} Liðs-Rynke",
@@ -507,6 +510,8 @@ export const is: Catalog = {
 	"team.peloton.front": "Fremst 🏁",
 	"team.peloton.label":
 		"Hjólreiðamenn: {count}, á bilinu {min} til {max} Rynke; þú ert með {own}",
+	"team.peloton.label.guest":
+		"Hjólreiðamenn: {count}, á bilinu {min} til {max} Rynke.",
 	"team.peloton.you": "Þú",
 	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -514,6 +519,8 @@ export const is: Catalog = {
 		"Hver peningur er hjólreiðamaður. Lengst til hægri, eftir bilið, hjólar breakaway-hópurinn.",
 	"team.peloton.label.breakaway":
 		"Hjólreiðamenn: {count}, á bilinu {min} til {max} Rynke, þar af {away} í breakaway; þú ert með {own}",
+	"team.peloton.label.breakaway.guest":
+		"Hjólreiðamenn: {count}, á bilinu {min} til {max} Rynke, þar af {away} í breakaway.",
 	"team.list.heading": "Röðun",
 	"team.list.count": "Hjólreiðamenn á lista: {n}",
 	"team.list.hint": "Engin nöfn. Línan sýnir tímabilið hingað til.",

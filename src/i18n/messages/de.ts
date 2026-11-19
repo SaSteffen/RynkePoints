@@ -515,6 +515,8 @@ export const de = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
+	"team.beforeWindow": "Rynke zählen ab dem {date}, dann füllt sich das hier.",
+	"team.total.beforeWindow": "Rynke zählen ab dem {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Trainingsrynke",
 	"team.total.team": "{n} Teamrynke",
@@ -532,6 +534,8 @@ export const de = {
 	"team.peloton.front": "Spitze 🏁",
 	"team.peloton.label":
 		"{count} Rider zwischen {min} und {max}\u00a0Rynke; du hast {own}",
+	"team.peloton.label.guest":
+		"{count} Rider zwischen {min} und {max}\u00a0Rynke.",
 	"team.peloton.you": "Du",
 	"team.peloton.total": "{n}\u00a0Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -539,6 +543,8 @@ export const de = {
 		"Jede Münze ist ein Rider. Ganz rechts, hinter der Lücke, fährt der Breakaway.",
 	"team.peloton.label.breakaway":
 		"{count} Rider zwischen {min} und {max}\u00a0Rynke, davon {away} im Breakaway; du hast {own}",
+	"team.peloton.label.breakaway.guest":
+		"{count} Rider zwischen {min} und {max}\u00a0Rynke, davon {away} im Breakaway.",
 	"team.list.heading": "Rangliste",
 	"team.list.count": "{n}\u00a0Rider",
 	"team.list.hint": "Ohne Namen. Die Linie zeigt die Saison bisher.",

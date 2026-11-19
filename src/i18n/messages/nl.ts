@@ -495,6 +495,9 @@ export const nl: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
+	"team.beforeWindow":
+		"Rynke tellen mee vanaf {date}. Dit vult zich zodra de kwalificatie begint.",
+	"team.total.beforeWindow": "Rynke tellen mee vanaf {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Trainings-Rynke",
 	"team.total.team": "{n} Team-Rynke",
@@ -512,6 +515,7 @@ export const nl: Catalog = {
 	"team.peloton.front": "Kop 🏁",
 	"team.peloton.label":
 		"{count} renners tussen {min} en {max} Rynke; jij hebt er {own}",
+	"team.peloton.label.guest": "{count} renners tussen {min} en {max} Rynke.",
 	"team.peloton.you": "Jij",
 	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -519,6 +523,8 @@ export const nl: Catalog = {
 		"Elke munt is een renner. Helemaal rechts, voorbij het gat, rijdt de breakaway.",
 	"team.peloton.label.breakaway":
 		"{count} renners tussen {min} en {max} Rynke, van wie {away} in de breakaway; jij hebt er {own}",
+	"team.peloton.label.breakaway.guest":
+		"{count} renners tussen {min} en {max} Rynke, van wie {away} in de breakaway.",
 	"team.list.heading": "Klassement",
 	"team.list.count": "Renners in de lijst: {n}",
 	"team.list.hint": "Geen namen. De lijn toont het seizoen tot nu toe.",

@@ -131,6 +131,16 @@ describe("peloton", () => {
 		expect(svg).toMatch(/<text[^>]*>You<\/text>/);
 	});
 
+	it("draws every coin alike, with no front coin and no tag, for a viewer who isn't on the list", () => {
+		const svg = peloton([30, 20, 10, 0], -1, null, TEXT, "training").value;
+		expect(svg.match(/<svg[\s>]/g)).toHaveLength(1);
+		expect(coinsOf(svg)).toHaveLength(4);
+		expect(svg).not.toContain("coin-front");
+		expect(svg).not.toContain("peloton-you");
+		expect(svg).not.toContain("NaN");
+		expect(svg).toMatch(/<\/svg>$/);
+	});
+
 	it("places each coin by its total, the largest furthest ahead", () => {
 		const coins = coinsOf(
 			peloton([30, 20, 10, 0], 3, null, TEXT, "training").value,

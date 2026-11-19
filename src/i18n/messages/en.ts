@@ -491,6 +491,9 @@ export const en: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
+	"team.beforeWindow":
+		"Rynke count from {date}. This fills up once qualifying starts.",
+	"team.total.beforeWindow": "Rynke count from {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Training Rynke",
 	"team.total.team": "{n} Team Rynke",
@@ -508,6 +511,8 @@ export const en: Catalog = {
 	"team.peloton.front": "Front 🏁",
 	"team.peloton.label":
 		"{count} riders between {min} and {max}\u00a0Rynke; you have {own}",
+	"team.peloton.label.guest":
+		"{count} riders between {min} and {max}\u00a0Rynke.",
 	"team.peloton.you": "You",
 	"team.peloton.total": "{n}\u00a0Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -515,6 +520,8 @@ export const en: Catalog = {
 		"Every coin is a rider. Far right, past the gap, rides the breakaway.",
 	"team.peloton.label.breakaway":
 		"{count} riders between {min} and {max}\u00a0Rynke, {away} of them in the breakaway; you have {own}",
+	"team.peloton.label.breakaway.guest":
+		"{count} riders between {min} and {max}\u00a0Rynke, {away} of them in the breakaway.",
 	"team.list.heading": "Leaderboard",
 	"team.list.count": "{n} riders listed",
 	"team.list.hint": "No names. The line shows the season so far.",

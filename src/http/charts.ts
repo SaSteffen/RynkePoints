@@ -228,12 +228,15 @@ export function peloton(
 				text.total(total),
 			),
 		);
+	const road = html`<svg class="peloton-road${kind === "team" ? " coin-team" : ""}" viewBox="0 0 ${ROAD_WIDTH} ${ROAD_HEIGHT}" role="img" aria-label="${text.label}"><rect class="road" width="${ROAD_WIDTH}" height="${ROAD_HEIGHT}" rx="12"/><path class="road-middle" d="M12 ${ROAD_HEIGHT / 2}H${ROAD_WIDTH - 12}"/>${gapAt === null ? null : roadGap(gapAt)}${others}`;
+	// A viewer who isn't on the list (a guest) sees the field without "You".
+	if (own < 0) return html`${road}</svg>`;
 	const ownTotal = totals[own] ?? 0;
 	const ownX = x(ownTotal);
 	const width = tagWidth(text.you);
 	const tagX = Math.min(Math.max(ownX, width / 2), ROAD_WIDTH - width / 2);
 	const tagY = 6 + OWN_COIN + 2;
-	return html`<svg class="peloton-road${kind === "team" ? " coin-team" : ""}" viewBox="0 0 ${ROAD_WIDTH} ${ROAD_HEIGHT}" role="img" aria-label="${text.label}"><rect class="road" width="${ROAD_WIDTH}" height="${ROAD_HEIGHT}" rx="12"/><path class="road-middle" d="M12 ${ROAD_HEIGHT / 2}H${ROAD_WIDTH - 12}"/>${gapAt === null ? null : roadGap(gapAt)}${others}${roadCoin("front", ownX, 6 + OWN_COIN / 2, OWN_COIN, text.total(ownTotal))}<g class="peloton-you"><rect x="${coord(tagX - width / 2)}" y="${tagY}" width="${width}" height="${TAG_HEIGHT}" rx="8"/><text x="${coord(tagX)}" y="${tagY + 12}" text-anchor="middle">${text.you}</text></g></svg>`;
+	return html`${road}${roadCoin("front", ownX, 6 + OWN_COIN / 2, OWN_COIN, text.total(ownTotal))}<g class="peloton-you"><rect x="${coord(tagX - width / 2)}" y="${tagY}" width="${width}" height="${TAG_HEIGHT}" rx="8"/><text x="${coord(tagX)}" y="${tagY + 12}" text-anchor="middle">${text.you}</text></g></svg>`;
 }
 
 const BARS_WIDTH = 100;
