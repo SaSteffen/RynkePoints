@@ -235,14 +235,14 @@ async function changeReport(
 ): Promise<Response> {
 	const path = `${PATH}/${eventId}/report${withdraw ? "/delete" : ""}`;
 	const allPast = new URL(request.url).searchParams.get("past") === "all";
-	if (!isSameOrigin(request)) return forbidden(i18n, path);
+	if (!isSameOrigin(request)) return forbidden(ctx, i18n, path);
 	const viewer = await readViewer(request, ctx);
 	if (
 		viewer.kind === "visitor" ||
 		!hasAgreed(riderConsentState(viewer, ctx)) ||
 		viewer.rider.organiser
 	) {
-		return forbidden(i18n, path);
+		return forbidden(ctx, i18n, path);
 	}
 	const { athleteId } = viewer.rider;
 	const db = ctx.env.DB;
@@ -252,7 +252,7 @@ async function changeReport(
 		attendedStatement(db, eventId, athleteId),
 	]);
 	if (((listedRows?.results ?? []) as { n: number }[])[0]?.n !== 1) {
-		return forbidden(i18n, path);
+		return forbidden(ctx, i18n, path);
 	}
 	const event = (eventRows?.results as TeamEventRecordRow[] | undefined)?.[0];
 	if (

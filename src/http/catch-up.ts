@@ -38,7 +38,7 @@ export async function handleCatchUp(
 		given === undefined ||
 		!(await secretEquals(given, expected))
 	) {
-		return notFound(i18n, path);
+		return notFound(ctx, i18n, path);
 	}
 	const raw = new URL(request.url).searchParams.get("since") ?? "";
 	const now = ctx.now();

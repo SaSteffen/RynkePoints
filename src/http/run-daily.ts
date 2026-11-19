@@ -24,7 +24,7 @@ export async function handleRunDaily(
 		given === undefined ||
 		!(await secretEquals(given, expected))
 	) {
-		return notFound(i18n, path);
+		return notFound(ctx, i18n, path);
 	}
 	ctx.waitUntil(
 		handleScheduled(

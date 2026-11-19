@@ -1,7 +1,7 @@
 import { BADGE_CATEGORIES, BADGES } from "../../src/badges/catalog";
 import { progressOf } from "../../src/badges/evaluate";
 import { buildBadgeSection, listedFor } from "../../src/badges/view";
-import { html, htmlResponse, layout } from "../../src/http/html";
+import { html, htmlResponse, layout, type PageLook } from "../../src/http/html";
 import { badgeNames, renderBadges } from "../../src/http/sections/badges";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
@@ -17,6 +17,7 @@ import { dayBefore } from "./samples";
 
 export function badgesPage(
 	team: TeamData,
+	look: PageLook,
 	season: CountingWindow,
 	lang: string | null,
 	today: string,
@@ -39,6 +40,6 @@ export function badgesPage(
 	const body = html`<div class="overview-grid">${section ? renderBadges(i18n, team, badgeNames({ team }, i18n), section, { name: team.shortName, icon: team.art.icons.icon192 }) : null}</div>`;
 	return htmlResponse(
 		i18n,
-		layout(i18n, { title: "Every badge", path: "/_dev/badges", body }),
+		layout(i18n, { look, title: "Every badge", path: "/_dev/badges", body }),
 	);
 }

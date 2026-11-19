@@ -120,7 +120,7 @@ export async function handleConsent(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	if (!isSameOrigin(request)) return forbidden(i18n, "/me");
+	if (!isSameOrigin(request)) return forbidden(ctx, i18n, "/me");
 	const viewer = await readViewer(request, ctx);
 	if (viewer.kind === "visitor") return redirect("/", 302);
 	const current = currentVersion(ctx.consentVersions).version;

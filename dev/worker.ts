@@ -1,6 +1,7 @@
 import { berlinDate, returnVia } from "../src/config";
 import { CONSENT_VERSIONS, currentVersion } from "../src/consent";
 import type { Ctx } from "../src/ctx";
+import { pageLook } from "../src/http/html";
 import { clearSessionCookie } from "../src/http/session";
 import { CATALOGS } from "../src/i18n/catalogs";
 import { handleFetch, handleQueue, handleScheduled } from "../src/index";
@@ -439,6 +440,7 @@ async function devRoute(
 		case "GET /_dev/badges":
 			return badgesPage(
 				ctx.team,
+				pageLook(ctx),
 				countingWindow(ctx.env),
 				url.searchParams.get("lang"),
 				berlinDate(ctx.now()),

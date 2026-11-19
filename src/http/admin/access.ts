@@ -30,7 +30,7 @@ export function adminPage(
 	) => Promise<SafeHtml | Response> | SafeHtml | Response,
 ): Promise<Response> {
 	return shellPage(request, ctx, i18n, "admin", path, (viewer) =>
-		viewer.rider.administrator ? render(viewer) : forbidden(i18n, path),
+		viewer.rider.administrator ? render(viewer) : forbidden(ctx, i18n, path),
 	);
 }
 
@@ -44,14 +44,14 @@ export async function requireAdminPost(
 	i18n: I18n,
 	path: string,
 ): Promise<Rider | Response> {
-	if (!isSameOrigin(request)) return forbidden(i18n, path);
+	if (!isSameOrigin(request)) return forbidden(ctx, i18n, path);
 	const viewer = await readViewer(request, ctx);
 	if (
 		viewer.kind === "visitor" ||
 		!hasAgreed(riderConsentState(viewer, ctx)) ||
 		!viewer.rider.administrator
 	) {
-		return forbidden(i18n, path);
+		return forbidden(ctx, i18n, path);
 	}
 	return viewer.rider;
 }

@@ -100,7 +100,7 @@ export function isNoticeId(id: string): id is NoticeId {
 
 export function handleNotice(id: string, ctx: Ctx, i18n: I18n): Response {
 	const path = `/notice/${id}`;
-	if (!isNoticeId(id)) return notFound(i18n, path);
+	if (!isNoticeId(id)) return notFound(ctx, i18n, path);
 	const notice = NOTICES[id];
 	const title = i18n.t(notice.title);
 	const clubLink = html`<a href="https://www.strava.com/clubs/${clubId(ctx.env)}">${i18n.t("club.linkText")}</a>`;
