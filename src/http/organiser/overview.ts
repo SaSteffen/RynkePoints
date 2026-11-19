@@ -937,14 +937,18 @@ export function overviewBody(
 			: (rider: OverviewRider) =>
 					seasonSessions(rides, rider.athleteId, window);
 	const riders = overviewRiders(read, rules, window, today);
+	// Before the window opens nobody can need a push, so the overview opens on
+	// everyone instead of an empty "Need a push" (feature 040).
+	const current: Group | null =
+		group ?? (today < window.windowStart ? "all" : null);
 	// Riders with open requests first (019 FR-034), the order otherwise kept.
 	const shown =
-		group === null || group === "all"
+		current === null || current === "all"
 			? [
 					...riders.filter((r) => hasRequests(r, requests)),
 					...riders.filter((r) => !hasRequests(r, requests)),
 				]
-			: riders.filter((r) => inGroup(r, group, requests));
+			: riders.filter((r) => inGroup(r, current, requests));
 	const back =
 		group === null ? "/organiser/riders" : `/organiser/riders?group=${group}`;
 	const lines = (rider: OverviewRider) =>
@@ -958,12 +962,12 @@ export function overviewBody(
 			? html`<p>${i18n.t("organiser.overview.none")}</p>
 `
 			: html`${renderReports(i18n, riders, requests, back)}${hasGraphs ? renderViewSwitch(i18n, shown.length, view) : null}<div class="overview-list">
-${pace ? renderHint(i18n, rules, pace, figures, whole) : null}${renderRows(i18n, rules, wording, riders, group, passed, requests, lines, percent, sessionsOf ?? (() => null))}${percent ? renderPercentTable(i18n, rules, wording, shown, passed, lines) : renderTable(i18n, rules, wording, shown, passed, lines, sessionsOf)}</div>
+${pace ? renderHint(i18n, rules, pace, figures, whole) : null}${renderRows(i18n, rules, wording, riders, current, passed, requests, lines, percent, sessionsOf ?? (() => null))}${percent ? renderPercentTable(i18n, rules, wording, shown, passed, lines) : renderTable(i18n, rules, wording, shown, passed, lines, sessionsOf)}</div>
 ${hasGraphs ? graphs : null}<div class="overview-qualified">${renderQualified(i18n, wording, riders)}</div>
 `;
 	return html`<div class="team-overview"${hasGraphs ? html` data-view="${view}"` : null}${inert ? html` inert` : null}>
 <h2>${i18n.t("organiser.overview.heading")}</h2>
-${renderDeadline(i18n, window, today, riders, team.art.coin)}${renderTiles(i18n, riders, group, passed, requests, hasEvents(wording))}${renderBeforeWindow(i18n, window, today)}${body}</div>`;
+${renderDeadline(i18n, window, today, riders, team.art.coin)}${renderTiles(i18n, riders, current, passed, requests, hasEvents(wording))}${renderBeforeWindow(i18n, window, today)}${body}</div>`;
 }
 
 /**
