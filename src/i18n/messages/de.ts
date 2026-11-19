@@ -512,6 +512,7 @@ export const de = {
 	"organiser.corrections.removeWarning":
 		"Das entfernt die Korrektur; die Rynke der Person passen sich an.",
 	"organiser.corrections.removeConfirm": "Ja, entfernen",
+	"organiser.corrections.outside": "Zählt nicht: Datum außerhalb der Saison",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",

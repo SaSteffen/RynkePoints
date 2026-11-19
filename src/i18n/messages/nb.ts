@@ -486,6 +486,7 @@ export const nb: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Dette fjerner korrigeringen; rytterens Rynke følger med.",
 	"organiser.corrections.removeConfirm": "Ja, fjern",
+	"organiser.corrections.outside": "Teller ikke: datert utenfor sesongen",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lag",

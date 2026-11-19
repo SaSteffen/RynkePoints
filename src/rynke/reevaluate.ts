@@ -421,6 +421,7 @@ function evaluateState(
 		extrasFrom(
 			evaluateAttendance(state.attendance, rules, window),
 			state.corrections,
+			window,
 		),
 		rules,
 	);

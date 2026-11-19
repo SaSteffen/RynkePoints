@@ -475,6 +475,10 @@ re-evaluation, and check the correction is still applied exactly once.
   (deleted ride, removed attendance, rule change) no longer qualifies.
 - **Negative corrections**: a correction may reduce a total, but neither total is
   ever below 0.
+- **Corrections dated outside the window**: before the window opens or after the
+  deadline, or in an earlier season once the season start has moved on: they count
+  for nothing, in the totals, the graphs and the badges, and stay stored until an
+  organiser removes them.
 
 ## Requirements *(mandatory)*
 
@@ -584,7 +588,10 @@ re-evaluation, and check the correction is still applied exactly once.
 - **FR-010**: Organisers MUST be able to add a correction (signed amount of
   Training Rynke and/or Team Rynke, reason, date) to a rider. Corrections MUST be
   kept and applied on every evaluation, including full re-evaluations, until an
-  organiser removes them (constitution Principle III).
+  organiser removes them (constitution Principle III). A correction counts only
+  when its date lies inside the qualification window, as attendance does
+  (FR-011); one dated outside it stays stored but counts for nothing, so a
+  season's corrections do not carry into the next season (review L-02).
 
 **Season and configuration**
 

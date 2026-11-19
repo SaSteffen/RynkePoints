@@ -27,7 +27,7 @@ published.
 | `training` | INTEGER NOT NULL | Signed whole Training Rynke, `BETWEEN -10000 AND 10000`. |
 | `team` | INTEGER NOT NULL | Signed whole Team Rynke, same bounds. |
 | `reason` | TEXT NOT NULL | `length(reason) BETWEEN 1 AND 200`. |
-| `correction_date` | TEXT NOT NULL | `YYYY-MM-DD` (GLOB check as `team_events`). The form defaults it to today (Berlin). |
+| `correction_date` | TEXT NOT NULL | `YYYY-MM-DD` (GLOB check as `team_events`). The form defaults it to today (Berlin), or the nearest day of the qualification window when today is outside it; a correction counts only inside the window (003 FR-010). |
 | `changed_by` | INTEGER NULL, `REFERENCES riders (athlete_id) ON DELETE SET NULL` | Organiser who added it. |
 | `changed_at` | INTEGER NOT NULL | Epoch seconds. |
 
@@ -39,10 +39,10 @@ Corrections are never updated (FR-031): a wrong one is deleted and added again.
 
 ## Evaluation (feature 003)
 
-- `RiderState.corrections: { training: number; team: number }[]`, read by
-  `readRiders` in its batch.
-- `Extras.training` and `Extras.team` are the attendance sums plus the
-  correction sums. `teamEvents` is unchanged. `tally` clamps the totals at 0 as
+- `RiderState.corrections: { date: string; training: number; team: number }[]`,
+  read by `readRiders` in its batch.
+- `Extras.training` and `Extras.team` are the attendance sums plus the sums of
+  the corrections dated inside the counting window (`extrasFrom`). `teamEvents` is unchanged. `tally` clamps the totals at 0 as
   it does today.
 - `rynke_balances` is unchanged.
 

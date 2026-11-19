@@ -9,7 +9,13 @@ import {
 	type RynkeRules,
 	rulesForVersion,
 } from "./rules";
-import { type Balance, type Extras, extrasFrom, tally } from "./tally";
+import {
+	type Balance,
+	countingCorrections,
+	type Extras,
+	extrasFrom,
+	tally,
+} from "./tally";
 import { type Attendance, evaluateAttendance } from "./team-events";
 
 /** A rider's counting rides of one week, summed in SQL (research R2). */
@@ -219,6 +225,7 @@ function extrasUpTo(
 					window,
 				),
 				inputs.corrections.filter((c) => c.date <= date),
+				window,
 			);
 		}
 		return extras;
@@ -308,7 +315,8 @@ export function riderCurve(
 		items.map((item) => (item.date > last ? { ...item, date: last } : item));
 	const extras = {
 		attendance: onOrBefore(inputs.attendance),
-		corrections: onOrBefore(inputs.corrections),
+		// Before the clamp: a correction outside the window counts nowhere.
+		corrections: onOrBefore(countingCorrections(inputs.corrections, window)),
 	};
 	// The rides add up as the days go, as in `riderDays`.
 	const rides = onOrBefore(inputs.rides).sort((a, b) =>

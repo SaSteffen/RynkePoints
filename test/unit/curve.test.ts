@@ -137,6 +137,33 @@ describe("riderCurve (feature 009)", () => {
 		});
 	});
 
+	// Review L-02: the clamp onto the last day must not bring a correction
+	// from outside the window back in.
+	it("leaves out a correction dated outside the window, even on the deadline", () => {
+		const error = vi.spyOn(console, "error").mockImplementation(() => {});
+		const points = curve(
+			{
+				rides: [ride("2026-09-02", 20)],
+				attendance: [],
+				corrections: [
+					{ date: "2026-08-15", training: 40, team: 5 },
+					{ date: "2027-07-15", training: 40, team: 5 },
+				],
+			},
+			"2027-06-30",
+			{
+				...ZERO_BALANCE,
+				distanceRynke: 20,
+				trainingRynke: 20,
+				trainingWithoutVirtual: 20,
+			},
+		);
+		expect(points.at(0)).toMatchObject({ training: 0, team: 0 });
+		expect(points.at(-1)).toMatchObject({ training: 20, team: 0 });
+		// The curve meets the balance by itself, not by the balance overriding it.
+		expect(error).not.toHaveBeenCalled();
+	});
+
 	it("ends on the deadline once it has passed", () => {
 		const points = curve(EXAMPLE_INPUTS, "2027-06-30");
 		expect(points).toHaveLength(303);

@@ -507,6 +507,8 @@ export const fr: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Cela retire la correction\u00a0; les Rynke du ou de la cycliste suivent.",
 	"organiser.corrections.removeConfirm": "Oui, retirer",
+	"organiser.corrections.outside":
+		"Ne compte pas : date en dehors de la saison",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Équipe",

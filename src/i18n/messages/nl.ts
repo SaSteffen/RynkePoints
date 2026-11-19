@@ -492,6 +492,7 @@ export const nl: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Dit verwijdert de correctie; de Rynke van de renner passen zich aan.",
 	"organiser.corrections.removeConfirm": "Ja, verwijderen",
+	"organiser.corrections.outside": "Telt niet mee: datum buiten het seizoen",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",

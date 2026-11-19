@@ -33,6 +33,7 @@ import {
 	type RynkeRules,
 } from "../../rynke/rules";
 import type { RideEntry } from "../../rynke/summary";
+import { countingCorrections } from "../../rynke/tally";
 import type { TeamEventSum } from "../../rynke/team-events";
 import { dayNumber } from "../../rynke/weeks";
 import { hasEvents } from "../../teams";
@@ -175,7 +176,7 @@ export function overviewRiders(
 			behind: amount > 0 && at !== null && value < at,
 		});
 		const corrections = { training: 0, team: 0 };
-		for (const c of rider.corrections) {
+		for (const c of countingCorrections(rider.corrections, window)) {
 			corrections.training += c.training;
 			corrections.team += c.team;
 		}

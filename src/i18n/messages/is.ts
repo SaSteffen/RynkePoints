@@ -486,6 +486,8 @@ export const is: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Þetta fjarlægir leiðréttinguna; Rynke hjólreiðamannsins fylgja með.",
 	"organiser.corrections.removeConfirm": "Já, fjarlægja",
+	"organiser.corrections.outside":
+		"Telst ekki með: dagsetning utan tímabilsins",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lið",
