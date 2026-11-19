@@ -262,12 +262,14 @@ export async function readRynke(
  * R22): no balance, a row from another rules version, an activity without a
  * result computed from its current figures, or attendance inside `window`
  * whose count per kind differs from the stored breakdown (`EXCEPT` both ways).
- * A renamed event, or attendance moved to another event of the same kind,
- * changes no count and lists no one. Also riders whose badges were worked out
- * with another badge catalog (feature 013 research R18). Also riders without a
- * summary under the current version, or whose summary names other events than
- * they attended (feature 030 research R7, R11), which also finds attendance
- * moved by hand between events of one kind.
+ * Tour de Paris days stay out of that count: they earn nothing, so the
+ * breakdown never holds them (feature 021 FR-002). A renamed event, or
+ * attendance moved to another event of the same kind, changes no count and
+ * lists no one. Also riders whose badges were worked out with another badge
+ * catalog (feature 013 research R18). Also riders without a summary under the
+ * current version, or whose summary names other events than they attended
+ * (feature 030 research R7, R11), which also finds attendance moved by hand
+ * between events of one kind, and tour days added or taken away.
  */
 export async function listRidersNeedingEvaluation(
 	db: D1Database,
@@ -277,9 +279,8 @@ export async function listRidersNeedingEvaluation(
 ): Promise<number[]> {
 	const attended = `SELECT e.kind, count(*) FROM attendances a
 		JOIN team_events e ON e.event_id = a.event_id
-		WHERE a.athlete_id = r.athlete_id
-			AND e.event_date >= CASE e.kind WHEN 'tour_de_paris' THEN ?2 ELSE ?6 END
-			AND e.event_date <= ?3
+		WHERE a.athlete_id = r.athlete_id AND e.kind <> 'tour_de_paris'
+			AND e.event_date BETWEEN ?2 AND ?3
 		GROUP BY e.kind`;
 	const stored = `SELECT json_extract(value, '$.kind'),
 			json_extract(value, '$.attended')
@@ -312,11 +313,10 @@ export async function listRidersNeedingEvaluation(
 		)
 		.bind(
 			rulesVersion,
-			window.seasonStart,
+			window.windowStart,
 			window.deadline,
 			badgesVersion,
 			RIDER_SUMMARY_VERSION,
-			window.windowStart,
 		)
 		.all<{ athlete_id: number }>();
 	return results.map((r) => r.athlete_id);
