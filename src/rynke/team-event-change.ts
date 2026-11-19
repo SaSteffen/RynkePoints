@@ -29,6 +29,8 @@ import {
 	type RiderState,
 	readRiders,
 	reevaluate,
+	storeEvaluated,
+	withCurrentRiders,
 } from "./reevaluate";
 import {
 	type CountingWindow,
@@ -115,33 +117,55 @@ export async function applyTeamEventChange(
 		}
 		// A new tour day numbers the later ones anew (feature 021 FR-012).
 		const day = { eventId, date: event.date };
-		const others = await tourRiders(db, window);
-		const { riders } = await readRiders(db, others, []);
-		for (const state of riders.values()) {
-			state.tourEvents = state.tourEvents.filter((e) => e.eventId !== eventId);
-		}
-		const result = reevaluateAll(
-			db,
-			others,
-			riders,
-			rules,
-			window,
-			now,
-			news,
-			(state) => {
-				state.tourEvents = [...state.tourEvents, day];
-			},
-		);
-		if (result.writes.length > 0) await db.batch(result.writes);
-		return {
-			eventId,
-			affected: others,
-			rose: result.risen,
-			earned: result.earned,
-		};
+		return withCurrentRiders(async () => {
+			const others = await tourRiders(db, window);
+			const { riders } = await readRiders(db, others, []);
+			for (const state of riders.values()) {
+				state.tourEvents = state.tourEvents.filter(
+					(e) => e.eventId !== eventId,
+				);
+			}
+			const result = reevaluateAll(
+				db,
+				others,
+				riders,
+				rules,
+				window,
+				now,
+				news,
+				(state) => {
+					state.tourEvents = [...state.tourEvents, day];
+				},
+			);
+			await storeEvaluated(db, riders, result.writes);
+			return {
+				eventId,
+				affected: others,
+				rose: result.risen,
+				earned: result.earned,
+			};
+		});
 	}
 	const event =
 		change.kind === "update-event" ? validEvent(change.event) : null;
+	return withCurrentRiders(() =>
+		storeEventChange(db, change, event, rules, window, now, news),
+	);
+}
+
+/**
+ * One try of `applyTeamEventChange` for an event already stored; `event` is
+ * the checked input of `update-event`.
+ */
+async function storeEventChange(
+	db: D1Database,
+	change: Exclude<TeamEventChange, { kind: "create-event" }>,
+	event: TeamEventFields | null,
+	rules: RynkeRules,
+	window: CountingWindow,
+	now: number,
+	news: BadgeNewsSwitch,
+): Promise<TeamEventResult> {
 	const { eventId } = change;
 
 	const reads = [
@@ -263,8 +287,9 @@ export async function applyTeamEventChange(
 	affected.sort((a, b) => a - b);
 	let risen: number[] = [];
 	let earned: number[] = [];
+	let riders = new Map<number, RiderState>();
 	if (affected.length > 0) {
-		const { riders } = await readRiders(db, affected, []);
+		({ riders } = await readRiders(db, affected, []));
 		const result = reevaluateAll(
 			db,
 			affected,
@@ -282,7 +307,7 @@ export async function applyTeamEventChange(
 		risen = result.risen;
 		earned = result.earned;
 	}
-	if (writes.length > 0) await db.batch(writes);
+	await storeEvaluated(db, riders, writes);
 	return { eventId: null, affected, rose: risen, earned };
 }
 
@@ -338,7 +363,9 @@ async function tourRiders(
 /**
  * `applyTeamEventChange` under the current rules, for callers outside the
  * serial queue consumer (the organiser pages). One `evaluate-rider` per
- * affected rider then settles a race with an activity event (research R21).
+ * affected rider then settles a race with another change to the same event:
+ * its stored attendees are counted, but not the event (research R21, review
+ * L-18).
  * Each rider whose Rynke rose or who has a new badge gets a notification on
  * their devices (feature 013 research R17), as does each listed rider a new
  * team badge is new to (#125).

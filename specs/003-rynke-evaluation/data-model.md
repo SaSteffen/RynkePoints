@@ -38,6 +38,12 @@ outside the window get a result too.
 Filled by every activity write and by the one-time re-read that
 `ACTIVITY_FIGURES_VERSION = 2` triggers (feature 001 research R20).
 
+## Column: `riders.evaluations` (review L-18, migration `0033`)
+
+| Column | Type | Rule |
+|---|---|---|
+| `evaluations` | INTEGER NOT NULL DEFAULT 0 | How many evaluations stored the rider's Rynke. Every batch that stores one adds 1, and fails as a whole if the count is no longer the one read with the rider's state; the change then starts again from the new state (research, review L-18). A counter only: no rider data. |
+
 ## Input: Rynke Rules (`CURRENT_RULES`, code constant until Story 5)
 
 | Field | Value | Rule |

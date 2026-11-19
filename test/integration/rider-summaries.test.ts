@@ -570,7 +570,11 @@ describe("leaving and withdrawing take effect at once (US4)", () => {
 		await seedBoth();
 		const all = await readTeamBadgeSums(env.DB);
 		expect(all.riders).toHaveLength(2);
-		await markNeedsReconnect(env.DB, ATHLETE_B, NOW);
+		await markNeedsReconnect(
+			env.DB,
+			{ athleteId: ATHLETE_B, scopesUpdatedAt: NOW },
+			NOW,
+		);
 		await expectOnlyA();
 		expect(await storedRow(ATHLETE_B)).not.toBeNull();
 		await env.DB.prepare(
@@ -688,7 +692,8 @@ describe("the release is invisible (US5)", () => {
 		const rows = countRows(ctx);
 		rows.counter.reset();
 		const result = await evaluateChange(rows.ctx, ATHLETE_A, { kind: "none" });
-		expect(rows.counter.written()).toBe(1);
+		// The row, and the rider's count of evaluations (review L-18).
+		expect(rows.counter.written()).toBe(2);
 		expect(result).toEqual({
 			rose: false,
 			badges: [],
@@ -749,7 +754,7 @@ describe("a new format costs no costly day (organiser graphs, research R14)", ()
 		expect(counter.trips()).toBe(2);
 	});
 
-	it("raises a version 1 row with one write, no rise and no notification", async () => {
+	it("raises a version 1 row with one write and the count, no rise and no notification", async () => {
 		await toVersionOne();
 		const sentBefore = ctx.queue.sent.length;
 		const balance = () =>
@@ -760,7 +765,8 @@ describe("a new format costs no costly day (organiser graphs, research R14)", ()
 		const rows = countRows(ctx);
 		rows.counter.reset();
 		const result = await evaluateChange(rows.ctx, ATHLETE_A, { kind: "none" });
-		expect(rows.counter.written()).toBe(1);
+		// The row, and the rider's count of evaluations (review L-18).
+		expect(rows.counter.written()).toBe(2);
 		expect(result).toEqual({
 			rose: false,
 			badges: [],

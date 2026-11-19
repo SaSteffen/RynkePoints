@@ -332,8 +332,9 @@ describe("riders", () => {
 	it("marks needs_reconnect once and reconnects", async () => {
 		const ctx = makeCtx();
 		await seedRider(ctx);
-		await markNeedsReconnect(db, ATHLETE_A, NOW + 10);
-		await markNeedsReconnect(db, ATHLETE_A, NOW + 20);
+		const seen = { athleteId: ATHLETE_A, scopesUpdatedAt: NOW };
+		await markNeedsReconnect(db, seen, NOW + 10);
+		await markNeedsReconnect(db, seen, NOW + 20);
 		expect(await getRider(db, ATHLETE_A)).toMatchObject({
 			status: "needs_reconnect",
 			reconnectRequestedAt: NOW + 10,
@@ -354,6 +355,23 @@ describe("riders", () => {
 			scopes: "read,activity:read",
 			scopesUpdatedAt: NOW + 30,
 			connectedAt: NOW,
+		});
+	});
+
+	it("leaves connected a rider who reconnected after the refused token was read (review L-18)", async () => {
+		await seedRider(makeCtx());
+		const seen = { athleteId: ATHLETE_A, scopesUpdatedAt: NOW };
+		await updateRiderOnReconnect(db, ATHLETE_A, {
+			firstName: "Testrider A",
+			scopes: "read,activity:read_all",
+			scopeReadAll: true,
+			now: NOW + 5,
+			guest: false,
+		});
+		await markNeedsReconnect(db, seen, NOW + 10);
+		expect(await getRider(db, ATHLETE_A)).toMatchObject({
+			status: "connected",
+			reconnectRequestedAt: null,
 		});
 	});
 

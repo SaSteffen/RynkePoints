@@ -3,7 +3,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { upsertActivity } from "../../src/db/activities";
 import { readRynke } from "../../src/db/rynke";
 import { type ActivityChange, applyAndEvaluate } from "../../src/rynke/apply";
+import { applyCorrectionChange } from "../../src/rynke/correction-change";
 import { countingWindow, type RynkeRules } from "../../src/rynke/rules";
+import { applyTeamEventChange } from "../../src/rynke/team-event-change";
 import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
 import {
@@ -387,6 +389,89 @@ describe("applyAndEvaluate with attendance (Story 3)", () => {
 		await apply({ kind: "upsert", records: [activityRecord(1)] });
 
 		expect(await snapshot(ATHLETE_B)).toEqual(other);
+		await expectConsistent(ATHLETE_B);
+	});
+});
+
+/** `db`, but before its `nth` batch another change is stored (`meanwhile`). */
+function racing(nth: number, meanwhile: () => Promise<unknown>): D1Database {
+	let batches = 0;
+	return new Proxy(db, {
+		get(target, prop) {
+			if (prop === "batch") {
+				return async (statements: D1PreparedStatement[]) => {
+					batches += 1;
+					if (batches === nth) await meanwhile();
+					return target.batch(statements);
+				};
+			}
+			const value = Reflect.get(target, prop);
+			return typeof value === "function" ? value.bind(target) : value;
+		},
+	});
+}
+
+describe("a change stored while another was evaluated (review L-18)", () => {
+	const correction = () =>
+		applyCorrectionChange(
+			db,
+			{
+				kind: "add-correction",
+				athleteId: ATHLETE_A,
+				correction: {
+					training: 5,
+					team: 0,
+					reason: "Ride lost",
+					date: "2026-05-03",
+				},
+				by: ATHLETE_B,
+			},
+			CURRENT_RULES,
+			countingWindow(env),
+			NOW,
+		);
+
+	it("keeps a correction stored between a ride's read and its store", async () => {
+		// The ride's batches: its rider's state, then the store.
+		const result = await applyAndEvaluate(
+			racing(2, correction),
+			ATHLETE_A,
+			{ kind: "upsert", records: [activityRecord(1)] },
+			CURRENT_RULES,
+			countingWindow(env),
+			NOW,
+		);
+
+		expect(result.rose).toBe(true);
+		expect(await balanceRow()).toMatchObject({ training_rynke: 4 + 5 });
+		await expectConsistent();
+	});
+
+	it("keeps a ride stored between an attendance's read and its store", async () => {
+		const eventId = await insertEvent("team_training", "2026-05-02");
+		const ride = () =>
+			applyAndEvaluate(
+				db,
+				ATHLETE_A,
+				{ kind: "upsert", records: [activityRecord(1)] },
+				CURRENT_RULES,
+				countingWindow(env),
+				NOW,
+			);
+		// The attendance's batches: the event, its riders' state, the store.
+		await applyTeamEventChange(
+			racing(3, ride),
+			{ kind: "add-attendance", eventId, athleteIds: [ATHLETE_A, ATHLETE_B] },
+			CURRENT_RULES,
+			countingWindow(env),
+			NOW,
+		);
+
+		expect(await balanceRow()).toMatchObject({
+			training_rynke: 4 + 5,
+			team_rynke: 1,
+		});
+		await expectConsistent();
 		await expectConsistent(ATHLETE_B);
 	});
 });

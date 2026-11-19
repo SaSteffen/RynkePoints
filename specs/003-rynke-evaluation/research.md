@@ -229,19 +229,19 @@ research R20; R15 below for `is_flagged`).
 
   `activity-event`, the import and re-read page (`storeActivityPage`) and the OAuth
   callback's private-activity removal go through it instead of calling the
-  activity writes directly. `evaluate-rider` calls it with an empty change. The
-  callback also sends `evaluate-rider` afterwards (see Rationale).
+  activity writes directly. `evaluate-rider` calls it with an empty change.
 - **Rationale**: a D1 batch is a transaction, so the activity, its result and the
   balance change together; a reader sees either the old or the new state, never a
   mix. The consumer runs with `max_concurrency: 1`, so consumer paths never race
-  each other. The only concurrent writer is the OAuth callback (a fetch handler)
-  when a reconnecting rider narrows their scope: if a consumer message for the
-  same rider is in flight, one side may write from a snapshot that misses the
-  other's change. The `evaluate-rider` the callback sends runs after any
-  in-flight consumer message (serial consumer) and re-derives from the final
-  state, so such a mismatch lasts seconds. It needs a reconnect with a narrowed
-  scope and a webhook for the same rider at the same moment; that is accepted
-  rather than guarded.
+  each other. Writers outside it (the OAuth callback when a reconnecting rider
+  narrows their scope, the organiser pages, the daily run) can read a rider
+  while a consumer message for them is in flight, and one side would then write
+  from a snapshot that misses the other's change. So every batch that stores an
+  evaluation also counts it in `riders.evaluations`, and fails as a whole if
+  the count is no longer the one read with the state; the change then starts
+  again from the new state (review L-18). Until then, the callback sent an
+  `evaluate-rider` that re-derived from the final state, which repaired the
+  balance but not the rise or the badge news.
 - **Alternatives considered**:
   - Enqueue `evaluate-rider` after each activity write — rejected: between the
     write and the evaluation, a deleted activity's result is gone (cascade) while
@@ -310,9 +310,11 @@ research R20; R15 below for `is_flagged`).
     send fails after its batch, R11) or anything else leaves an activity without
     a current result, the sweep finds it.
 - **Alternatives considered**: a version counter per rider checked inside the
-  batch (R11's race) — rejected: D1 batches can't abort on a failed condition
-  without a constraint trick, for a race that needs a reconnect and a webhook in
-  the same second. Hourly cron — deferred to Story 5, which needs it for SC-006.
+  batch (R11's race) — rejected at first: D1 batches can't abort on a failed
+  condition without a constraint trick, for a race that needs a reconnect and a
+  webhook in the same second. The organiser pages and badge news later made the
+  race likelier and costlier, and R11 now uses it (review L-18). Hourly cron —
+  deferred to Story 5, which needs it for SC-006.
 
 ## R15. Rides Strava has flagged (FR-005g, feature 001 FR-013)
 
@@ -537,7 +539,7 @@ research R20; R15 below for `is_flagged`).
   - `teamEventChange(ctx, change)` is the entry point for callers outside the
     serial queue consumer (the organiser pages): it runs `applyTeamEventChange`
     under `CURRENT_RULES` and then sends `evaluate-rider` for each affected
-    rider, the guard R11 uses for the OAuth callback.
+    rider (see Rationale).
   - `applyAndEvaluate` and `applyTeamEventChange` share the read, evaluate and
     diff steps; only the change handling differs.
 - **Rationale**:
@@ -552,8 +554,11 @@ research R20; R15 below for `is_flagged`).
     settles first.
   - Organiser pages run in the fetch handler, next to the serial consumer; an
     activity event for an attendee can read before and write after the
-    organiser's batch. The `evaluate-rider` messages run after it and re-derive
-    from the final state, as for the OAuth callback (R11).
+    organiser's batch. R11's count makes the later of the two start again. It
+    counts riders, not events, so two organisers changing the same event at
+    once (attendance added while its date moves) can still leave an attendee
+    evaluated with the event as it was; the `evaluate-rider` messages run after
+    both and re-derive from the final state (review L-18).
 - **Alternatives considered**:
   - Writing the attendance, then sending `evaluate-rider` only — rejected: the
     balance lags the stored attendance until the message runs (FR-014b), the

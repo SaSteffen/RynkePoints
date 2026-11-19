@@ -6,7 +6,7 @@ import {
 } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { upsertFailedWork } from "../../src/db/failed-work";
-import { getRider } from "../../src/db/riders";
+import { getRider, updateRiderOnReconnect } from "../../src/db/riders";
 import { backoffSeconds } from "../../src/strava/rate-limit";
 import {
 	type HandlerResult,
@@ -387,6 +387,24 @@ describe("processBatch", () => {
 		expect(await getRider(env.DB, ATHLETE_A)).toMatchObject({
 			status: "needs_reconnect",
 			reconnectRequestedAt: NOW,
+		});
+	});
+
+	it("leaves connected a rider who reconnected while the refresh was refused (review L-18)", async () => {
+		await seedRider(makeCtx());
+		await run(CHECK, async () => {
+			await updateRiderOnReconnect(env.DB, ATHLETE_A, {
+				firstName: "Testrider A",
+				scopes: "read,activity:read_all",
+				scopeReadAll: true,
+				now: NOW + 5,
+				guest: false,
+			});
+			return { kind: "refresh-refused" };
+		});
+		expect(await getRider(env.DB, ATHLETE_A)).toMatchObject({
+			status: "connected",
+			reconnectRequestedAt: null,
 		});
 	});
 });
