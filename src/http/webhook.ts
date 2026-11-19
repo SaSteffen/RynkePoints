@@ -7,10 +7,12 @@ import {
 	isOneOf,
 	type WorkMessage,
 } from "../work/messages";
+import { readBodyUpTo } from "./body";
 
 // Strava's push subscription (research R3, contracts/http-routes.md). Strava
 // signs nothing, so the unguessable path secret and the subscription ID are the
-// checks. Answers are for Strava, not riders: plain English, no catalogue. An
+// checks; a deauthorization is checked with Strava before it deletes anyone
+// (`delete-rider`, review L-05). Answers are for Strava, not riders: plain English, no catalogue. An
 // event is only queued here, never processed, and Strava is never called
 // (FR-011).
 
@@ -84,7 +86,7 @@ async function validateSubscription(url: URL, ctx: Ctx): Promise<Response> {
 }
 
 async function receiveEvent(request: Request, ctx: Ctx): Promise<Response> {
-	const body = await readBody(request);
+	const body = await readBodyUpTo(request, MAX_BODY_BYTES);
 	const event = body === null ? null : parseEvent(body);
 	if (!event) return text("Bad Request", 400);
 	if (event.subscriptionId !== subscriptionId(ctx.env)) {
@@ -127,28 +129,6 @@ function toMessage(event: StravaEvent): WorkMessage | null {
 	}
 	// Any other athlete update is dropped.
 	return null;
-}
-
-/** The body as text, or null if it is over the limit. Stops reading there. */
-async function readBody(request: Request): Promise<string | null> {
-	const length = request.headers.get("Content-Length");
-	if (length !== null && Number(length) > MAX_BODY_BYTES) return null;
-	if (!request.body) return "";
-	const reader = request.body.getReader();
-	const decoder = new TextDecoder();
-	let size = 0;
-	let body = "";
-	for (;;) {
-		const { done, value } = await reader.read();
-		if (done) break;
-		size += value.byteLength;
-		if (size > MAX_BODY_BYTES) {
-			await reader.cancel();
-			return null;
-		}
-		body += decoder.decode(value, { stream: true });
-	}
-	return body + decoder.decode();
 }
 
 /** Validates the accepted event shape; other fields are ignored. */

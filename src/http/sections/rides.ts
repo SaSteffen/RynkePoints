@@ -81,17 +81,17 @@ export function handleRides(
 				return html`${renderExampleNote(i18n)}${renderRides(
 					i18n,
 					view.rides,
+					ctx.team.art.coin,
 					{
 						rejectedRideId: EXAMPLE_REJECTED_RIDE_ID,
 						shortRideId: EXAMPLE_SHORT_RIDE_ID,
 					},
-					ctx.team.art.coin,
 				)}`;
 			}
 			// How far the rider's activities are (feature 024 US4).
 			const fetching = renderFetching(fetchingText, readyPollSeconds(ctx.env));
 			return html`${renderNotice(i18n, view)}${fetching}
-${renderRides(i18n, view.rides, null, ctx.team.art.coin)}`;
+${renderRides(i18n, view.rides, ctx.team.art.coin)}`;
 		},
 	);
 }

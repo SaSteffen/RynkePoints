@@ -7,7 +7,7 @@
 import type { TeamTotals, TeamWeek } from "./leaderboard";
 import type { CountingWindow } from "./rules";
 import type { RideEntry } from "./summary";
-import { weekEndOf } from "./weeks";
+import { addDays, weekEndOf } from "./weeks";
 
 export type RideFigure = "sessions" | "km" | "elevation";
 export type RankBy = "rynke" | RideFigure;
@@ -20,7 +20,7 @@ export const RIDE_FIGURES: readonly RideFigure[] = [
 ];
 export const PERIODS: readonly Period[] = ["season", "month", "week"];
 
-/** `YYYY-MM-DD` to `YYYY-MM-DD`, both included, cut to the counting window. */
+/** `YYYY-MM-DD` to `YYYY-MM-DD`, both included, cut to the season and deadline. */
 export interface DateRange {
 	from: string;
 	to: string;
@@ -73,47 +73,34 @@ export function shownElevationM(elevationDm: number): number {
 	return Math.round(elevationDm / 10);
 }
 
-function utcDate(date: string): Date {
-	return new Date(`${date}T00:00:00Z`);
-}
-
-function isoDate(date: Date): string {
-	return date.toISOString().slice(0, 10);
-}
-
-function addDays(date: string, days: number): string {
-	const d = utcDate(date);
-	d.setUTCDate(d.getUTCDate() + days);
-	return isoDate(d);
-}
-
 const later = (a: string, b: string) => (a > b ? a : b);
 const earlier = (a: string, b: string) => (a < b ? a : b);
 
 /**
  * The season, the calendar month or the Monday-to-Sunday week holding
- * `today`, cut to the counting window. Outside the window `from` may come
- * after `to`, and nothing falls in it.
+ * `today`, cut to the season start and the deadline: ride figures count from
+ * the season start, also before a later window opens. Outside them `from` may
+ * come after `to`, and nothing falls in it.
  */
 export function periodOf(
 	period: Period,
 	today: string,
-	window: Pick<CountingWindow, "windowStart" | "deadline">,
+	window: Pick<CountingWindow, "seasonStart" | "deadline">,
 ): DateRange {
 	let range: DateRange;
 	if (period === "season") {
-		range = { from: window.windowStart, to: window.deadline };
+		range = { from: window.seasonStart, to: window.deadline };
 	} else if (period === "month") {
 		const first = `${today.slice(0, 7)}-01`;
-		const next = utcDate(first);
+		const next = new Date(`${first}T00:00:00Z`);
 		next.setUTCMonth(next.getUTCMonth() + 1);
-		range = { from: first, to: addDays(isoDate(next), -1) };
+		range = { from: first, to: addDays(next.toISOString().slice(0, 10), -1) };
 	} else {
 		const sunday = weekEndOf(today);
 		range = { from: addDays(sunday, -6), to: sunday };
 	}
 	return {
-		from: later(range.from, window.windowStart),
+		from: later(range.from, window.seasonStart),
 		to: earlier(range.to, window.deadline),
 	};
 }

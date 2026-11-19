@@ -5,6 +5,7 @@ import {
 	html,
 	htmlResponse,
 	layout,
+	type PageLook,
 	SafeHtml,
 	THEME_SCRIPT,
 } from "../../src/http/html";
@@ -13,6 +14,14 @@ import { STYLESHEET_PATH } from "../../src/http/stylesheet";
 import { THEMES } from "../../src/http/themes";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
+import { hamburg } from "../../src/teams/hamburg";
+
+// Any team's look will do here; tests/teams/ checks each team's own.
+const look: PageLook = {
+	themes: THEMES,
+	icons: hamburg.art.icons,
+	coin: hamburg.art.coin,
+};
 
 const de = createI18n("de", CATALOGS);
 const en = createI18n("en", CATALOGS);
@@ -45,6 +54,7 @@ describe("html", () => {
 describe("layout (de)", () => {
 	const page = String(
 		layout(de, {
+			look,
 			title: "Seitentitel",
 			path: '/notice/"x"',
 			body: html`<p>Inhalt</p>`,
@@ -114,7 +124,7 @@ describe("layout (de)", () => {
 });
 
 describe("layout's stylesheet (issue #183)", () => {
-	const options = { title: "T", path: "/", body: html`<p>x</p>` };
+	const options = { look, title: "T", path: "/", body: html`<p>x</p>` };
 
 	it("links the hashed stylesheet instead of carrying the rules", () => {
 		const page = String(layout(de, options));
@@ -234,7 +244,9 @@ describe('THEME_SCRIPT (022 contracts/theme-menu.md "Head script")', () => {
 });
 
 describe("layout (en)", () => {
-	const page = String(layout(en, { title: "T", path: "/", body: html`` }));
+	const page = String(
+		layout(en, { look, title: "T", path: "/", body: html`` }),
+	);
 
 	it("switches language attributes", () => {
 		expect(page).toContain('<html lang="en">');
@@ -273,7 +285,7 @@ describe("htmlResponse", () => {
 	});
 
 	it("lets the layout's theme script run by its hash", () => {
-		const page = layout(en, { title: "t", path: "/", body: html`` });
+		const page = layout(en, { look, title: "t", path: "/", body: html`` });
 		const hash = createHash("sha256").update(THEME_SCRIPT).digest("base64");
 		const csp = htmlResponse(en, page).headers.get("Content-Security-Policy");
 		expect(csp).toContain(`script-src 'self' 'sha256-${hash}';`);
@@ -286,7 +298,12 @@ describe("htmlResponse", () => {
 	});
 
 	it("allows only the theme script beside another inline script, in any case", () => {
-		const layoutPage = layout(en, { title: "t", path: "/", body: html`` });
+		const layoutPage = layout(en, {
+			look,
+			title: "t",
+			path: "/",
+			body: html``,
+		});
 		const hash = createHash("sha256").update(THEME_SCRIPT).digest("base64");
 		for (const tag of ["script", "SCRIPT", "Script"]) {
 			const page = html`${layoutPage}${new SafeHtml(`<${tag}>alert(1)</${tag}>`)}`;
@@ -310,6 +327,7 @@ describe("htmlResponse", () => {
 
 describe("layout scripts (feature 009 research R6)", () => {
 	const options = {
+		look,
 		title: "Seitentitel",
 		path: "/me",
 		body: html`<p>Inhalt</p>`,

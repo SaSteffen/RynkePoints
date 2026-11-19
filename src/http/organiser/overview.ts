@@ -39,7 +39,7 @@ import { hasEvents } from "../../teams";
 import type { CoinArt, TeamData } from "../../teams/types";
 import { SINCE_VERSION } from "../../visibility";
 import { thresholdBars } from "../charts";
-import { coinArt, miniCoin, SHARED_COIN } from "../coin";
+import { coinArt, miniCoin } from "../coin";
 import { FUN_BURSTS, FUN_SPARKLES } from "../fun";
 import { html, type SafeHtml } from "../html";
 import { CHART_SCRIPTS } from "../progress-section";
@@ -62,13 +62,16 @@ export type Group = RiderStatus | "all" | "requests";
 const GROUPS: readonly Group[] = ["requests", "push", "on_track", "in", "all"];
 
 /**
- * Each rider's counting rides where their consent shares sessions by name
- * (feature 032); a rider missing from it shows "–". Null with the ride
- * figures off.
+ * Each rider's counting and pre-window rides where their consent shares
+ * sessions by name (feature 032); a rider missing from it shows "–". Null with
+ * the ride figures off.
  */
 export type RiderRides = ReadonlyMap<number, readonly RideEntry[]> | null;
 
-/** A rider's season sessions and typical ride, or null below version 3. */
+/**
+ * A rider's sessions and typical ride from the season start, as the riders'
+ * Season ranking counts them (feature 040), or null below version 3.
+ */
 function seasonSessions(
 	rides: RiderRides,
 	athleteId: number,
@@ -76,7 +79,7 @@ function seasonSessions(
 ): { sessions: number; typicalM: number | null } | null {
 	const own = rides?.get(athleteId);
 	if (!own) return null;
-	return figuresOf(own, { from: window.windowStart, to: window.deadline });
+	return figuresOf(own, { from: window.seasonStart, to: window.deadline });
 }
 
 /** Each listed rider's open requests, newest event first (019 FR-034). */
@@ -312,6 +315,20 @@ ${tiles}</nav>
 ${group === null ? html`${showing("push", "phone")}${showing("all", "wide")}` : null}`;
 }
 
+/**
+ * Before the window opens nobody can fall behind, so everyone is on track: a
+ * note says why, until qualifying starts (feature 040).
+ */
+function renderBeforeWindow(
+	i18n: I18n,
+	window: CountingWindow,
+	today: string,
+): SafeHtml | null {
+	if (today >= window.windowStart) return null;
+	return html`<p class="overview-before-window">${i18n.t("organiser.overview.beforeWindow", { date: i18n.formatDate(window.windowStart) })}</p>
+`;
+}
+
 /** Whether `rider` belongs in the tile `group`. */
 function inGroup(
 	rider: OverviewRider,
@@ -332,9 +349,6 @@ function hasRequests(rider: OverviewRider, requests: RiderRequests): boolean {
  * (feature 039), which picks the texts that name Team Rynke.
  */
 export type Wording = Pick<TeamData, "eventKinds">;
-
-/** Today's wording, with events, for a caller that doesn't say. */
-const WITH_EVENTS: Wording = { eventKinds: ["team_training"] };
 
 function missingItems(
 	i18n: I18n,
@@ -896,8 +910,9 @@ ${
 }
 
 /**
- * The page's body below the notice, in the order of contracts/pages.md;
- * `inert` for the organiser tour's example team (feature 020 FR-014).
+ * The page's body below the notice, in the order of contracts/pages.md, with
+ * `team`'s wording and coin; `inert` for the organiser tour's example team
+ * (feature 020 FR-014).
  */
 export function overviewBody(
 	read: readonly TeamRider[],
@@ -906,15 +921,15 @@ export function overviewBody(
 	today: string,
 	group: Group | null,
 	i18n: I18n,
+	team: Wording & Pick<TeamData, "art">,
 	requests: RiderRequests = new Map(),
 	inert = false,
 	figures: OrganiserFigures = "full",
 	graphs: SafeHtml | null = null,
 	view: "graphs" | "riders" = "riders",
 	rides: RiderRides = null,
-	coin: CoinArt = SHARED_COIN,
-	wording: Wording = WITH_EVENTS,
 ): SafeHtml {
+	const wording = team;
 	const passed = today > window.deadline;
 	const sessionsOf =
 		rides === null || figures === "percent"
@@ -948,7 +963,7 @@ ${hasGraphs ? graphs : null}<div class="overview-qualified">${renderQualified(i1
 `;
 	return html`<div class="team-overview"${hasGraphs ? html` data-view="${view}"` : null}${inert ? html` inert` : null}>
 <h2>${i18n.t("organiser.overview.heading")}</h2>
-${renderDeadline(i18n, window, today, riders, coin)}${renderTiles(i18n, riders, group, passed, requests, hasEvents(wording))}${body}</div>`;
+${renderDeadline(i18n, window, today, riders, team.art.coin)}${renderTiles(i18n, riders, group, passed, requests, hasEvents(wording))}${renderBeforeWindow(i18n, window, today)}${body}</div>`;
 }
 
 /**
@@ -1073,7 +1088,7 @@ export function handleOrganiserOverview(
 		// The organiser tour's graphs step asks for them (020 FR-012).
 		const view =
 			url.searchParams.get("view") === "graphs" ? "graphs" : "riders";
-		const body = html`${organiserSwitch(i18n, "riders", team.requests.length, ctx.team)}${notices}${overviewBody(team.read, rules, window, today, shownGroup, i18n, requests, example, figures, graphs, view, team.rides, ctx.team.art.coin, ctx.team)}`;
+		const body = html`${organiserSwitch(i18n, "riders", team.requests.length, ctx.team)}${notices}${overviewBody(team.read, rules, window, today, shownGroup, i18n, ctx.team, requests, example, figures, graphs, view, team.rides)}`;
 		return graphs ? { body, scripts: CHART_SCRIPTS } : body;
 	});
 }

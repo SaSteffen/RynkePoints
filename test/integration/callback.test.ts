@@ -48,7 +48,8 @@ beforeEach(async () => {
 
 afterEach(() => fake.restore());
 
-const SEASON_START = seasonStartEpoch("2026-01-01");
+// The import lists from a day before the season start (review L-16).
+const LIST_AFTER = seasonStartEpoch("2026-01-01") - 86_400;
 
 async function seedExistingRider(
 	options: Parameters<typeof seedRider>[1] = {},
@@ -352,7 +353,8 @@ describe("GET /auth/callback success", () => {
 					kind: "import-page",
 					athleteId: ATHLETE_A,
 					page: 1,
-					after: SEASON_START,
+					after: LIST_AFTER,
+					startedAt: NOW,
 				},
 				delaySeconds: undefined,
 			},
@@ -405,7 +407,8 @@ describe("GET /auth/callback success", () => {
 				kind: "import-page",
 				athleteId: ATHLETE_A,
 				page: 1,
-				after: SEASON_START,
+				after: LIST_AFTER,
+				startedAt: NOW,
 			},
 		]);
 	});

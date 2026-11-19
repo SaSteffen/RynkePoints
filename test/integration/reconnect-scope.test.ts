@@ -58,10 +58,9 @@ describe("reconnect scope changes", () => {
 			scopeReadAll: false,
 			importStatus: "done",
 		});
-		// Feature 003 research R11: the Rynke follow from the final state.
-		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
-			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
-		]);
+		// The Rynke follow in the same batch; a ride stored meanwhile makes
+		// it start again from it (review L-18), so no evaluate-rider follows.
+		expect(ctx.queue.sent).toEqual([]);
 	});
 
 	it("re-imports when read_all is newly granted", async () => {
@@ -78,7 +77,8 @@ describe("reconnect scope changes", () => {
 				kind: "import-page",
 				athleteId: ATHLETE_A,
 				page: 1,
-				after: seasonStartEpoch("2026-01-01"),
+				after: seasonStartEpoch("2026-01-01") - 86_400,
+				startedAt: NOW,
 			},
 		]);
 	});

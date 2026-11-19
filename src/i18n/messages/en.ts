@@ -153,6 +153,10 @@ export const en: Catalog = {
 	"rynke.rules.handoutEnglish": "The rules as PDF",
 	"rynke.ride.counts": "counts 🪙",
 	"rynke.ride.countsWithoutRynke": "counts",
+	"rynke.ride.belowMinimum.outdoor":
+		"Under {limit} outdoors: no Rynke for the kilometres. Its elevation still counts.",
+	"rynke.ride.belowMinimum.virtual":
+		"Virtual ride under {limit}: no Rynke for the kilometres. Its elevation still counts.",
 	"rynke.ride.doesNotCount": "doesn't count",
 	"rynke.ride.notYet": "doesn't count yet",
 	"rynke.ride.beingEvaluated": "Being evaluated",
@@ -303,6 +307,8 @@ export const en: Catalog = {
 		"Rides: every ride and what it earned. This one doesn't count. “Why?” says what went wrong and what you can do.",
 	"tour.rider.shortRide":
 		"Every full {distanceKm}\u00a0km of a ride earns {distanceRynke}\u00a0Training Rynke. This ride was shorter: it counts, but earns no Rynke for its distance. Its climbing still goes onto the counter.",
+	"tour.rider.shortRide.minimum":
+		"Kilometres earn Rynke outdoors from {outdoorMinKm}\u00a0km and on virtual rides from {virtualMinKm}\u00a0km; then every full {distanceKm}\u00a0km brings {distanceRynke}\u00a0Training Rynke. This ride was shorter: it counts, but earns no Rynke for its distance. Its climbing still goes onto the counter, from the first metre.",
 	"tour.rider.badges":
 		"Badges: yours and the team's, and how far it is to the next one.",
 	"tour.rider.events":
@@ -574,6 +580,8 @@ export const en: Catalog = {
 	"organiser.overview.deadline": "Qualification deadline · {date}",
 	"organiser.overview.daysLeft": "{n} days to go ⏳",
 	"organiser.overview.deadlinePassed": "The deadline has passed",
+	"organiser.overview.beforeWindow":
+		"Qualifying starts on {date}. Until then nobody can fall behind, so everyone is on track.",
 	"organiser.overview.qualified":
 		"{n} of {count} reached their training goal 🎯",
 	"organiser.overview.groups": "Groups",
@@ -1234,6 +1242,9 @@ export const en: Catalog = {
 		"Drag across a graph to choose dates. “Season” shows everything again.",
 	"organiser.graphs.hint.touch":
 		"Pinch to zoom, drag sideways to move, tap for a day. “Season” shows everything again.",
+	"organiser.graphs.windowStart": "Qualifying starts",
+	"organiser.graphs.windowStart.hint":
+		"The dashed line marks the start of qualifying on {date}. Rides before it earn no Rynke.",
 	"organiser.graphs.note.one":
 		"1 rider has no line, not agreed to showing daily figures yet.",
 	"organiser.graphs.note.other":

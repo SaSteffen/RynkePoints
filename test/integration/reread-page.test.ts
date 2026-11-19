@@ -171,19 +171,25 @@ describe("reread-page", () => {
 			statuses.push(await importStatus());
 		});
 
+		// Each page after the newest start listed, one second earlier (review
+		// L-21).
+		const second = SEASON_START + 86400 + 199 * 3600 - 1;
+		const third = SEASON_START + 86400 + 398 * 3600 - 1;
 		const calls = fake.callsTo("activities");
-		expect(calls.map((c) => c.url.searchParams.get("page"))).toEqual([
-			"1",
-			"2",
-			"3",
+		expect(
+			calls.map((c) => [
+				c.url.searchParams.get("after"),
+				c.url.searchParams.get("page"),
+				c.url.searchParams.get("per_page"),
+			]),
+		).toEqual([
+			[String(SEASON_START), "1", "200"],
+			[String(second), "1", "200"],
+			[String(third), "1", "200"],
 		]);
-		for (const call of calls) {
-			expect(call.url.searchParams.get("after")).toBe(String(SEASON_START));
-			expect(call.url.searchParams.get("per_page")).toBe("200");
-		}
 		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
-			{ ...FIRST, page: 2 },
-			{ ...FIRST, page: 3 },
+			{ ...FIRST, after: second },
+			{ ...FIRST, after: third },
 		]);
 		expect(statuses).toEqual(["done", "done", "done"]);
 		expect(await listActivityIdsMissingFigures(env.DB, ATHLETE_A)).toEqual([]);

@@ -453,6 +453,7 @@ const CONTRACT_IDS = [
 	"organiser.overview.deadline",
 	"organiser.overview.daysLeft",
 	"organiser.overview.deadlinePassed",
+	"organiser.overview.beforeWindow",
 	"organiser.overview.qualified",
 	"organiser.overview.groups",
 	"organiser.overview.group.push",
@@ -1002,6 +1003,8 @@ const CONTRACT_IDS = [
 	"organiser.graphs.mode.daily",
 	"organiser.graphs.hint.mouse",
 	"organiser.graphs.hint.touch",
+	"organiser.graphs.windowStart",
+	"organiser.graphs.windowStart.hint",
 	"organiser.graphs.note.one",
 	"organiser.graphs.note.other",
 	"organiser.graphs.note.nobody",
@@ -1044,6 +1047,9 @@ const CONTRACT_IDS = [
 	"tour.organiser.groups.noEvents",
 	"tour.organiser.riders.noEvents",
 	"tour.rider.outdoor.noEvents",
+	"rynke.ride.belowMinimum.outdoor",
+	"rynke.ride.belowMinimum.virtual",
+	"tour.rider.shortRide.minimum",
 	// specs/026-second-team/contracts/phrases.md: one common name per badge.
 	...BADGES.map((badge) => `badge.name.${badge.id}`),
 ];

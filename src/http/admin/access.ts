@@ -30,7 +30,7 @@ export function adminPage(
 	) => Promise<SafeHtml | Response> | SafeHtml | Response,
 ): Promise<Response> {
 	return shellPage(request, ctx, i18n, "admin", path, (viewer) =>
-		viewer.rider.administrator ? render(viewer) : forbidden(i18n, path),
+		viewer.rider.administrator ? render(viewer) : forbidden(ctx, i18n, path),
 	);
 }
 
@@ -44,14 +44,14 @@ export async function requireAdminPost(
 	i18n: I18n,
 	path: string,
 ): Promise<Rider | Response> {
-	if (!isSameOrigin(request)) return forbidden(i18n, path);
+	if (!isSameOrigin(request)) return forbidden(ctx, i18n, path);
 	const viewer = await readViewer(request, ctx);
 	if (
 		viewer.kind === "visitor" ||
 		!hasAgreed(riderConsentState(viewer, ctx)) ||
 		!viewer.rider.administrator
 	) {
-		return forbidden(i18n, path);
+		return forbidden(ctx, i18n, path);
 	}
 	return viewer.rider;
 }
@@ -69,7 +69,7 @@ ${segment("riders", "/admin/riders", PEOPLE)}
 `;
 }
 
-/** A moment as the team's day and time, as the tables and figures show it. */
+/** A moment as its UTC day and time, as the tables and figures show it. */
 export function moment(i18n: I18n, epochSeconds: number): string {
 	const iso = new Date(epochSeconds * 1000).toISOString();
 	return `${i18n.formatDate(iso)}, ${i18n.formatTime(iso)}`;

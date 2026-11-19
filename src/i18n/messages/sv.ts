@@ -154,6 +154,10 @@ export const sv: Catalog = {
 	"rynke.rules.handoutEnglish": "Reglerna som PDF (på engelska)",
 	"rynke.ride.counts": "räknas 🪙",
 	"rynke.ride.countsWithoutRynke": "räknas",
+	"rynke.ride.belowMinimum.outdoor":
+		"Under {limit} utomhus: inga Rynke för kilometerna. Höjdmetrarna räknas ändå.",
+	"rynke.ride.belowMinimum.virtual":
+		"Virtuell tur under {limit}: inga Rynke för kilometerna. Höjdmetrarna räknas ändå.",
 	"rynke.ride.doesNotCount": "räknas inte",
 	"rynke.ride.notYet": "räknas inte än",
 	"rynke.ride.beingEvaluated": "Bedöms",
@@ -301,6 +305,8 @@ export const sv: Catalog = {
 		"Turer: varje tur och vad den gav. Den här räknas inte. ”Varför?” berättar vad som gick fel och vad du kan göra.",
 	"tour.rider.shortRide":
 		"Varje hel {distanceKm} km av en tur ger {distanceRynke} Tränings-Rynke. Den här turen var kortare: den räknas, men ger inga Rynke för distansen. Höjdmetrarna kommer ändå med på räknaren.",
+	"tour.rider.shortRide.minimum":
+		"Kilometer ger Rynke utomhus från {outdoorMinKm}\u00a0km och på virtuella turer från {virtualMinKm}\u00a0km; sedan ger varje hel {distanceKm}\u00a0km {distanceRynke}\u00a0tränings-Rynke. Den här turen var kortare: den räknas, men ger inga Rynke för sträckan. Höjdmetrarna går ändå in på räknaren, från första metern.",
 	"tour.rider.badges":
 		"Märken: dina och lagets, och hur långt det är till nästa.",
 	"tour.rider.events":
@@ -570,6 +576,8 @@ export const sv: Catalog = {
 	"organiser.overview.deadline": "Sista dag för kvalificering · {date}",
 	"organiser.overview.daysLeft": "Dagar kvar: {n} ⏳",
 	"organiser.overview.deadlinePassed": "Sista dagen har passerat",
+	"organiser.overview.beforeWindow":
+		"Kvalificeringen börjar {date}. Fram till dess kan ingen hamna efter, så alla är på spåret.",
 	"organiser.overview.qualified": "{n} av {count} har nått träningsmålet 🎯",
 	"organiser.overview.groups": "Grupper",
 	"organiser.overview.group.push": "Behöver en knuff",
@@ -1236,6 +1244,9 @@ export const sv: Catalog = {
 		"Dra över ett diagram för att välja datum. ”Säsong” visar allt igen.",
 	"organiser.graphs.hint.touch":
 		"Nyp för att zooma, dra i sidled för att flytta, tryck för en dag. ”Säsong” visar allt igen.",
+	"organiser.graphs.windowStart": "Kvalificeringen börjar",
+	"organiser.graphs.windowStart.hint":
+		"Den streckade linjen visar när kvalificeringen börjar, {date}. Turer före den ger inga Rynke.",
 	"organiser.graphs.note.one":
 		"1 cyklist har ingen linje och har inte godkänt dagssiffrorna än.",
 	"organiser.graphs.note.other":

@@ -9,6 +9,7 @@ import {
 	getActivity,
 	insertActivities,
 	insertActivity,
+	markRevoked,
 	markSlow,
 	updateActivity,
 } from "./store";
@@ -259,6 +260,9 @@ export async function simulateEvent(
 	}
 
 	if (action === "deauthorize") {
+		// As on Strava, the grant ends before the event goes out: the app asks
+		// for a refresh before it deletes (review L-05).
+		await markRevoked(db, rider.athleteId, true);
 		const status = await send(
 			ctx,
 			origin,

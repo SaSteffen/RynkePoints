@@ -479,7 +479,7 @@ dl.ride-figures>div{min-width:0}
 dl.ride-figures dt{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 dl.ride-figures dd{margin:0;font:var(--md-type-title);white-space:nowrap}
 .ride-card p{margin:var(--rp-space-1) 0}
-.ride-meta{font:var(--md-type-body);color:var(--md-sys-color-on-surface-variant)}
+.ride-meta,.ride-note{font:var(--md-type-body);color:var(--md-sys-color-on-surface-variant)}
 .ride-why{font:var(--md-type-body)}
 summary,.more>summary,.ride-why>summary{display:flex;align-items:center;gap:var(--rp-space-2);min-height:var(--rp-tap);cursor:pointer;list-style:none;color:var(--rp-primary-text);font:var(--rp-type-control)}
 summary::-webkit-details-marker{display:none}
@@ -688,6 +688,7 @@ main:has(>.team-overview){max-width:var(--rp-content-max)}
 .overview-deadline p{margin:0;font:var(--md-type-body)}
 .overview-deadline .overview-deadline-date{color:var(--rp-hero-label)}
 .overview-deadline .overview-deadline-count{font:700 32px/38px var(--md-ref-typeface);color:var(--rp-hero-accent)}
+.overview-before-window{margin:0 0 var(--rp-space-3);font:var(--md-type-body);color:var(--md-sys-color-on-surface-variant)}
 nav.group-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-2);margin:0 0 var(--rp-space-2)}
 .group-tile{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr);align-content:center;align-items:center;gap:2px var(--rp-space-2);min-height:76px;padding:10px var(--rp-space-3);border:2px solid transparent;border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);text-decoration:none}
 .tile-count{font:700 26px/32px var(--md-ref-typeface)}

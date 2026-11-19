@@ -195,8 +195,11 @@ no request is made. Lower it: the next run checks the riders who waited longest.
   the newest 200 are compared. An edit of an older ride is not picked up; renaming still works for
   that one.
 - An activity among the 200 from before the season start: ignored, as everywhere.
-- A stored ride that is missing from the list: left alone. Deletions are reported by Strava, and a
-  ride can be missing for other reasons (older than the newest 200, the list being incomplete).
+- A stored ride that is missing from the list but started after the list's oldest entry: gone from
+  Strava without an event reaching the app (deleted, made private without the grant, changed to a
+  sport type the app doesn't keep), so it is removed as a reported deletion would be (FR-006a). One
+  that started at or before the oldest entry is left alone: the list stops at 200. An empty list
+  removes nothing.
 - A private ride of a rider who didn't grant access to private rides: ignored, as in the import.
 - Strava's list lacks a figure that the stored ride has: the stored figure stays. A missing figure
   is not a change.
@@ -232,8 +235,11 @@ no request is made. Lower it: the next run checks the riders who waited longest.
   MUST be stored and evaluated.
 - **FR-005**: The same rules as in the import decide what may be stored: only this season, only the
   sport types the app keeps, private activities only with the rider's grant for them.
-- **FR-006**: A check MUST NOT delete a stored activity and MUST NOT blank a stored figure because
-  the list lacks it.
+- **FR-006**: A check MUST NOT blank a stored figure because the list lacks it.
+- **FR-006a**: A stored activity that started after the list's oldest entry and that the list
+  doesn't hold, after the rules of FR-005, MUST be removed and the rider evaluated again, as for a
+  deletion Strava reports. A stored activity that started at or before that entry MUST stay; an
+  empty list removes nothing.
 - **FR-007**: A check that finds no difference MUST NOT write any ride, verdict, Rynke or badge
   again. The only thing it records is that the rider was checked.
 

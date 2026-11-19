@@ -6,6 +6,8 @@ import {
 } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { deleteRider, getRider } from "../../src/db/riders";
+import { storeWork } from "../../src/db/strava-work";
+import { handleQueue } from "../../src/index";
 import { backoffSeconds } from "../../src/strava/rate-limit";
 import {
 	type HandlerResult,
@@ -18,7 +20,14 @@ import {
 	STRAVA_TURN,
 } from "../../src/work/messages";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
-import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
+import { installFakeStrava } from "../support/fake-strava";
+import {
+	ATHLETE_A,
+	ATHLETE_B,
+	ATHLETE_C,
+	makeStravaActivity,
+	NOW,
+} from "../support/fixtures";
 
 // Feature 024 US1: Strava work waits in a table, one list per rider, and riders
 // take turns (contracts/queue-messages.md, research R1–R4).
@@ -236,22 +245,22 @@ describe("turns", () => {
 	});
 
 	it("puts another rider's ride first while a 300-event backlog is worked through (SC-001)", async () => {
-		// The first window: 20 of A's 300, then the budget.
+		// The first window: 10 of A's 300, then the budget (within DRAIN_LIMIT).
 		const first = recorder((_, call) =>
-			call <= 20 ? { kind: "ok" } : budget(),
+			call <= 10 ? { kind: "ok" } : budget(),
 		);
 		await deliver(events(ATHLETE_A, range(1, 300)), first.handlers);
-		expect(await waiting(ATHLETE_A)).toBe(280);
+		expect(await waiting(ATHLETE_A)).toBe(290);
 
 		// B's ride arrives while the budget is still out.
 		await deliver(events(ATHLETE_B, [1]), recorder(budget).handlers);
 
 		// The next window opens: B's ride is the first one done.
 		const next = recorder((_, call) =>
-			call <= 20 ? { kind: "ok" } : budget(),
+			call <= 10 ? { kind: "ok" } : budget(),
 		);
 		await deliver([STRAVA_TURN], next.handlers);
-		expect(next.seen.slice(0, 3)).toEqual(["B1", "A21", "A22"]);
+		expect(next.seen.slice(0, 3)).toEqual(["B1", "A11", "A12"]);
 		expect(await waiting(ATHLETE_B)).toBe(0);
 	}, 30_000);
 });
@@ -331,6 +340,36 @@ describe("budget and retries", () => {
 		expect(seen).toHaveLength(DRAIN_LIMIT);
 		expect(await waiting(ATHLETE_A)).toBe(5);
 		expect(turns()).toEqual([{ body: STRAVA_TURN, delaySeconds: undefined }]);
+	});
+
+	it("leaves 20 of Workers Free's 50 subrequests to the batch (review L-09)", async () => {
+		const fake = installFakeStrava();
+		try {
+			// One rider per item, each with an expired token: a refresh each.
+			for (const athleteId of range(1, DRAIN_LIMIT + 1)) {
+				fake.addAthlete({ id: athleteId });
+				await seedRider(ctx, { athleteId, expiresAt: NOW - 1 });
+				const activity = makeStravaActivity();
+				fake.addActivity(athleteId, activity);
+				const [event] = events(athleteId, [activity.id]);
+				if (event) await storeWork(env.DB, event, 1, NOW);
+			}
+			await handleQueue(
+				createMessageBatch("rynke-points-work", [
+					{
+						id: "turn",
+						timestamp: new Date(NOW * 1000),
+						attempts: 1,
+						body: STRAVA_TURN,
+					},
+				]),
+				ctx,
+			);
+			expect(fake.calls.length).toBeLessThanOrEqual(30);
+			expect(await waiting()).toBe(1);
+		} finally {
+			fake.restore();
+		}
 	});
 });
 

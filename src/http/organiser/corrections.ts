@@ -11,7 +11,10 @@ import {
 	withProfileLinks,
 } from "../../db/organiser";
 import type { I18n } from "../../i18n/i18n";
-import { CorrectionRefused, correctionChange } from "../../rynke/apply";
+import {
+	CorrectionRefused,
+	correctionChange,
+} from "../../rynke/correction-change";
 import { hasTeamRynke } from "../../teams";
 import { notFound } from "../errors";
 import { html, type SafeHtml } from "../html";
@@ -101,7 +104,7 @@ export function handleOrganiserRider(
 		const rider = (await listedRiders(ctx)).find(
 			(r) => r.athlete_id === athleteId,
 		);
-		if (!rider) return notFound(i18n, path);
+		if (!rider) return notFound(ctx, i18n, path);
 		const { results } = await listRiderCorrectionsStatement(
 			ctx.env.DB,
 			athleteId,

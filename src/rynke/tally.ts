@@ -2,7 +2,7 @@
 // FR-014a, research R12). Pure and in whole numbers, like `rides.ts`.
 
 import type { RidingSums, RidingTotals } from "./rides";
-import { assertValidRules, type RynkeRules } from "./rules";
+import type { RynkeRules } from "./rules";
 import {
 	type AttendanceEvaluation,
 	TEAM_EVENT_KINDS,
@@ -80,7 +80,6 @@ export function tally(
 	extras: Extras,
 	rules: RynkeRules,
 ): Balance {
-	assertValidRules(rules);
 	const stepDm = rules.elevationStepM * 10;
 	const trainingRynke = Math.max(0, training(riding) + extras.training);
 	const teamRynke = Math.max(0, extras.team);

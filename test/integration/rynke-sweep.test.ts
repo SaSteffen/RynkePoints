@@ -233,6 +233,15 @@ describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
 		expect(await needing()).toEqual([]);
 	});
 
+	it("finds a tour day entered by hand once, not every day after", async () => {
+		await evaluatedRider(RIDER, 1);
+		const day = await insertEvent("tour_de_paris", WINDOW.seasonStart);
+		await attendRaw(day, [RIDER]);
+		expect(await needing()).toEqual([RIDER]);
+		await evaluate(RIDER);
+		expect(await needing()).toEqual([]);
+	});
+
 	it("ignores a needs_reconnect rider with attendance", async () => {
 		await seedRider(ctx, { athleteId: 900002, status: "needs_reconnect" });
 		await attendRaw(await insertEvent("team_training", "2026-05-02"), [900002]);

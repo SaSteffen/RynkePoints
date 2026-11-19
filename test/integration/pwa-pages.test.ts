@@ -246,7 +246,12 @@ describe("GET /notification-text", () => {
 		expect(res.status).toBe(200);
 		expect(res.headers.get("Cache-Control")).toBe("no-cache");
 		expect(res.headers.get("Content-Type")).toMatch(/^application\/json/);
-		expect(await res.json()).toEqual({ title: "RynkePoints", body });
+		expect(await res.json()).toEqual({
+			title: "RynkePoints",
+			body,
+			icon: ctx.team.art.icons.icon192,
+			badge: ctx.team.art.icons.notificationBadge,
+		});
 	});
 });
 

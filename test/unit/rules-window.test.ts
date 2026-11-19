@@ -37,6 +37,19 @@ describe("countingWindow", () => {
 			).toThrow("QUALIFICATION_START_DATE");
 		},
 	);
+
+	it.each(["", "2026-9-01", "01.09.2026", "2026-02-30"])(
+		"rejects the season start %j",
+		(seasonStart) => {
+			expect(() =>
+				countingWindow({
+					SEASON_START_DATE: seasonStart,
+					QUALIFICATION_START_DATE: "2027-01-01",
+					QUALIFICATION_DEADLINE: "2027-06-30",
+				}),
+			).toThrow("SEASON_START_DATE");
+		},
+	);
 });
 
 describe("inCountingWindow", () => {

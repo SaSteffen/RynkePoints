@@ -7,8 +7,8 @@ import {
 } from "../../src/db/badges";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
-import { teamEventChange } from "../../src/rynke/apply";
 import { countingWindow } from "../../src/rynke/rules";
+import { teamEventChange } from "../../src/rynke/team-event-change";
 import { teamBadgeNews } from "../../src/work/team-badge-news";
 import {
 	makeCtx,

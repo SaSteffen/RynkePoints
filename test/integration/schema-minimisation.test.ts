@@ -34,6 +34,9 @@ const COLUMNS: Record<string, string[]> = {
 		"rechecked_at",
 		// Feature 041: an administrator of another team, kept out of team counts.
 		"guest",
+		// Feature 003 (review L-18): how many evaluations stored the rider's
+		// Rynke, so a batch from a stale read fails and starts again.
+		"evaluations",
 	],
 	activities: [
 		"strava_activity_id",

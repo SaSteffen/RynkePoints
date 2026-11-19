@@ -1,4 +1,3 @@
-import { seasonStart } from "../config";
 import type { Ctx } from "../ctx";
 import type { Rider } from "../db/riders";
 import type { KeptActivities } from "../recheck/diff";
@@ -22,8 +21,19 @@ import type { HandlerResult } from "./consumer";
 
 export const PER_PAGE = 200;
 
+/** Page `page` of the activities that started after `after` (epoch seconds). */
+export interface PageCursor {
+	page: number;
+	after: number;
+}
+
 export type PageResult =
-	| { kind: "stored"; listed: number }
+	| {
+			kind: "stored";
+			listed: number;
+			/** Where the list goes on, or `null` after its last page. */
+			next: PageCursor | null;
+	  }
 	| Exclude<HandlerResult, { kind: "ok" }>;
 
 /**
@@ -32,7 +42,7 @@ export type PageResult =
  * every rider gets a balance.
  */
 export async function storeActivityPage(
-	page: { page: number; after: number },
+	page: PageCursor,
 	rider: Rider,
 	ctx: Ctx,
 ): Promise<PageResult> {
@@ -60,7 +70,33 @@ export async function storeActivityPage(
 		kind: "upsert",
 		...keptActivities(result.value, rider, ctx),
 	});
-	return { kind: "stored", listed: result.value.length };
+	return {
+		kind: "stored",
+		listed: result.value.length,
+		next: nextPage(page, result.value),
+	};
+}
+
+/**
+ * The page after a full one: the first page after the newest start listed,
+ * since with `after` Strava lists oldest first (feature 036 research R3). By
+ * page number, an activity deleted between two pages would shift one onto the
+ * page already read (review L-21). One second earlier, so an activity starting
+ * in the same second as the newest is listed again rather than missed (storing
+ * it twice changes nothing), and always past `after`, so the list ends.
+ */
+function nextPage(
+	cursor: PageCursor,
+	list: readonly StravaActivity[],
+): PageCursor | null {
+	if (list.length < PER_PAGE) return null;
+	const starts = list
+		.map((a) => Math.floor(Date.parse(a.start_date) / 1000))
+		.filter(Number.isFinite);
+	return {
+		page: 1,
+		after: Math.max(cursor.after + 1, Math.max(...starts) - 1),
+	};
 }
 
 /**
@@ -74,7 +110,7 @@ export function keptActivities(
 	ctx: Ctx,
 ): KeptActivities {
 	const now = ctx.now();
-	const season = seasonStart(ctx.env);
+	const season = ctx.env.SEASON_START_DATE;
 	const records: ActivityRecord[] = [];
 	const runs: RunRecord[] = [];
 	const swims: SwimRecord[] = [];
@@ -84,10 +120,11 @@ export function keptActivities(
 		const swim =
 			record || run ? null : toSwimRecord(activity, rider.athleteId, now);
 		// The stored grant decides, even if Strava returns more (FR-007), and
-		// nothing from before the season start is stored, whatever `after` was.
-		const allowed = (r: { is_private: 0 | 1; start_date: string }) =>
+		// nothing whose local date is before the season start is stored, whatever
+		// `after` was (review L-16).
+		const allowed = (r: { is_private: 0 | 1; start_date_local: string }) =>
 			(r.is_private === 0 || rider.scopeReadAll) &&
-			startsInSeason(r.start_date, season);
+			startsInSeason(r.start_date_local, season);
 		if (record && allowed(record)) records.push(record);
 		if (run && allowed(run)) runs.push(run);
 		if (swim && allowed(swim)) swims.push(swim);

@@ -161,6 +161,10 @@ export const de = {
 	"rynke.rules.handoutEnglish": "Die Regeln als PDF (auf Englisch)",
 	"rynke.ride.counts": "zählt 🪙",
 	"rynke.ride.countsWithoutRynke": "zählt",
+	"rynke.ride.belowMinimum.outdoor":
+		"Unter {limit} draußen: keine Rynke für die Kilometer. Die Höhenmeter zählen trotzdem.",
+	"rynke.ride.belowMinimum.virtual":
+		"Virtuelle Fahrt unter {limit}: keine Rynke für die Kilometer. Die Höhenmeter zählen trotzdem.",
 	"rynke.ride.doesNotCount": "zählt nicht",
 	"rynke.ride.notYet": "zählt noch nicht",
 	"rynke.ride.beingEvaluated": "Wird ausgewertet",
@@ -324,6 +328,8 @@ export const de = {
 		"Fahrten: jede Fahrt und was sie gebracht hat. Diese hier zählt nicht. Unter „Warum?“ steht, woran es lag und was du tun kannst.",
 	"tour.rider.shortRide":
 		"Für jede volle {distanceKm}\u00a0km einer Fahrt gibt es {distanceRynke}\u00a0Trainingsrynke. Diese Fahrt war kürzer: Sie zählt, bringt aber keine Rynke für die Strecke. Ihre Höhenmeter kommen trotzdem auf den Zähler.",
+	"tour.rider.shortRide.minimum":
+		"Kilometer bringen draußen ab {outdoorMinKm}\u00a0km Rynke, virtuell ab {virtualMinKm}\u00a0km; dann bringen je volle {distanceKm}\u00a0km {distanceRynke}\u00a0Trainingsrynke. Diese Fahrt war kürzer: Sie zählt, bringt für ihre Strecke aber keine Rynke. Ihre Höhenmeter kommen trotzdem auf den Zähler, ab dem ersten Meter.",
 	"tour.rider.badges":
 		"Abzeichen: deine und die des Teams, und wie weit es bis zum nächsten ist.",
 	"tour.rider.events":
@@ -599,6 +605,8 @@ export const de = {
 	"organiser.overview.deadline": "Stichtag · {date}",
 	"organiser.overview.daysLeft": "Noch {n} Tage ⏳",
 	"organiser.overview.deadlinePassed": "Der Stichtag ist vorbei",
+	"organiser.overview.beforeWindow":
+		"Die Qualifikation beginnt am {date}. Bis dahin kann niemand zurückliegen, deshalb sind alle gut unterwegs.",
 	"organiser.overview.qualified":
 		"{n} von {count} haben ihr Trainingsziel erreicht 🎯",
 	"organiser.overview.groups": "Gruppen",
@@ -1278,6 +1286,9 @@ export const de = {
 		"Zieh über ein Diagramm, um Daten zu wählen. „Saison“ zeigt wieder alles.",
 	"organiser.graphs.hint.touch":
 		"Zum Zoomen zwei Finger, seitlich ziehen verschiebt, Tippen wählt einen Tag. „Saison“ zeigt wieder alles.",
+	"organiser.graphs.windowStart": "Qualifikation beginnt",
+	"organiser.graphs.windowStart.hint":
+		"Die gestrichelte Linie zeigt den Beginn der Qualifikation am {date}. Fahrten davor bringen keine Rynke.",
 	"organiser.graphs.note.one":
 		"1 Rider hat keine Linie und den Tageswerten noch nicht zugestimmt.",
 	"organiser.graphs.note.other":

@@ -146,3 +146,27 @@ export async function listActivityIdsMissingFigures(
 		.all<{ strava_activity_id: number }>();
 	return results.map((r) => r.strava_activity_id);
 }
+
+/**
+ * A rider's stored rides, runs and swims not refreshed since `since`: those a
+ * finished import didn't list (review L-03).
+ */
+export async function listActivityIdsRefreshedBefore(
+	db: D1Database,
+	athleteId: number,
+	since: number,
+): Promise<number[]> {
+	const { results } = await db
+		.prepare(
+			`SELECT strava_activity_id FROM activities
+				WHERE athlete_id = ?1 AND refreshed_at < ?2
+			UNION SELECT strava_activity_id FROM runs
+				WHERE athlete_id = ?1 AND refreshed_at < ?2
+			UNION SELECT strava_activity_id FROM swims
+				WHERE athlete_id = ?1 AND refreshed_at < ?2
+			ORDER BY strava_activity_id`,
+		)
+		.bind(athleteId, since)
+		.all<{ strava_activity_id: number }>();
+	return results.map((r) => r.strava_activity_id);
+}

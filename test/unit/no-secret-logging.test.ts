@@ -159,7 +159,7 @@ describe("logging never includes credentials", () => {
 		await runQueue({
 			kind: "delete-rider",
 			athleteId: ATHLETE_A,
-			reason: "deauthorized",
+			reason: "left-club",
 			revoke: true,
 		});
 		expectLogged("revoke: HTTP 500");

@@ -61,3 +61,27 @@ test("badges from rides before the window", async ({ page }) => {
 		page.locator('img[src^="/badges/surprise-christmas-eve.svg"]').first(),
 	).toBeAttached();
 });
+
+test("the Season ranking counts rides from 1 September", async ({ page }) => {
+	await signIn(page, RIDER);
+	await page.goto("/team?by=sessions&period=season");
+	await skipTours(page);
+	await expect(page.locator(".leaderboard .row-total").first()).toBeVisible();
+	await expect(page.getByText("Nobody has ridden yet")).toHaveCount(0);
+	await expect(
+		page.locator(".leaderboard .row-total").first(),
+	).not.toContainText(/^0 /);
+});
+
+test("organisers see when qualifying starts", async ({ page }) => {
+	await signIn(page, "Oskar Organiser");
+	await page.goto("/organiser/riders");
+	await skipTours(page);
+	await expect(page.locator(".overview-before-window")).toContainText(
+		"Qualifying starts on",
+	);
+	await page.goto("/organiser/riders?view=graphs");
+	await expect(page.locator("#organiser-graphs")).toContainText(
+		"The dashed line marks the start of qualifying",
+	);
+});

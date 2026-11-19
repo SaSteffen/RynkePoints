@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
-import { applyTeamEventChange } from "../../src/rynke/apply";
 import { countingWindow } from "../../src/rynke/rules";
+import { applyTeamEventChange } from "../../src/rynke/team-event-change";
 import {
 	makeCtx,
 	request,

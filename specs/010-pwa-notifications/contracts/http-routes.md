@@ -18,7 +18,7 @@ Called by `public/app.js` only, with `fetch` and a `FormData` body.
 Checks, in order:
 
 1. `Origin` must equal the site's origin (`isSameOrigin`). Otherwise `403`.
-2. A valid session. Otherwise `401`.
+2. A valid session whose rider still exists (`readViewer`). Otherwise `401`.
 3. `action` must be one of the three values, and `endpoint` must pass the
    validation in [data-model.md](../data-model.md). Otherwise `400`.
 
@@ -59,8 +59,12 @@ language is resolved as for any page (`resolveLocale`).
 The same `lang` handling as `/offline`. It returns JSON:
 
 ```json
-{ "title": "<app.name>", "body": "<push.body>" }
+{ "title": "<app.name>", "body": "<push.body>", "icon": "<icon192>", "badge": "<notificationBadge>" }
 ```
+
+`icon` and `badge` are the team's notification icons (feature 026, its
+`art.icons`); the service worker is the same file for every team and takes them
+from here.
 
 - No session, no D1, `Cache-Control: no-cache`.
 - The texts are fixed per language and contain no rider data (FR-015).

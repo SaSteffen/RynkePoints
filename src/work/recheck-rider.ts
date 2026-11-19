@@ -7,7 +7,7 @@ import {
 } from "../db/recheck";
 import type { Rider } from "../db/riders";
 import { anyWorkReady } from "../db/strava-work";
-import { differences } from "../recheck/diff";
+import { differences, gone } from "../recheck/diff";
 import type { StravaActivity } from "../strava/activity";
 import { listNewestActivities } from "../strava/client";
 import { budgetDecision, halfDayUsed } from "../strava/rate-limit";
@@ -19,7 +19,8 @@ import type { RecheckRiderMessage } from "./messages";
 
 // One ride edit re-check (feature 036 contracts/queue-message.md): the rider's
 // newest 200 activities in one request, compared with the stored ones; only
-// what differs goes through the same evaluation as a reported activity. A check
+// what differs goes through the same evaluation as a reported activity, and a
+// stored activity the list no longer holds is removed as a deletion is. A check
 // that can't or mustn't happen puts the rider's stamp back and is counted, and
 // is never retried: the handler never returns `budget` or `transient` (FR-017).
 
@@ -75,14 +76,20 @@ export const recheckRider: Handler<RecheckRiderMessage> = async (
 		return notMade({ failed: 1, unordered: 1 });
 	}
 
-	const changed = differences(
-		keptActivities(result.value, rider, ctx),
-		await readStoredActivities(ctx.env.DB, rider.athleteId),
-	);
+	const kept = keptActivities(result.value, rider, ctx);
+	const stored = await readStoredActivities(ctx.env.DB, rider.athleteId);
+	const changed = differences(kept, stored);
+	const removed = gone(kept, stored, result.value.at(-1)?.start_date);
 	if (changed.records.length + changed.runs.length + changed.swims.length > 0) {
 		await evaluateAndNotify(ctx, rider.athleteId, {
 			kind: "upsert",
 			...changed,
+		});
+	}
+	if (removed.length > 0) {
+		await evaluateAndNotify(ctx, rider.athleteId, {
+			kind: "delete",
+			activityIds: removed,
 		});
 	}
 	return OK;

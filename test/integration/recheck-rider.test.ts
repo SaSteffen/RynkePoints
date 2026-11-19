@@ -217,7 +217,52 @@ describe("a check that is made", () => {
 		expect(await count("SELECT COUNT(*) AS n FROM runs")).toBe(0);
 	});
 
-	it("leaves a stored activity missing from the list alone", async () => {
+	it("removes what is gone from Strava without an event: deleted, private without the grant (FR-006a)", async () => {
+		await env.DB.prepare(
+			"UPDATE riders SET scope_read_all = 0 WHERE athlete_id = ?",
+		)
+			.bind(ATHLETE_A)
+			.run();
+		const on = (day: number) =>
+			makeStravaActivity({
+				id: day,
+				start_date: `2026-10-0${day}T07:30:00Z`,
+				start_date_local: `2026-10-0${day}T09:30:00Z`,
+			});
+		await stored(on(3), on(4), on(5));
+		const before = await training();
+		fake.activities.delete(4);
+		edit(5, { private: true, visibility: "only_me" });
+		await process();
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id IN (4, 5)",
+			),
+		).toBe(0);
+		expect(await result(3)).toMatchObject({ counts: 1 });
+		expect(await training()).toBeLessThan(before);
+		expect(fake.callsTo("activities")).toHaveLength(1);
+	});
+
+	it("leaves a stored activity older than the oldest listed alone: the list stops at 200", async () => {
+		await stored(
+			makeStravaActivity({
+				id: 8,
+				start_date: "2026-10-01T07:30:00Z",
+				start_date_local: "2026-10-01T09:30:00Z",
+			}),
+			makeStravaActivity({ id: 9 }),
+		);
+		fake.activities.delete(8);
+		await process();
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id = 8",
+			),
+		).toBe(1);
+	});
+
+	it("removes nothing when the list is empty", async () => {
 		await stored(makeStravaActivity({ id: 8 }));
 		fake.activities.delete(8);
 		await process();

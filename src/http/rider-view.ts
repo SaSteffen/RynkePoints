@@ -216,6 +216,11 @@ export interface RideLine {
 	/** Metres towards the elevation total; 0 unless the ride counts. */
 	elevationM: number;
 	isVirtual: boolean;
+	/**
+	 * The km minimum of the ride's kind when it counts but is under it, so its
+	 * kilometres earned nothing (Europe's rules version 5); else `null`.
+	 */
+	belowMinKm: number | null;
 	/** In the stored order; empty unless the ride doesn't count (FR-042). */
 	reasons: ReasonLine[];
 	/** Figures Strava hasn't sent yet, so the result may change (FR-043). */
@@ -536,6 +541,11 @@ function rideLine(ride: RideRow, context: ViewContext): RideLine {
 		result && !counts
 			? reasonLines(ride, context.rulesFor(result.rulesVersion), context)
 			: [];
+	const min =
+		counts && result
+			? context.rulesFor(result.rulesVersion)?.distanceMinKm
+			: undefined;
+	const minKm = min && (result?.isVirtual ? min.virtual : min.outdoor);
 	return {
 		activityId: ride.activityId,
 		name: ride.name,
@@ -553,6 +563,7 @@ function rideLine(ride: RideRow, context: ViewContext): RideLine {
 		distanceRynke: counts ? result.distanceRynke : 0,
 		elevationM: counts ? result.elevationDm / 10 : 0,
 		isVirtual: result?.isVirtual ?? false,
+		belowMinKm: minKm && ride.distanceM < minKm * 1000 ? minKm : null,
 		reasons,
 		unknownFigures: result?.unknownFigures ?? [],
 		fixHint: (result?.reasons ?? []).some((code) => FIXABLE.has(code)),

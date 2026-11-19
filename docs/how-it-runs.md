@@ -216,7 +216,7 @@ it moves towards Strava's current state instead of adding to it.
 | `reread-page` | The daily job, once per rider after a new activity figure was added | The same as `import-page`. | 1 per page |
 | `check-membership` | The daily job | Checks the rider is still in the team's Strava club, and queues `delete-rider` if not. | 1 |
 | `delete-rider` | The app removed in Strava, leaving the club, no reconnect within 7 days, or a guest taken off the guest list | Withdraws the rider's Strava access unless another team holds them (asked through the gateway), then deletes everything about them. Always finishes; a withdrawal that can't settle yet stays in `pending_revocations` for the daily run. | 0 or 1 |
-| `evaluate-rider` | Organisers' attendance and corrections, and the daily job | Works out the rider's Rynke and badges from what's stored. | 0 |
+| `evaluate-rider` | Organisers' events and attendance, and the daily job | Works out the rider's Rynke and badges from what's stored. | 0 |
 | `send-notification` | Rynke that rose, a badge earned, a usage alert | Sends an empty Web Push message to each of the rider's devices. The device then fetches the text. | 0 |
 | `recheck-rider` | The hourly job | Reads the rider's newest 200 activities and passes only the differences to the usual processing. Never retried. | 1 |
 
@@ -245,8 +245,8 @@ When something fails:
   `failed_work`, and the daily job tries it again for up to 7 days.
 - **A used-up budget or a `429`** defers the message (see
   [Staying within Strava's limits](#staying-within-stravas-limits)).
-- **A refused token refresh** marks the rider *needs reconnect*. Their messages are then dropped,
-  except deletion.
+- **A refused token refresh** marks the rider *needs reconnect*, unless they signed in again
+  meanwhile. Their messages are then dropped, except deletion.
 
 The full rules are in
 [contracts/queue-messages.md](../specs/001-strava-connect-webhook/contracts/queue-messages.md), as
@@ -265,7 +265,7 @@ flowchart TD
     g --> w["2b. Withdrawals: settle every kept token, revoking it once no other team holds the person"]
     w --> f["3. Failed work: give up what first failed over 7 days ago, queue the rest again"]
     f --> r["4. Re-reads: reread-page for riders stored before a new activity figure"]
-    r --> p["5. Pre-season: delete stored activities from before the season start"]
+    r --> p["5. Pre-season: delete stored activities from before the season start, evaluate-rider for their riders"]
     p --> e["6. Evaluation: evaluate-rider where stored Rynke are missing or out of date"]
     e --> u["7. Usage history: drop usage days past 13 months"]
 ```
@@ -335,7 +335,7 @@ The account is on the Workers free plan. Daily limits reset at 00:00 UTC.
 | D1 rows written | 100,000 per day | The same. |
 | D1 storage | 5 GB | Writes fail. |
 | CPU time | 10 ms per invocation | That invocation fails. Pages stay small, and heavy work is split into queue messages. |
-| Subrequests | 50 per invocation | Every D1 query and Strava call counts, so batches and fan-outs stay small. |
+| Subrequests | 50 per invocation to other services, 1,000 to Cloudflare's | Strava, the gateway and push services count against the 50; D1 and the queue against the 1,000. Past either, the call fails, so batches and fan-outs stay small: the drain stops after 15 items. |
 | Cron triggers | 5 per account | Each team uses 2, so a third team needs fewer triggers or the paid plan. |
 
 The sandboxes have no cron triggers, and they stop before writing once any daily allowance is half

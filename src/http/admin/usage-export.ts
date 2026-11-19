@@ -26,7 +26,7 @@ export async function handleUsageExport(
 		given === undefined ||
 		!(await secretEquals(given, expected))
 	) {
-		return notFound(i18n, path);
+		return notFound(ctx, i18n, path);
 	}
 	const today = utcDay(ctx.now());
 	const since = exportSince(

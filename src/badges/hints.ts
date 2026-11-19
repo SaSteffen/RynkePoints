@@ -16,6 +16,7 @@ import type {
 	RunDayEntry,
 	VirtualDayEntry,
 } from "../rynke/summary";
+import { addDays } from "../rynke/weeks";
 import { type BadgeCategoryId, categoryById, ONE_DECIMAL } from "./catalog";
 import { easterSunday } from "./easter";
 import type { CategoryProgress } from "./evaluate";
@@ -314,8 +315,8 @@ function surprises(input: HintInput): HintCandidate[] {
 			add("solstice", `${year}-06-21`, "solsticeJune");
 		}
 	}
-	const easterMonday = shift(easterSunday(year), 1);
-	if (today >= shift(easterMonday, -7) && today <= easterMonday) {
+	const easterMonday = addDays(easterSunday(year), 1);
+	if (today >= addDays(easterMonday, -7) && today <= easterMonday) {
 		add("easter", easterMonday, "easter");
 	}
 	const monthEnd = lastOfMonth(today);
@@ -358,11 +359,11 @@ function festiveInReach(input: HintInput, year: number): boolean {
 /** Active days in a row ending today, or yesterday when today has none yet. */
 function activeStreak(active: readonly ActiveEntry[], today: string): number {
 	const dates = new Set(active.map(([date]) => date));
-	let day = dates.has(today) ? today : shift(today, -1);
+	let day = dates.has(today) ? today : addDays(today, -1);
 	let streak = 0;
 	while (dates.has(day)) {
 		streak++;
-		day = shift(day, -1);
+		day = addDays(day, -1);
 	}
 	return streak;
 }
@@ -448,10 +449,4 @@ export function daysFrom(from: string, to: string): number {
 		(Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) /
 		86_400_000;
 	return Math.max(0, Math.round(span) + 1);
-}
-
-function shift(date: string, days: number): string {
-	return new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000)
-		.toISOString()
-		.slice(0, 10);
 }

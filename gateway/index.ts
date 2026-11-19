@@ -1,4 +1,5 @@
 import { secretEquals } from "../src/crypto/secret";
+import { readBodyUpTo } from "../src/http/body";
 import {
 	type GatewayTeam,
 	parseTeams,
@@ -119,7 +120,7 @@ async function receiveEvent(
 	request: Request,
 	env: GatewayEnv,
 ): Promise<Response> {
-	const body = await readBody(request);
+	const body = await readBodyUpTo(request, MAX_BODY_BYTES);
 	if (body === null || !isStravaEvent(body)) return text("Bad Request", 400);
 	const teams = parseTeams(env.TEAMS);
 	if (teams.length > 0) {
@@ -153,28 +154,6 @@ function isStravaEvent(body: string): boolean {
 		Number.isSafeInteger(e.subscription_id) &&
 		typeof e.event_time === "number"
 	);
-}
-
-/** The body as text, or null if it is over the limit. Stops reading there. */
-async function readBody(request: Request): Promise<string | null> {
-	const length = request.headers.get("Content-Length");
-	if (length !== null && Number(length) > MAX_BODY_BYTES) return null;
-	if (!request.body) return "";
-	const reader = request.body.getReader();
-	const decoder = new TextDecoder();
-	let size = 0;
-	let body = "";
-	for (;;) {
-		const { done, value } = await reader.read();
-		if (done) break;
-		size += value.byteLength;
-		if (size > MAX_BODY_BYTES) {
-			await reader.cancel();
-			return null;
-		}
-		body += decoder.decode(value, { stream: true });
-	}
-	return body + decoder.decode();
 }
 
 /**
@@ -225,7 +204,7 @@ async function askTeams(
 	) {
 		return text("Forbidden", 403);
 	}
-	const body = await readBody(request);
+	const body = await readBodyUpTo(request, MAX_BODY_BYTES);
 	let athleteId: unknown;
 	try {
 		athleteId = body === null ? undefined : JSON.parse(body)?.athleteId;

@@ -1,4 +1,3 @@
-import { seasonStart } from "../config";
 import type { Ctx } from "../ctx";
 import { type ActivityChange, evaluateChange } from "../rynke/apply";
 import {
@@ -100,7 +99,7 @@ export const activityEvent: Handler<ActivityEventMessage> = async (
 	if (
 		!kept ||
 		(kept.is_private === 1 && !rider.scopeReadAll) ||
-		!startsInSeason(kept.start_date, seasonStart(ctx.env))
+		!startsInSeason(kept.start_date_local, ctx.env.SEASON_START_DATE)
 	) {
 		return remove();
 	}

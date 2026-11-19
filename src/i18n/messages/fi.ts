@@ -154,6 +154,10 @@ export const fi: Catalog = {
 	"rynke.rules.handoutEnglish": "Säännöt PDF:nä (englanniksi)",
 	"rynke.ride.counts": "lasketaan 🪙",
 	"rynke.ride.countsWithoutRynke": "lasketaan",
+	"rynke.ride.belowMinimum.outdoor":
+		"Alle {limit} ulkona: ei Rynkejä kilometreistä. Nousumetrit lasketaan silti.",
+	"rynke.ride.belowMinimum.virtual":
+		"Virtuaalilenkki alle {limit}: ei Rynkejä kilometreistä. Nousumetrit lasketaan silti.",
 	"rynke.ride.doesNotCount": "ei lasketa",
 	"rynke.ride.notYet": "ei lasketa vielä",
 	"rynke.ride.beingEvaluated": "Arvioidaan",
@@ -302,6 +306,8 @@ export const fi: Catalog = {
 		"Ajot: jokainen ajo ja mitä se tuotti. Tätä ei lasketa. ”Miksi?” kertoo, mikä meni pieleen ja mitä voit tehdä.",
 	"tour.rider.shortRide":
 		"Jokainen täysi {distanceKm} km ajosta antaa {distanceRynke} Harjoitus-Rynkeä. Tämä ajo oli lyhyempi: se lasketaan, mutta matkasta ei tule Rynkejä. Nousumetrit menevät silti mittariin.",
+	"tour.rider.shortRide.minimum":
+		"Kilometrit tuovat Rynkejä ulkona {outdoorMinKm}\u00a0km:stä ja virtuaalilenkeillä {virtualMinKm}\u00a0km:stä alkaen; sen jälkeen jokainen täysi {distanceKm}\u00a0km tuo {distanceRynke}\u00a0harjoitus-Rynkeä. Tämä lenkki oli lyhyempi: se lasketaan, mutta matkasta ei tule Rynkejä. Sen nousumetrit menevät silti laskuriin, ensimmäisestä metristä alkaen.",
 	"tour.rider.badges": "Merkit: sinun ja tiimin merkit sekä matka seuraavaan.",
 	"tour.rider.events":
 		"Tapahtumat: tiimin tapahtumat. Kerro etukäteen, tuletko, ja ilmoita jälkeenpäin, että olit mukana. Kun järjestäjät ovat lisänneet sinut, saat Tiimi-Rynkejä.",
@@ -571,6 +577,8 @@ export const fi: Catalog = {
 	"organiser.overview.deadline": "Karsinnan määräaika · {date}",
 	"organiser.overview.daysLeft": "Päiviä jäljellä: {n} ⏳",
 	"organiser.overview.deadlinePassed": "Määräaika on mennyt",
+	"organiser.overview.beforeWindow":
+		"Karsinta alkaa {date}. Siihen asti kukaan ei voi jäädä jälkeen, joten kaikki ovat raiteillaan.",
 	"organiser.overview.qualified":
 		"{n}/{count} on saavuttanut harjoitustavoitteen 🎯",
 	"organiser.overview.groups": "Ryhmät",
@@ -1240,6 +1248,9 @@ export const fi: Catalog = {
 		"Vedä kaavion yli valitaksesi päivät. ”Kausi” näyttää taas kaiken.",
 	"organiser.graphs.hint.touch":
 		"Nipistä zoomataksesi, vedä sivusuunnassa siirtääksesi, napauta valitaksesi päivän. ”Kausi” näyttää taas kaiken.",
+	"organiser.graphs.windowStart": "Karsinta alkaa",
+	"organiser.graphs.windowStart.hint":
+		"Katkoviiva näyttää karsinnan alun {date}. Sitä ennen ajetut lenkit eivät tuo Rynkejä.",
 	"organiser.graphs.note.one":
 		"1 ajajalla ei ole viivaa, koska hän ei ole vielä hyväksynyt päivälukujen näyttämistä.",
 	"organiser.graphs.note.other":

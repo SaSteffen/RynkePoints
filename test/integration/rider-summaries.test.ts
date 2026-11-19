@@ -12,14 +12,11 @@ import {
 } from "../../src/db/riders";
 import { readTeam, readTeamBadgeSums } from "../../src/db/team";
 import { handleScheduled } from "../../src/index";
-import {
-	applyAndEvaluate,
-	applyCorrectionChange,
-	applyTeamEventChange,
-	evaluateChange,
-} from "../../src/rynke/apply";
+import { applyAndEvaluate, evaluateChange } from "../../src/rynke/apply";
+import { applyCorrectionChange } from "../../src/rynke/correction-change";
 import { countingWindow } from "../../src/rynke/rules";
 import { RIDER_SUMMARY_VERSION, summaryOf } from "../../src/rynke/summary";
+import { applyTeamEventChange } from "../../src/rynke/team-event-change";
 import type { RunRecord, SwimRecord } from "../../src/strava/activity";
 import { purgePreSeasonActivities } from "../../src/work/scheduled";
 import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";
@@ -378,6 +375,12 @@ describe("a rider's summary follows every change (US3)", () => {
 		});
 		expect((await storedRow())?.active).toContain("2025-05-02");
 		await purgePreSeasonActivities(ctx);
+		// The evaluation the purge queued (review L-11), as `evaluate-rider`
+		// runs it.
+		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
+			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
+		]);
+		await evaluateChange(ctx, ATHLETE_A, { kind: "none" });
 		await expectRowMatches();
 		expect((await storedRow())?.active).not.toContain("2025-05-02");
 	});
@@ -567,7 +570,11 @@ describe("leaving and withdrawing take effect at once (US4)", () => {
 		await seedBoth();
 		const all = await readTeamBadgeSums(env.DB);
 		expect(all.riders).toHaveLength(2);
-		await markNeedsReconnect(env.DB, ATHLETE_B, NOW);
+		await markNeedsReconnect(
+			env.DB,
+			{ athleteId: ATHLETE_B, scopesUpdatedAt: NOW },
+			NOW,
+		);
 		await expectOnlyA();
 		expect(await storedRow(ATHLETE_B)).not.toBeNull();
 		await env.DB.prepare(
@@ -685,7 +692,8 @@ describe("the release is invisible (US5)", () => {
 		const rows = countRows(ctx);
 		rows.counter.reset();
 		const result = await evaluateChange(rows.ctx, ATHLETE_A, { kind: "none" });
-		expect(rows.counter.written()).toBe(1);
+		// The row, and the rider's count of evaluations (review L-18).
+		expect(rows.counter.written()).toBe(2);
 		expect(result).toEqual({
 			rose: false,
 			badges: [],
@@ -746,7 +754,7 @@ describe("a new format costs no costly day (organiser graphs, research R14)", ()
 		expect(counter.trips()).toBe(2);
 	});
 
-	it("raises a version 1 row with one write, no rise and no notification", async () => {
+	it("raises a version 1 row with one write and the count, no rise and no notification", async () => {
 		await toVersionOne();
 		const sentBefore = ctx.queue.sent.length;
 		const balance = () =>
@@ -757,7 +765,8 @@ describe("a new format costs no costly day (organiser graphs, research R14)", ()
 		const rows = countRows(ctx);
 		rows.counter.reset();
 		const result = await evaluateChange(rows.ctx, ATHLETE_A, { kind: "none" });
-		expect(rows.counter.written()).toBe(1);
+		// The row, and the rider's count of evaluations (review L-18).
+		expect(rows.counter.written()).toBe(2);
 		expect(result).toEqual({
 			rose: false,
 			badges: [],

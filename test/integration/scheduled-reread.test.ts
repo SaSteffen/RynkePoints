@@ -6,7 +6,7 @@ import {
 	getQueueResult,
 } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { seasonStart } from "../../src/config";
+import { seasonFetchAfter } from "../../src/config";
 import { getRider } from "../../src/db/riders";
 import { handleQueue, handleScheduled } from "../../src/index";
 import { ACTIVITY_FIGURES_VERSION } from "../../src/strava/activity";
@@ -63,7 +63,7 @@ describe("scheduled: figures re-read", () => {
 				kind: "reread-page",
 				athleteId: ATHLETE_A,
 				page: 1,
-				after: seasonStart(env),
+				after: seasonFetchAfter(env),
 			},
 		]);
 		expect(await figuresVersion()).toBe(ACTIVITY_FIGURES_VERSION);
@@ -81,7 +81,7 @@ describe("scheduled: figures re-read", () => {
 				kind: "reread-page",
 				athleteId: ATHLETE_A,
 				page: 1,
-				after: seasonStart(env),
+				after: seasonFetchAfter(env),
 			},
 		]);
 		expect(await figuresVersion()).toBe(ACTIVITY_FIGURES_VERSION);
@@ -95,7 +95,7 @@ describe("scheduled: figures re-read", () => {
 				kind: "reread-page",
 				athleteId: ATHLETE_A,
 				page: 1,
-				after: seasonStart(env),
+				after: seasonFetchAfter(env),
 			},
 		]);
 		expect(await figuresVersion()).toBe(ACTIVITY_FIGURES_VERSION);

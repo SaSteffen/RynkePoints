@@ -84,6 +84,13 @@ export function readyPollSeconds(
 	return seconds;
 }
 
+/** A feature switch's value: "on" or "off", nothing else (feature 026 FR-018). */
+function onOff(name: string, value: string): boolean {
+	if (value === "on") return true;
+	if (value === "off") return false;
+	throw new Error(`${name} must be "on" or "off"`);
+}
+
 /**
  * Whether other riders' Training Rynke may be ranked on `/team`: the place
  * card, the Training leaderboard and the Training figure beside each Team
@@ -93,9 +100,7 @@ export function readyPollSeconds(
 export function trainingLeaderboard(
 	env: Pick<Settings, "TRAINING_LEADERBOARD">,
 ): boolean {
-	if (env.TRAINING_LEADERBOARD === "on") return true;
-	if (env.TRAINING_LEADERBOARD === "off") return false;
-	throw new Error('TRAINING_LEADERBOARD must be "on" or "off"');
+	return onOff("TRAINING_LEADERBOARD", env.TRAINING_LEADERBOARD);
 }
 
 /**
@@ -104,9 +109,7 @@ export function trainingLeaderboard(
  * shows nothing of it.
  */
 export function rideFigures(env: Pick<Settings, "RIDE_FIGURES">): boolean {
-	if (env.RIDE_FIGURES === "on") return true;
-	if (env.RIDE_FIGURES === "off") return false;
-	throw new Error('RIDE_FIGURES must be "on" or "off"');
+	return onOff("RIDE_FIGURES", env.RIDE_FIGURES);
 }
 
 /**
@@ -115,16 +118,7 @@ export function rideFigures(env: Pick<Settings, "RIDE_FIGURES">): boolean {
  * kind switch, Rynke cards, peloton or quote.
  */
 export function rynkeViews(env: Pick<Settings, "RYNKE_VIEWS">): boolean {
-	if (env.RYNKE_VIEWS === "on") return true;
-	if (env.RYNKE_VIEWS === "off") return false;
-	throw new Error('RYNKE_VIEWS must be "on" or "off"');
-}
-
-/** A feature switch's value: "on" or "off", nothing else (feature 026 FR-018). */
-function onOff(name: string, value: string): boolean {
-	if (value === "on") return true;
-	if (value === "off") return false;
-	throw new Error(`${name} must be "on" or "off"`);
+	return onOff("RYNKE_VIEWS", env.RYNKE_VIEWS);
 }
 
 /**
@@ -162,9 +156,7 @@ export function funThemes(env: Pick<Settings, "FUN_THEMES">): boolean {
 export function organiserProgressGraph(
 	env: Pick<Settings, "ORGANISER_PROGRESS_GRAPH">,
 ): boolean {
-	if (env.ORGANISER_PROGRESS_GRAPH === "on") return true;
-	if (env.ORGANISER_PROGRESS_GRAPH === "off") return false;
-	throw new Error('ORGANISER_PROGRESS_GRAPH must be "on" or "off"');
+	return onOff("ORGANISER_PROGRESS_GRAPH", env.ORGANISER_PROGRESS_GRAPH);
 }
 
 export function clientId(env: Pick<Settings, "STRAVA_CLIENT_ID">): string {
@@ -183,9 +175,17 @@ export function verifyToken(
 	return env.STRAVA_WEBHOOK_VERIFY_TOKEN;
 }
 
-/** The season start of the configured `SEASON_START_DATE`. */
-export function seasonStart(env: Pick<Settings, "SEASON_START_DATE">): number {
-	return seasonStartEpoch(env.SEASON_START_DATE);
+/**
+ * Strava's `after` for the season (epoch seconds): a day before 00:00
+ * Europe/Berlin on `SEASON_START_DATE`. A ride counts by its local date
+ * (`startsInSeason`), and one ridden just after local midnight east of Berlin
+ * starts before Berlin's midnight (as far as UTC+14), so the list starts a day
+ * earlier and the local-date rule decides what is kept (review L-16).
+ */
+export function seasonFetchAfter(
+	env: Pick<Settings, "SEASON_START_DATE">,
+): number {
+	return seasonStartEpoch(env.SEASON_START_DATE) - 24 * 60 * 60;
 }
 
 /** 00:00 Europe/Berlin on `date` (`YYYY-MM-DD`), in epoch seconds. */

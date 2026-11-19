@@ -62,17 +62,22 @@ self.addEventListener("fetch", (event) => {
 	);
 });
 
-/**
- * What the signed-in rider still needs (issue #45), else the cached text, else
- * the server's, else the app name alone (FR-032).
- */
-async function notificationText() {
+/** What the signed-in rider still needs (issue #45), else null. */
+async function riderText() {
 	try {
 		const response = await fetch(RIDER_TEXT, { cache: "no-store" });
 		if (response.status === 200) return await response.json();
 	} catch {
-		// Offline or signed out on this device: the fixed text below.
+		// Offline or signed out on this device: the team's text instead.
 	}
+	return null;
+}
+
+/**
+ * The cached text, else the server's, else the app name alone (FR-032). It
+ * holds the team's icons: this file is the same for every team.
+ */
+async function teamText() {
 	try {
 		const response =
 			(await caches.match(TEXT, { ignoreVary: true })) ?? (await fetch(TEXT));
@@ -81,6 +86,12 @@ async function notificationText() {
 	} catch {
 		return { title: "RynkePoints" };
 	}
+}
+
+/** The rider's words where there are some, always the team's icons. */
+async function notificationText() {
+	const [rider, team] = await Promise.all([riderText(), teamText()]);
+	return rider ? { ...rider, icon: team.icon, badge: team.badge } : team;
 }
 
 // The push has no body; the device asks the server what to show
@@ -93,8 +104,8 @@ self.addEventListener("push", (event) => {
 				body: text.body,
 				tag: "new-rynke",
 				renotify: true,
-				icon: "/icons/icon-192.png",
-				badge: "/icons/badge-96.png",
+				icon: text.icon,
+				badge: text.badge,
 				// Badges open the badges page (#125); anything else the rider page.
 				data: { url: PAGES.includes(text.url) ? text.url : "/me" },
 			});

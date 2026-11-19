@@ -1,6 +1,6 @@
 // A rider's personal badges and their catalog version (feature 013
 // data-model.md, research R13, R18). Writes are statements for the evaluation
-// batch of `rynke/apply.ts`, so badges never disagree with the Rynke.
+// batch of `rynke/reevaluate.ts`, so badges never disagree with the Rynke.
 
 import type { EarnedBadge } from "../badges/evaluate";
 import type { DailyFigures } from "../badges/hints";
@@ -18,13 +18,13 @@ import {
 import { LISTED_RIDER_IDS } from "./organiser";
 
 /**
- * For a query over `ride_results r`: a ride the badges count, its result
- * counting or a pre-window ride (feature 040 research R4). `evaluateRides`
- * writes the reasons, so a pre-window ride's are exactly this JSON
- * (test/teams/pre-window.test.ts). Every Rynke sum, graph and
- * ride figure keeps `r.counts = 1`.
+ * For a query over `ride_results r`: a ride of the season, its result
+ * counting or a pre-window ride (feature 040 research R4). The badges, the ride
+ * figures and the organiser's daily graphs count these; every Rynke sum keeps
+ * `r.counts = 1`. `evaluateRides` writes the reasons, so a pre-window ride's are
+ * exactly this JSON (test/teams/pre-window.test.ts).
  */
-export const BADGE_RIDE = `(r.counts = 1 OR r.reasons = '["before_window"]')`;
+export const SEASON_RIDE = `(r.counts = 1 OR r.reasons = '["before_window"]')`;
 
 export interface RiderBadgeRow {
 	athlete_id: number;
@@ -263,7 +263,7 @@ async function ownFiguresFromRides(
 						AS virtual_m
 				FROM ride_results r JOIN activities a
 					ON a.strava_activity_id = r.strava_activity_id
-				WHERE r.athlete_id = ?1 AND ${BADGE_RIDE}
+				WHERE r.athlete_id = ?1 AND ${SEASON_RIDE}
 					AND substr(a.start_date_local, 1, 10) <= ?2`,
 			)
 			.bind(athleteId, window.deadline),
@@ -275,7 +275,7 @@ async function ownFiguresFromRides(
 					count(DISTINCT substr(a.start_date_local, 1, 10)) AS days
 				FROM ride_results r JOIN activities a
 					ON a.strava_activity_id = r.strava_activity_id
-				WHERE r.athlete_id = ?1 AND ${BADGE_RIDE} AND r.is_virtual = 0
+				WHERE r.athlete_id = ?1 AND ${SEASON_RIDE} AND r.is_virtual = 0
 					AND substr(a.start_date_local, 1, 10) <= ?2
 				GROUP BY month`,
 			)

@@ -2,6 +2,8 @@
 // `v1:<base64 iv>:<base64 ciphertext>`; the version prefix leaves room for key
 // rotation.
 
+import { fromBase64, toBase64 } from "./base64";
+
 const VERSION = "v1";
 const IV_BYTES = 12;
 
@@ -21,14 +23,6 @@ function importKey(keyB64: string): Promise<CryptoKey> {
 		keys.set(keyB64, key);
 	}
 	return key;
-}
-
-export function toBase64(bytes: Uint8Array): string {
-	return btoa(String.fromCharCode(...bytes));
-}
-
-export function fromBase64(value: string): Uint8Array<ArrayBuffer> {
-	return Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
 }
 
 export async function encryptToken(

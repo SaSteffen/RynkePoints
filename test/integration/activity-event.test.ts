@@ -31,6 +31,8 @@ import {
 const A = 7_200_001;
 const B = 7_200_002;
 const C = 7_200_003;
+const D = 7_200_004;
+const E = 7_200_005;
 
 let fake: FakeStrava;
 let ctx: TestCtx;
@@ -167,18 +169,36 @@ describe("activity-event: create", () => {
 		expect(await rows()).toMatchObject([{ is_private: 1 }]);
 	});
 
-	it("stores nothing that starts before the season start", async () => {
-		// The test season starts 2026-01-01, 00:00 Europe/Berlin.
+	it("stores nothing whose local date is before the season start", async () => {
+		// The test season starts 2026-01-01; a ride counts by its local date
+		// (review L-16).
 		await connectedRider();
-		addRide(A, { start_date: "2025-12-31T22:59:59Z" });
-		addRide(B, { start_date: "2025-12-31T23:00:00Z" });
+		addRide(A, {
+			start_date: "2025-12-31T22:59:59Z",
+			start_date_local: "2025-12-31T23:59:59Z",
+		});
+		addRide(B, {
+			start_date: "2025-12-31T23:00:00Z",
+			start_date_local: "2026-01-01T00:00:00Z",
+		});
 		addRide(C, {
 			sport_type: "Run",
 			type: "Run",
 			start_date: "2025-06-01T08:00:00Z",
+			start_date_local: "2025-06-01T10:00:00Z",
 		});
-		for (const id of [A, B, C]) await deliver(msg(id, "create"));
-		expect(await storedIds()).toEqual([B]);
+		// Just after midnight at UTC+3, before Berlin's midnight: kept.
+		addRide(D, {
+			start_date: "2025-12-31T21:30:00Z",
+			start_date_local: "2026-01-01T00:30:00Z",
+		});
+		// The evening before at UTC-5, after Berlin's midnight: not kept.
+		addRide(E, {
+			start_date: "2026-01-01T04:00:00Z",
+			start_date_local: "2025-12-31T23:00:00Z",
+		});
+		for (const id of [A, B, C, D, E]) await deliver(msg(id, "create"));
+		expect(await storedIds()).toEqual([B, D]);
 		const { results } = await env.DB.prepare("SELECT * FROM runs").all();
 		expect(results).toEqual([]);
 	});
@@ -188,7 +208,10 @@ describe("activity-event: create", () => {
 		addRide(A);
 		await deliver(msg(A, "create"));
 		expect(await storedIds()).toEqual([A]);
-		fakeActivity(A).start_date = "2025-11-30T08:00:00Z";
+		Object.assign(fakeActivity(A), {
+			start_date: "2025-11-30T08:00:00Z",
+			start_date_local: "2025-11-30T09:00:00Z",
+		});
 		await deliver(msg(A, "update", ["start_date"]));
 		expect(await storedIds()).toEqual([]);
 	});
@@ -357,6 +380,22 @@ describe("activity-event: dropped messages", () => {
 		expect(result.explicitAcks).toEqual(["m1"]);
 		expect(fake.calls).toEqual([]);
 		expect(await rows()).toEqual([]);
+	});
+
+	it("removes a deleted activity while the rider needs to reconnect", async () => {
+		await connectedRider();
+		addRide(A);
+		await deliver(msg(A, "create"));
+		await env.DB.prepare(
+			"UPDATE riders SET status = 'needs_reconnect', reconnect_requested_at = ?",
+		)
+			.bind(NOW)
+			.run();
+		const callsBefore = fake.calls.length;
+		const { result } = await deliver(msg(A, "delete"));
+		expect(result.explicitAcks).toEqual(["m1"]);
+		expect(fake.calls).toHaveLength(callsBefore);
+		expect(await storedIds()).toEqual([]);
 	});
 });
 

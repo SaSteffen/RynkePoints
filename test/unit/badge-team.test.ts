@@ -110,6 +110,31 @@ describe("evaluateTeamBadges", () => {
 		});
 	});
 
+	it("adds each rider's latest total on every date, their rides in turn (review L-08)", () => {
+		// A: 300, then 500 on 10 March; B: 150, then 250 on 20 March. The team
+		// has 300, 450, 650 and 750, so 500 is first reached on 10 March.
+		const result = evaluate({
+			riders: [
+				rider([
+					["2026-03-01", 3000],
+					["2026-03-10", 2000],
+				]),
+				rider([
+					["2026-03-05", 1500],
+					["2026-03-20", 1000],
+				]),
+			],
+		});
+		expect(result.earned).toContainEqual({
+			badgeId: "team-training-rynke-500",
+			earnedOn: "2026-03-10",
+		});
+		expect(progressOf(result, "team_training_rynke")).toMatchObject({
+			value: 750,
+			next: 1000,
+		});
+	});
+
 	it("sums distance, elevation and running per day", () => {
 		const result = evaluate({
 			riders: [

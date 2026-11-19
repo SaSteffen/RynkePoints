@@ -159,6 +159,10 @@ export const fr: Catalog = {
 	"rynke.rules.handoutEnglish": "Les règles en PDF (en anglais)",
 	"rynke.ride.counts": "compte 🪙",
 	"rynke.ride.countsWithoutRynke": "compte",
+	"rynke.ride.belowMinimum.outdoor":
+		"Moins de {limit} en extérieur\u00a0: pas de Rynke pour les kilomètres. Le dénivelé compte quand même.",
+	"rynke.ride.belowMinimum.virtual":
+		"Sortie virtuelle de moins de {limit}\u00a0: pas de Rynke pour les kilomètres. Le dénivelé compte quand même.",
 	"rynke.ride.doesNotCount": "ne compte pas",
 	"rynke.ride.notYet": "ne compte pas encore",
 	"rynke.ride.beingEvaluated": "En cours d'évaluation",
@@ -319,6 +323,8 @@ export const fr: Catalog = {
 		"Sorties\u00a0: chaque sortie et ce qu'elle a rapporté. Celle-ci ne compte pas. «\u00a0Pourquoi\u00a0?\u00a0» explique ce qui n'a pas marché et ce que tu peux faire.",
 	"tour.rider.shortRide":
 		"Chaque tranche complète de {distanceKm} km d'une sortie rapporte {distanceRynke} Rynke d'entraînement. Cette sortie était plus courte\u00a0: elle compte, mais ne rapporte pas de Rynke pour sa distance. Son dénivelé va quand même au compteur.",
+	"tour.rider.shortRide.minimum":
+		"Les kilomètres rapportent des Rynke à partir de {outdoorMinKm}\u00a0km en extérieur et de {virtualMinKm}\u00a0km en virtuel\u00a0; ensuite chaque tranche complète de {distanceKm}\u00a0km rapporte {distanceRynke}\u00a0Rynke d'entraînement. Cette sortie était plus courte\u00a0: elle compte, mais ne rapporte aucun Rynke pour sa distance. Son dénivelé va quand même au compteur, dès le premier mètre.",
 	"tour.rider.badges":
 		"Badges\u00a0: les tiens et ceux de l'équipe, et le chemin jusqu'au prochain.",
 	"tour.rider.events":
@@ -598,6 +604,8 @@ export const fr: Catalog = {
 	"organiser.overview.deadline": "Date limite de qualification · {date}",
 	"organiser.overview.daysLeft": "Jours restants\u00a0: {n} ⏳",
 	"organiser.overview.deadlinePassed": "La date limite est passée",
+	"organiser.overview.beforeWindow":
+		"La qualification commence le {date}. D'ici là, personne ne peut prendre de retard, donc tout le monde est dans le rythme.",
 	"organiser.overview.qualified":
 		"{n} sur {count} ont atteint leur objectif d'entraînement 🎯",
 	"organiser.overview.groups": "Groupes",
@@ -1307,6 +1315,9 @@ export const fr: Catalog = {
 		"Fais glisser sur un graphique pour choisir des dates. «\u00a0Saison\u00a0» montre à nouveau tout.",
 	"organiser.graphs.hint.touch":
 		"Pince pour zoomer, glisse sur le côté pour déplacer, touche pour un jour. «\u00a0Saison\u00a0» montre à nouveau tout.",
+	"organiser.graphs.windowStart": "Début de la qualification",
+	"organiser.graphs.windowStart.hint":
+		"La ligne pointillée marque le début de la qualification le {date}. Les sorties d'avant ne rapportent aucun Rynke.",
 	"organiser.graphs.note.one":
 		"1 cycliste n'a pas de ligne\u00a0: pas encore d'accord pour les chiffres journaliers.",
 	"organiser.graphs.note.other":

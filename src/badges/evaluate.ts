@@ -11,7 +11,7 @@ import {
 	type RynkeRules,
 } from "../rynke/rules";
 import type { Attendance } from "../rynke/team-events";
-import { type DatedCorrection, riderDays } from "../rynke/weeks";
+import { addDays, type DatedCorrection, riderDays } from "../rynke/weeks";
 import {
 	BADGE_CATEGORIES,
 	BADGES,
@@ -428,7 +428,7 @@ function traditions(
 		.sort();
 	const stage = stageDays.find((date) => {
 		for (let back = 1; back < STAGE_DAYS; back++) {
-			if ((metres.get(shift(date, -back)) ?? 0) < STAGE_M) return false;
+			if ((metres.get(addDays(date, -back)) ?? 0) < STAGE_M) return false;
 		}
 		return true;
 	});
@@ -450,7 +450,7 @@ function traditions(
 	const summerSolstice = firstOutdoor("06-21");
 	const easter = [...days].sort().find((date) => {
 		const sunday = easterSunday(Number(date.slice(0, 4)));
-		return date === sunday || date === shift(sunday, 1);
+		return date === sunday || date === addDays(sunday, 1);
 	});
 	return {
 		"festive-500": firstReached(
@@ -497,13 +497,6 @@ function winterSleep(
 		.sort()[0];
 }
 
-/** `YYYY-MM-DD` shifted by `days`. */
-function shift(date: string, days: number): string {
-	return new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000)
-		.toISOString()
-		.slice(0, 10);
-}
-
 /**
  * The first day without an activity right after seven days in a row with
  * one, once an activity after it shows the day is over.
@@ -514,11 +507,11 @@ function restDay(
 ): string | undefined {
 	const last = sorted.at(-1);
 	for (const date of sorted) {
-		const rest = shift(date, 1);
+		const rest = addDays(date, 1);
 		if (days.has(rest) || last === undefined || last <= rest) continue;
 		let week = true;
 		for (let back = 1; back <= 7; back++) {
-			if (!days.has(shift(rest, -back))) week = false;
+			if (!days.has(addDays(rest, -back))) week = false;
 		}
 		if (week) return rest;
 	}

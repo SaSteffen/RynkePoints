@@ -156,6 +156,25 @@ describe("GET /organiser/riders, the overview", () => {
 		);
 	});
 
+	it("has no note about qualifying once it has started", async () => {
+		const { html } = await overview();
+		expect(html).not.toContain('class="overview-before-window"');
+	});
+
+	it("says under the groups when qualifying starts, before it does (feature 040)", async () => {
+		const before = {
+			...ctx,
+			env: { ...ctx.env, QUALIFICATION_START_DATE: "2027-01-01" },
+		};
+		const { html } = await riderPage(before, ORGANISER.id, "/organiser/riders");
+		expect(html).toContain(
+			`<p class="overview-before-window">${fill(de["organiser.overview.beforeWindow"], { date: "01.01.2027" })}</p>`,
+		);
+		expect(html.indexOf("overview-before-window")).toBeGreaterThan(
+			html.indexOf('id="tour-groups"'),
+		);
+	});
+
 	it("shows the coin's back as the team's artwork", async () => {
 		const { html } = await overview();
 		expect(html).toContain(

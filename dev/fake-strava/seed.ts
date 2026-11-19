@@ -7,8 +7,8 @@ import {
 	upsertUsageStatement,
 } from "../../src/db/usage";
 import { handleFetch } from "../../src/index";
-import { teamEventChange } from "../../src/rynke/apply";
 import { countingWindow } from "../../src/rynke/rules";
+import { teamEventChange } from "../../src/rynke/team-event-change";
 import {
 	ATHLETE_CAPACITY,
 	CLOUDFLARE_ALLOWANCES,

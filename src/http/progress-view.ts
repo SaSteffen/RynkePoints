@@ -6,6 +6,7 @@
 import type { RiderViewRead } from "../db/rider-view";
 import type { CountingWindow, RynkeRules } from "../rynke/rules";
 import {
+	addDays,
 	type CurvePoint,
 	dayNumber,
 	lastDay,
@@ -226,9 +227,7 @@ function weekRows(
 			outside: withOutside ? earned("outside") : null,
 		};
 		previous = point;
-		firstDay = new Date((dayNumber(end) + 1) * 86_400_000)
-			.toISOString()
-			.slice(0, 10);
+		firstDay = addDays(end, 1);
 		return row;
 	});
 }

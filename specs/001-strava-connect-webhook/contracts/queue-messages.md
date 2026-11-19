@@ -21,7 +21,9 @@ scheduled step, and Rynke storage in the activity handlers: see
 ## Common consumer rules
 
 1. **Rider check.** Load the rider by `athleteId`. If missing, ack and drop. If
-   `needs_reconnect`, ack and drop everything except `delete-rider`.
+   `needs_reconnect`, ack and drop everything except `delete-rider` and
+   `activity-event` with aspect `delete`: deletions need no Strava, so a ride
+   deleted meanwhile stops counting at once.
 2. **Budget deferral.** Before each Strava call, check the rate budget. If it is
    exhausted, or Strava answers `429`, re-send the same body with
    `delaySeconds = min(until the next window or UTC midnight, 43200)` and ack the
@@ -34,7 +36,7 @@ scheduled step, and Rynke storage in the activity handlers: see
    ack (R7).
 4. **Refresh refused** (400/401 on token refresh): set the rider to
    `needs_reconnect` with `reconnect_requested_at=now`, then ack. Does not apply
-   to `delete-rider`, which never refreshes (see below).
+   to `delete-rider`, which refreshes only to check a deauthorization (see below).
 5. **Success.** After a handler returns `ok`, delete any `failed_work` row whose
    `message` equals this message's canonical JSON, so a re-enqueued failure that
    now succeeds stops being retried (R7).
@@ -63,17 +65,34 @@ scheduled step, and Rynke storage in the activity handlers: see
 ### `import-page`
 
 ```ts
-{ kind: "import-page"; athleteId: number; page: number; after: number }
+{ kind: "import-page"; athleteId: number; page: number; after: number;
+  startedAt?: number }
 ```
 
-`after` is the season start (epoch seconds) at the time the import was started.
-It is carried from page to page, so changing `SEASON_START_DATE` only affects
-imports started afterwards (spec Edge Cases).
+The first page's `after` is a day before the season start (00:00 Europe/Berlin
+on `SEASON_START_DATE`, epoch seconds) at the time the import was started, so
+changing `SEASON_START_DATE` only affects imports started afterwards (spec Edge
+Cases). A ride belongs to the season by its local date (`start_date_local`), as
+it counts, and one ridden just after local midnight east of Berlin starts before
+Berlin's midnight; the import keeps only activities whose local date is on or
+after `SEASON_START_DATE` (review L-16). With `after`, Strava lists oldest first, so each
+next page is `page: 1` after the newest start listed so far, one second earlier:
+by page number, an activity deleted between two pages would shift one onto the
+page already read (review L-21), and one starting in the same second as the
+newest is listed again rather than missed. The next `after` is always past the
+current one, so the import ends. `page` is above 1 only on messages sent before
+this rule; such a page goes on by start too. `startedAt` is when the import was
+started, carried from page to page; messages sent before it existed lack it.
 
 1. `GET /athlete/activities?after=<after>&per_page=200&page=<page>`.
 2. Upsert the cycling activities and set `import_status=running`.
-3. If 200 items came back, enqueue `page+1` with the same `after`. Otherwise set
-   `import_status=done`.
+3. If 200 items came back, enqueue the next page as above, with the same
+   `startedAt`. Otherwise set `import_status=done`, and, given `startedAt`,
+   enqueue `activity-event { aspect: "update", changed: [] }` for each stored
+   ride, run or swim with `refreshed_at < startedAt`: the list didn't hold it
+   (deleted, made private without `read_all`, or no longer kept while the rider
+   had to reconnect). The decision table above keeps or deletes it, as the
+   re-read does (research R20).
 
 ### `reread-page`
 
@@ -83,13 +102,14 @@ imports started afterwards (spec Edge Cases).
 
 This is the one-time re-read for a rider whose stored activities lack a figure
 that was added to FR-013 later (research R20). It is enqueued by the daily cron
-(step 4), and `after` is the season start at that moment, carried from page to
-page.
+(step 4), and the first page's `after` is a day before the season start at that
+moment, as for `import-page`. It
+pages as `import-page` does.
 
 1. `GET /athlete/activities?after=<after>&per_page=200&page=<page>`.
 2. Upsert the cycling activities with the same scope rule as `import-page`.
    `import_status` is not touched.
-3. If 200 items came back, enqueue `page+1` with the same `after`.
+3. If 200 items came back, enqueue the next page as `import-page` does.
 4. Otherwise, for every row of the rider that still has a `NULL` figure
    (`elapsed_time_s`, `is_manual`, `is_trainer` or `is_flagged`), enqueue
    `activity-event { aspect: "update", changed: [] }` (batches of 100). The
@@ -113,6 +133,11 @@ page.
   reason: "deauthorized" | "left-club" | "reconnect-expired"; revoke: boolean }
 ```
 
+0. For `reason: "deauthorized"`: Strava signs no event, so refresh the token once
+   (forced, `interactive` priority) to ask Strava whether the grant ended (review
+   L-05). A new token means the event wasn't Strava's: log it, keep the rider and
+   ack. A refused refresh (or no credentials) deletes. Anything else (network,
+   5xx, 429, budget) retries, and the last attempt deletes anyway.
 1. If `revoke` and the rider has credentials, call `POST /oauth/revoke` with the
    stored **refresh token**. No token refresh happens first, so this also works
    for `needs_reconnect` riders. On a transient error (network, 5xx, 429), retry;
@@ -143,13 +168,14 @@ Cron: `17 3 * * *` (daily, 03:17 UTC).
    rider is deleted.
 4. For every rider with `status=connected` and
    `figures_version < ACTIVITY_FIGURES_VERSION`, enqueue
-   `reread-page { page: 1, after: <current season start> }`, then set
+   `reread-page { page: 1, after: <a day before the current season start> }`, then set
    `figures_version = ACTIVITY_FIGURES_VERSION` (research R20). Send before
    marking: if marking fails, the next run sends again, which is harmless.
-5. Delete every stored ride, run and swim whose `start_date` is before the
-   season start, through the rider's Rynke evaluation. Nothing older is
-   stored: `activity-event` and the import pages skip such an activity (and an
-   `activity-event` removes one already stored). This step removes what was
-   stored before that rule, or under an earlier season start. Such a ride
+5. Delete every stored ride, run and swim whose local date
+   (`start_date_local`) is before `SEASON_START_DATE`, through the rider's
+   Rynke evaluation. Nothing older is stored: `activity-event` and the import
+   pages skip such an activity (and an `activity-event` removes one already
+   stored). This step removes what was stored before that rule, by Berlin's
+   midnight before review L-16, or under an earlier season start. Such a ride
    never counts, so balances don't change. Runs before feature 003's
    evaluation sweep.

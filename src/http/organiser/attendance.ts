@@ -16,8 +16,11 @@ import {
 	type TeamEventRecordRow,
 } from "../../db/team-events";
 import type { I18n } from "../../i18n/i18n";
-import { TeamEventRefused, teamEventChange } from "../../rynke/apply";
 import { hasTakenPlace } from "../../rynke/participation";
+import {
+	TeamEventRefused,
+	teamEventChange,
+} from "../../rynke/team-event-change";
 import { html, type SafeHtml } from "../html";
 import { redirect } from "../redirect";
 import { noticeFromQuery, redirectWith, requireOrganiserPost } from "./access";

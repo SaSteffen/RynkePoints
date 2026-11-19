@@ -175,6 +175,41 @@ describe("organiserGraphsView", () => {
 		expect(presets["3m"]).toEqual({ from: 0, to: 59 });
 	});
 
+	it("has no qualifying line when the window opens with the season", () => {
+		expect(view([]).windowStart).toBeNull();
+	});
+
+	it("starts on the season start when the window opens later, with its line (feature 040)", () => {
+		const graphs = organiserGraphsView({
+			rows: [
+				{
+					athleteId: 1,
+					days: [
+						["2026-09-15", 60000, 0, 4500],
+						["2027-01-02", 30000, 3, 1000],
+					],
+					virtualDays: [],
+				},
+			],
+			riders: [rider(1, "R1")],
+			requests: new Map(),
+			window: {
+				seasonStart: "2026-09-01",
+				windowStart: "2027-01-01",
+				deadline: "2027-06-30",
+			},
+			today: "2027-01-02",
+			group: null,
+			rides: new Map([[1, [["2026-09-15", 60000, 4500]]]]),
+		});
+		expect(graphs.firstDay).toBe("2026-09-01");
+		expect(graphs.windowStart).toBe("2027-01-01");
+		expect(graphs.riders[0]?.days).toEqual([
+			[14, 60000, 0, 4500, 1],
+			[123, 30000, 0, 1000, 0],
+		]);
+	});
+
 	it("shows only the first day before the season has started", () => {
 		const { lastDay, teamSum, presets } = view([], undefined, "2025-11-01");
 		expect(lastDay).toBe("2026-01-01");

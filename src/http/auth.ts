@@ -2,7 +2,7 @@ import {
 	clientId,
 	memberClubIds,
 	returnVia,
-	seasonStart,
+	seasonFetchAfter,
 	teamId,
 } from "../config";
 import { currentRevision, currentVersion, grantedScopes } from "../consent";
@@ -101,7 +101,7 @@ export async function handleConnectForm(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	if (!isSameOrigin(request)) return forbidden(i18n, "/");
+	if (!isSameOrigin(request)) return forbidden(ctx, i18n, "/");
 	let form: FormData;
 	try {
 		form = await request.formData();
@@ -250,7 +250,10 @@ export async function handleCallback(
 		await saveCredentials(ctx.env, token.athleteId, credentials);
 		startImport = true;
 	} else {
-		// Reconnect rules (data-model.md).
+		// Reconnect rules (data-model.md). The new token is stored before the
+		// grant's time: work that reads the new time finds the new token, and a
+		// refusal of the old one doesn't mark the rider (review L-18).
+		await saveCredentials(ctx.env, token.athleteId, credentials);
 		await updateRiderOnReconnect(ctx.env.DB, token.athleteId, grant);
 		if (expected.consentVersion === version) {
 			await recordConsent(
@@ -261,18 +264,11 @@ export async function handleCallback(
 				currentRevision(ctx.consentVersions).revision,
 			);
 		}
-		await saveCredentials(ctx.env, token.athleteId, credentials);
 		if (membership?.kind === "ok") {
 			await setMembershipChecked(ctx.env.DB, token.athleteId, now);
 		}
 		if (existing.scopeReadAll && !grant.scopeReadAll) {
 			await evaluateChange(ctx, token.athleteId, { kind: "delete-private" });
-			// Re-derives from the final state if a consumer message for the rider
-			// wrote from an older snapshot meanwhile (feature 003 research R11).
-			await ctx.queue.send({
-				kind: "evaluate-rider",
-				athleteId: token.athleteId,
-			});
 		}
 		startImport =
 			(!existing.scopeReadAll && grant.scopeReadAll) ||
@@ -286,7 +282,8 @@ export async function handleCallback(
 			kind: "import-page",
 			athleteId: token.athleteId,
 			page: 1,
-			after: seasonStart(ctx.env),
+			after: seasonFetchAfter(ctx.env),
+			startedAt: now,
 		});
 	}
 

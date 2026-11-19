@@ -98,11 +98,21 @@ export function handleOffline(request: Request, ctx: Ctx): Response {
 	);
 }
 
-/** What the service worker shows for a push (contracts/push-delivery.md). */
+/**
+ * What the service worker shows for a push (contracts/push-delivery.md), with
+ * the team's notification icons: `public/sw.js` is the same file for every
+ * team, so it takes them from here, also for the rider's own text.
+ */
 export function handleNotificationText(request: Request, ctx: Ctx): Response {
 	const i18n = textI18n(request, ctx);
+	const { icon192, notificationBadge } = ctx.team.art.icons;
 	return Response.json(
-		{ title: i18n.t("app.name"), body: i18n.t("push.body") },
+		{
+			title: i18n.t("app.name"),
+			body: i18n.t("push.body"),
+			icon: icon192,
+			badge: notificationBadge,
+		},
 		{
 			headers: {
 				"Cache-Control": "no-cache",

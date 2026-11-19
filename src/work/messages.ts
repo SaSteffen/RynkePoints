@@ -23,17 +23,31 @@ export interface ActivityEventMessage {
 export interface ImportPageMessage {
 	kind: "import-page";
 	athleteId: number;
+	/**
+	 * Page of the list after `after`: always 1 since the import pages by start
+	 * (review L-21); higher on messages sent before.
+	 */
 	page: number;
-	/** Season start (epoch seconds) when the import was started. */
+	/**
+	 * Lists what started after it (epoch seconds): the season start when the
+	 * import was started, then one second before the newest start listed.
+	 */
 	after: number;
+	/**
+	 * When the import was started (epoch seconds). After its last page, a
+	 * stored activity not refreshed since is refetched (review L-03). Missing
+	 * on messages sent before it existed: then nothing is refetched.
+	 */
+	startedAt?: number;
 }
 
 /** The one-time re-read after FR-013 gained a figure (research R20). */
 export interface RereadPageMessage {
 	kind: "reread-page";
 	athleteId: number;
+	/** As for `ImportPageMessage`. */
 	page: number;
-	/** Season start (epoch seconds) when the re-read was started. */
+	/** As for `ImportPageMessage`, from the season start when it was started. */
 	after: number;
 }
 
@@ -157,6 +171,15 @@ export function parseWorkMessage(body: unknown): WorkMessage | null {
 				changed: [...m.changed],
 			};
 		case "import-page":
+			if (!isId(m.page) || !isEpoch(m.after)) return null;
+			if (m.startedAt !== undefined && !isEpoch(m.startedAt)) return null;
+			return {
+				kind: m.kind,
+				athleteId,
+				page: m.page,
+				after: m.after,
+				...(m.startedAt === undefined ? {} : { startedAt: m.startedAt }),
+			};
 		case "reread-page":
 			if (!isId(m.page) || !isEpoch(m.after)) return null;
 			return { kind: m.kind, athleteId, page: m.page, after: m.after };
@@ -199,6 +222,9 @@ export function serializeWorkMessage(m: WorkMessage): string {
 				athleteId: m.athleteId,
 				page: m.page,
 				after: m.after,
+				...(m.kind === "import-page" && m.startedAt !== undefined
+					? { startedAt: m.startedAt }
+					: {}),
 			});
 		case "check-membership":
 		case "evaluate-rider":
@@ -233,10 +259,12 @@ const MAX_BATCH = 100;
 export async function sendAll(
 	ctx: Ctx,
 	messages: WorkMessage[],
+	options?: QueueSendBatchOptions,
 ): Promise<void> {
 	for (let i = 0; i < messages.length; i += MAX_BATCH) {
 		await ctx.queue.sendBatch(
 			messages.slice(i, i + MAX_BATCH).map((body) => ({ body })),
+			options,
 		);
 	}
 }

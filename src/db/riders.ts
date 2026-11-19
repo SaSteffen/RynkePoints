@@ -195,18 +195,58 @@ export async function updateRiderOnReconnect(
 		.run();
 }
 
-/** Only a connected rider changes, so the first refusal's time is kept. */
+/**
+ * Each stored rider of `athleteIds` with their count of stored evaluations
+ * (review L-18).
+ */
+export function readEvaluationsStatement(db: D1Database, athleteIds: number[]) {
+	return db
+		.prepare(
+			`SELECT athlete_id, evaluations FROM riders
+			WHERE athlete_id IN (SELECT value FROM json_each(?1))`,
+		)
+		.bind(JSON.stringify(athleteIds));
+}
+
+/**
+ * Counts one more evaluation of each rider in `read` (athlete id → the count
+ * read with their state). Where a count is no longer the one read, it would
+ * become NULL, which the column refuses: the statement fails, and with it the
+ * batch it is in (review L-18).
+ */
+export function countEvaluationsStatement(
+	db: D1Database,
+	read: Map<number, number>,
+) {
+	return db
+		.prepare(
+			`UPDATE riders SET evaluations = CASE riders.evaluations
+				WHEN seen.evaluations THEN riders.evaluations + 1 END
+			FROM (SELECT json_extract(value, '$[0]') AS athlete_id,
+					json_extract(value, '$[1]') AS evaluations
+				FROM json_each(?1)) AS seen
+			WHERE riders.athlete_id = seen.athlete_id`,
+		)
+		.bind(JSON.stringify([...read]));
+}
+
+/**
+ * Only a connected rider changes, so the first refusal's time is kept. `rider`
+ * is as read before the refused token was: a rider who reconnected since holds
+ * a new grant and stays connected (review L-18).
+ */
 export async function markNeedsReconnect(
 	db: D1Database,
-	athleteId: number,
+	rider: Pick<Rider, "athleteId" | "scopesUpdatedAt">,
 	now: number,
 ): Promise<void> {
 	await db
 		.prepare(
 			`UPDATE riders SET status = 'needs_reconnect', reconnect_requested_at = ?2
-			WHERE athlete_id = ?1 AND status = 'connected'`,
+			WHERE athlete_id = ?1 AND status = 'connected'
+				AND scopes_updated_at = ?3`,
 		)
-		.bind(athleteId, now)
+		.bind(rider.athleteId, now, rider.scopesUpdatedAt)
 		.run();
 }
 

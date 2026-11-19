@@ -32,7 +32,7 @@ request to the app's `handleFetch`. The pages are developer tooling in English
 | `update` | `activityId` and any of the `create` fields | Updates the activity | `aspect_type: "update"`, `updates` naming the changed fields (`private` → `{"private": "true"/"false"}`) |
 | `delete` | `activityId` | Deletes the activity | `aspect_type: "delete"` |
 | `backlog` | `count` (1–200, default 30) | Inserts `count` rides, one a day at 12:00 back from yesterday, each failing its first fetch once (feature 024 US4) | One `aspect_type: "create"` per ride |
-| `deauthorize` | — | none | `object_type: "athlete"`, `updates: {"authorized": "false"}` |
+| `deauthorize` | — | Ends the rider's grant: their refresh token is refused until they sign in again | `object_type: "athlete"`, `updates: {"authorized": "false"}` |
 | `repeat` | — | none | The last event sent, again (idempotency check) |
 
 Every body carries `owner_id`, `object_id`, `event_time` (now) and

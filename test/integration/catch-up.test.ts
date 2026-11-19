@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { seasonStart } from "../../src/config";
+import { seasonFetchAfter } from "../../src/config";
 import { notFound } from "../../src/http/errors";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
@@ -49,7 +49,7 @@ describe("POST /admin/catch-up", () => {
 				kind: "reread-page",
 				athleteId: ATHLETE_A,
 				page: 1,
-				after: Math.max(since, seasonStart(ctx.env)),
+				after: Math.max(since, seasonFetchAfter(ctx.env)),
 			},
 		]);
 	});
@@ -72,7 +72,7 @@ describe("POST /admin/catch-up", () => {
 		const res = await call(`?since=${NOW - 60}`, auth, method);
 		expect(res.status).toBe(404);
 		expect(await res.text()).toBe(
-			await notFound(createI18n("de", CATALOGS), PATH).text(),
+			await notFound(ctx, createI18n("de", CATALOGS), PATH).text(),
 		);
 		expect(ctx.queue.sent).toEqual([]);
 	});

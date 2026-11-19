@@ -1,26 +1,37 @@
-// Rides, runs and swims that start before the season start (`before`, an ISO
-// time like Strava's `start_date`), per rider. Nothing older is stored any
-// more; this finds what was stored before that rule, or under an earlier
-// season start.
-export async function listPreSeasonActivities(
+// Rides, runs and swims whose local date is before the season start date
+// (`YYYY-MM-DD`). Nothing older is stored any more; these find and delete what
+// was stored before that rule, or under an earlier season start.
+
+const TABLES = ["activities", "runs", "swims"] as const;
+
+/** The riders with such an activity stored, in id order. */
+export async function listPreSeasonRiders(
 	db: D1Database,
-	before: string,
-): Promise<Map<number, number[]>> {
+	seasonStartDate: string,
+): Promise<number[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT athlete_id, strava_activity_id FROM activities WHERE start_date < ?1
-			UNION ALL
-			SELECT athlete_id, strava_activity_id FROM runs WHERE start_date < ?1
-			UNION ALL
-			SELECT athlete_id, strava_activity_id FROM swims WHERE start_date < ?1`,
+			`SELECT athlete_id FROM activities WHERE substr(start_date_local, 1, 10) < ?1
+			UNION SELECT athlete_id FROM runs WHERE substr(start_date_local, 1, 10) < ?1
+			UNION SELECT athlete_id FROM swims WHERE substr(start_date_local, 1, 10) < ?1
+			ORDER BY athlete_id`,
 		)
-		.bind(before)
-		.all<{ athlete_id: number; strava_activity_id: number }>();
-	const byRider = new Map<number, number[]>();
-	for (const row of results) {
-		const ids = byRider.get(row.athlete_id) ?? [];
-		ids.push(row.strava_activity_id);
-		byRider.set(row.athlete_id, ids);
-	}
-	return byRider;
+		.bind(seasonStartDate)
+		.all<{ athlete_id: number }>();
+	return results.map((r) => r.athlete_id);
+}
+
+export async function deletePreSeasonActivities(
+	db: D1Database,
+	seasonStartDate: string,
+): Promise<void> {
+	await db.batch(
+		TABLES.map((table) =>
+			db
+				.prepare(
+					`DELETE FROM ${table} WHERE substr(start_date_local, 1, 10) < ?`,
+				)
+				.bind(seasonStartDate),
+		),
+	);
 }

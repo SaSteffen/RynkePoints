@@ -8,8 +8,9 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { upsertActivity } from "../../src/db/activities";
 import { readRynke } from "../../src/db/rynke";
 import { handleQueue } from "../../src/index";
-import { applyAndEvaluate, applyTeamEventChange } from "../../src/rynke/apply";
+import { applyAndEvaluate } from "../../src/rynke/apply";
 import { countingWindow } from "../../src/rynke/rules";
+import { applyTeamEventChange } from "../../src/rynke/team-event-change";
 import type { WorkMessage } from "../../src/work/messages";
 import { approve, SCOPES_ALL, SCOPES_SHARED } from "../support/callback";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
@@ -119,9 +120,7 @@ describe("deleting Rynke rows", () => {
 		]);
 		expect(await balanceRow()).toMatchObject({ distance_rynke: 10 });
 		await expectConsistent();
-		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
-			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
-		]);
+		expect(ctx.queue.sent).toEqual([]);
 	});
 
 	it("a reconnect with the same scope sends no evaluate-rider", async () => {
@@ -142,6 +141,7 @@ describe("deleting Rynke rows", () => {
 		await seedEvaluated(ATHLETE_B);
 		const other = await snapshot(ATHLETE_B);
 
+		fake.deauthorize(ATHLETE_A);
 		await deliver({
 			kind: "delete-rider",
 			athleteId: ATHLETE_A,
@@ -173,6 +173,7 @@ describe("deleting Rynke rows", () => {
 		await seedEvaluated(ATHLETE_B);
 		const other = await snapshot(ATHLETE_B);
 
+		fake.deauthorize(ATHLETE_A);
 		await deliver({
 			kind: "delete-rider",
 			athleteId: ATHLETE_A,

@@ -5,11 +5,7 @@
 // by cross-multiplication, shares as fractions (research R3).
 
 import type { ActivityRow } from "../strava/activity";
-import {
-	assertValidRules,
-	type CountingWindow,
-	type RynkeRules,
-} from "./rules";
+import type { CountingWindow, RynkeRules } from "./rules";
 
 /** Why a ride doesn't count, in the order a result lists them (FR-016). */
 export const REASON_CODES = [
@@ -123,7 +119,6 @@ export function evaluateRides(
 	rules: RynkeRules,
 	window: CountingWindow,
 ): Evaluation {
-	assertValidRules(rules);
 	const checked: Checked[] = rides.map((ride) => {
 		const elevationDm = Math.round(ride.elevationM * 10);
 		return {
@@ -199,10 +194,7 @@ function reasonsFor(
 ): ReasonCode[] {
 	const reasons: ReasonCode[] = [];
 	const date = ride.startLocal.slice(0, 10);
-	if (
-		date < window.seasonStart ||
-		(window.deadline !== null && date > window.deadline)
-	) {
+	if (date < window.seasonStart || date > window.deadline) {
 		reasons.push("outside_window");
 	} else if (date < window.windowStart) {
 		reasons.push("before_window");
