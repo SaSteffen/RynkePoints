@@ -1,5 +1,5 @@
 import { listActivityIdsMissingFigures } from "../db/activities";
-import { PER_PAGE, storeActivityPage } from "./activity-page";
+import { storeActivityPage } from "./activity-page";
 import type { Handler } from "./consumer";
 import {
 	type ActivityEventMessage,
@@ -19,8 +19,8 @@ export const rereadPage: Handler<RereadPageMessage> = async (
 	const stored = await storeActivityPage(message, rider, ctx);
 	if (stored.kind !== "stored") return stored;
 
-	if (stored.listed === PER_PAGE) {
-		await ctx.queue.send({ ...message, page: message.page + 1 });
+	if (stored.next) {
+		await ctx.queue.send({ ...message, ...stored.next });
 		return { kind: "ok" };
 	}
 
