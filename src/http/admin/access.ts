@@ -69,7 +69,7 @@ ${segment("riders", "/admin/riders", PEOPLE)}
 `;
 }
 
-/** A moment as the team's day and time, as the tables and figures show it. */
+/** A moment as its UTC day and time, as the tables and figures show it. */
 export function moment(i18n: I18n, epochSeconds: number): string {
 	const iso = new Date(epochSeconds * 1000).toISOString();
 	return `${i18n.formatDate(iso)}, ${i18n.formatTime(iso)}`;

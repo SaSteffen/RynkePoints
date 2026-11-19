@@ -333,8 +333,8 @@ results.
 
 ### User Story 5 - Rules change and every balance is recalculated (Priority: P2)
 
-During the season the team decides to change the rules: an organiser changes a
-value (e.g. 8 instead of 5 Training Rynke per 1000 m), or a new version of the app
+During the season the team decides to change the rules: a rule value changes
+(e.g. 8 instead of 5 Training Rynke per 1000 m), or a new version of the app
 changes how points are computed (e.g. a new kind of team event). Every rider's
 balance for the whole season, with every ride result, is recalculated from the
 stored rides, attendance and corrections, as if the new rules had always applied.
@@ -595,9 +595,11 @@ re-evaluation, and check the correction is still applied exactly once.
   per event kind, the largest paused share of a counting ride, the lowest and
   highest average speed and highest climbing rate of a counting ride, the largest
   share of the Training threshold that may come from virtual rides), the
-  thresholds (250 Training Rynke, 25 Team Rynke), the qualification deadline and
-  the excluded cycling sport types MUST be organiser configuration, changeable
-  without code changes.
+  thresholds (250 Training Rynke, 25 Team Rynke) and the excluded cycling sport
+  types MUST be team data, kept apart from the evaluation logic: each team has its
+  own rules (feature 026), and every change to them is a new rules version
+  (FR-023). The qualification deadline is a team setting (feature 001 Team
+  Settings).
 
 **Qualification**
 
@@ -711,11 +713,11 @@ re-evaluation, and check the correction is still applied exactly once.
 
 ### Key Entities
 
-- **Rynke Rules**: organiser configuration — km per distance step and Rynke per
+- **Rynke Rules**: team data (FR-012) — km per distance step and Rynke per
   step, metres per elevation step and Rynke per step, fixed Team and Training
   Rynke per team-event kind, the largest paused share, the speed and climbing-rate
-  limits, the largest virtual-ride share, the two thresholds, the qualification
-  deadline, and excluded cycling sport types (e-bike types by default). Carries a version and
+  limits, the largest virtual-ride share, the two thresholds, and excluded
+  cycling sport types (e-bike types by default). Carries a version and
   the date it took effect, covering both configured values and rule logic.
 - **Team Event**: an event organised by the team — kind, date, optional name.
   Belongs to the team, not to a rider. Created, changed and deleted by organisers
