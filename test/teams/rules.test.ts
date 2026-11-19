@@ -8,6 +8,7 @@ import {
 	currentRules,
 	type RynkeRules,
 	rulesFingerprint,
+	rulesForVersion,
 	seasonEnd,
 } from "../../src/rynke/rules";
 import { teamFor } from "../../src/teams";
@@ -109,12 +110,15 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 		}
 	});
 
-	it("gives Europe Hamburg's three versions, then its own version 4", () => {
-		expect(europe.rules.map((rules) => rules.version)).toEqual([1, 2, 3, 4]);
+	it("gives Europe Hamburg's three versions, then its own versions 4 and 5", () => {
+		expect(europe.rules.map((rules) => rules.version)).toEqual([1, 2, 3, 4, 5]);
 		for (const [i, rules] of hamburg.rules.entries()) {
 			expect(europe.rules[i]).toBe(rules);
 		}
-		expect(currentRules(europe.rules).minRideKm).toBe(25);
+		expect(rulesForVersion(europe.rules, 4)?.minRideKm).toBe(25);
+		const inEffect = currentRules(europe.rules);
+		expect("minRideKm" in inEffect).toBe(false);
+		expect(inEffect.distanceMinKm).toEqual({ outdoor: 25, virtual: 1 });
 	});
 
 	// Research R15: Hamburg's "at most a third virtual" written as a whole
@@ -133,19 +137,20 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 		expect(inEffect.minOutsideTraining).toBe(84);
 	});
 
-	it("pins Europe's version 4 values to its version", () => {
+	it("pins Europe's version 5 values to its version", () => {
 		const inEffect = currentRules(europe.rules);
 		const fingerprint =
-			'{"distanceStepKm":10,"distanceStepRynke":1,"elevationStepM":1000,' +
+			'{"distanceMinKm":{"outdoor":25,"virtual":1},"distanceStepKm":10,' +
+			'"distanceStepRynke":1,"elevationStepM":1000,' +
 			'"elevationStepRynke":5,"excludedSportTypes":["EBikeRide","EMountainBikeRide"],' +
 			'"maxClimbMPerH":1500,"maxPausedShare":{"den":1,"num":1},"maxSpeedKmh":45,' +
-			'"minOutsideTraining":84,"minRideKm":25,"minSpeedKmh":10,' +
+			'"minOutsideTraining":84,"minSpeedKmh":10,' +
 			'"teamEvents":{' +
 			'"team_training":{"team":0,"training":0},' +
 			'"technique_training":{"team":0,"training":0},' +
 			'"training_weekend_day":{"team":0,"training":0}},' +
 			'"teamThreshold":null,"trainingThreshold":250}';
-		expect(inEffect.version).toBe(4);
+		expect(inEffect.version).toBe(5);
 		expect(
 			rulesFingerprint(inEffect),
 			"a rule value changed: raise Europe's version and effectiveDate, then update this fingerprint",

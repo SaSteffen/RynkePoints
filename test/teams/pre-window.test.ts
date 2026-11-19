@@ -76,13 +76,13 @@ describe.runIf(window.windowStart > window.seasonStart)(
 			await upsertActivity(env.DB, ride(1, "2026-09-15"));
 			await upsertActivity(env.DB, ride(2, "2026-11-15"));
 			await upsertActivity(env.DB, ride(3, "2026-12-24"));
-			// Too short as well: a plain ride that doesn't count (FR-013).
+			// Too slow as well: a plain ride that doesn't count (FR-013).
 			await upsertActivity(
 				env.DB,
 				ride(4, "2026-12-25", {
 					distance_m: 12000,
-					moving_time_s: 2400,
-					elapsed_time_s: 2400,
+					moving_time_s: 7200,
+					elapsed_time_s: 7200,
 				}),
 			);
 			await evaluateChange(ctx, ATHLETE_A, { kind: "none" });
@@ -126,7 +126,7 @@ describe.runIf(window.windowStart > window.seasonStart)(
 				'["before_window"]',
 				'["before_window"]',
 				'["before_window"]',
-				'["before_window","too_short"]',
+				'["before_window","too_slow"]',
 			]);
 		});
 
@@ -176,7 +176,7 @@ describe.runIf(window.windowStart > window.seasonStart)(
 			]) {
 				expect(ids, badge).toContain(badge);
 			}
-			// The short ride on Christmas Day counts for nothing.
+			// The slow ride on Christmas Day counts for nothing.
 			expect(ids).not.toContain("surprise-christmas");
 			expect(ids.filter((id) => id.startsWith("training-rynke"))).toEqual([]);
 			expect(await earned(ATHLETE_B)).toEqual([]);

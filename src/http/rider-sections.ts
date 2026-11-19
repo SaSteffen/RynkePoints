@@ -420,6 +420,13 @@ ${
 	rules.minRideKm !== undefined &&
 	html`<p>${i18n.t("rynke.rules.minRide", { limit: wholeKm(i18n, rules.minRideKm) })}</p>
 `
+}${
+	rules.distanceMinKm !== undefined &&
+	html`<p>${i18n.t("rynke.rules.distanceMin", {
+		outdoor: wholeKm(i18n, rules.distanceMinKm.outdoor),
+		virtual: wholeKm(i18n, rules.distanceMinKm.virtual),
+	})}</p>
+`
 }<p><a class="tap" href="${handout.path}">${i18n.t(HANDOUT_LABEL[handout.locale])}</a></p>`;
 }
 

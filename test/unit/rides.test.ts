@@ -456,6 +456,110 @@ describe("minimum ride length (feature 039 research R5)", () => {
 	});
 });
 
+// Europe's version 5: under the minimum for its kind a ride still counts with
+// its elevation; only its kilometres earn nothing.
+describe("minimum for kilometre Rynke, outdoor and virtual", () => {
+	const SPLIT: RynkeRules = {
+		...CURRENT_RULES,
+		version: 99,
+		distanceMinKm: { outdoor: 25, virtual: 1 },
+	};
+
+	it("an outdoor ride under 25 km counts with its elevation, no kilometres", () => {
+		const { results, riding } = evaluate(
+			[
+				makeRide({
+					id: 1,
+					km: 24.9999,
+					movingH: 1.5,
+					elevationM: 700,
+					start: day(1),
+				}),
+				makeRide({ id: 2, km: 25, movingH: 1, start: day(2) }),
+			],
+			SPLIT,
+		);
+		expect(resultFor(results, 1)).toMatchObject({
+			counts: true,
+			reasons: [],
+			distanceRynke: 0,
+			elevationDm: 7000,
+		});
+		expect(resultFor(results, 2).distanceRynke).toBe(2);
+		expect(riding.distanceRynke).toBe(2);
+		expect(riding.elevationDm).toBe(7000);
+	});
+
+	it("a virtual ride of 11.7 km earns its full 10 km and its elevation", () => {
+		const { results } = evaluate(
+			[
+				makeRide({
+					id: 1,
+					km: 11.7,
+					movingH: 1,
+					elevationM: 700,
+					sportType: "VirtualRide",
+				}),
+			],
+			SPLIT,
+		);
+		expect(resultFor(results, 1)).toMatchObject({
+			counts: true,
+			distanceRynke: 1,
+			elevationDm: 7000,
+			isVirtual: true,
+		});
+	});
+
+	it("a trainer ride is virtual; one with an unknown flag is outdoor", () => {
+		const { results } = evaluate(
+			[
+				makeRide({ id: 1, km: 15, movingH: 1, trainer: true, start: day(1) }),
+				makeRide({ id: 2, km: 15, movingH: 1, trainer: null, start: day(2) }),
+			],
+			SPLIT,
+		);
+		expect(resultFor(results, 1).distanceRynke).toBe(1);
+		expect(resultFor(results, 2)).toMatchObject({
+			counts: true,
+			distanceRynke: 0,
+		});
+	});
+
+	it("a virtual false start under 1 km counts with its elevation", () => {
+		const { results } = evaluate(
+			[
+				makeRide({
+					id: 1,
+					km: 0.3,
+					movingH: 0.02,
+					elevationM: 2,
+					sportType: "VirtualRide",
+				}),
+			],
+			SPLIT,
+		);
+		expect(resultFor(results, 1)).toMatchObject({
+			counts: true,
+			distanceRynke: 0,
+			elevationDm: 20,
+		});
+	});
+
+	it("any other reason still keeps the whole ride out", () => {
+		const { results, riding } = evaluate(
+			[makeRide({ id: 1, km: 20, movingH: 4, elevationM: 500 })],
+			SPLIT,
+		);
+		expect(resultFor(results, 1)).toMatchObject({
+			counts: false,
+			reasons: ["too_slow"],
+			elevationDm: 0,
+		});
+		expect(riding.elevationDm).toBe(0);
+	});
+});
+
 describe("overlapping recordings (FR-005d)", () => {
 	it("US2-15: of two recordings of one ride only the longer counts", () => {
 		const { results, riding } = evaluate([

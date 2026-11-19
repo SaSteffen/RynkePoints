@@ -148,6 +148,8 @@ export const nb: Catalog = {
 	"rynke.rules.version": "Regelversjon {version}, gjeldende fra {date}.",
 	"rynke.rules.windowDeadline": "Alt fra {start} til {deadline} teller.",
 	"rynke.rules.minRide": "Turer på {limit} eller mer teller.",
+	"rynke.rules.distanceMin":
+		"Kilometer gir Rynke på turer ute fra {outdoor} og på virtuelle turer fra {virtual}. Kortere turer teller med høydemeterne sine.",
 	"rynke.rules.handout": "Reglene som PDF (på tysk)",
 	"rynke.rules.handoutEnglish": "Reglene som PDF (på engelsk)",
 	"rynke.ride.counts": "teller 🪙",

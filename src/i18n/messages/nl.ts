@@ -148,6 +148,8 @@ export const nl: Catalog = {
 	"rynke.rules.version": "Regelversie {version}, geldig sinds {date}.",
 	"rynke.rules.windowDeadline": "Alles van {start} tot {deadline} telt mee.",
 	"rynke.rules.minRide": "Ritten van {limit} of meer tellen mee.",
+	"rynke.rules.distanceMin":
+		"Kilometers leveren Rynke op bij ritten buiten vanaf {outdoor} en bij virtuele ritten vanaf {virtual}. Kortere ritten tellen mee met hun hoogtemeters.",
 	"rynke.rules.handout": "De regels als pdf (in het Duits)",
 	"rynke.rules.handoutEnglish": "De regels als pdf (in het Engels)",
 	"rynke.ride.counts": "telt 🪙",

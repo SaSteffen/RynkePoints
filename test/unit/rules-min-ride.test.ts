@@ -44,6 +44,37 @@ describe("minRideKm", () => {
 	});
 });
 
+// The minimum for kilometre Rynke, one for outdoor and one for virtual rides:
+// absent on Hamburg's rules, positive whole kilometres when set.
+describe("distanceMinKm", () => {
+	const withSplit = (outdoor: number, virtual: number): RynkeRules => ({
+		...CURRENT_RULES,
+		version: 99,
+		distanceMinKm: { outdoor, virtual },
+	});
+
+	it("is on none of Hamburg's rule objects", () => {
+		for (const rules of hamburg.rules) {
+			expect("distanceMinKm" in rules).toBe(false);
+		}
+	});
+
+	it("is accepted as positive whole kilometres", () => {
+		expect(() => assertValidRules(withSplit(25, 1))).not.toThrow();
+	});
+
+	it.each([
+		[0, 1],
+		[25, 0],
+		[25, 0.5],
+		[-1, 1],
+	])("refuses %s outdoor, %s virtual", (outdoor, virtual) => {
+		expect(() => assertValidRules(withSplit(outdoor, virtual))).toThrow(
+			/distanceMinKm/,
+		);
+	});
+});
+
 // No Team Rynke is a rule value too (feature 039 research R2).
 describe("teamThreshold: null", () => {
 	const ZERO_TEAM = Object.fromEntries(

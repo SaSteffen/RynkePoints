@@ -148,6 +148,8 @@ export const fi: Catalog = {
 	"rynke.rules.version": "Sääntöversio {version}, voimassa {date} alkaen.",
 	"rynke.rules.windowDeadline": "Kaikki {start}–{deadline} lasketaan.",
 	"rynke.rules.minRide": "Lasketaan lenkit, jotka ovat vähintään {limit}.",
+	"rynke.rules.distanceMin":
+		"Kilometreistä saa Rynkejä ulkolenkeillä {outdoor} alkaen ja virtuaalilenkeillä {virtual} alkaen. Lyhyemmistä lenkeistä lasketaan nousumetrit.",
 	"rynke.rules.handout": "Säännöt PDF:nä (saksaksi)",
 	"rynke.rules.handoutEnglish": "Säännöt PDF:nä (englanniksi)",
 	"rynke.ride.counts": "lasketaan 🪙",

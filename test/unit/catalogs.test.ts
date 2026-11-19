@@ -1027,6 +1027,8 @@ const CONTRACT_IDS = [
 	"rynke.reason.too_short",
 	"rynke.reason.too_short.noLimit",
 	"rynke.rules.minRide",
+	// Europe's minimum for kilometre Rynke, outdoor and virtual.
+	"rynke.rules.distanceMin",
 	"badges.surprise.sunday-outing.for.noEvents",
 	"consent.organisers.noEvents",
 	"landing.purpose.noEvents",

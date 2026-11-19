@@ -147,6 +147,8 @@ export const en: Catalog = {
 	"rynke.rules.version": "Rules version {version}, in effect since {date}.",
 	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
 	"rynke.rules.minRide": "Rides of {limit} or more count.",
+	"rynke.rules.distanceMin":
+		"Kilometres earn Rynke on outdoor rides from {outdoor} and on virtual rides from {virtual}. Shorter rides count with their elevation.",
 	"rynke.rules.handout": "The rules as PDF (in German)",
 	"rynke.rules.handoutEnglish": "The rules as PDF",
 	"rynke.ride.counts": "counts 🪙",
