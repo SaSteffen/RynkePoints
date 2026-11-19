@@ -448,7 +448,7 @@ describe("a rider's counting rides (feature 032 research R1)", () => {
 		expect(await rides()).toEqual([]);
 	});
 
-	it("reads stored rides from version 3 rows, and adds up a rider without one", async () => {
+	it("reads stored rides from version 4 rows, and adds up a rider with an older one", async () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
 			records: [eveningRide(1), activityRecord(2)],
@@ -458,7 +458,7 @@ describe("a rider's counting rides (feature 032 research R1)", () => {
 		expect(stored.get(ATHLETE_A)).toEqual(await rides());
 		expect(stored.get(ATHLETE_B)).toEqual([]);
 		await env.DB.prepare(
-			"UPDATE rider_summaries SET version = 2, rides = '[]' WHERE athlete_id = ?",
+			"UPDATE rider_summaries SET version = 3, rides = '[]' WHERE athlete_id = ?",
 		)
 			.bind(ATHLETE_A)
 			.run();
