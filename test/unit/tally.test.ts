@@ -18,6 +18,7 @@ import {
 	TEAM_EVENT_KINDS,
 	type TeamEventKind,
 } from "../../src/rynke/team-events";
+import { addDays } from "../../src/rynke/weeks";
 import { makeRide, WINDOW } from "../support/rides";
 import { CURRENT_RULES } from "../support/team-rules";
 
@@ -362,10 +363,14 @@ describe("extrasFrom (feature 014 Story 3)", () => {
 	it("adds the corrections to attendance's Training and Team Rynke", () => {
 		const base = extrasFromAttendance(attendance);
 		expect(
-			extrasFrom(attendance, [
-				{ training: 10, team: 0 },
-				{ training: -3, team: 2 },
-			]),
+			extrasFrom(
+				attendance,
+				[
+					{ date: "2026-05-03", training: 10, team: 0 },
+					{ date: "2026-05-04", training: -3, team: 2 },
+				],
+				WINDOW,
+			),
 		).toEqual({
 			training: base.training + 7,
 			team: base.team + 2,
@@ -374,7 +379,7 @@ describe("extrasFrom (feature 014 Story 3)", () => {
 	});
 
 	it("equals extrasFromAttendance without corrections", () => {
-		expect(extrasFrom(attendance, [])).toEqual(
+		expect(extrasFrom(attendance, [], WINDOW)).toEqual(
 			extrasFromAttendance(attendance),
 		);
 	});
@@ -393,9 +398,35 @@ describe("extrasFrom (feature 014 Story 3)", () => {
 		expect(
 			tally(
 				riding(sums(0)),
-				extrasFrom(fromAttendance, [{ training: 0, team: -20 }]),
+				extrasFrom(
+					fromAttendance,
+					[{ date: "2026-05-03", training: 0, team: -20 }],
+					WINDOW,
+				),
 				CURRENT_RULES,
 			).teamRynke,
 		).toBe(0);
+	});
+
+	// Review L-02: a correction counts as attendance does, inside the window.
+	it("leaves out a correction dated outside the qualification window", () => {
+		const base = extrasFromAttendance(attendance);
+		expect(
+			extrasFrom(
+				attendance,
+				[
+					{ date: "2020-01-01", training: 40, team: 5 },
+					{ date: addDays(WINDOW.windowStart, -1), training: 40, team: 5 },
+					{ date: addDays(WINDOW.deadline, 1), training: 40, team: 5 },
+					{ date: WINDOW.windowStart, training: 1, team: 0 },
+					{ date: WINDOW.deadline, training: 0, team: 1 },
+				],
+				WINDOW,
+			),
+		).toEqual({
+			training: base.training + 1,
+			team: base.team + 1,
+			teamEvents: base.teamEvents,
+		});
 	});
 });

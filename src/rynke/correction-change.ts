@@ -27,6 +27,7 @@ import {
 	type CountingWindow,
 	countingWindow,
 	currentRules,
+	inCountingWindow,
 	isCalendarDate,
 	type RynkeRules,
 } from "./rules";
@@ -62,6 +63,7 @@ export class CorrectionRefused extends Error {
 		| "invalid_amount"
 		| "invalid_reason"
 		| "invalid_date"
+		| "outside_season"
 		| "correction_missing"
 		| "rider_not_connected";
 
@@ -105,7 +107,7 @@ async function storeCorrectionChange(
 	let edit: (state: RiderState) => void;
 	const extraReads: D1PreparedStatement[] = [];
 	if (change.kind === "add-correction") {
-		const correction = validCorrection(change.correction);
+		const correction = validCorrection(change.correction, window);
 		athleteId = change.athleteId;
 		statement = insertCorrectionStatement(
 			db,
@@ -204,7 +206,15 @@ export async function correctionChange(
 /** The bounds of the `corrections` table (data-model.md, R8). */
 const MAX_AMOUNT = 10000;
 
-function validCorrection(correction: CorrectionInput): CorrectionFields {
+/**
+ * The fields of a correction, or why it is refused. Its date has to lie in the
+ * qualification window, the only days that count, as a team event's does
+ * (review L-02).
+ */
+function validCorrection(
+	correction: CorrectionInput,
+	window: CountingWindow,
+): CorrectionFields {
 	const { training, team } = correction;
 	if (
 		![training, team].every(
@@ -222,6 +232,9 @@ function validCorrection(correction: CorrectionInput): CorrectionFields {
 	}
 	if (!isCalendarDate(correction.date)) {
 		throw new CorrectionRefused("invalid_date");
+	}
+	if (!inCountingWindow(correction.date, window)) {
+		throw new CorrectionRefused("outside_season");
 	}
 	return { training, team, reason, date: correction.date };
 }

@@ -364,6 +364,7 @@ const CONTRACT_IDS = [
 	"organiser.corrections.remove",
 	"organiser.corrections.removeWarning",
 	"organiser.corrections.removeConfirm",
+	"organiser.corrections.outside",
 	"team.heading",
 	"team.total.label",
 	"team.total.training",
