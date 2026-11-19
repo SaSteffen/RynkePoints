@@ -76,7 +76,8 @@
 - **Decision**: Every consumer invocation drains after storing its batch. When
   the drain stops with work left, it asks to be woken: on `budget` at the
   handler's `delaySeconds`, when only backing-off rows are left at the earliest
-  `not_before`, and after `DRAIN_LIMIT` (50) items in one invocation at once.
+  `not_before`, and after `DRAIN_LIMIT` (15, review L-09) items in one
+  invocation at once.
   The wake is a queue message `{ "kind": "strava-turn" }` with that delay,
   capped at 12 hours like every delay. A single-row table `strava_turn` keeps the
   time of the last wake asked for; a new wake is only sent if none is pending at

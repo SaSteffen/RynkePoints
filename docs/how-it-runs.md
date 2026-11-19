@@ -335,7 +335,7 @@ The account is on the Workers free plan. Daily limits reset at 00:00 UTC.
 | D1 rows written | 100,000 per day | The same. |
 | D1 storage | 5 GB | Writes fail. |
 | CPU time | 10 ms per invocation | That invocation fails. Pages stay small, and heavy work is split into queue messages. |
-| Subrequests | 50 per invocation | Every D1 query and Strava call counts, so batches and fan-outs stay small. |
+| Subrequests | 50 per invocation to other services, 1,000 to Cloudflare's | Strava, the gateway and push services count against the 50; D1 and the queue against the 1,000. Past either, the call fails, so batches and fan-outs stay small: the drain stops after 15 items. |
 | Cron triggers | 5 per account | Each team uses 2, so a third team needs fewer triggers or the paid plan. |
 
 The sandboxes have no cron triggers, and they stop before writing once any daily allowance is half
