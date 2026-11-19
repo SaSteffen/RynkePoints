@@ -26,6 +26,12 @@ export interface ImportPageMessage {
 	page: number;
 	/** Season start (epoch seconds) when the import was started. */
 	after: number;
+	/**
+	 * When the import was started (epoch seconds). After its last page, a
+	 * stored activity not refreshed since is refetched (review L-03). Missing
+	 * on messages sent before it existed: then nothing is refetched.
+	 */
+	startedAt?: number;
 }
 
 /** The one-time re-read after FR-013 gained a figure (research R20). */
@@ -157,6 +163,15 @@ export function parseWorkMessage(body: unknown): WorkMessage | null {
 				changed: [...m.changed],
 			};
 		case "import-page":
+			if (!isId(m.page) || !isEpoch(m.after)) return null;
+			if (m.startedAt !== undefined && !isEpoch(m.startedAt)) return null;
+			return {
+				kind: m.kind,
+				athleteId,
+				page: m.page,
+				after: m.after,
+				...(m.startedAt === undefined ? {} : { startedAt: m.startedAt }),
+			};
 		case "reread-page":
 			if (!isId(m.page) || !isEpoch(m.after)) return null;
 			return { kind: m.kind, athleteId, page: m.page, after: m.after };
@@ -199,6 +214,9 @@ export function serializeWorkMessage(m: WorkMessage): string {
 				athleteId: m.athleteId,
 				page: m.page,
 				after: m.after,
+				...(m.kind === "import-page" && m.startedAt !== undefined
+					? { startedAt: m.startedAt }
+					: {}),
 			});
 		case "check-membership":
 		case "evaluate-rider":

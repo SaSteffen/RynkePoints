@@ -21,7 +21,9 @@ scheduled step, and Rynke storage in the activity handlers: see
 ## Common consumer rules
 
 1. **Rider check.** Load the rider by `athleteId`. If missing, ack and drop. If
-   `needs_reconnect`, ack and drop everything except `delete-rider`.
+   `needs_reconnect`, ack and drop everything except `delete-rider` and
+   `activity-event` with aspect `delete`: deletions need no Strava, so a ride
+   deleted meanwhile stops counting at once.
 2. **Budget deferral.** Before each Strava call, check the rate budget. If it is
    exhausted, or Strava answers `429`, re-send the same body with
    `delaySeconds = min(until the next window or UTC midnight, 43200)` and ack the
@@ -63,17 +65,24 @@ scheduled step, and Rynke storage in the activity handlers: see
 ### `import-page`
 
 ```ts
-{ kind: "import-page"; athleteId: number; page: number; after: number }
+{ kind: "import-page"; athleteId: number; page: number; after: number;
+  startedAt?: number }
 ```
 
 `after` is the season start (epoch seconds) at the time the import was started.
 It is carried from page to page, so changing `SEASON_START_DATE` only affects
-imports started afterwards (spec Edge Cases).
+imports started afterwards (spec Edge Cases). `startedAt` is when the import was
+started, also carried; messages sent before it existed lack it.
 
 1. `GET /athlete/activities?after=<after>&per_page=200&page=<page>`.
 2. Upsert the cycling activities and set `import_status=running`.
-3. If 200 items came back, enqueue `page+1` with the same `after`. Otherwise set
-   `import_status=done`.
+3. If 200 items came back, enqueue `page+1` with the same `after` and
+   `startedAt`. Otherwise set `import_status=done`, and, given `startedAt`,
+   enqueue `activity-event { aspect: "update", changed: [] }` for each stored
+   ride, run or swim with `refreshed_at < startedAt`: the list didn't hold it
+   (deleted, made private without `read_all`, or no longer kept while the rider
+   had to reconnect). The decision table above keeps or deletes it, as the
+   re-read does (research R20).
 
 ### `reread-page`
 

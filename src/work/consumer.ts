@@ -81,10 +81,12 @@ async function processMessage(
 	}
 
 	const rider = await getRider(ctx.env.DB, body.athleteId);
-	if (
-		!rider ||
-		(rider.status === "needs_reconnect" && body.kind !== "delete-rider")
-	) {
+	// Deletions need no Strava, so they apply while a rider must reconnect too
+	// (review L-03): a ride deleted meanwhile stops counting at once.
+	const deletes =
+		body.kind === "delete-rider" ||
+		(body.kind === "activity-event" && body.aspect === "delete");
+	if (!rider || (rider.status === "needs_reconnect" && !deletes)) {
 		message.ack();
 		return;
 	}

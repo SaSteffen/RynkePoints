@@ -6,8 +6,10 @@ import {
 } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { seasonStartEpoch } from "../../src/config";
+import { upsertActivity } from "../../src/db/activities";
 import { getRider } from "../../src/db/riders";
 import { handleQueue } from "../../src/index";
+import { PER_PAGE } from "../../src/work/activity-page";
 import { importPage } from "../../src/work/import-page";
 import type { ImportPageMessage } from "../../src/work/messages";
 import {
@@ -19,7 +21,12 @@ import {
 } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
-import { balanceRow, expectConsistent, resultRows } from "../support/rynke";
+import {
+	activityRecord,
+	balanceRow,
+	expectConsistent,
+	resultRows,
+} from "../support/rynke";
 
 const SEASON_START = seasonStartEpoch("2026-01-01");
 const FIRST: ImportPageMessage = {
@@ -194,6 +201,69 @@ describe("import-page", () => {
 		addActivities(4, SEASON_START + 86400, (i) => ({ private: i % 2 === 0 }));
 		await deliver(FIRST);
 		expect((await tableCounts()).activities).toBe(2);
+	});
+
+	describe("after the last page (review L-03)", () => {
+		const KEPT = 7_300_001;
+		const GONE = 7_300_002;
+		const SINCE = 7_300_003;
+
+		/** Stores KEPT (still on Strava), GONE (not) and SINCE (refreshed since the import began). */
+		async function storeBefore() {
+			fake.addAthlete({ id: ATHLETE_A });
+			await seedRider(ctx);
+			fake.addActivity(
+				ATHLETE_A,
+				makeStravaActivity({ id: KEPT, start_date: "2026-05-01T08:00:00Z" }),
+			);
+			for (const [id, refreshed] of [
+				[KEPT, NOW - 3600],
+				[GONE, NOW - 3600],
+				[SINCE, NOW],
+			]) {
+				await upsertActivity(
+					env.DB,
+					activityRecord(id as number, { refreshed_at: refreshed }),
+				);
+			}
+		}
+
+		it("refetches each stored activity the import didn't list", async () => {
+			await storeBefore();
+			await deliver({ ...FIRST, startedAt: NOW - 60 });
+			expect(ctx.queue.sent.map((m) => m.body)).toEqual([
+				{
+					kind: "activity-event",
+					athleteId: ATHLETE_A,
+					activityId: GONE,
+					aspect: "update",
+					changed: [],
+				},
+			]);
+
+			// The decision table removes it: Strava answers 404.
+			await deliver(ctx.queue.sent[0]?.body);
+			const { results } = await env.DB.prepare(
+				"SELECT strava_activity_id FROM activities ORDER BY 1",
+			).all<{ strava_activity_id: number }>();
+			expect(results.map((r) => r.strava_activity_id)).toEqual([KEPT, SINCE]);
+			await expectConsistent();
+		});
+
+		it("refetches nothing for an import without a start time", async () => {
+			await storeBefore();
+			await deliver(FIRST);
+			expect(ctx.queue.sent).toEqual([]);
+		});
+
+		it("refetches nothing before the last page", async () => {
+			await storeBefore();
+			addActivities(PER_PAGE, SEASON_START + 86400);
+			await deliver({ ...FIRST, startedAt: NOW - 60 });
+			expect(ctx.queue.sent.map((m) => m.body)).toEqual([
+				{ ...FIRST, startedAt: NOW - 60, page: 2 },
+			]);
+		});
 	});
 
 	it("defers without calling Strava when the budget is exhausted", async () => {
