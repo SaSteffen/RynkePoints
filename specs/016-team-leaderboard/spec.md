@@ -207,6 +207,11 @@ the overview is refused.
    **Then** they get "not allowed" and see no entry for it in the navigation.
 5. **Given** a desktop screen, **When** an organiser opens the overview, **Then** the
    riders are a table with one row per rider and every figure in a column.
+6. **Given** the deadline has passed and the results kept for it (FR-036), **When** a
+   rider who qualified at the deadline loses Rynke (a ride deleted on Strava, a rule
+   change), **Then** the list still names them as qualified at the deadline, and the
+   changes list shows "not reached any more" with their Training and Team Rynke then
+   and now.
 
 ### Edge Cases
 
@@ -228,7 +233,10 @@ the overview is refused.
 - A tight pack: no gap, no breakaway; it spreads over the whole road.
 - A rider without any stored balance yet (no evaluated rides): counted with 0 Rynke.
 - The deadline has passed: the days-to-go card says the deadline has passed; groups
-  and quote lists follow qualification only.
+  and quote lists follow qualification only; the list of who qualified is the one
+  kept at the deadline, with the changes since (FR-036).
+- A rider who connects after the deadline has no result kept: they are in the
+  groups, but not in the deadline list or its changes.
 - The first week of the season can be shorter (feature 009's week).
 - An organiser who is also a rider appears in the leaderboard and the overview like
   every other consenting rider.
@@ -351,7 +359,21 @@ the overview is refused.
   own). Of the breakdown only the corrections stay, as amounts, since organisers
   enter them; the even-pace hint is in percent too. The rider's corrections page
   is unchanged.
-- **FR-034**: The overview MUST list who qualified.
+- **FR-034**: The overview MUST list who qualified. Once the deadline has passed and
+  its results were kept (FR-036), it lists who qualified at the deadline instead,
+  with FR-036's changes.
+- **FR-036** (review L-12, decided by the project owner): The daily run MUST keep, the
+  first time it runs after the qualification deadline, every listed rider's result:
+  whether they qualified, and their Training and Team Rynke, a rider without a
+  balance as 0 and not qualified. Later runs MUST NOT change them, and a rider who
+  connects later has none. They are for the organisers only, are deleted with the
+  rider, and the next run after the deadline has moved on to the next season deletes
+  those of the earlier one. The overview MUST show, below the list of who qualified at
+  the deadline, who changed since: a rider whose qualification now differs from the
+  kept one, as "not reached any more" or "reached since", with Training and Team
+  Rynke then and now (without Team where the team has none; in percent where
+  FR-033a's setting is "percent"). The later changes themselves still count: the rider's
+  own page and the groups follow the live balance.
 - **FR-035**: On wide screens the overview MUST be a table with one row per rider;
   on a phone, one card per rider with the breakdown folded away.
 
@@ -375,6 +397,8 @@ the overview is refused.
   beside the i18n catalogs (FR-023).
 - **Rider status** (organiser view): Need a push, On track or Training goal reached, worked
   out from the stored balance, the thresholds, the deadline and the day.
+- **Deadline result** (organiser view, FR-036): one rider's qualification and Training and
+  Team Rynke when the deadline had passed, kept once.
 
 ## Success Criteria *(mandatory)*
 

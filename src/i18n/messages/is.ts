@@ -638,6 +638,15 @@ export const is: Catalog = {
 	"organiser.overview.qualifiedHint.noEvents":
 		"Æfingaþröskuldi og útihlutfallinu náð.",
 	"organiser.overview.nobodyYet": "Enginn hefur náð æfingamarkmiðinu enn.",
+	"organiser.overview.deadlineList":
+		"Æfingamarkmiði náð þegar fresturinn rann út · {date}",
+	"organiser.overview.deadlineNobody":
+		"Enginn hafði náð æfingamarkmiðinu þegar fresturinn rann út.",
+	"organiser.overview.deadlineChanged": "Breytt frá frestinum",
+	"organiser.overview.deadlineLost": "Ekki lengur náð",
+	"organiser.overview.deadlineGained": "Náð síðan",
+	"organiser.overview.deadlineTraining": "Æfinga {was} → {now}",
+	"organiser.overview.deadlineTeam": "Liðs {was} → {now}",
 	"organiser.overview.none": "Engir hjólreiðamenn deila Rynke sínum enn.",
 	"organiser.overview.column.name": "Hjólreiðamaður",
 	"organiser.overview.column.group": "Hópur",
@@ -900,6 +909,8 @@ export const is: Catalog = {
 		"Skipuleggjendur geta leiðrétt Rynke-stigin þín með ástæðu og dagsetningu. Hver breytti hverju og hvenær er líka geymt.",
 	"privacy.team.derived":
 		"Út frá þessu öllu reiknar RynkePoints Rynke-stigin þín, merkin og hvaða ferðir teljast og af hverju.",
+	"privacy.team.deadline":
+		"Eftir frestinn geymir RynkePoints fyrir skipuleggjendur hvort æfingamarkmiðinu hafi verið náð og hversu mörg Rynke-stig þú áttir þá. Þessu er eytt þegar næsta tímabil hefst.",
 	"privacy.team.rideFigures":
 		"Út frá ferðum sem teljast telur RynkePoints æfingar, kílómetra og hækkun á tímabili, mánuði og viku fyrir nafnlausa röðun, og dæmigerða ferð þína, sem aðeins þú og skipuleggjendur sjá. Skipuleggjendur sjá æfingar þínar á tímabili og á dag með fornafni þínu.",
 	"privacy.technical.heading": "Gögn sem þarf til að reka appið",

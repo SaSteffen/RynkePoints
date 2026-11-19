@@ -17,6 +17,8 @@ export type RiderData =
 	| "breakdown"
 	| "attendance"
 	| "corrections"
+	// Review L-12: who qualified when the deadline passed, with both totals.
+	| "deadlineResult"
 	| "participationReports"
 	| "dailyFigures"
 	| "rideFigures"
@@ -39,6 +41,7 @@ export const VISIBILITY: Readonly<Record<RiderData, ReadonlySet<Audience>>> = {
 	breakdown: ORGANISER_ONLY,
 	attendance: ORGANISER_ONLY,
 	corrections: ORGANISER_ONLY,
+	deadlineResult: ORGANISER_ONLY,
 	// Feature 019: what the rider reported at team events (research R11).
 	participationReports: ORGANISER_ONLY,
 	// Feature 029: per day and rider; single rides stay with nobody.
@@ -61,6 +64,7 @@ export const SINCE_VERSION: Readonly<Record<RiderData, number>> = {
 	breakdown: SHARING_SINCE_VERSION,
 	attendance: SHARING_SINCE_VERSION,
 	corrections: SHARING_SINCE_VERSION,
+	deadlineResult: SHARING_SINCE_VERSION,
 	participationReports: SHARING_SINCE_VERSION,
 	dailyFigures: DAILY_FIGURES_SINCE_VERSION,
 	rideFigures: RIDE_FIGURES_SINCE_VERSION,

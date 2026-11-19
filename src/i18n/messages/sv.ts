@@ -633,6 +633,15 @@ export const sv: Catalog = {
 	"organiser.overview.qualifiedHint.noEvents":
 		"Träningströskeln och andelen utomhus är nådda.",
 	"organiser.overview.nobodyYet": "Ingen har nått träningsmålet än.",
+	"organiser.overview.deadlineList":
+		"Träningsmål nått vid sista dagen · {date}",
+	"organiser.overview.deadlineNobody":
+		"Ingen hade nått träningsmålet vid sista dagen.",
+	"organiser.overview.deadlineChanged": "Ändrat sedan sista dagen",
+	"organiser.overview.deadlineLost": "Inte längre nått",
+	"organiser.overview.deadlineGained": "Nått sedan dess",
+	"organiser.overview.deadlineTraining": "Träning {was} → {now}",
+	"organiser.overview.deadlineTeam": "Team {was} → {now}",
 	"organiser.overview.none": "Inga cyklister delar sina Rynke än.",
 	"organiser.overview.column.name": "Cyklist",
 	"organiser.overview.column.group": "Grupp",
@@ -894,6 +903,8 @@ export const sv: Catalog = {
 		"Arrangörerna kan korrigera dina Rynke med en motivering och ett datum. Vem som ändrade vad, och när, sparas också.",
 	"privacy.team.derived":
 		"Ur allt detta räknar RynkePoints fram dina Rynke, dina märken och vilka turer som räknas, och varför.",
+	"privacy.team.deadline":
+		"Efter sista dagen sparar RynkePoints åt arrangörerna om du hade nått träningsmålet och hur många Rynke du hade då. Detta raderas när nästa säsong börjar.",
 	"privacy.team.rideFigures":
 		"Ur dina räknade turer räknar RynkePoints pass, kilometer och höjdmeter per säsong, månad och vecka för rankingen utan namn, och din typiska tur, som bara du och arrangörerna ser. Arrangörerna ser dina pass per säsong och per dag med ditt förnamn.",
 	"privacy.technical.heading": "Uppgifter som behövs för att driva appen",

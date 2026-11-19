@@ -636,6 +636,14 @@ export const da: Catalog = {
 	"organiser.overview.qualifiedHint.noEvents":
 		"Træningstærsklen og den udendørs andel er nået.",
 	"organiser.overview.nobodyYet": "Ingen har nået træningsmålet endnu.",
+	"organiser.overview.deadlineList": "Træningsmål nået ved fristen · {date}",
+	"organiser.overview.deadlineNobody":
+		"Ingen havde nået træningsmålet ved fristen.",
+	"organiser.overview.deadlineChanged": "Ændret siden fristen",
+	"organiser.overview.deadlineLost": "Ikke nået længere",
+	"organiser.overview.deadlineGained": "Nået siden",
+	"organiser.overview.deadlineTraining": "Træning {was} → {now}",
+	"organiser.overview.deadlineTeam": "Team {was} → {now}",
 	"organiser.overview.none": "Ingen ryttere deler deres Rynke endnu.",
 	"organiser.overview.column.name": "Rytter",
 	"organiser.overview.column.group": "Gruppe",
@@ -892,6 +900,8 @@ export const da: Catalog = {
 		"Arrangørerne kan rette dine Rynke med en begrundelse og en dato. Hvem der ændrede hvad, og hvornår, gemmes også.",
 	"privacy.team.derived":
 		"Ud fra alt dette regner RynkePoints dine Rynke, dine badges, og hvilke ture der tæller og hvorfor.",
+	"privacy.team.deadline":
+		"Efter fristen gemmer RynkePoints til arrangørerne, om du havde nået træningsmålet, og hvor mange Rynke du havde da. Det slettes, når næste sæson begynder.",
 	"privacy.team.rideFigures":
 		"Ud fra dine tællende ture tæller RynkePoints ture, kilometer og højdemeter pr. sæson, måned og uge til ranglisten uden navne, og din typiske tur, som kun du og arrangørerne ser. Arrangørerne ser dine ture pr. sæson og pr. dag med dit fornavn.",
 	"privacy.technical.heading": "Data, der skal til for at drive appen",

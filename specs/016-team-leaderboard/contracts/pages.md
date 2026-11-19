@@ -107,6 +107,12 @@ with the same switch. Then the heading "Team overview".
 6. **Qualified list** `section.qualified`: a card on the coin's ink, "Training
    goal reached 🎯", "Both thresholds and the outdoor share met." and one pill per rider
    with the mini coin; or "Nobody has reached the training goal yet." (FR-034).
+   Once the deadline has passed and its results were kept: "Training goal reached at the
+   deadline · {date}" with the same hint and pills, or "Nobody had reached the training
+   goal at the deadline."; then "Changed since the deadline", one line per rider whose
+   qualification differs now: name, "Not reached any more" or "Reached since", "Training
+   {was} → {now}" and, with Team Rynke, "Team {was} → {now}", as amounts or percent
+   (FR-036).
 
 With nobody listed, "No riders share their Rynke yet." stands in place of 3–6.
 

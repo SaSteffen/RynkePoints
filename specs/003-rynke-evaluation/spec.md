@@ -472,7 +472,9 @@ re-evaluation, and check the correction is still applied exactly once.
   FR-022) their balance, attendance and corrections are deleted with it; after
   reconnecting they start from what is imported again.
 - **Qualifying, then dropping below**: a rider who qualified and then loses Rynke
-  (deleted ride, removed attendance, rule change) no longer qualifies.
+  (deleted ride, removed attendance, rule change) no longer qualifies. After the
+  deadline the organisers' overview still shows who qualified at it, and who changed
+  since (feature 016 FR-036).
 - **Negative corrections**: a correction may reduce a total, but neither total is
   ever below 0.
 - **Corrections dated outside the window**: before the window opens or after the

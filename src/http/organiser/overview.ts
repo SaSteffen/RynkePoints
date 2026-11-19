@@ -120,6 +120,11 @@ export interface OverviewRider {
 	outdoorTraining: number;
 	pace: Pace | null;
 	missing: { training: Missing; team: Missing | null; outdoor: Missing };
+	/**
+	 * Their result when this season's deadline had passed (review L-12), or null
+	 * if none was kept, as for a rider who connected after it.
+	 */
+	atDeadline: { qualified: boolean; training: number; team: number } | null;
 	breakdown: {
 		distanceRynke: number;
 		elevationRynke: number;
@@ -180,6 +185,7 @@ export function overviewRiders(
 			corrections.training += c.training;
 			corrections.team += c.team;
 		}
+		const kept = rider.deadlineResult;
 		return {
 			athleteId: rider.athleteId,
 			firstName: rider.firstName,
@@ -209,6 +215,15 @@ export function overviewRiders(
 					pace?.outdoor ?? null,
 				),
 			},
+			// A result of another season's deadline is no longer this one's.
+			atDeadline:
+				kept?.deadline === window.deadline
+					? {
+							qualified: kept.qualified,
+							training: kept.training,
+							team: kept.team,
+						}
+					: null,
 			breakdown: {
 				distanceRynke: b?.distanceRynke ?? 0,
 				elevationRynke: b?.elevationRynke ?? 0,
@@ -911,6 +926,74 @@ ${
 }
 
 /**
+ * Once the deadline has passed and its results were kept, who qualified then,
+ * and who has changed since: the list the tour team is chosen from does not
+ * shift with later changes (review L-12). Training and Team as amounts, or in
+ * percent where `figures` is "percent", as on the cards.
+ */
+function renderQualifiedAtDeadline(
+	i18n: I18n,
+	wording: Wording,
+	rules: RynkeRules,
+	window: CountingWindow,
+	riders: readonly OverviewRider[],
+	figures: OrganiserFigures,
+): SafeHtml {
+	const byName = (a: OverviewRider, b: OverviewRider) =>
+		a.firstName.localeCompare(b.firstName);
+	const kept = riders.filter((r) => r.atDeadline !== null).sort(byName);
+	const qualified = kept.filter((r) => r.atDeadline?.qualified);
+	const changed = kept.filter(
+		(r) => r.atDeadline?.qualified !== (r.status === "in"),
+	);
+	const shown = (value: number, threshold: number) =>
+		figures === "percent"
+			? i18n.t("organiser.overview.percent", {
+					n: i18n.formatNumber(percentOf(value, threshold), {
+						fractionDigits: 0,
+					}),
+				})
+			: i18n.formatNumber(value, { fractionDigits: 0 });
+	const line = (rider: OverviewRider) => {
+		const kept = rider.atDeadline;
+		if (kept === null) return null;
+		const parts = [
+			i18n.t(
+				kept.qualified
+					? "organiser.overview.deadlineLost"
+					: "organiser.overview.deadlineGained",
+			),
+			i18n.t("organiser.overview.deadlineTraining", {
+				was: shown(kept.training, rules.trainingThreshold),
+				now: shown(rider.training, rules.trainingThreshold),
+			}),
+			rules.teamThreshold === null || rider.team === null
+				? null
+				: i18n.t("organiser.overview.deadlineTeam", {
+						was: shown(kept.team, rules.teamThreshold),
+						now: shown(rider.team, rules.teamThreshold),
+					}),
+		].filter((part) => part !== null);
+		return html`<li><span class="rider-name">${rider.firstName}</span> ${parts.join(" · ")}</li>`;
+	};
+	return html`<section class="qualified qualified-deadline">
+<h2>${i18n.t("organiser.overview.deadlineList", { date: i18n.formatDate(window.deadline) })}</h2>
+${
+	qualified.length === 0
+		? html`<p>${i18n.t("organiser.overview.deadlineNobody")}</p>`
+		: html`<p class="qualified-hint">${i18n.t(eventsText(wording, "organiser.overview.qualifiedHint"))}</p>
+<ul>${qualified.map((r) => html`<li>${miniCoin("team")}<span class="rider-name">${r.firstName}</span></li>`)}</ul>`
+}${
+	changed.length === 0
+		? null
+		: html`<h3>${i18n.t("organiser.overview.deadlineChanged")}</h3>
+<ul class="deadline-changes">${changed.map(line)}</ul>`
+}${FUN_BURSTS}
+</section>
+`;
+}
+
+/**
  * The page's body below the notice, in the order of contracts/pages.md, with
  * `team`'s wording and coin; `inert` for the organiser tour's example team
  * (feature 020 FR-014).
@@ -964,7 +1047,7 @@ export function overviewBody(
 `
 			: html`${renderReports(i18n, riders, requests, back)}${hasGraphs ? renderViewSwitch(i18n, shown.length, view) : null}<div class="overview-list">
 ${pace ? renderHint(i18n, rules, pace, figures, whole) : null}${renderRows(i18n, rules, wording, riders, current, passed, requests, lines, percent, sessionsOf ?? (() => null))}${percent ? renderPercentTable(i18n, rules, wording, shown, passed, lines) : renderTable(i18n, rules, wording, shown, passed, lines, sessionsOf)}</div>
-${hasGraphs ? graphs : null}<div class="overview-qualified">${renderQualified(i18n, wording, riders)}</div>
+${hasGraphs ? graphs : null}<div class="overview-qualified">${passed && riders.some((r) => r.atDeadline !== null) ? renderQualifiedAtDeadline(i18n, wording, rules, window, riders, figures) : renderQualified(i18n, wording, riders)}</div>
 `;
 	return html`<div class="team-overview"${hasGraphs ? html` data-view="${view}"` : null}${inert ? html` inert` : null}>
 <h2>${i18n.t("organiser.overview.heading")}</h2>
