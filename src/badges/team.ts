@@ -172,10 +172,17 @@ function teamSurprises(
 	const connected = [...(sums.connectedOn ?? new Map()).entries()];
 	const found: Record<string, string | undefined> = {
 		"day-off": dayOff(dates),
+		// Stops at the first rider due who stayed in, rather than listing every
+		// rider due for every date (review L-08).
 		"all-out": dates.find((date) => {
-			const due = connected.filter(([, on]) => on <= date).map(([id]) => id);
 			const out = riders.get(date) ?? new Set();
-			return due.length >= 2 && due.every((id) => out.has(id));
+			let due = 0;
+			for (const [id, on] of connected) {
+				if (on > date) continue;
+				if (!out.has(id)) return false;
+				due++;
+			}
+			return due >= 2;
 		}),
 		"round-the-clock": dates.find((date) => (hours.get(date)?.size ?? 0) >= 24),
 		relay: relay(dates),
@@ -254,19 +261,30 @@ function relay(dates: readonly string[]): string | undefined {
 	return undefined;
 }
 
-/** The sum of every rider's value after each day any of them changed. */
+/**
+ * The sum of every rider's value after each day any of them changed. Each
+ * series is in date order, so one cursor per rider walks it once, rather than
+ * searching it again for every date (review L-08).
+ */
 function together(riders: readonly Series[]): Series {
 	const dates = [
 		...new Set(riders.flatMap((s) => s.map((p) => p.date))),
 	].sort();
-	return dates.map((date) => ({
-		date,
-		value: riders.reduce(
-			(sum, points) =>
-				sum + (points.findLast((p) => p.date <= date)?.value ?? 0),
-			0,
-		),
-	}));
+	const cursors = riders.map((points) => ({ points, next: 0, value: 0 }));
+	return dates.map((date) => {
+		let value = 0;
+		for (const c of cursors) {
+			for (
+				let point = c.points[c.next];
+				point && point.date <= date;
+				point = c.points[++c.next]
+			) {
+				c.value = point.value;
+			}
+			value += c.value;
+		}
+		return { date, value };
+	});
 }
 
 /** The most attendees at one event so far, after each event that raised it. */

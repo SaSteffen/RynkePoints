@@ -9,7 +9,7 @@ import {
 	type RynkeRules,
 	rulesForVersion,
 } from "./rules";
-import { type Balance, extrasFrom, tally } from "./tally";
+import { type Balance, type Extras, extrasFrom, tally } from "./tally";
 import { type Attendance, evaluateAttendance } from "./team-events";
 
 /** A rider's counting rides of one week, summed in SQL (research R2). */
@@ -107,6 +107,7 @@ export function riderWeeks(
 	const rules =
 		(balance && rulesForVersion(history, balance.rulesVersion)) ??
 		currentRules(history);
+	const extrasOn = extrasUpTo(inputs, rules, window);
 	return ends.map((weekEnd, i) => {
 		if (i === ends.length - 1) {
 			return {
@@ -116,11 +117,9 @@ export function riderWeeks(
 			};
 		}
 		const { training, team } = tallyUpTo(
-			weekEnd,
 			inputs.rides.filter((ride) => ride.weekEnd <= weekEnd),
-			inputs,
+			extrasOn(weekEnd),
 			rules,
-			window,
 		);
 		return { weekEnd, training, team };
 	});
@@ -171,6 +170,7 @@ export function riderDays(
 	);
 	const sum = { distanceRynke: 0, elevationDm: 0 };
 	let next = 0;
+	const extrasOn = extrasUpTo(inputs, rules, window);
 	return dates.map((date) => {
 		for (
 			let ride = rides[next];
@@ -180,33 +180,64 @@ export function riderDays(
 			sum.distanceRynke += ride.distanceRynke;
 			sum.elevationDm += ride.elevationDm;
 		}
-		const { training, team } = tallyUpTo(date, [sum], inputs, rules, window);
+		const { training, team } = tallyUpTo([sum], extrasOn(date), rules);
 		return { date, training, team };
 	});
 }
 
 /**
- * Training and Team Rynke from these rides plus the extras dated up to `date`,
- * and the Training Rynke with only `outdoor` of the rides (003 FR-013a).
+ * The extras dated up to each date, asked in rising order. They change only on
+ * a date with an attended event or a correction, so they are worked out again
+ * only after such a date, not for every day (review L-08).
  */
-function tallyUpTo(
-	date: string,
-	rides: readonly RideTotal[],
-	extras: Pick<RiderInputs, "attendance" | "corrections">,
+function extrasUpTo(
+	inputs: Pick<RiderInputs, "attendance" | "corrections">,
 	rules: RynkeRules,
 	window: CountingWindow,
+): (date: string) => Extras {
+	const changes = [
+		...new Set(
+			[...inputs.attendance, ...inputs.corrections].map((x) => x.date),
+		),
+	].sort();
+	let next = 0;
+	let extras: Extras | null = null;
+	return (date) => {
+		let changed = false;
+		for (
+			let change = changes[next];
+			change !== undefined && change <= date;
+			change = changes[++next]
+		) {
+			changed = true;
+		}
+		if (changed || extras === null) {
+			extras = extrasFrom(
+				evaluateAttendance(
+					inputs.attendance.filter((a) => a.date <= date),
+					rules,
+					window,
+				),
+				inputs.corrections.filter((c) => c.date <= date),
+			);
+		}
+		return extras;
+	};
+}
+
+/**
+ * Training and Team Rynke from these rides plus the extras, and the Training
+ * Rynke with only `outdoor` of the rides (003 FR-013a).
+ */
+function tallyUpTo(
+	rides: readonly RideTotal[],
+	extras: Extras,
+	rules: RynkeRules,
 	outdoor: readonly RideTotal[] = rides,
 ): { training: number; team: number; outside: number } {
 	const point = tally(
 		{ ...riding(rides, rules), withoutVirtual: riding(outdoor, rules) },
-		extrasFrom(
-			evaluateAttendance(
-				extras.attendance.filter((a) => a.date <= date),
-				rules,
-				window,
-			),
-			extras.corrections.filter((c) => c.date <= date),
-		),
+		extras,
 		rules,
 	);
 	return {
@@ -286,6 +317,7 @@ export function riderCurve(
 	const all = { distanceRynke: 0, elevationDm: 0 };
 	const outdoor = { distanceRynke: 0, elevationDm: 0 };
 	let next = 0;
+	const extrasOn = extrasUpTo(extras, rules, window);
 	const points: CurvePoint[] = [];
 	for (let day = dayNumber(window.windowStart); day <= dayNumber(last); day++) {
 		const date = fromDayNumber(day);
@@ -301,7 +333,7 @@ export function riderCurve(
 		}
 		points.push({
 			date,
-			...tallyUpTo(date, [all], extras, rules, window, [outdoor]),
+			...tallyUpTo([all], extrasOn(date), rules, [outdoor]),
 		});
 	}
 	const end = points.at(-1);
