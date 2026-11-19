@@ -399,6 +399,8 @@ nav.organiser-switch .segmented svg{flex:none;width:20px;height:20px}
 .peloton figcaption,.team-chart figcaption{display:flex;align-items:baseline;justify-content:space-between;gap:var(--rp-space-2);font:var(--md-type-title)}
 .team-chart-kind{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 .team-hint{margin:var(--rp-space-1) 0 var(--rp-space-3);font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
+.before-window{position:relative;margin:0 0 var(--rp-space-3)}.before-window .card{margin:0}.before-window-card{filter:blur(1.5px) grayscale(.7);opacity:.4;pointer-events:none;user-select:none}.before-window-note{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:max-content;max-width:calc(100% - 2 * var(--rp-space-4));margin:0;padding:var(--rp-space-3) var(--rp-space-4);border-radius:var(--md-shape-lg);border:1px solid var(--md-sys-color-outline-variant);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:var(--md-type-body);text-align:center;box-shadow:var(--rp-share-shadow)}
+.rank-controls{margin:0 0 var(--rp-space-3)}.rank-controls .rank-label{margin:0 0 var(--rp-space-1)}.rank-controls .rank-label~.rank-label{margin-top:var(--rp-space-2)}.rank-controls nav.list-scope{margin:0}
 .chart-axis{display:flex;justify-content:space-between;gap:var(--rp-space-2);margin:6px 0 0;font:400 12px/16px var(--md-ref-typeface);color:var(--md-sys-color-on-surface-variant)}
 .peloton-road{display:block;width:100%;height:auto;overflow:visible}
 .peloton-coin{cursor:pointer;outline:0;-webkit-tap-highlight-color:transparent}

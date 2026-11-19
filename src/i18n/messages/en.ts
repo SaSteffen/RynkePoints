@@ -488,9 +488,13 @@ export const en: Catalog = {
 	"organiser.corrections.removeWarning":
 		"This removes the correction; the rider's Rynke follow.",
 	"organiser.corrections.removeConfirm": "Yes, remove",
+	"organiser.corrections.outside": "Doesn't count: dated outside the season",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
+	"team.beforeWindow":
+		"Rynke count from {date}. This fills up once qualifying starts.",
+	"team.total.beforeWindow": "Rynke count from {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Training Rynke",
 	"team.total.team": "{n} Team Rynke",
@@ -508,6 +512,8 @@ export const en: Catalog = {
 	"team.peloton.front": "Front 🏁",
 	"team.peloton.label":
 		"{count} riders between {min} and {max}\u00a0Rynke; you have {own}",
+	"team.peloton.label.guest":
+		"{count} riders between {min} and {max}\u00a0Rynke.",
 	"team.peloton.you": "You",
 	"team.peloton.total": "{n}\u00a0Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -515,6 +521,8 @@ export const en: Catalog = {
 		"Every coin is a rider. Far right, past the gap, rides the breakaway.",
 	"team.peloton.label.breakaway":
 		"{count} riders between {min} and {max}\u00a0Rynke, {away} of them in the breakaway; you have {own}",
+	"team.peloton.label.breakaway.guest":
+		"{count} riders between {min} and {max}\u00a0Rynke, {away} of them in the breakaway.",
 	"team.list.heading": "Leaderboard",
 	"team.list.count": "{n} riders listed",
 	"team.list.hint": "No names. The line shows the season so far.",
@@ -630,6 +638,15 @@ export const en: Catalog = {
 	"organiser.overview.qualifiedHint.noEvents":
 		"Training threshold and the outdoor share met.",
 	"organiser.overview.nobodyYet": "Nobody has reached the training goal yet.",
+	"organiser.overview.deadlineList":
+		"Training goal reached at the deadline · {date}",
+	"organiser.overview.deadlineNobody":
+		"Nobody had reached the training goal at the deadline.",
+	"organiser.overview.deadlineChanged": "Changed since the deadline",
+	"organiser.overview.deadlineLost": "Not reached any more",
+	"organiser.overview.deadlineGained": "Reached since",
+	"organiser.overview.deadlineTraining": "Training {was} → {now}",
+	"organiser.overview.deadlineTeam": "Team {was} → {now}",
 	"organiser.overview.none": "No riders share their Rynke yet.",
 	"organiser.overview.column.name": "Rider",
 	"organiser.overview.column.group": "Group",
@@ -890,6 +907,8 @@ export const en: Catalog = {
 		"The organisers can correct your Rynke with a reason and a date. Who changed what, and when, is stored too.",
 	"privacy.team.derived":
 		"From all this RynkePoints works out your Rynke, your badges and which rides count, and why.",
+	"privacy.team.deadline":
+		"After the qualification deadline RynkePoints keeps, for the organisers, whether you had reached the training goal and how many Rynke you had then. This is deleted when the next season starts.",
 	"privacy.team.rideFigures":
 		"From your counting rides RynkePoints counts sessions, kilometres and elevation per season, month and week for the ranking without names, and your typical ride, which only you and the organisers see. The organisers see your sessions per season and per day with your first name.",
 	"privacy.technical.heading": "Data needed to run the app",

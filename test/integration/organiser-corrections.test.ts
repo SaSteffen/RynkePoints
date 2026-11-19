@@ -173,6 +173,10 @@ describe("POST /organiser/riders/{id}/corrections", () => {
 		["a blank reason", { reason: "   " }, "invalid_reason"],
 		["a 201-character reason", { reason: "x".repeat(201) }, "invalid_reason"],
 		["a bad date", { date: "2026-02-30" }, "invalid_date"],
+		// Review L-02: only the qualification window counts, as for events.
+		["a date before the window", { date: "2025-12-31" }, "outside_season"],
+		["a date after the deadline", { date: "2027-07-01" }, "outside_season"],
+		["a date in an earlier year", { date: "2020-01-01" }, "outside_season"],
 	] as [string, Record<string, string>, string][])(
 		"refuses %s, nothing written",
 		async (_name, fields, code) => {
@@ -180,6 +184,17 @@ describe("POST /organiser/riders/{id}/corrections", () => {
 			expectRedirect(res, `${ridersPath(RIDER)}?error=${code}`);
 			expect(await corrections()).toEqual([]);
 			expect(ctx.queue.sent).toEqual([]);
+		},
+	);
+
+	it.each(["2026-09-01", "2027-06-30"])(
+		"takes %s, the window's first and last day",
+		async (date) => {
+			expectRedirect(
+				await add({ ...VALID, date }),
+				`${ridersPath(RIDER)}?done=added`,
+			);
+			expect(await balance()).toEqual({ training: 10, team: 0 });
 		},
 	);
 
@@ -275,6 +290,51 @@ describe("the riders pages", () => {
 			`<form method="post" action="${ridersPath(RIDER)}/corrections"`,
 		);
 		expect(html).toContain('value="2026-10-06"');
+	});
+
+	it("keeps the form's date inside the window, today when it is", async () => {
+		const html = await page(ridersPath(RIDER));
+		expect(html).toContain(
+			'name="date" value="2026-10-06" min="2026-01-01" max="2027-06-30"',
+		);
+	});
+
+	it.each([
+		["before the window opens", Date.UTC(2025, 11, 15, 10), "2026-01-01"],
+		["after the deadline", Date.UTC(2027, 6, 15, 10), "2027-06-30"],
+	])(
+		"starts the form's date on the nearest day that counts %s",
+		async (_when, ms, date) => {
+			const later = makeCtx({ now: ms / 1000 });
+			const res = await handleFetch(
+				request(ridersPath(RIDER), {
+					cookies: await sessionCookie(later, ORGANISER),
+				}),
+				later,
+			);
+			expect(await res.text()).toContain(`name="date" value="${date}"`);
+		},
+	);
+
+	// Review L-02: stored before the rule, or made outside by a new season.
+	it("does not count a stored correction dated outside the window, and says so", async () => {
+		await env.DB.prepare(
+			`INSERT INTO corrections
+				(athlete_id, training, team, reason, correction_date, changed_by, changed_at)
+			VALUES (?1, 40, 5, 'Last season', '2025-12-15', ?2, ?3),
+				(?1, 10, 0, 'This season', '2026-10-06', ?2, ?3)`,
+		)
+			.bind(RIDER, ORGANISER, NOW)
+			.run();
+		await evaluateRider();
+		expect(await balance()).toEqual({ training: 10, team: 0 });
+		await expectConsistent(RIDER);
+		const html = await page(ridersPath(RIDER));
+		const note = escapeHtml(de["organiser.corrections.outside"]);
+		expect(html.split(note)).toHaveLength(2);
+		expect(html).toMatch(
+			new RegExp(`Last season</span>\\s*<p class="change-record">${note}`),
+		);
 	});
 
 	it("says so when a rider has no corrections", async () => {

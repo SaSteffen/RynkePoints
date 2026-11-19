@@ -486,9 +486,14 @@ export const is: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Þetta fjarlægir leiðréttinguna; Rynke hjólreiðamannsins fylgja með.",
 	"organiser.corrections.removeConfirm": "Já, fjarlægja",
+	"organiser.corrections.outside":
+		"Telst ekki með: dagsetning utan tímabilsins",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lið",
+	"team.beforeWindow":
+		"Rynke teljast frá {date}. Þetta fyllist þegar tímabilið til að komast áfram hefst.",
+	"team.total.beforeWindow": "Rynke teljast frá {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Æfinga-Rynke",
 	"team.total.team": "{n} Liðs-Rynke",
@@ -507,6 +512,8 @@ export const is: Catalog = {
 	"team.peloton.front": "Fremst 🏁",
 	"team.peloton.label":
 		"Hjólreiðamenn: {count}, á bilinu {min} til {max} Rynke; þú ert með {own}",
+	"team.peloton.label.guest":
+		"Hjólreiðamenn: {count}, á bilinu {min} til {max} Rynke.",
 	"team.peloton.you": "Þú",
 	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -514,6 +521,8 @@ export const is: Catalog = {
 		"Hver peningur er hjólreiðamaður. Lengst til hægri, eftir bilið, hjólar breakaway-hópurinn.",
 	"team.peloton.label.breakaway":
 		"Hjólreiðamenn: {count}, á bilinu {min} til {max} Rynke, þar af {away} í breakaway; þú ert með {own}",
+	"team.peloton.label.breakaway.guest":
+		"Hjólreiðamenn: {count}, á bilinu {min} til {max} Rynke, þar af {away} í breakaway.",
 	"team.list.heading": "Röðun",
 	"team.list.count": "Hjólreiðamenn á lista: {n}",
 	"team.list.hint": "Engin nöfn. Línan sýnir tímabilið hingað til.",
@@ -629,6 +638,15 @@ export const is: Catalog = {
 	"organiser.overview.qualifiedHint.noEvents":
 		"Æfingaþröskuldi og útihlutfallinu náð.",
 	"organiser.overview.nobodyYet": "Enginn hefur náð æfingamarkmiðinu enn.",
+	"organiser.overview.deadlineList":
+		"Æfingamarkmiði náð þegar fresturinn rann út · {date}",
+	"organiser.overview.deadlineNobody":
+		"Enginn hafði náð æfingamarkmiðinu þegar fresturinn rann út.",
+	"organiser.overview.deadlineChanged": "Breytt frá frestinum",
+	"organiser.overview.deadlineLost": "Ekki lengur náð",
+	"organiser.overview.deadlineGained": "Náð síðan",
+	"organiser.overview.deadlineTraining": "Æfinga {was} → {now}",
+	"organiser.overview.deadlineTeam": "Liðs {was} → {now}",
 	"organiser.overview.none": "Engir hjólreiðamenn deila Rynke sínum enn.",
 	"organiser.overview.column.name": "Hjólreiðamaður",
 	"organiser.overview.column.group": "Hópur",
@@ -891,6 +909,8 @@ export const is: Catalog = {
 		"Skipuleggjendur geta leiðrétt Rynke-stigin þín með ástæðu og dagsetningu. Hver breytti hverju og hvenær er líka geymt.",
 	"privacy.team.derived":
 		"Út frá þessu öllu reiknar RynkePoints Rynke-stigin þín, merkin og hvaða ferðir teljast og af hverju.",
+	"privacy.team.deadline":
+		"Eftir frestinn geymir RynkePoints fyrir skipuleggjendur hvort æfingamarkmiðinu hafi verið náð og hversu mörg Rynke-stig þú áttir þá. Þessu er eytt þegar næsta tímabil hefst.",
 	"privacy.team.rideFigures":
 		"Út frá ferðum sem teljast telur RynkePoints æfingar, kílómetra og hækkun á tímabili, mánuði og viku fyrir nafnlausa röðun, og dæmigerða ferð þína, sem aðeins þú og skipuleggjendur sjá. Skipuleggjendur sjá æfingar þínar á tímabili og á dag með fornafni þínu.",
 	"privacy.technical.heading": "Gögn sem þarf til að reka appið",

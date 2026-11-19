@@ -87,6 +87,18 @@ describe("riders", () => {
 			lastError: "503",
 			now: NOW,
 		});
+		// Review L-12: the results kept at the deadline go with their rider.
+		await db.batch(
+			[ATHLETE_A, ATHLETE_B].map((athleteId) =>
+				db
+					.prepare(
+						`INSERT INTO deadline_results
+							(athlete_id, deadline, qualified, training_rynke, team_rynke)
+						VALUES (?, '2027-06-30', 1, 260, 26)`,
+					)
+					.bind(athleteId),
+			),
+		);
 
 		await deleteRider(db, ATHLETE_A);
 
@@ -106,6 +118,7 @@ describe("riders", () => {
 			team_events: 0,
 			attendances: 0,
 			corrections: 0,
+			deadline_results: 1,
 			push_subscriptions: 0,
 		});
 		expect(await getCurrentConsent(db, ATHLETE_A)).toBeNull();

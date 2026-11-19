@@ -1,6 +1,7 @@
 import { BADGE_CATALOG_VERSION } from "../badges/catalog";
-import { seasonFetchAfter } from "../config";
+import { berlinDate, seasonFetchAfter } from "../config";
 import type { Ctx } from "../ctx";
+import { recordDeadlineResultsStatements } from "../db/deadline-results";
 import {
 	deleteFailedWorkFirstFailedBefore,
 	listFailedWorkFirstFailedSince,
@@ -151,6 +152,23 @@ export async function purgePreSeasonActivities(ctx: Ctx): Promise<void> {
 }
 
 /**
+ * Once the qualification deadline has passed, keeps each listed rider's result
+ * as it stands, for the organisers (review L-12): the first run after the
+ * deadline takes it, a later one changes nothing. Results of another deadline,
+ * last season's, are deleted. They go with the rider.
+ */
+export async function recordDeadlineResults(ctx: Ctx): Promise<void> {
+	const { deadline } = countingWindow(ctx.env);
+	await ctx.env.DB.batch(
+		recordDeadlineResultsStatements(
+			ctx.env.DB,
+			deadline,
+			berlinDate(ctx.now()) > deadline,
+		),
+	);
+}
+
+/**
  * One `evaluate-rider` per connected rider whose stored Rynke are missing or
  * stale: after the first deploy, a rules-version bump, a lost message, or
  * attendance entered by hand that the balance doesn't reflect yet (feature 003
@@ -228,6 +246,7 @@ export async function handleScheduled(
 		fanOutFiguresReread,
 		purgePreSeasonActivities,
 		fanOutEvaluations,
+		recordDeadlineResults,
 		pruneUsage,
 	]);
 }

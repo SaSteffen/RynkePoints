@@ -19,7 +19,7 @@ import {
 	countingWindow,
 	type RynkeRules,
 } from "../../src/rynke/rules";
-import { extrasFrom, tally } from "../../src/rynke/tally";
+import { countingCorrections, extrasFrom, tally } from "../../src/rynke/tally";
 import {
 	type Attendance,
 	type EventKind,
@@ -143,13 +143,13 @@ export async function attendanceRows() {
 	return results;
 }
 
-/** The rider's stored corrections' amounts (feature 014 Story 3). */
+/** The rider's stored corrections, with their dates (feature 014 Story 3). */
 export async function storedCorrections(athleteId = ATHLETE_A) {
 	const { results } = await env.DB.prepare(
-		"SELECT training, team FROM corrections WHERE athlete_id = ?",
+		"SELECT correction_date AS date, training, team FROM corrections WHERE athlete_id = ?",
 	)
 		.bind(athleteId)
-		.all<{ training: number; team: number }>();
+		.all<{ date: string; training: number; team: number }>();
 	return results;
 }
 
@@ -170,7 +170,7 @@ export async function expectedRynke(rules: RynkeRules, athleteId = ATHLETE_A) {
 		results: evaluation.results,
 		balance: tally(
 			evaluation.riding,
-			extrasFrom(attendance, await storedCorrections(athleteId)),
+			extrasFrom(attendance, await storedCorrections(athleteId), window),
 			rules,
 		),
 	};
@@ -234,7 +234,7 @@ export async function expectConsistent(
 	expect(balance.teamEvents).toEqual(attendance.byKind);
 	const corrections = await storedCorrections(athleteId);
 	const corrected = (key: "training" | "team") =>
-		corrections.reduce((n, c) => n + c[key], 0);
+		countingCorrections(corrections, window).reduce((n, c) => n + c[key], 0);
 	expect(balance.teamRynke).toBe(
 		Math.max(0, attendance.team + corrected("team")),
 	);
@@ -248,7 +248,7 @@ export async function expectConsistent(
 		),
 	);
 	expect(fields).toEqual(
-		tally(riding, extrasFrom(attendance, corrections), rules),
+		tally(riding, extrasFrom(attendance, corrections, window), rules),
 	);
 	expect(new Set(results.map((r) => r.rulesVersion))).toEqual(
 		new Set(results.length > 0 ? [balance.rulesVersion] : []),

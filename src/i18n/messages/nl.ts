@@ -492,9 +492,13 @@ export const nl: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Dit verwijdert de correctie; de Rynke van de renner passen zich aan.",
 	"organiser.corrections.removeConfirm": "Ja, verwijderen",
+	"organiser.corrections.outside": "Telt niet mee: datum buiten het seizoen",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
+	"team.beforeWindow":
+		"Rynke tellen mee vanaf {date}. Dit vult zich zodra de kwalificatie begint.",
+	"team.total.beforeWindow": "Rynke tellen mee vanaf {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Trainings-Rynke",
 	"team.total.team": "{n} Team-Rynke",
@@ -512,6 +516,7 @@ export const nl: Catalog = {
 	"team.peloton.front": "Kop 🏁",
 	"team.peloton.label":
 		"{count} renners tussen {min} en {max} Rynke; jij hebt er {own}",
+	"team.peloton.label.guest": "{count} renners tussen {min} en {max} Rynke.",
 	"team.peloton.you": "Jij",
 	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -519,6 +524,8 @@ export const nl: Catalog = {
 		"Elke munt is een renner. Helemaal rechts, voorbij het gat, rijdt de breakaway.",
 	"team.peloton.label.breakaway":
 		"{count} renners tussen {min} en {max} Rynke, van wie {away} in de breakaway; jij hebt er {own}",
+	"team.peloton.label.breakaway.guest":
+		"{count} renners tussen {min} en {max} Rynke, van wie {away} in de breakaway.",
 	"team.list.heading": "Klassement",
 	"team.list.count": "Renners in de lijst: {n}",
 	"team.list.hint": "Geen namen. De lijn toont het seizoen tot nu toe.",
@@ -636,6 +643,15 @@ export const nl: Catalog = {
 		"De trainingsdrempel en het aandeel buiten gehaald.",
 	"organiser.overview.nobodyYet":
 		"Nog niemand heeft het trainingsdoel gehaald.",
+	"organiser.overview.deadlineList":
+		"Trainingsdoel gehaald op de deadline · {date}",
+	"organiser.overview.deadlineNobody":
+		"Niemand had het trainingsdoel gehaald op de deadline.",
+	"organiser.overview.deadlineChanged": "Veranderd sinds de deadline",
+	"organiser.overview.deadlineLost": "Niet meer gehaald",
+	"organiser.overview.deadlineGained": "Sindsdien gehaald",
+	"organiser.overview.deadlineTraining": "Training {was} → {now}",
+	"organiser.overview.deadlineTeam": "Team {was} → {now}",
 	"organiser.overview.none": "Nog geen renners delen hun Rynke.",
 	"organiser.overview.column.name": "Renner",
 	"organiser.overview.column.group": "Groep",
@@ -902,6 +918,8 @@ export const nl: Catalog = {
 		"De organisatoren kunnen je Rynke corrigeren met een reden en een datum. Wie wat wanneer heeft gewijzigd, wordt ook opgeslagen.",
 	"privacy.team.derived":
 		"Hieruit berekent RynkePoints je Rynke, je badges en welke ritten meetellen, en waarom.",
+	"privacy.team.deadline":
+		"Na de kwalificatiedeadline bewaart RynkePoints voor de organisatoren of je het trainingsdoel had gehaald en hoeveel Rynke je toen had. Dit wordt verwijderd zodra het volgende seizoen begint.",
 	"privacy.team.rideFigures":
 		"Uit je tellende ritten telt RynkePoints sessies, kilometers en hoogtemeters per seizoen, maand en week voor het klassement zonder namen, en je typische rit, die alleen jij en de organisatoren zien. De organisatoren zien je sessies per seizoen en per dag met je voornaam.",
 	"privacy.technical.heading":

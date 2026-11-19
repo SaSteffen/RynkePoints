@@ -486,9 +486,13 @@ export const nb: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Dette fjerner korrigeringen; rytterens Rynke følger med.",
 	"organiser.corrections.removeConfirm": "Ja, fjern",
+	"organiser.corrections.outside": "Teller ikke: datert utenfor sesongen",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lag",
+	"team.beforeWindow":
+		"Rynke teller fra {date}. Her fylles det på når kvalifiseringen starter.",
+	"team.total.beforeWindow": "Rynke teller fra {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Trenings-Rynke",
 	"team.total.team": "{n} Team-Rynke",
@@ -506,6 +510,7 @@ export const nb: Catalog = {
 	"team.peloton.front": "Front 🏁",
 	"team.peloton.label":
 		"{count} ryttere mellom {min} og {max} Rynke; du har {own}",
+	"team.peloton.label.guest": "{count} ryttere mellom {min} og {max} Rynke.",
 	"team.peloton.you": "Deg",
 	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -513,6 +518,8 @@ export const nb: Catalog = {
 		"Hver mynt er en rytter. Lengst til høyre, etter luken, sykler bruddet.",
 	"team.peloton.label.breakaway":
 		"{count} ryttere mellom {min} og {max} Rynke, {away} av dem i bruddet; du har {own}",
+	"team.peloton.label.breakaway.guest":
+		"{count} ryttere mellom {min} og {max} Rynke, {away} av dem i bruddet.",
 	"team.list.heading": "Rangering",
 	"team.list.count": "Ryttere på listen: {n}",
 	"team.list.hint": "Ingen navn. Linjen viser sesongen så langt.",
@@ -627,6 +634,14 @@ export const nb: Catalog = {
 	"organiser.overview.qualifiedHint.noEvents":
 		"Treningsterskelen og andelen ute er nådd.",
 	"organiser.overview.nobodyYet": "Ingen har nådd treningsmålet ennå.",
+	"organiser.overview.deadlineList": "Treningsmål nådd ved fristen · {date}",
+	"organiser.overview.deadlineNobody":
+		"Ingen hadde nådd treningsmålet ved fristen.",
+	"organiser.overview.deadlineChanged": "Endret siden fristen",
+	"organiser.overview.deadlineLost": "Ikke nådd lenger",
+	"organiser.overview.deadlineGained": "Nådd siden",
+	"organiser.overview.deadlineTraining": "Trening {was} → {now}",
+	"organiser.overview.deadlineTeam": "Team {was} → {now}",
 	"organiser.overview.none": "Ingen ryttere deler Rynke-ene sine ennå.",
 	"organiser.overview.column.name": "Rytter",
 	"organiser.overview.column.group": "Gruppe",
@@ -887,6 +902,8 @@ export const nb: Catalog = {
 		"Arrangørene kan korrigere Rynke-ene dine med en begrunnelse og en dato. Hvem som endret hva, og når, lagres også.",
 	"privacy.team.derived":
 		"Ut fra alt dette regner RynkePoints ut Rynke-ene dine, merkene dine og hvilke turer som teller, og hvorfor.",
+	"privacy.team.deadline":
+		"Etter fristen lagrer RynkePoints for arrangørene om du hadde nådd treningsmålet, og hvor mange Rynke du hadde da. Dette slettes når neste sesong begynner.",
 	"privacy.team.rideFigures":
 		"Ut fra de tellende turene dine teller RynkePoints økter, kilometer og høydemeter per sesong, måned og uke til rangeringen uten navn, og den typiske turen din, som bare du og arrangørene ser. Arrangørene ser øktene dine per sesong og per dag med fornavnet ditt.",
 	"privacy.technical.heading": "Data som trengs for å drive appen",

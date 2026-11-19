@@ -262,8 +262,8 @@ No D1 change.
 | New Year | an activity day with `MM-DD` 01-01 |
 | Christmas Eve | 12-24 |
 | Christmas | 12-25 or 12-26 |
-| Night owl | a counting ride with `startTime >= "21:30"` |
-| Early bird | a counting ride with `startTime < "06:00"` |
+| Night owl | a counting ride with `startTime >= "21:30"` or `< "03:00"` |
+| Early bird | a counting ride with `"03:00" <= startTime < "06:00"` |
 | Rest day | date D not an activity day, D−1 … D−7 all activity days, some activity day after D |
 
 - Surprise progress: `{ value: number earned, next: null, missing: null }`.

@@ -512,9 +512,12 @@ export const de = {
 	"organiser.corrections.removeWarning":
 		"Das entfernt die Korrektur; die Rynke der Person passen sich an.",
 	"organiser.corrections.removeConfirm": "Ja, entfernen",
+	"organiser.corrections.outside": "Zählt nicht: Datum außerhalb der Saison",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
+	"team.beforeWindow": "Rynke zählen ab dem {date}, dann füllt sich das hier.",
+	"team.total.beforeWindow": "Rynke zählen ab dem {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Trainingsrynke",
 	"team.total.team": "{n} Teamrynke",
@@ -532,6 +535,8 @@ export const de = {
 	"team.peloton.front": "Spitze 🏁",
 	"team.peloton.label":
 		"{count} Rider zwischen {min} und {max}\u00a0Rynke; du hast {own}",
+	"team.peloton.label.guest":
+		"{count} Rider zwischen {min} und {max}\u00a0Rynke.",
 	"team.peloton.you": "Du",
 	"team.peloton.total": "{n}\u00a0Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -539,6 +544,8 @@ export const de = {
 		"Jede Münze ist ein Rider. Ganz rechts, hinter der Lücke, fährt der Breakaway.",
 	"team.peloton.label.breakaway":
 		"{count} Rider zwischen {min} und {max}\u00a0Rynke, davon {away} im Breakaway; du hast {own}",
+	"team.peloton.label.breakaway.guest":
+		"{count} Rider zwischen {min} und {max}\u00a0Rynke, davon {away} im Breakaway.",
 	"team.list.heading": "Rangliste",
 	"team.list.count": "{n}\u00a0Rider",
 	"team.list.hint": "Ohne Namen. Die Linie zeigt die Saison bisher.",
@@ -656,6 +663,15 @@ export const de = {
 		"Trainingsschwelle und der Anteil draußen erreicht.",
 	"organiser.overview.nobodyYet":
 		"Noch hat niemand das Trainingsziel erreicht.",
+	"organiser.overview.deadlineList":
+		"Trainingsziel am Stichtag erreicht · {date}",
+	"organiser.overview.deadlineNobody":
+		"Am Stichtag hatte niemand das Trainingsziel erreicht.",
+	"organiser.overview.deadlineChanged": "Seit dem Stichtag geändert",
+	"organiser.overview.deadlineLost": "Nicht mehr erreicht",
+	"organiser.overview.deadlineGained": "Seitdem erreicht",
+	"organiser.overview.deadlineTraining": "Training {was} → {now}",
+	"organiser.overview.deadlineTeam": "Team {was} → {now}",
 	"organiser.overview.none": "Noch teilt niemand Rynke mit dem Team.",
 	"organiser.overview.column.name": "Wer",
 	"organiser.overview.column.group": "Gruppe",
@@ -924,6 +940,8 @@ export const de = {
 		"Die Organisatoren können deine Rynke mit Grund und Datum korrigieren. Gespeichert wird auch, wer das wann geändert hat.",
 	"privacy.team.derived":
 		"Aus all dem berechnet RynkePoints deine Rynke, deine Abzeichen und welche Fahrten warum zählen.",
+	"privacy.team.deadline":
+		"Nach dem Stichtag hält RynkePoints für die Organisatoren fest, ob du das Trainingsziel erreicht hattest und wie viele Rynke du dann hattest. Das wird gelöscht, wenn die nächste Saison beginnt.",
 	"privacy.team.rideFigures":
 		"Aus deinen gewerteten Fahrten zählt RynkePoints Fahrten, Kilometer und Höhenmeter pro Saison, Monat und Woche für das Ranking ohne Namen, und deine typische Fahrt, die nur du und die Orga sehen. Die Orga sieht deine Fahrten pro Saison und Tag mit deinem Vornamen.",
 	"privacy.technical.heading": "Technisch nötige Daten",

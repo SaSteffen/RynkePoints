@@ -105,6 +105,13 @@ kind switch.
 | `organiser.overview.percent` | {n}% | {n} % |
 | `organiser.overview.qualifiedList` | Training goal reached 🎯 | Trainingsziel erreicht 🎯 |
 | `organiser.overview.nobodyYet` | Nobody has reached the training goal yet. | Noch hat niemand das Trainingsziel erreicht. |
+| `organiser.overview.deadlineList` | Training goal reached at the deadline · {date} | Trainingsziel am Stichtag erreicht · {date} |
+| `organiser.overview.deadlineNobody` | Nobody had reached the training goal at the deadline. | Am Stichtag hatte niemand das Trainingsziel erreicht. |
+| `organiser.overview.deadlineChanged` | Changed since the deadline | Seit dem Stichtag geändert |
+| `organiser.overview.deadlineLost` | Not reached any more | Nicht mehr erreicht |
+| `organiser.overview.deadlineGained` | Reached since | Seitdem erreicht |
+| `organiser.overview.deadlineTraining` | Training {was} → {now} | Training {was} → {now} |
+| `organiser.overview.deadlineTeam` | Team {was} → {now} | Team {was} → {now} |
 | `organiser.overview.none` | No riders share their Rynke yet. | Noch teilt niemand Rynke mit dem Team. |
 | `organiser.overview.column.name` | Rider | Wer |
 | `organiser.overview.column.group` | Group | Gruppe |

@@ -117,6 +117,25 @@ set. Once it has passed, the overview labels `push` as "Training goal not reache
 | `missing` | `trainingMissing`, `teamMissing`, `virtualShareMissing`, each flagged when behind its pace |
 | `breakdown` | `distanceRynke`, `elevationRynke`, `teamEvents` (per kind: attended, Training, Team), corrections summed from the read, virtual share (003 FR-014a) |
 
+## Deadline results (review L-12, migration 0034)
+
+One row per listed rider, kept for the organisers (FR-036).
+
+| Column | Type | Notes |
+|---|---|---|
+| `athlete_id` | INTEGER PRIMARY KEY | `REFERENCES riders ON DELETE CASCADE`: gone with the rider |
+| `deadline` | TEXT NOT NULL | `YYYY-MM-DD`, the qualification deadline the row was kept for |
+| `qualified` | INTEGER NOT NULL | 0 or 1, the stored balance's `qualified` (0 without a balance) |
+| `training_rynke` | INTEGER NOT NULL | the balance's Training Rynke (0 without one) |
+| `team_rynke` | INTEGER NOT NULL | the balance's Team Rynke (0 without one) |
+
+The daily run's step `recordDeadlineResults` first deletes rows of any other deadline, then,
+once Berlin's day is after the deadline and no row has this deadline yet, inserts one row for
+each listed rider (`listedRiderFilter`, guests left out). `readTeam` reads a rider's row with
+the balance; the overview uses it only where `deadline` is the window's. No consent version
+changes: the organisers already see these figures, and the privacy notice names that they are
+kept. `RiderData` `deadlineResult`: organisers only (004).
+
 ## Seen quotes (issue #96, migration 0016)
 
 ### `quote_seen`

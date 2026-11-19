@@ -97,8 +97,9 @@ Each team's block in `wrangler.jsonc` declares these. Every Wrangler command nam
 ### The gateway
 
 `gateway/` is a Worker of its own, with no database and no rider data. It receives Strava's webhook
-events and passes each one to every team through its own queue, retrying each team separately (up to
-100 times), so a team that is down doesn't hold up the others. It also sends a rider coming back from
+events and passes each one to every team through its own queue, retrying each team separately for
+about 17 hours (the queue keeps a message 24 hours on the free plan), so a team that is down doesn't
+hold up the others. It also sends a rider coming back from
 Strava's sign-in on to their own team's domain, and only to domains on its fixed list. It reaches
 Hamburg through a service binding. The sequence diagrams are in
 [Architecture and working together](architecture-and-collaboration.md#a-strava-event-through-the-gateway),
@@ -267,7 +268,8 @@ flowchart TD
     f --> r["4. Re-reads: reread-page for riders stored before a new activity figure"]
     r --> p["5. Pre-season: delete stored activities from before the season start, evaluate-rider for their riders"]
     p --> e["6. Evaluation: evaluate-rider where stored Rynke are missing or out of date"]
-    e --> u["7. Usage history: drop usage days past 13 months"]
+    e --> d["6a. Deadline results: once the qualification deadline has passed, keep each listed rider's result, and delete last season's"]
+    d --> u["7. Usage history: drop usage days past 13 months"]
 ```
 
 ### Hourly job (minute 58)

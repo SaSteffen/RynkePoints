@@ -490,9 +490,13 @@ export const lt: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Pataisymas bus pašalintas; dviratininko Rynke pasikeis atitinkamai.",
 	"organiser.corrections.removeConfirm": "Taip, pašalinti",
+	"organiser.corrections.outside": "Neskaičiuojama: data už sezono ribų",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Komanda",
+	"team.beforeWindow":
+		"Rynke skaičiuojami nuo {date}. Čia atsiras duomenų, kai prasidės kvalifikacija.",
+	"team.total.beforeWindow": "Rynke skaičiuojami nuo {date}",
 	"team.total.label": "{team}",
 	"team.total.training": "{n} Treniruočių Rynke",
 	"team.total.team": "{n} Komandos Rynke",
@@ -511,6 +515,8 @@ export const lt: Catalog = {
 	"team.peloton.front": "Priekis 🏁",
 	"team.peloton.label":
 		"Dviratininkai: {count}, nuo {min} iki {max} Rynke; tu turi {own}",
+	"team.peloton.label.guest":
+		"Dviratininkai: {count}, nuo {min} iki {max} Rynke.",
 	"team.peloton.you": "Tu",
 	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
@@ -518,6 +524,8 @@ export const lt: Catalog = {
 		"Kiekviena moneta – dviratininkas. Visai dešinėje, už tarpo, važiuoja breakaway.",
 	"team.peloton.label.breakaway":
 		"Dviratininkai: {count}, nuo {min} iki {max} Rynke, iš jų breakaway: {away}; tu turi {own}",
+	"team.peloton.label.breakaway.guest":
+		"Dviratininkai: {count}, nuo {min} iki {max} Rynke, iš jų breakaway: {away}.",
 	"team.list.heading": "Reitingas",
 	"team.list.count": "Dviratininkai sąraše: {n}",
 	"team.list.hint": "Be vardų. Linija rodo sezoną iki šiol.",
@@ -635,6 +643,15 @@ export const lt: Catalog = {
 	"organiser.overview.qualifiedHint.noEvents":
 		"Treniruočių riba ir dalis lauke pasiektos.",
 	"organiser.overview.nobodyYet": "Treniruočių tikslo dar niekas nepasiekė.",
+	"organiser.overview.deadlineList":
+		"Treniruočių tikslas pasiektas iki termino · {date}",
+	"organiser.overview.deadlineNobody":
+		"Iki termino treniruočių tikslo niekas nebuvo pasiekęs.",
+	"organiser.overview.deadlineChanged": "Pasikeitė nuo termino",
+	"organiser.overview.deadlineLost": "Nebepasiektas",
+	"organiser.overview.deadlineGained": "Pasiektas vėliau",
+	"organiser.overview.deadlineTraining": "Treniruočių {was} → {now}",
+	"organiser.overview.deadlineTeam": "Komandos {was} → {now}",
 	"organiser.overview.none":
 		"Dar nė vienas dviratininkas nesidalija savo Rynke.",
 	"organiser.overview.column.name": "Dviratininkas",
@@ -915,6 +932,8 @@ export const lt: Catalog = {
 		"Organizatoriai gali pataisyti tavo Rynke, nurodydami priežastį ir datą. Saugoma ir tai, kas ką ir kada pakeitė.",
 	"privacy.team.derived":
 		"Iš viso to RynkePoints apskaičiuoja tavo Rynke, tavo ženklelius ir kurie važiavimai skaičiuojami, ir kodėl.",
+	"privacy.team.deadline":
+		"Pasibaigus kvalifikacijos terminui, RynkePoints organizatoriams išsaugo, ar treniruočių tikslas buvo pasiektas ir kiek Rynke tada turėjai. Tai ištrinama, kai prasideda kitas sezonas.",
 	"privacy.team.rideFigures":
 		"Iš tavo skaičiuojamų važiavimų RynkePoints suskaičiuoja treniruotes, kilometrus ir aukščio prieaugį per sezoną, mėnesį ir savaitę reitingui be vardų, ir tavo tipinį važiavimą, kurį mato tik tu ir organizatoriai. Organizatoriai su tavo vardu mato tavo treniruotes per sezoną ir per dieną.",
 	"privacy.technical.heading": "Duomenys, reikalingi programėlei veikti",

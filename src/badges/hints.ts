@@ -20,6 +20,7 @@ import { addDays } from "../rynke/weeks";
 import { type BadgeCategoryId, categoryById, ONE_DECIMAL } from "./catalog";
 import { easterSunday } from "./easter";
 import type { CategoryProgress } from "./evaluate";
+import { solstice } from "./solstice";
 import { shownMissing } from "./view";
 
 /** The rider's stored day lists (`rider_summaries`), as the page reads them. */
@@ -303,16 +304,18 @@ function surprises(input: HintInput): HintCandidate[] {
 	) {
 		add("pi-day", `${year}-03-14`, "piDay");
 	}
-	if (md >= "12-14" && md <= "12-21") {
-		add("solstice", `${year}-12-21`, "solsticeDecember");
+	const shortest = solstice(year, 12);
+	if (today >= addDays(shortest, -7) && today <= shortest) {
+		add("solstice", shortest, "solsticeDecember");
 	}
-	if (md >= "06-14" && md <= "06-21") {
-		const december = `${year - 1}-12-21`;
+	const longest = solstice(year, 6);
+	if (today >= addDays(longest, -7) && today <= longest) {
+		const december = solstice(year - 1, 12);
 		const rode = daily.ownDays.some(
 			([date, , outdoor]) => date === december && outdoor === 1,
 		);
 		if (rode && december >= seasonStart) {
-			add("solstice", `${year}-06-21`, "solsticeJune");
+			add("solstice", longest, "solsticeJune");
 		}
 	}
 	const easterMonday = addDays(easterSunday(year), 1);

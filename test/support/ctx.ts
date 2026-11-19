@@ -253,6 +253,7 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM attendances"),
 		env.DB.prepare("DELETE FROM team_events"),
 		env.DB.prepare("DELETE FROM corrections"),
+		env.DB.prepare("DELETE FROM deadline_results"),
 		env.DB.prepare("DELETE FROM strava_held"),
 		env.DB.prepare("DELETE FROM strava_work"),
 		env.DB.prepare("DELETE FROM strava_queues"),
@@ -287,6 +288,7 @@ export async function tableCounts(): Promise<Record<string, number>> {
 		"team_events",
 		"attendances",
 		"corrections",
+		"deadline_results",
 		"push_subscriptions",
 	]) {
 		counts[table] =

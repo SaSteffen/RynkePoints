@@ -1,4 +1,5 @@
 import { easterSunday } from "../../src/badges/easter";
+import { solstice } from "../../src/badges/solstice";
 import type { CountingWindow } from "../../src/rynke/rules";
 import type { EventKind } from "../../src/rynke/team-events";
 import type { FakeActivity } from "./store";
@@ -28,6 +29,11 @@ export interface RideRecipe {
 	 * Monday) instead of `daysAgo`; for the Osterhase badge (013 part F).
 	 */
 	onEaster?: number;
+	/**
+	 * The season's June (6) or December (12) solstice instead of `daysAgo`;
+	 * for the Sonnenwende badge (013 part F).
+	 */
+	onSolstice?: 6 | 12;
 	/** Local wall-clock time `HH:MM`, Europe/Berlin. */
 	startTime: string;
 	sportType: string;
@@ -232,6 +238,12 @@ export function seasonEaster(seasonStart: string): string {
 	return easter >= seasonStart ? easter : easterSunday(year + 1);
 }
 
+/** The June (6) or December (12) solstice in the season from `seasonStart`. */
+export function seasonSolstice(month: 6 | 12, seasonStart: string): string {
+	const year = seasonDay(month === 6 ? "06-21" : "12-21", seasonStart);
+	return solstice(Number(year.slice(0, 4)), month);
+}
+
 /** Europe/Berlin's offset from UTC at `epochMs`, in milliseconds. */
 function berlinOffsetMs(epochMs: number): number {
 	const parts = new Intl.DateTimeFormat("en-GB", {
@@ -307,9 +319,11 @@ export function recipeToActivity(
 	const wanted =
 		recipe.onEaster !== undefined
 			? dayBefore(seasonEaster(season), -recipe.onEaster)
-			: recipe.onDate
-				? seasonDay(recipe.onDate, season)
-				: dayBefore(seedDay, recipe.daysAgo);
+			: recipe.onSolstice !== undefined
+				? seasonSolstice(recipe.onSolstice, season)
+				: recipe.onDate
+					? seasonDay(recipe.onDate, season)
+					: dayBefore(seedDay, recipe.daysAgo);
 	const day = wanted < seasonStart && !preseason ? seasonStart : wanted;
 	const startUtc = berlinToUtcMs(day, recipe.startTime);
 	return {

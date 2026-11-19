@@ -116,6 +116,15 @@ const COLUMNS: Record<string, string[]> = {
 		"changed_by",
 		"changed_at",
 	],
+	// Review L-12 (feature 016 data-model.md): who qualified when the deadline
+	// passed, with both totals.
+	deadline_results: [
+		"athlete_id",
+		"deadline",
+		"qualified",
+		"training_rynke",
+		"team_rynke",
+	],
 	// Feature 013: outdoor runs, only what badges need (research R11).
 	runs: [
 		"strava_activity_id",

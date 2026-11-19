@@ -28,8 +28,11 @@
 				"queue": "rynke-points-gateway-forward",
 				"max_batch_size": 10,
 				"max_batch_timeout": 5,
-				// Cloudflare's maximum. With the growing delay (up to 12 h) a team
-				// can be down for weeks without losing an event (FR-011).
+				// Cloudflare's maximum, but not what ends the tries: the queue keeps
+				// a message 24 hours on the Workers Free plan. With the growing
+				// delay (up to 12 h) the last try comes about 17 hours after the
+				// event, so a team down longer misses those events and needs a
+				// catch-up (docs/gateway-switch.md, "A team was down").
 				"max_retries": 100,
 				"max_concurrency": 2
 			}
