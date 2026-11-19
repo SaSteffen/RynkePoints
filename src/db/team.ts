@@ -18,6 +18,7 @@ import type { EventKind } from "../rynke/team-events";
 import type { DatedCorrection, RiderInputs } from "../rynke/weeks";
 import { SINCE_VERSION } from "../visibility";
 import { sharedRiderExists } from "./consents";
+import type { DeadlineResult } from "./deadline-results";
 import { LISTED_RIDER_IDS, listedRiderFilter } from "./organiser";
 import {
 	type AddedUpDays,
@@ -44,6 +45,8 @@ export interface TeamRider extends RiderInputs {
 	athleteId: number;
 	firstName: string;
 	balance: StoredBalance | null;
+	/** Their result when a deadline had passed, if one was kept (review L-12). */
+	deadlineResult?: DeadlineResult;
 }
 
 /**
@@ -91,6 +94,11 @@ type TeamRiderRow = BalanceRow & {
 	weeks: string | null;
 	attended: string | null;
 	corrections: string;
+	/** Null without a kept result. */
+	result_deadline: string | null;
+	result_qualified: number | null;
+	result_training: number | null;
+	result_team: number | null;
 };
 
 /**
@@ -167,9 +175,12 @@ async function readTeamWith(
 	const [riderRows, eventRows, rideRows] = await db.batch([
 		db.prepare(
 			`SELECT b.*, r.athlete_id AS rider_id, r.first_name, s.weeks, s.attended,
-				${CORRECTIONS_OF_RIDER} AS corrections
+				${CORRECTIONS_OF_RIDER} AS corrections,
+				d.deadline AS result_deadline, d.qualified AS result_qualified,
+				d.training_rynke AS result_training, d.team_rynke AS result_team
 			FROM riders r
 			LEFT JOIN rynke_balances b ON b.athlete_id = r.athlete_id
+			LEFT JOIN deadline_results d ON d.athlete_id = r.athlete_id
 			${TEAM_SUMMARY_JOIN}
 			WHERE ${listedRiderFilter("r")}
 			ORDER BY r.first_name COLLATE NOCASE, r.athlete_id`,
@@ -207,6 +218,14 @@ async function readTeamWith(
 				events,
 			),
 			corrections: parseCorrections(row.corrections),
+			...(row.result_deadline !== null && {
+				deadlineResult: {
+					deadline: row.result_deadline,
+					qualified: row.result_qualified === 1,
+					training: row.result_training ?? 0,
+					team: row.result_team ?? 0,
+				},
+			}),
 		};
 	});
 	return { team, rides };

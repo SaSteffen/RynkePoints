@@ -643,6 +643,15 @@ export const lt: Catalog = {
 	"organiser.overview.qualifiedHint.noEvents":
 		"Treniruočių riba ir dalis lauke pasiektos.",
 	"organiser.overview.nobodyYet": "Treniruočių tikslo dar niekas nepasiekė.",
+	"organiser.overview.deadlineList":
+		"Treniruočių tikslas pasiektas iki termino · {date}",
+	"organiser.overview.deadlineNobody":
+		"Iki termino treniruočių tikslo niekas nebuvo pasiekęs.",
+	"organiser.overview.deadlineChanged": "Pasikeitė nuo termino",
+	"organiser.overview.deadlineLost": "Nebepasiektas",
+	"organiser.overview.deadlineGained": "Pasiektas vėliau",
+	"organiser.overview.deadlineTraining": "Treniruočių {was} → {now}",
+	"organiser.overview.deadlineTeam": "Komandos {was} → {now}",
 	"organiser.overview.none":
 		"Dar nė vienas dviratininkas nesidalija savo Rynke.",
 	"organiser.overview.column.name": "Dviratininkas",
@@ -923,6 +932,8 @@ export const lt: Catalog = {
 		"Organizatoriai gali pataisyti tavo Rynke, nurodydami priežastį ir datą. Saugoma ir tai, kas ką ir kada pakeitė.",
 	"privacy.team.derived":
 		"Iš viso to RynkePoints apskaičiuoja tavo Rynke, tavo ženklelius ir kurie važiavimai skaičiuojami, ir kodėl.",
+	"privacy.team.deadline":
+		"Pasibaigus kvalifikacijos terminui, RynkePoints organizatoriams išsaugo, ar treniruočių tikslas buvo pasiektas ir kiek Rynke tada turėjai. Tai ištrinama, kai prasideda kitas sezonas.",
 	"privacy.team.rideFigures":
 		"Iš tavo skaičiuojamų važiavimų RynkePoints suskaičiuoja treniruotes, kilometrus ir aukščio prieaugį per sezoną, mėnesį ir savaitę reitingui be vardų, ir tavo tipinį važiavimą, kurį mato tik tu ir organizatoriai. Organizatoriai su tavo vardu mato tavo treniruotes per sezoną ir per dieną.",
 	"privacy.technical.heading": "Duomenys, reikalingi programėlei veikti",

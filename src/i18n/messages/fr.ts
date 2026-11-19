@@ -667,6 +667,15 @@ export const fr: Catalog = {
 		"Le seuil d'entraînement et la part en extérieur sont atteints.",
 	"organiser.overview.nobodyYet":
 		"Personne n'a encore atteint l'objectif d'entraînement.",
+	"organiser.overview.deadlineList":
+		"Objectif d'entraînement atteint à la date limite · {date}",
+	"organiser.overview.deadlineNobody":
+		"Personne n'avait atteint l'objectif d'entraînement à la date limite.",
+	"organiser.overview.deadlineChanged": "Modifié depuis la date limite",
+	"organiser.overview.deadlineLost": "N'est plus atteint",
+	"organiser.overview.deadlineGained": "Atteint depuis",
+	"organiser.overview.deadlineTraining": "Entraînement {was} → {now}",
+	"organiser.overview.deadlineTeam": "Équipe {was} → {now}",
 	"organiser.overview.none": "Aucun·e cycliste ne partage encore ses Rynke.",
 	"organiser.overview.column.name": "Cycliste",
 	"organiser.overview.column.group": "Groupe",
@@ -942,6 +951,8 @@ export const fr: Catalog = {
 		"Les organisateurs peuvent corriger tes Rynke avec une raison et une date. Qui a modifié quoi, et quand, est aussi conservé.",
 	"privacy.team.derived":
 		"À partir de tout cela, RynkePoints calcule tes Rynke, tes badges, et quelles sorties comptent et pourquoi.",
+	"privacy.team.deadline":
+		"Après la date limite de qualification, RynkePoints conserve pour les organisateurs si tu avais atteint l'objectif d'entraînement et combien de Rynke tu avais alors. Cela est supprimé quand la saison suivante commence.",
 	"privacy.team.rideFigures":
 		"À partir de tes sorties comptées, RynkePoints compte les séances, les kilomètres et le dénivelé par saison, mois et semaine pour le classement sans noms, ainsi que ta sortie type, que seuls toi et les organisateurs voyez. Les organisateurs voient tes séances par saison et par jour avec ton prénom.",
 	"privacy.technical.heading":

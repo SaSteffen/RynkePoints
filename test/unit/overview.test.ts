@@ -703,3 +703,118 @@ describe("the overview without Training needed outdoors", () => {
 		).toContain("Outdoor Training 0 of 167");
 	});
 });
+
+// Review L-12: the results kept when the deadline had passed.
+describe("the results kept at the deadline", () => {
+	const keep = (
+		r: TeamRider,
+		qualified: boolean,
+		training: number,
+		team: number,
+		deadline = RUNNING.deadline,
+	): TeamRider => ({
+		...r,
+		deadlineResult: { deadline, qualified, training, team },
+	});
+	const QUALIFYING = balance(300, 30, 250);
+	const READ_KEPT = [
+		keep(rider(1, "Paula", QUALIFYING), true, 300, 30),
+		// Qualified then, below the thresholds now.
+		keep(rider(2, "Lena", balance(240, 20, 200)), true, 260, 26),
+		// Not then, qualifies now.
+		keep(rider(3, "Max", QUALIFYING), false, 240, 26),
+		// A result of an earlier deadline is not this one's.
+		keep(rider(4, "Olga", QUALIFYING), true, 300, 30, "2025-05-31"),
+		// Connected after the deadline: no result.
+		rider(5, "Nina", QUALIFYING),
+	];
+	const body = (today: string, read = READ_KEPT, figures?: "percent") =>
+		overviewBody(
+			read,
+			CURRENT_RULES,
+			RUNNING,
+			today,
+			null,
+			en,
+			hamburg,
+			new Map(),
+			false,
+			figures,
+		).value;
+	const section = (html: string) =>
+		html.match(/<section class="qualified[^"]*">[\s\S]*?<\/section>/)?.[0] ??
+		"";
+
+	it("reads only the results of this deadline", () => {
+		const riders = overviewRiders(READ_KEPT, CURRENT_RULES, RUNNING, AFTER);
+		const at = (id: number) =>
+			riders.find((r) => r.athleteId === id)?.atDeadline;
+		expect(at(1)).toEqual({ qualified: true, training: 300, team: 30 });
+		expect(at(3)).toEqual({ qualified: false, training: 240, team: 26 });
+		expect(at(4)).toBeNull();
+		expect(at(5)).toBeNull();
+	});
+
+	it("lists who qualified at the deadline, and who changed since", () => {
+		const html = section(body(AFTER));
+		expect(html).toContain(
+			"Training goal reached at the deadline · 31/05/2026",
+		);
+		const [list, changed] = html.split("Changed since the deadline");
+		expect(list).toContain("Paula");
+		expect(list).toContain("Lena");
+		expect(list).not.toMatch(/Max|Olga|Nina/);
+		expect(changed).toContain("Lena");
+		expect(changed).toContain(
+			"Not reached any more · Training 260 → 240 · Team 26 → 20",
+		);
+		expect(changed).toContain(
+			"Reached since · Training 240 → 300 · Team 26 → 30",
+		);
+		expect(changed).not.toMatch(/Paula|Olga|Nina/);
+	});
+
+	it("gives the figures in percent where the team shows percent", () => {
+		const html = section(body(AFTER, READ_KEPT, "percent"));
+		expect(html).toContain(
+			"Not reached any more · Training 100% → 96% · Team 100% → 80%",
+		);
+		expect(html).not.toContain("260");
+	});
+
+	it("leaves Team out for a team without Team Rynke", () => {
+		const rules = { ...CURRENT_RULES, teamThreshold: null };
+		const html = overviewBody(
+			[keep(rider(2, "Lena", balance(240, 0, 200)), true, 260, 0)],
+			rules,
+			RUNNING,
+			AFTER,
+			null,
+			en,
+			hamburg,
+		).value;
+		expect(section(html)).toContain(
+			"Not reached any more · Training 260 → 240<",
+		);
+	});
+
+	it("says nobody had qualified when no result did", () => {
+		const html = section(
+			body(AFTER, [
+				keep(rider(3, "Max", balance(240, 20, 200)), false, 240, 20),
+			]),
+		);
+		expect(html).toContain(
+			"Nobody had reached the training goal at the deadline.",
+		);
+		expect(html).not.toContain("Changed since the deadline");
+	});
+
+	it("keeps the live list before the deadline and without results", () => {
+		expect(section(body(TODAY))).toContain("Training goal reached 🎯");
+		expect(section(body(TODAY))).not.toContain("at the deadline");
+		expect(section(body(AFTER, [rider(1, "Paula", QUALIFYING)]))).toContain(
+			"Training goal reached 🎯",
+		);
+	});
+});

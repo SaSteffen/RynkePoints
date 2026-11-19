@@ -145,6 +145,7 @@ Without a rider row there is no flag, so only a connected rider can be an organi
 | `breakdown` | Breakdown by source, amounts still missing, virtual-ride share | yes | no |
 | `attendance` | Attendance recorded for them | yes | no |
 | `corrections` | Corrections recorded for them | yes | no |
+| `deadlineResult` | Whether they qualified when the deadline passed, and their Training and Team Rynke then (016 FR-036) | yes | no |
 | `rides` | Individual rides, ride results and activity figures | no | no |
 | `consentRecords` | Consent records | no | no |
 

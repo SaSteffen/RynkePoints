@@ -16304,7 +16304,7 @@ Norsk bokmål
 Suomi
 Svenska
 Datenschutz
-Stand: 06.11.2026
+Stand: 19.11.2026
 Verbindlich ist die englische Fassung
 dieses Textes.
 Hier steht, welche Daten RynkePoints verarbeitet, wozu, wer sie sieht, wie lange sie gespeichert werden und welche Rechte du hast.
@@ -16327,6 +16327,7 @@ Neue, geänderte und gelöschte Aktivitäten meldet Strava von selbst; RynkePoin
 Daten vom Team und daraus berechnet
 Die Organisatoren tragen ein, an welchen Teamterminen du teilgenommen hast, und können deine Rynke mit Grund und Datum korrigieren. Du kannst selbst melden, bei welchen Teamterminen du dabei bist oder warst; die Organisatoren sehen das und entscheiden, ob sie dich eintragen. Gespeichert wird auch, wer das wann geändert hat.
 Aus all dem berechnet RynkePoints deine Rynke, deine Abzeichen und welche Fahrten warum zählen.
+Nach dem Stichtag hält RynkePoints für die Organisatoren fest, ob du das Trainingsziel erreicht hattest und wie viele Rynke du dann hattest. Das wird gelöscht, wenn die nächste Saison beginnt.
 Aus deinen gewerteten Fahrten zählt RynkePoints Fahrten, Kilometer und Höhenmeter pro Saison, Monat und Woche für das Ranking ohne Namen, und deine typische Fahrt, die nur du und die Orga sehen. Die Orga sieht deine Fahrten pro Saison und Tag mit deinem Vornamen.
 Technisch nötige Daten
 Cookies: „rp_session“ hält dich angemeldet, bis 180 Tage nach deinem letzten Besuch; „rp_oauth_state“ schützt die Anmeldung bei Strava für 10 Minuten; „rp_lang“ merkt sich eine gewählte Sprache für ein Jahr. Andere Cookies und Tracker gibt es nicht.
@@ -16378,7 +16379,7 @@ Norsk bokmål
 Suomi
 Svenska
 Privacy
-Last updated: 06/11/2026
+Last updated: 19/11/2026
 This explains which data RynkePoints processes, what for, who sees it, how long it is kept and what your rights are.
 Who is responsible, and how to reach us
 Responsible for the processing of data in RynkePoints is:
@@ -16399,6 +16400,7 @@ Strava reports new, changed and deleted activities by itself; RynkePoints doesn&
 Data from the team, and what is worked out from it
 The organisers record which team events you attended, and can correct your Rynke with a reason and a date. You can report yourself which team events you&#39;re coming to or were at; the organisers see that and decide whether to record it. Who changed what, and when, is stored too.
 From all this RynkePoints works out your Rynke, your badges and which rides count, and why.
+After the qualification deadline RynkePoints keeps, for the organisers, whether you had reached the training goal and how many Rynke you had then. This is deleted when the next season starts.
 From your counting rides RynkePoints counts sessions, kilometres and elevation per season, month and week for the ranking without names, and your typical ride, which only you and the organisers see. The organisers see your sessions per season and per day with your first name.
 Data needed to run the app
 Cookies: “rp_session” keeps you signed in, until 180 days after your last visit; “rp_oauth_state” protects the sign-in with Strava for 10 minutes; “rp_lang” remembers a picked language for a year. There are no other cookies and no trackers.

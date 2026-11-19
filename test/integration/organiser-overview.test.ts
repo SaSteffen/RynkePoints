@@ -6,6 +6,7 @@ import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import { evaluateChange } from "../../src/rynke/apply";
+import { recordDeadlineResults } from "../../src/work/scheduled";
 import {
 	makeCtx,
 	request,
@@ -834,5 +835,63 @@ describe("GET /organiser/riders, sessions (ride stats ranking US2)", () => {
 		} finally {
 			ctx.env = before;
 		}
+	});
+});
+
+describe("GET /organiser/riders, after the deadline (review L-12)", () => {
+	// The first daily run after the deadline, and the page the day after.
+	const afterwards = makeCtx({ now: Date.UTC(2027, 6, 1, 3, 17) / 1000 });
+
+	it("lists who qualified at the deadline and who changed since", async () => {
+		await seedBalance(QUALIFIED.id, {
+			qualified: true,
+			trainingRynke: 300,
+			teamRynke: 30,
+		});
+		await seedBalance(JONAS_ON_TRACK.id, { trainingRynke: 240, teamRynke: 20 });
+		await recordDeadlineResults(afterwards);
+		// Paula loses Rynke, Jonas qualifies.
+		await seedBalance(QUALIFIED.id, { trainingRynke: 240, teamRynke: 30 });
+		await seedBalance(JONAS_ON_TRACK.id, {
+			qualified: true,
+			trainingRynke: 300,
+			teamRynke: 30,
+		});
+		const { status, html } = await riderPage(
+			afterwards,
+			ORGANISER.id,
+			"/organiser/riders",
+		);
+		expect(status).toBe(200);
+		const section = sectionOf(
+			html,
+			'<section class="qualified qualified-deadline">',
+			"</section>",
+		);
+		expect(section).toContain(
+			fill(de["organiser.overview.deadlineList"], { date: "30.06.2027" }),
+		);
+		const [list, changed] = section.split(
+			fill(de["organiser.overview.deadlineChanged"]),
+		);
+		expect(list).toContain("Paula");
+		expect(list).not.toContain("Jonas");
+		expect(changed).toContain(
+			`Paula</span> ${fill(de["organiser.overview.deadlineLost"])} · Training 300 → 240 · Team 30 → 30`,
+		);
+		expect(changed).toContain(
+			`Jonas</span> ${fill(de["organiser.overview.deadlineGained"])} · Training 240 → 300 · Team 20 → 30`,
+		);
+	});
+
+	it("keeps the live list when no results were kept", async () => {
+		await seedBalance(QUALIFIED.id, { qualified: true, trainingRynke: 300 });
+		const { html } = await riderPage(
+			afterwards,
+			ORGANISER.id,
+			"/organiser/riders",
+		);
+		expect(html).not.toContain("qualified-deadline");
+		expect(html).toContain(fill(de["organiser.overview.qualifiedList"]));
 	});
 });

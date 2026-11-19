@@ -663,6 +663,15 @@ export const de = {
 		"Trainingsschwelle und der Anteil draußen erreicht.",
 	"organiser.overview.nobodyYet":
 		"Noch hat niemand das Trainingsziel erreicht.",
+	"organiser.overview.deadlineList":
+		"Trainingsziel am Stichtag erreicht · {date}",
+	"organiser.overview.deadlineNobody":
+		"Am Stichtag hatte niemand das Trainingsziel erreicht.",
+	"organiser.overview.deadlineChanged": "Seit dem Stichtag geändert",
+	"organiser.overview.deadlineLost": "Nicht mehr erreicht",
+	"organiser.overview.deadlineGained": "Seitdem erreicht",
+	"organiser.overview.deadlineTraining": "Training {was} → {now}",
+	"organiser.overview.deadlineTeam": "Team {was} → {now}",
 	"organiser.overview.none": "Noch teilt niemand Rynke mit dem Team.",
 	"organiser.overview.column.name": "Wer",
 	"organiser.overview.column.group": "Gruppe",
@@ -931,6 +940,8 @@ export const de = {
 		"Die Organisatoren können deine Rynke mit Grund und Datum korrigieren. Gespeichert wird auch, wer das wann geändert hat.",
 	"privacy.team.derived":
 		"Aus all dem berechnet RynkePoints deine Rynke, deine Abzeichen und welche Fahrten warum zählen.",
+	"privacy.team.deadline":
+		"Nach dem Stichtag hält RynkePoints für die Organisatoren fest, ob du das Trainingsziel erreicht hattest und wie viele Rynke du dann hattest. Das wird gelöscht, wenn die nächste Saison beginnt.",
 	"privacy.team.rideFigures":
 		"Aus deinen gewerteten Fahrten zählt RynkePoints Fahrten, Kilometer und Höhenmeter pro Saison, Monat und Woche für das Ranking ohne Namen, und deine typische Fahrt, die nur du und die Orga sehen. Die Orga sieht deine Fahrten pro Saison und Tag mit deinem Vornamen.",
 	"privacy.technical.heading": "Technisch nötige Daten",

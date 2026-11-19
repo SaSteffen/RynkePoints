@@ -635,6 +635,15 @@ export const fi: Catalog = {
 		"Harjoituskynnys ja ulko-osuus täyttyneet.",
 	"organiser.overview.nobodyYet":
 		"Kukaan ei ole vielä saavuttanut harjoitustavoitetta.",
+	"organiser.overview.deadlineList":
+		"Harjoitustavoite saavutettu määräaikaan mennessä · {date}",
+	"organiser.overview.deadlineNobody":
+		"Kukaan ei ollut saavuttanut harjoitustavoitetta määräaikaan mennessä.",
+	"organiser.overview.deadlineChanged": "Muuttunut määräajan jälkeen",
+	"organiser.overview.deadlineLost": "Ei enää saavutettu",
+	"organiser.overview.deadlineGained": "Saavutettu sen jälkeen",
+	"organiser.overview.deadlineTraining": "Harjoitus {was} → {now}",
+	"organiser.overview.deadlineTeam": "Tiimi {was} → {now}",
 	"organiser.overview.none": "Kukaan ajaja ei vielä jaa Rynkejään.",
 	"organiser.overview.column.name": "Ajaja",
 	"organiser.overview.column.group": "Ryhmä",
@@ -898,6 +907,8 @@ export const fi: Catalog = {
 		"Järjestäjät voivat korjata Rynkejäsi perustelun ja päivämäärän kanssa. Myös se, kuka muutti mitä ja milloin, tallennetaan.",
 	"privacy.team.derived":
 		"Näistä kaikista RynkePoints laskee Rynkesi, merkkisi ja sen, mitkä ajot lasketaan ja miksi.",
+	"privacy.team.deadline":
+		"Määräajan jälkeen RynkePoints tallentaa järjestäjille, oliko harjoitustavoite saavutettu ja kuinka monta Rynkeä sinulla silloin oli. Tämä poistetaan, kun seuraava kausi alkaa.",
 	"privacy.team.rideFigures":
 		"Laskettavista ajoistasi RynkePoints laskee harjoitukset, kilometrit ja nousumetrit kausittain, kuukausittain ja viikoittain nimettömään rankingiin sekä tyypillisen ajosi, jonka näet vain sinä ja järjestäjät. Järjestäjät näkevät harjoituksesi kausittain ja päivittäin etunimelläsi.",
 	"privacy.technical.heading": "Sovelluksen toimintaan tarvittavat tiedot",

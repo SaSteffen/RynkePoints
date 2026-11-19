@@ -268,7 +268,8 @@ flowchart TD
     f --> r["4. Re-reads: reread-page for riders stored before a new activity figure"]
     r --> p["5. Pre-season: delete stored activities from before the season start, evaluate-rider for their riders"]
     p --> e["6. Evaluation: evaluate-rider where stored Rynke are missing or out of date"]
-    e --> u["7. Usage history: drop usage days past 13 months"]
+    e --> d["6a. Deadline results: once the qualification deadline has passed, keep each listed rider's result, and delete last season's"]
+    d --> u["7. Usage history: drop usage days past 13 months"]
 ```
 
 ### Hourly job (minute 58)
