@@ -14,6 +14,7 @@ import { createI18n } from "../../src/i18n/i18n";
 import { riderStatus } from "../../src/rynke/pace";
 import type { CountingWindow, RynkeRules } from "../../src/rynke/rules";
 import type { Balance } from "../../src/rynke/tally";
+import { hamburg } from "../../src/teams/hamburg";
 import { CURRENT_RULES } from "../support/team-rules";
 
 // The organiser overview's figures and groups (016 US4, FR-030–FR-035,
@@ -193,7 +194,9 @@ describe("overviewBody", () => {
 		group: Parameters<typeof overviewBody>[4],
 		today = TODAY,
 		i18n = en,
-	) => overviewBody(READ, CURRENT_RULES, RUNNING, today, group, i18n).value;
+	) =>
+		overviewBody(READ, CURRENT_RULES, RUNNING, today, group, i18n, hamburg)
+			.value;
 	const tiles = (html: string) =>
 		[
 			...html.matchAll(
@@ -328,6 +331,7 @@ describe("overviewBody", () => {
 			TODAY,
 			null,
 			en,
+			hamburg,
 		).value;
 		expect(nobody).toContain("Nobody has reached the training goal yet.");
 		const none = overviewBody(
@@ -337,6 +341,7 @@ describe("overviewBody", () => {
 			TODAY,
 			null,
 			en,
+			hamburg,
 		).value;
 		expect(none).toContain("No riders share their Rynke yet.");
 		expect(none).not.toContain("rider-rows");
@@ -365,6 +370,7 @@ describe("overviewBody with ORGANISER_FIGURES percent", () => {
 			TODAY,
 			"all",
 			i18n,
+			hamburg,
 			new Map(),
 			false,
 			"percent",
@@ -431,7 +437,7 @@ describe("the overview without Team Rynke", () => {
 			]),
 		) as RynkeRules["teamEvents"],
 	};
-	const WITHOUT_EVENTS = { eventKinds: [] } as const;
+	const WITHOUT_EVENTS = { eventKinds: [], art: hamburg.art } as const;
 
 	/** What the evaluation stores without Team Rynke: nothing missing of Team. */
 	function noTeamBalance(training: number, outdoor: number): Balance {
@@ -522,14 +528,13 @@ describe("the overview without Team Rynke", () => {
 				TODAY,
 				group,
 				en,
+				WITHOUT_EVENTS,
 				new Map(),
 				false,
 				figures,
 				null,
 				"riders",
 				null,
-				undefined,
-				WITHOUT_EVENTS,
 			).value;
 		const founding = () =>
 			overviewBody(
@@ -539,6 +544,7 @@ describe("the overview without Team Rynke", () => {
 				TODAY,
 				"all",
 				en,
+				hamburg,
 				new Map(),
 				false,
 				figures,
@@ -609,14 +615,13 @@ describe("the overview without Team Rynke", () => {
 			TODAY,
 			"all",
 			en,
+			WITHOUT_EVENTS,
 			new Map(),
 			false,
 			"full",
 			null,
 			"riders",
 			null,
-			undefined,
-			WITHOUT_EVENTS,
 		).value;
 		expect(html).toContain("<li>Corrections 6 Training</li>");
 		expect(html).not.toContain("<li>Corrections 6 Training, 0 Team</li>");
@@ -654,6 +659,7 @@ describe("the overview without Training needed outdoors", () => {
 			TODAY,
 			"all",
 			en,
+			hamburg,
 			new Map(),
 			false,
 			"full",
@@ -673,6 +679,7 @@ describe("the overview without Training needed outdoors", () => {
 				TODAY,
 				"all",
 				en,
+				hamburg,
 				new Map(),
 				false,
 				"full",

@@ -7,7 +7,7 @@ import { FIXABLE_REASONS } from "../rynke/rides";
 import { dayNumber } from "../rynke/weeks";
 import { STRAVA_ORIGIN } from "../strava/result";
 import type { CoinArt, RulesHandout } from "../teams/types";
-import { coinArt, flippingCoin, miniCoin, SHARED_COIN } from "./coin";
+import { coinArt, flippingCoin, miniCoin } from "./coin";
 import { html, type SafeHtml } from "./html";
 import {
 	type Breakdown,
@@ -87,7 +87,7 @@ export function renderWaiting(
 	i18n: I18n,
 	seasonStart: string,
 	pollSeconds: number,
-	coin: CoinArt = SHARED_COIN,
+	coin: CoinArt,
 ): SafeHtml {
 	return html`<section class="waiting" role="status" data-waiting data-poll-seconds="${pollSeconds}">
 ${flippingCoin(coin, "large")}
@@ -455,8 +455,8 @@ export function renderExampleNote(
 export function renderRides(
 	i18n: I18n,
 	rides: RideTable,
+	coin: CoinArt,
 	example: ExampleRides | null = null,
-	coin: CoinArt = SHARED_COIN,
 ): SafeHtml {
 	const heading = html`<h2>${i18n.t("me.recent.heading")}</h2>`;
 	if (rides.rows.length === 0) {

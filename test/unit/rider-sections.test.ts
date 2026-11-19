@@ -51,12 +51,16 @@ function line(overrides: Partial<RideLine> = {}): RideLine {
 }
 
 function table(ride: RideLine, i18n = en): string {
-	return renderRides(i18n, {
-		rows: [ride],
-		total: 1,
-		page: 1,
-		more: null,
-	}).toString();
+	return renderRides(
+		i18n,
+		{
+			rows: [ride],
+			total: 1,
+			page: 1,
+			more: null,
+		},
+		hamburg.art.coin,
+	).toString();
 }
 
 function rendered(reason: ReasonLine): string {
@@ -363,12 +367,16 @@ describe("coins", () => {
 	});
 
 	it("shows the coin above an empty ride list", () => {
-		const html = renderRides(en, {
-			rows: [],
-			total: 0,
-			page: 1,
-			more: null,
-		}).toString();
+		const html = renderRides(
+			en,
+			{
+				rows: [],
+				total: 0,
+				page: 1,
+				more: null,
+			},
+			hamburg.art.coin,
+		).toString();
 		expect(html).toMatch(
 			/<h2>Your rides<\/h2>\n<img class="coin-art coin coin-large" src="\/coin\/rynke-coin-front\.svg\?v=[0-9a-f]{10}" alt=""[^>]*>\n<p>No rides this season yet\.<\/p>/,
 		);
@@ -564,7 +572,12 @@ describe("coins", () => {
 // The waiting state before the first data (015 contracts/pages.md).
 describe("renderWaiting", () => {
 	it("shows the turning coin, the heading and the one-time message", () => {
-		const html = renderWaiting(de, "2026-09-01", 7).toString();
+		const html = renderWaiting(
+			de,
+			"2026-09-01",
+			7,
+			hamburg.art.coin,
+		).toString();
 		expect(html).toMatch(
 			/^<section class="waiting" role="status" data-waiting data-poll-seconds="7">\n<span class="coin coin-large coin-flip" aria-hidden="true"><span class="coin-flip-turn"><img class="coin-art" src="\/coin\/rynke-coin-front\.svg\?v=[0-9a-f]{10}" alt=""[^>]*><img class="coin-art coin-flip-back" src="\/coin\/rynke-coin-back\.svg\?v=[0-9a-f]{10}" alt=""[^>]*><\/span><\/span>\n/,
 		);
@@ -609,12 +622,16 @@ describe("renderRides lazy list (018 US1, US3)", () => {
 	const MORE = "/me/rides/more?after=2026-09-16T08%3A00%3A00Z~8000040";
 
 	function lazy(page: number, more = page < 3 ? KEY : null): string {
-		return renderRides(de, {
-			rows: [line({ activityId: 8_000_040 })],
-			total: 45,
-			page,
-			more,
-		}).toString();
+		return renderRides(
+			de,
+			{
+				rows: [line({ activityId: 8_000_040 })],
+				total: 45,
+				page,
+				more,
+			},
+			hamburg.art.coin,
+		).toString();
 	}
 
 	it("marks the section and has no pager", () => {
@@ -656,12 +673,16 @@ describe("renderRides lazy list (018 US1, US3)", () => {
 	});
 
 	it("leaves a list of 20 rides or fewer as it was", () => {
-		const html = renderRides(de, {
-			rows: [line()],
-			total: 1,
-			page: 1,
-			more: null,
-		}).toString();
+		const html = renderRides(
+			de,
+			{
+				rows: [line()],
+				total: 1,
+				page: 1,
+				more: null,
+			},
+			hamburg.art.coin,
+		).toString();
 		expect(html).toMatch(/^<section id="rides">\n/);
 		for (const part of [
 			"data-lazy",
@@ -675,12 +696,16 @@ describe("renderRides lazy list (018 US1, US3)", () => {
 	});
 
 	it("speaks English in English", () => {
-		const html = renderRides(en, {
-			rows: [line()],
-			total: 1234,
-			page: 2,
-			more: KEY,
-		}).toString();
+		const html = renderRides(
+			en,
+			{
+				rows: [line()],
+				total: 1234,
+				page: 2,
+				more: KEY,
+			},
+			hamburg.art.coin,
+		).toString();
 		expect(html).toContain(
 			'<p class="rides-total">1,234 rides this season</p>',
 		);
@@ -694,12 +719,16 @@ describe("renderRideBatch (018 contracts/http-routes.md)", () => {
 
 	it("renders the cards of the page, with the next batch", () => {
 		const rows = [line({ activityId: 7 }), line({ activityId: 8 })];
-		const page = renderRides(de, {
-			rows,
-			total: 2,
-			page: 1,
-			more: null,
-		}).toString();
+		const page = renderRides(
+			de,
+			{
+				rows,
+				total: 2,
+				page: 1,
+				more: null,
+			},
+			hamburg.art.coin,
+		).toString();
 		const cards = page.slice(page.indexOf("<li "), page.lastIndexOf("</ol>"));
 		expect(renderRideBatch(de, rows, KEY).toString()).toBe(
 			`<ol class="ride-list" data-more="/me/rides/more?after=2026-08-27T08%3A00%3A00Z~8000040">\n${cards}</ol>`,
