@@ -16,5 +16,8 @@ ignores it.
   season albums, done in a downtime window in late August or early September.
   Decide before the next rollover (1 September), for every team,
   Sponsoring-Rynke's season included.
+- gateway routing — [gateway-routing.md](gateway-routing.md); the gateway
+  sends each Strava event only to the teams that hold the athlete, instead of
+  to every team. Comes with or after the third team and the paid plan.
 
 Every earlier prompt here has its spec under `specs/` and was deleted with it.
