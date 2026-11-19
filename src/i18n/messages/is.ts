@@ -150,6 +150,8 @@ export const is: Catalog = {
 	"rynke.rules.version": "Reglur, útgáfa {version}, í gildi frá {date}.",
 	"rynke.rules.windowDeadline": "Allt frá {start} til {deadline} telst.",
 	"rynke.rules.minRide": "Ferðir sem eru {limit} eða lengri teljast.",
+	"rynke.rules.distanceMin":
+		"Kílómetrar gefa Rynke í ferðum úti frá {outdoor} og í sýndarferðum frá {virtual}. Styttri ferðir teljast með hækkun sinni.",
 	"rynke.rules.handout": "Reglurnar sem PDF (á þýsku)",
 	"rynke.rules.handoutEnglish": "Reglurnar sem PDF (á ensku)",
 	"rynke.ride.counts": "telst 🪙",

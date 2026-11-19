@@ -39,6 +39,13 @@ export interface RynkeRules {
 	 * writes 0, so its rule objects and fingerprints stay as they were.
 	 */
 	minRideKm?: number;
+	/**
+	 * The shortest ride whose kilometres earn Rynke, in whole kilometres, one
+	 * for outdoor and one for virtual rides (decided with Team Europe on
+	 * 2026-11-19). A shorter ride still counts, its elevation included; only
+	 * its kilometres earn nothing. Absent means none, as `minRideKm`.
+	 */
+	distanceMinKm?: { outdoor: number; virtual: number };
 	excludedSportTypes: readonly string[];
 	trainingThreshold: number;
 	/**
@@ -230,6 +237,16 @@ export function assertValidRules(rules: RynkeRules): void {
 		(!Number.isInteger(rules.minRideKm) || rules.minRideKm <= 0)
 	) {
 		throw new Error("rules.minRideKm must be a positive integer when set");
+	}
+	if (
+		rules.distanceMinKm !== undefined &&
+		![rules.distanceMinKm.outdoor, rules.distanceMinKm.virtual].every(
+			(km) => Number.isInteger(km) && km > 0,
+		)
+	) {
+		throw new Error(
+			"rules.distanceMinKm must be positive integers for outdoor and virtual when set",
+		);
 	}
 	if (rules.minSpeedKmh >= rules.maxSpeedKmh) {
 		throw new Error("rules.minSpeedKmh must be below rules.maxSpeedKmh");

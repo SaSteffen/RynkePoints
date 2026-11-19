@@ -63,13 +63,17 @@ test("its own pictures for badges with Hamburg motifs", async ({ page }) => {
 	);
 });
 
-// Europe's 25 km minimum ride length (feature 039 US3).
-test("a ride under 25 km doesn't count", async ({ page }) => {
+// Europe's minimum for kilometre Rynke (rules version 5): an outdoor ride
+// under 25 km still counts, with its elevation.
+test("an outdoor ride under 25 km counts", async ({ page }) => {
 	await signIn(page, "Siiri ShortRide");
 	await skipTours(page);
 	await page.goto("/me/rides");
-	await expect(page.locator("#rides")).toContainText(
-		"Too short: 24.9 km, at least 25 km needed.",
+	await expect(page.locator("#rides .ride-counting")).toHaveCount(3);
+	await expect(page.locator("#rides .ride-not-counting")).toHaveCount(0);
+	await page.goto("/me/settings");
+	await expect(page.locator("body")).toContainText(
+		"Kilometres earn Rynke on outdoor rides from 25 km and on virtual rides from 1 km.",
 	);
 });
 

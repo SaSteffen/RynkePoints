@@ -11,8 +11,9 @@ Maintainers: this handout is informational only. The specification
 specs/003-rynke-evaluation/spec.md is authoritative; if the two differ, fix this
 file (FR-019). For now it is an English translation of Hamburg's
 docs/rynke-punkte.md with this team's name (spec 026 task T082), and this team's
-own rules since feature 039: the 25 km minimum ride length, and no Team Rynke,
-team events or Tour de Paris days. Keep the rest in step with Hamburg's. Render
+own rules since feature 039: no Team Rynke, team events or Tour de Paris days,
+and since rules version 5 (2026-11-19) the minimum for kilometre Rynke, 25 km
+outdoors and 1 km on virtual rides. Keep the rest in step with Hamburg's. Render
 it with `pnpm docs:pdf` and commit public/teams/europe/rynke-points.pdf: the app
 links riders to that PDF.
 -->
@@ -80,7 +81,8 @@ Of these 250 Training Rynke, at least 84 have to come from outside virtual rides
 | every full 10 km of a ride               |              1 |
 | every full 1000 m of elevation (season) |              5 |
 
-A ride counts only from **25 km** on (see "What doesn't count").
+Kilometres bring Rynke only from **25 km** on outdoors and from **1 km** on
+virtual rides. Elevation always counts.
 
 ## Kilometres and elevation
 
@@ -92,6 +94,10 @@ gives 1 Training Rynke. Whatever goes beyond the last full 10 km is lost. It is
 **not** added to other rides. That's on purpose: we want proper long rides, not
 many short ones.
 
+A ride outdoors needs at least **25 km** for its kilometres to bring Rynke, a
+virtual ride at least **1 km**. A shorter ride still counts: its elevation goes
+into your season total like any other.
+
 **Elevation**, on the other hand, is **never lost**. RynkePoints adds up the
 elevation of all your rides from 1 January to 30 June. Every **full 1000 m** in
 total gives 5 Training Rynke. Whatever isn't enough for the next 1000 yet stays
@@ -102,7 +108,11 @@ and keeps counting with your next rides.
 | 79 km                           |              7 | the last 9 km are lost             |
 | 100 km                          |             10 |                                    |
 | 3 rides of 7 km each            |              0 | each ride under 25 km              |
+| 24.9 km outdoors                |              0 | under 25 km                        |
+| 25 km outdoors                  |              2 | at least 25 km                     |
 | 2 rides of 25 km each           |              4 | 2 + 2, not 50 km = 5               |
+| 15 km virtual                   |              1 | at least 1 km virtual              |
+| 20 km with 1000 m elevation     |              5 | 0 for km + 5 for elevation         |
 | 1999 m of elevation in one ride |              5 | 1 full 1000, 999 m stay            |
 | 2 rides of 600 m elevation each |              5 | 1200 m together, 200 m stay        |
 | 1999 + 1 m elevation in 2 rides |             10 | 2000 m together                    |
@@ -150,9 +160,6 @@ These recordings bring no Rynke, neither for kilometres nor for elevation:
   count for club leaderboards or segment records either), it never counts with
   us, whatever the reason. If you think the flag is wrong, settle it with
   Strava; once it is lifted, the ride is counted by the other rules.
-- **Rides shorter than 25 km.** A ride has to be at least **25 km** long to
-  count. A ride of 24.9 km brings nothing, not even for its elevation; one of
-  25 km counts like any other.
 - **Manually entered activities.** What you enter on Strava by hand instead of
   recording it doesn't count. That's also true if your bike computer failed; in
   that case, talk to the organisers (see "Corrections").
@@ -169,8 +176,6 @@ These recordings bring no Rynke, neither for kilometres nor for elevation:
 
 | Recording                                             | Training Rynke | Why                           |
 |-------------------------------------------------------|---------------:|-------------------------------|
-| 24.9 km                                               |              0 | under 25 km                   |
-| 25 km                                                 |              2 | at least 25 km                |
 | 80 km on a bike computer, 78 km on a phone, same time |              8 | only the longer one counts    |
 | 300 km in 4 h moving time (train)                     |              0 | average 75 km/h               |
 | 25 km in 3 h moving time (walk)                       |              0 | average 8.3 km/h              |
@@ -192,7 +197,8 @@ don't count.
 ## Virtual rides (Zwift & co.)
 
 Rides on an indoor trainer count as normal, with Zwift or similar apps just as
-without. A virtual ride is any ride that Strava marks as a virtual ride or as an
+without. Short sessions count too: their kilometres bring Rynke from 1 km on,
+and their elevation always counts. A virtual ride is any ride that Strava marks as a virtual ride or as an
 indoor trainer ride. For the Tour, though: you need at least **84 Training
 Rynke**, a third of the 250, from rides outdoors and corrections. The rest may
 come from virtual rides. Whatever you collect virtually stays in your total, but
