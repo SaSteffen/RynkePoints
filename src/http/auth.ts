@@ -2,7 +2,7 @@ import {
 	clientId,
 	memberClubIds,
 	returnVia,
-	seasonStart,
+	seasonFetchAfter,
 	teamId,
 } from "../config";
 import { currentRevision, currentVersion, grantedScopes } from "../consent";
@@ -286,7 +286,7 @@ export async function handleCallback(
 			kind: "import-page",
 			athleteId: token.athleteId,
 			page: 1,
-			after: seasonStart(ctx.env),
+			after: seasonFetchAfter(ctx.env),
 			startedAt: now,
 		});
 	}

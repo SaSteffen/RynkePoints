@@ -1,4 +1,4 @@
-import { seasonStart } from "../config";
+import { seasonFetchAfter } from "../config";
 import { secretEquals } from "../crypto/secret";
 import type { Ctx } from "../ctx";
 import { listConnectedRiderIds } from "../db/riders";
@@ -46,7 +46,7 @@ export async function handleCatchUp(
 	if (!(since <= now && since >= now - MAX_AGE_SECONDS)) {
 		return text("since must be epoch seconds within the last 30 days", 400);
 	}
-	const after = Math.max(since, seasonStart(ctx.env));
+	const after = Math.max(since, seasonFetchAfter(ctx.env));
 	const ids = await listConnectedRiderIds(ctx.env.DB);
 	await sendAll(
 		ctx,

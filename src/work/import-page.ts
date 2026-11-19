@@ -9,9 +9,9 @@ import {
 } from "./messages";
 
 // The season import, one page of 200 activities per message (research R8,
-// contracts/queue-messages.md). The first page starts after the season start
-// the import was started with, so a changed season start only affects imports
-// started afterwards; each next one after the newest start listed so far
+// contracts/queue-messages.md). The first page starts a day before the season
+// start the import was started with (review L-16), so a changed season start
+// only affects imports started afterwards; each next one after the newest start listed so far
 // (review L-21). Every listed activity is stored again, so one the finished
 // import didn't refresh wasn't listed: deleted, made private or changed while
 // the rider had to reconnect (review L-03). Each gets one refetch, and the

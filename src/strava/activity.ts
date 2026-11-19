@@ -96,16 +96,19 @@ export function isCycling(sportType: string): sportType is CyclingSportType {
 }
 
 /**
- * Whether an activity starts at or after the season start (epoch seconds).
- * Nothing older is stored: the import asks Strava only for activities after
- * it, and this keeps a webhook event about an older one out too.
+ * Whether an activity's local date (`start_date_local`) is on or after the
+ * season start date (`YYYY-MM-DD`), the date rides count by. Nothing older is
+ * stored: the import's list starts the day before (`seasonFetchAfter`), and
+ * this keeps the rest out, a webhook event about an older one too.
  */
 export function startsInSeason(
-	startDate: string,
-	seasonStartEpoch: number,
+	startDateLocal: string,
+	seasonStartDate: string,
 ): boolean {
-	const started = Date.parse(startDate);
-	return Number.isFinite(started) && started / 1000 >= seasonStartEpoch;
+	return (
+		/^\d{4}-\d{2}-\d{2}/.test(startDateLocal) &&
+		startDateLocal.slice(0, 10) >= seasonStartDate
+	);
 }
 
 /** Returns the record to store, or null if the activity isn't cycling. */
