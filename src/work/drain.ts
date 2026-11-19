@@ -39,8 +39,14 @@ import { notifyRiders } from "./send-notification";
 // queue (R3). A rider's notifications wait until their queue is empty, then
 // each rider owed one gets one (R6).
 
-/** Items per invocation; then a wake continues at once (R4). */
-export const DRAIN_LIMIT = 50;
+/**
+ * Items per invocation; then a wake continues at once (R4). Workers Free allows
+ * 50 subrequests to other services per invocation (review L-09). The batch
+ * before the drain can use 20 of them: 10 messages, each at most 2 (a
+ * withdrawal asks the gateway and revokes; a re-check refreshes and lists). An
+ * item uses at most 2, a token refresh and its Strava call, so 15 fit the rest.
+ */
+export const DRAIN_LIMIT = 15;
 
 export async function drain(ctx: Ctx, handlers: Handlers): Promise<void> {
 	const db = ctx.env.DB;

@@ -27,7 +27,8 @@ No identifiers. Sent by the consumer only, with `delaySeconds` (R4).
 
 ## Drain
 
-Up to `DRAIN_LIMIT` (50) items per invocation:
+Up to `DRAIN_LIMIT` (15) items per invocation, so the batch's and the drain's
+Strava calls stay within Workers Free's 50 subrequests (review L-09):
 
 1. Pick the next item (research R2). None ready: if rows wait for a backoff,
    wake at the earliest `not_before`; stop.
