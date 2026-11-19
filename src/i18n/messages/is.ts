@@ -156,6 +156,10 @@ export const is: Catalog = {
 	"rynke.rules.handoutEnglish": "Reglurnar sem PDF (á ensku)",
 	"rynke.ride.counts": "telst 🪙",
 	"rynke.ride.countsWithoutRynke": "telst",
+	"rynke.ride.belowMinimum.outdoor":
+		"Undir {limit} utandyra: engin Rynke fyrir kílómetrana. Hækkunin telst samt.",
+	"rynke.ride.belowMinimum.virtual":
+		"Sýndarferð undir {limit}: engin Rynke fyrir kílómetrana. Hækkunin telst samt.",
 	"rynke.ride.doesNotCount": "telst ekki",
 	"rynke.ride.notYet": "telst ekki enn",
 	"rynke.ride.beingEvaluated": "Í mati",
@@ -304,6 +308,8 @@ export const is: Catalog = {
 		"Ferðir: hver ferð og hvað hún gaf. Þessi telst ekki. „Af hverju?“ segir hvað fór úrskeiðis og hvað þú getur gert.",
 	"tour.rider.shortRide":
 		"Hverjir heilir {distanceKm} km ferðar gefa {distanceRynke} Æfinga-Rynke. Þessi ferð var styttri: hún telst en gefur engin Rynke fyrir vegalengdina. Hækkunin fer samt á mælinn.",
+	"tour.rider.shortRide.minimum":
+		"Kílómetrar gefa Rynke utandyra frá {outdoorMinKm}\u00a0km og í sýndarferðum frá {virtualMinKm}\u00a0km; síðan gefa hverjir heilir {distanceKm}\u00a0km {distanceRynke}\u00a0æfinga-Rynke. Þessi ferð var styttri: hún telst, en gefur engin Rynke fyrir vegalengdina. Hækkunin fer samt á teljarann, frá fyrsta metra.",
 	"tour.rider.badges": "Merki: þín og liðsins, og hve langt er í það næsta.",
 	"tour.rider.events":
 		"Viðburðir: viðburðir liðsins. Segðu fyrir fram hvort þú mætir og tilkynntu eftir á að þú hafir verið þar. Þegar skipuleggjendur hafa bætt þér við færðu Liðs-Rynke.",

@@ -161,6 +161,10 @@ export const de = {
 	"rynke.rules.handoutEnglish": "Die Regeln als PDF (auf Englisch)",
 	"rynke.ride.counts": "zählt 🪙",
 	"rynke.ride.countsWithoutRynke": "zählt",
+	"rynke.ride.belowMinimum.outdoor":
+		"Unter {limit} draußen: keine Rynke für die Kilometer. Die Höhenmeter zählen trotzdem.",
+	"rynke.ride.belowMinimum.virtual":
+		"Virtuelle Fahrt unter {limit}: keine Rynke für die Kilometer. Die Höhenmeter zählen trotzdem.",
 	"rynke.ride.doesNotCount": "zählt nicht",
 	"rynke.ride.notYet": "zählt noch nicht",
 	"rynke.ride.beingEvaluated": "Wird ausgewertet",
@@ -324,6 +328,8 @@ export const de = {
 		"Fahrten: jede Fahrt und was sie gebracht hat. Diese hier zählt nicht. Unter „Warum?“ steht, woran es lag und was du tun kannst.",
 	"tour.rider.shortRide":
 		"Für jede volle {distanceKm}\u00a0km einer Fahrt gibt es {distanceRynke}\u00a0Trainingsrynke. Diese Fahrt war kürzer: Sie zählt, bringt aber keine Rynke für die Strecke. Ihre Höhenmeter kommen trotzdem auf den Zähler.",
+	"tour.rider.shortRide.minimum":
+		"Kilometer bringen draußen ab {outdoorMinKm}\u00a0km Rynke, virtuell ab {virtualMinKm}\u00a0km; dann bringen je volle {distanceKm}\u00a0km {distanceRynke}\u00a0Trainingsrynke. Diese Fahrt war kürzer: Sie zählt, bringt für ihre Strecke aber keine Rynke. Ihre Höhenmeter kommen trotzdem auf den Zähler, ab dem ersten Meter.",
 	"tour.rider.badges":
 		"Abzeichen: deine und die des Teams, und wie weit es bis zum nächsten ist.",
 	"tour.rider.events":

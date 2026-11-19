@@ -3,10 +3,12 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { type AlbumFiles, handleAlbumRequest } from "../../album/routes";
 import { BADGES } from "../../src/badges/catalog";
 import { upsertBadgeRiseStatement } from "../../src/db/badges";
+import type { Rider } from "../../src/db/riders";
 import { escapeHtml } from "../../src/http/html";
 import { homeOf } from "../../src/http/redirect";
 import { hiddenSections, tourSwitches } from "../../src/http/shell";
-import { tourSteps } from "../../src/http/tour";
+import { tourHint, tourSteps } from "../../src/http/tour";
+import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 import { type ActivityChange, evaluateChange } from "../../src/rynke/apply";
 import { currentRules } from "../../src/rynke/rules";
@@ -287,5 +289,41 @@ describe("Team Rynke and events", () => {
 		expect(rider(none)).toEqual(
 			rider(europe).filter((text) => text !== "tour.rider.outdoor"),
 		);
+	});
+});
+
+// Europe's kilometre minimums (rules version 5): the short-ride step names
+// them, Hamburg's, without minimums, doesn't.
+describe("the tour's short-ride step", () => {
+	const shortRide = (team: typeof hamburg): string => {
+		const rider = { organiser: false, onboardedAt: 1 } as Rider;
+		const switches = tourSwitches({ env, team });
+		const index = tourSteps("rider", rider, switches).findIndex(
+			(s) => s.text === "tour.rider.shortRide",
+		);
+		const hint = tourHint(
+			createI18n("en", CATALOGS),
+			rider,
+			"/me/rides",
+			new URLSearchParams({ tour: "rider", step: String(index + 1) }),
+			{
+				rules: currentRules(team.rules),
+				eventKinds: team.eventKinds,
+				...switches,
+			},
+		);
+		return hint?.card.toString() ?? "";
+	};
+
+	it("names Europe's outdoor and virtual minimums", () => {
+		expect(shortRide(europe)).toContain(
+			"outdoors from 25\u00a0km and on virtual rides from 1\u00a0km",
+		);
+	});
+
+	it("names none for Hamburg", () => {
+		const text = shortRide(hamburg);
+		expect(text).toContain("This ride was shorter");
+		expect(text).not.toContain("outdoors from");
 	});
 });

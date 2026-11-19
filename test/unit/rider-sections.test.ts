@@ -43,6 +43,7 @@ function line(overrides: Partial<RideLine> = {}): RideLine {
 		distanceRynke: 0,
 		elevationM: 0,
 		isVirtual: false,
+		belowMinKm: null,
 		reasons: [],
 		unknownFigures: [],
 		fixHint: true,
@@ -814,5 +815,28 @@ describe("renderGauges and renderSummary without Team Rynke (feature 039)", () =
 		).toString();
 		expect(html).toContain("rynke-missing");
 		expect(html).not.toContain(en.t("rynke.team"));
+	});
+});
+
+// A counting ride under its kind's kilometre minimum (Europe's rules version 5).
+describe("a ride under the kilometre minimum", () => {
+	it("says why its kilometres earned nothing, outdoors and virtual", () => {
+		const counted = { status: "counts", fixHint: false } as const;
+		expect(
+			table(line({ ...counted, distanceM: 20_000, belowMinKm: 25 })),
+		).toContain(
+			"Under 25\u00a0km outdoors: no Rynke for the kilometres. Its elevation still counts.",
+		);
+		expect(
+			table(
+				line({ ...counted, isVirtual: true, distanceM: 500, belowMinKm: 1 }),
+			),
+		).toContain("Virtual ride under 1\u00a0km");
+	});
+
+	it("says nothing without a minimum", () => {
+		expect(
+			table(line({ status: "counts", fixHint: false, distanceM: 7_000 })),
+		).not.toContain("ride-note");
 	});
 });

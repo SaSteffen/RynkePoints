@@ -157,6 +157,10 @@ export const lt: Catalog = {
 	"rynke.rules.handoutEnglish": "Taisyklės PDF formatu (anglų kalba)",
 	"rynke.ride.counts": "skaičiuojama 🪙",
 	"rynke.ride.countsWithoutRynke": "skaičiuojama",
+	"rynke.ride.belowMinimum.outdoor":
+		"Mažiau nei {limit} lauke: už kilometrus Rynke negaunama. Aukščio metrai vis tiek skaičiuojami.",
+	"rynke.ride.belowMinimum.virtual":
+		"Virtualus važiavimas trumpesnis nei {limit}: už kilometrus Rynke negaunama. Aukščio metrai vis tiek skaičiuojami.",
 	"rynke.ride.doesNotCount": "neskaičiuojama",
 	"rynke.ride.notYet": "dar neskaičiuojama",
 	"rynke.ride.beingEvaluated": "Vertinama",
@@ -306,6 +310,8 @@ export const lt: Catalog = {
 		"Važiavimai: kiekvienas važiavimas ir ką jis davė. Šis neskaičiuojamas. „Kodėl?“ paaiškina, kas negerai ir ką gali padaryti.",
 	"tour.rider.shortRide":
 		"Kiekvieni pilni {distanceKm} km važiavimo duoda {distanceRynke} Treniruočių Rynke. Šis važiavimas buvo trumpesnis: jis skaičiuojamas, bet už atstumą Rynke neduoda. Jo kopimas vis tiek patenka į skaitiklį.",
+	"tour.rider.shortRide.minimum":
+		"Kilometrai duoda Rynke lauke nuo {outdoorMinKm}\u00a0km, virtualiuose važiavimuose nuo {virtualMinKm}\u00a0km; tada kiekvieni pilni {distanceKm}\u00a0km duoda {distanceRynke}\u00a0treniruočių Rynke. Šis važiavimas buvo trumpesnis: jis skaičiuojamas, bet už atstumą Rynke negaunama. Jo aukščio metrai vis tiek patenka į skaitiklį nuo pirmo metro.",
 	"tour.rider.badges": "Ženkleliai: tavo ir komandos, ir kiek liko iki kito.",
 	"tour.rider.events":
 		"Renginiai: komandos renginiai. Iš anksto pasakyk, ar ateisi, o po to pranešk, kad buvai. Kai organizatoriai tave įtrauks, gausi Komandos Rynke.",

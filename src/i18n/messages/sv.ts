@@ -154,6 +154,10 @@ export const sv: Catalog = {
 	"rynke.rules.handoutEnglish": "Reglerna som PDF (på engelska)",
 	"rynke.ride.counts": "räknas 🪙",
 	"rynke.ride.countsWithoutRynke": "räknas",
+	"rynke.ride.belowMinimum.outdoor":
+		"Under {limit} utomhus: inga Rynke för kilometerna. Höjdmetrarna räknas ändå.",
+	"rynke.ride.belowMinimum.virtual":
+		"Virtuell tur under {limit}: inga Rynke för kilometerna. Höjdmetrarna räknas ändå.",
 	"rynke.ride.doesNotCount": "räknas inte",
 	"rynke.ride.notYet": "räknas inte än",
 	"rynke.ride.beingEvaluated": "Bedöms",
@@ -301,6 +305,8 @@ export const sv: Catalog = {
 		"Turer: varje tur och vad den gav. Den här räknas inte. ”Varför?” berättar vad som gick fel och vad du kan göra.",
 	"tour.rider.shortRide":
 		"Varje hel {distanceKm} km av en tur ger {distanceRynke} Tränings-Rynke. Den här turen var kortare: den räknas, men ger inga Rynke för distansen. Höjdmetrarna kommer ändå med på räknaren.",
+	"tour.rider.shortRide.minimum":
+		"Kilometer ger Rynke utomhus från {outdoorMinKm}\u00a0km och på virtuella turer från {virtualMinKm}\u00a0km; sedan ger varje hel {distanceKm}\u00a0km {distanceRynke}\u00a0tränings-Rynke. Den här turen var kortare: den räknas, men ger inga Rynke för sträckan. Höjdmetrarna går ändå in på räknaren, från första metern.",
 	"tour.rider.badges":
 		"Märken: dina och lagets, och hur långt det är till nästa.",
 	"tour.rider.events":

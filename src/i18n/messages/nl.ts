@@ -154,6 +154,10 @@ export const nl: Catalog = {
 	"rynke.rules.handoutEnglish": "De regels als pdf (in het Engels)",
 	"rynke.ride.counts": "telt 🪙",
 	"rynke.ride.countsWithoutRynke": "telt",
+	"rynke.ride.belowMinimum.outdoor":
+		"Minder dan {limit} buiten: geen Rynke voor de kilometers. De hoogtemeters tellen wel.",
+	"rynke.ride.belowMinimum.virtual":
+		"Virtuele rit onder {limit}: geen Rynke voor de kilometers. De hoogtemeters tellen wel.",
 	"rynke.ride.doesNotCount": "telt niet",
 	"rynke.ride.notYet": "telt nog niet",
 	"rynke.ride.beingEvaluated": "Wordt beoordeeld",
@@ -308,6 +312,8 @@ export const nl: Catalog = {
 		"Ritten: elke rit en wat hij opleverde. Deze telt niet. “Waarom?” zegt wat er misging en wat je kunt doen.",
 	"tour.rider.shortRide":
 		"Elke volle {distanceKm} km van een rit levert {distanceRynke} Trainings-Rynke op. Deze rit was korter: hij telt, maar levert geen Rynke op voor zijn afstand. Zijn hoogtemeters gaan wel op de teller.",
+	"tour.rider.shortRide.minimum":
+		"Kilometers leveren buiten Rynke op vanaf {outdoorMinKm}\u00a0km en bij virtuele ritten vanaf {virtualMinKm}\u00a0km; daarna levert elke volle {distanceKm}\u00a0km {distanceRynke}\u00a0trainings-Rynke op. Deze rit was korter: hij telt, maar levert voor de afstand geen Rynke op. De hoogtemeters gaan wel op de teller, vanaf de eerste meter.",
 	"tour.rider.badges":
 		"Badges: die van jou en van het team, en hoe ver het nog is tot de volgende.",
 	"tour.rider.events":
