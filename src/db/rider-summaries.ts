@@ -168,7 +168,7 @@ function entriesByRider<Row extends { athlete_id: number }, Entry>(
  * Every counting and pre-window ride of the listed riders in `athleteIds` whose
  * consent is at least `consentSince`, as `summaryOf` stores them (feature 032
  * research R1):
- * for riders without a version 3 row, so they get correct figures, never a
+ * for riders without a version 4 row, so they get correct figures, never a
  * false zero. The consent is checked again here, since this isn't the first
  * batch's snapshot.
  */

@@ -18,10 +18,12 @@ export const TEAM_SUMMARY_SINCE = 1;
 /** The lowest version with `virtual_days` and `own_days`. */
 export const OWN_SUMMARY_SINCE = 2;
 /**
- * The lowest version with `rides` (feature 032). Version 4 adds the pre-window
- * rides; a version 3 row lacks only those until the daily job rewrites it.
+ * The lowest version whose `rides` hold: version 4, the first with the
+ * pre-window rides (feature 040). A version 3 row lacks them, which before a
+ * later window opens leaves the ride figures empty, so a rider with one is added
+ * up from their rides until the daily job rewrites it.
  */
-export const RIDE_SUMMARY_SINCE = 3;
+export const RIDE_SUMMARY_SINCE = 4;
 
 /** `[date, distanceM, distanceRynke, elevationDm]`, one per day of rides. */
 export type DayEntry = [string, number, number, number];

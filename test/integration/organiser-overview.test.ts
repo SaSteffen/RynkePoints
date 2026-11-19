@@ -175,6 +175,22 @@ describe("GET /organiser/riders, the overview", () => {
 		);
 	});
 
+	it("opens on everyone before qualifying starts, not on Need a push (feature 040)", async () => {
+		const before = {
+			...ctx,
+			env: { ...ctx.env, QUALIFICATION_START_DATE: "2027-01-01" },
+		};
+		const { html } = await riderPage(before, ORGANISER.id, "/organiser/riders");
+		expect(html).toContain('<nav class="group-tiles" id="tour-groups"');
+		expect(html).toContain('<ul class="rider-rows">');
+		expect(html).toMatch(
+			/<a class="group-tile tile-all" href="\/organiser\/riders\?group=all" data-swap aria-current="true">/,
+		);
+		expect(html).not.toMatch(/class="group-tile tile-push"[^>]*aria-current/);
+		const { html: started } = await overview();
+		expect(started).toContain('<nav class="group-tiles default"');
+	});
+
 	it("shows the coin's back as the team's artwork", async () => {
 		const { html } = await overview();
 		expect(html).toContain(
