@@ -133,7 +133,8 @@ and the badge shows the neutral picture.
 ## Checking a picture
 
 - Rynke looks like the reference (helmet with three vents, orange fur, light
-  muzzle); team pictures show several copies of him.
+  muzzle, no tail: [`../README.md`](../README.md#rynke-has-no-tail)); team
+  pictures show several copies of him, none with a tail.
 - No frame, ring or circle drawn around the scene; nothing important near the
   edge, as the window crops it round, and nothing at all in the bottom 15 %
   of the circle, where the milestone ribbon goes (spec FR-040b): the prompt

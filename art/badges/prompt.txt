@@ -1,4 +1,4 @@
-Using the attached badge as the exact reference for character and style (the character: same head shape, orange fur, light muzzle, round black eyes, two-dot nose, yellow cycling helmet with three vents, yellow jersey), draw a new picture for the round cream window in the middle of this badge.
+Using the attached badge as the exact reference for character and style (the character: same head shape, orange fur, light muzzle, round black eyes, two-dot nose, yellow cycling helmet with three vents, yellow jersey, and NO tail), draw a new picture for the round cream window in the middle of this badge.
 
 Draw ONLY the picture that goes inside the window. Do not draw the badge itself: no sunflower petals, no ring, no stars, no circle, no frame of any kind.
 
@@ -14,4 +14,4 @@ Proportions: chibi like the reference, every character's head about 40% of its f
 
 Canvas: square 1:1, 2048 x 2048 px, plain pure white background. Everything fits inside a centered circle of 1800 px diameter, the main subject in the middle: the picture is cropped to a circle. A ribbon will cover the bottom of that circle: everything below 1600 px from the top of the canvas stays EMPTY, plain white, with nothing drawn there at all, not even ground, shadows, feet or wheels. Compose the whole scene in the space above that line: the lowest point of anything (wheels, feet, ground, grass) is at most 1600 px from the top. No text, no letters, no numbers, no border, no ground line unless the scene asks for one.
 
-Check before you finish: the bottom fifth of the canvas is empty white.
+Check before you finish: the bottom fifth of the canvas is empty white; no copy of the character has a tail.
