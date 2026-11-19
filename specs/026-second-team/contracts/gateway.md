@@ -21,6 +21,9 @@ The team's callback then checks its state cookie as today (US1 scenario 4).
 For each message: `POST <team origin>/strava/webhook/<TEAM_WEBHOOK_TOKEN_<ID>>` with the
 event as JSON, timeout 10 s. A 2xx acks the message; anything else calls
 `message.retry({ delaySeconds })` with growing delays. `max_concurrency` stays low.
+The queue keeps a message 24 hours on the Free plan, so the tries end about 17 hours
+after the event, long before `max_retries`; a team down longer needs a catch-up
+(`docs/gateway-switch.md`).
 
 A team whose Worker is on the gateway's own Cloudflare account is called through the
 service binding `TEAM_SERVICE_<ID>` to its Worker instead, with the same request.

@@ -298,6 +298,13 @@ machine.
 - **The gateway is down**: Strava's events and sign-ins fail until it is back. Strava
   retries events only for a limited time, so this must be visible (feature 025 doesn't
   cover it; see Assumptions).
+- **A team is down for more than about 17 hours**: The gateway retries each event until the
+  queue drops it, 24 hours after it came in on the Free plan; with the growing delays the
+  last try comes about 17 hours after it came in. An event the team hasn't taken by then is
+  lost for that team. The ride edit re-check (feature 036) finds new, changed and deleted
+  rides of riders with an activity in the last 30 days, and the daily run finds riders who
+  revoked access. After such an outage, a maintainer runs the catch-up from its start
+  (FR-011).
 - **A team's domain or club is misconfigured**: Checks catch a missing value. A wrong one
   shows up as refused riders, not as riders landing in the wrong team, because each
   deployment has only its own database.

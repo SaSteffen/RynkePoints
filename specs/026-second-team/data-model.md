@@ -95,9 +95,12 @@ Each locale's plural object has exactly its `Intl.PluralRules` categories (R3).
 | `team` | team id |
 | `event` | Strava webhook body as received (object_type, object_id, aspect_type, owner_id, subscription_id, event_time, updates) |
 
-Not logged. Retries: up to the queue's `max_retries` with backoff. After the last retry,
-the gateway logs team ID and event time only, and the team's daily membership/activity
-reconciliation is the safety net.
+Not logged. Retries: with a growing delay (30 s, doubling, up to 12 h) until the queue
+drops the message, 24 hours after it was sent on the Free plan. The last try comes about
+17 hours after the event, long before `max_retries`. Each try logs team ID, status and
+attempt only; the drop logs nothing. The safety nets are the ride edit re-check
+(feature 036), the daily membership check for revoked access and, after a longer outage,
+the catch-up (`docs/gateway-switch.md`).
 
 ## DevTarget (`scripts/dev.mjs`)
 

@@ -97,8 +97,9 @@ Each team's block in `wrangler.jsonc` declares these. Every Wrangler command nam
 ### The gateway
 
 `gateway/` is a Worker of its own, with no database and no rider data. It receives Strava's webhook
-events and passes each one to every team through its own queue, retrying each team separately (up to
-100 times), so a team that is down doesn't hold up the others. It also sends a rider coming back from
+events and passes each one to every team through its own queue, retrying each team separately for
+about 17 hours (the queue keeps a message 24 hours on the free plan), so a team that is down doesn't
+hold up the others. It also sends a rider coming back from
 Strava's sign-in on to their own team's domain, and only to domains on its fixed list. It reaches
 Hamburg through a service binding. The sequence diagrams are in
 [Architecture and working together](architecture-and-collaboration.md#a-strava-event-through-the-gateway),
