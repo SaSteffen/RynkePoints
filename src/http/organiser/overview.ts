@@ -251,6 +251,19 @@ export function overviewRiders(
 	);
 }
 
+/**
+ * The group the list and the graphs open on. Before the window opens nobody can
+ * need a push, so they open on everyone instead of an empty "Need a push"
+ * (feature 040); otherwise none, and the width picks it.
+ */
+function openingGroup(
+	group: Group | null,
+	window: CountingWindow,
+	today: string,
+): Group | null {
+	return group ?? (today < window.windowStart ? "all" : null);
+}
+
 /** The `group` query: one of the tiles, else none (research R9). */
 export function parseGroup(
 	value: string | null,
@@ -1021,10 +1034,7 @@ export function overviewBody(
 			: (rider: OverviewRider) =>
 					seasonSessions(rides, rider.athleteId, window);
 	const riders = overviewRiders(read, rules, window, today);
-	// Before the window opens nobody can need a push, so the overview opens on
-	// everyone instead of an empty "Need a push" (feature 040).
-	const current: Group | null =
-		group ?? (today < window.windowStart ? "all" : null);
+	const current = openingGroup(group, window, today);
 	// Riders with open requests first (019 FR-034), the order otherwise kept.
 	const shown =
 		current === null || current === "all"
@@ -1165,7 +1175,7 @@ export function handleOrganiserOverview(
 						requests,
 						window,
 						today,
-						group: shownGroup,
+						group: openingGroup(shownGroup, window, today),
 						rides: team.rides,
 					}),
 				)
