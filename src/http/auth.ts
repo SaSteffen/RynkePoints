@@ -287,6 +287,7 @@ export async function handleCallback(
 			athleteId: token.athleteId,
 			page: 1,
 			after: seasonStart(ctx.env),
+			startedAt: now,
 		});
 	}
 

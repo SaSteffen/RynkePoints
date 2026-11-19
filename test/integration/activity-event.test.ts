@@ -358,6 +358,22 @@ describe("activity-event: dropped messages", () => {
 		expect(fake.calls).toEqual([]);
 		expect(await rows()).toEqual([]);
 	});
+
+	it("removes a deleted activity while the rider needs to reconnect", async () => {
+		await connectedRider();
+		addRide(A);
+		await deliver(msg(A, "create"));
+		await env.DB.prepare(
+			"UPDATE riders SET status = 'needs_reconnect', reconnect_requested_at = ?",
+		)
+			.bind(NOW)
+			.run();
+		const callsBefore = fake.calls.length;
+		const { result } = await deliver(msg(A, "delete"));
+		expect(result.explicitAcks).toEqual(["m1"]);
+		expect(fake.calls).toHaveLength(callsBefore);
+		expect(await storedIds()).toEqual([]);
+	});
 });
 
 describe("activity-event: retries", () => {

@@ -353,6 +353,7 @@ describe("GET /auth/callback success", () => {
 					athleteId: ATHLETE_A,
 					page: 1,
 					after: SEASON_START,
+					startedAt: NOW,
 				},
 				delaySeconds: undefined,
 			},
@@ -406,6 +407,7 @@ describe("GET /auth/callback success", () => {
 				athleteId: ATHLETE_A,
 				page: 1,
 				after: SEASON_START,
+				startedAt: NOW,
 			},
 		]);
 	});

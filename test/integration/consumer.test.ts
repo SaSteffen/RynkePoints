@@ -38,6 +38,13 @@ const DELETE: WorkMessage = {
 	reason: "left-club",
 	revoke: true,
 };
+const REMOVED: WorkMessage = {
+	kind: "activity-event",
+	athleteId: ATHLETE_A,
+	activityId: 7_200_001,
+	aspect: "delete",
+	changed: [],
+};
 
 async function run(
 	body: unknown,
@@ -50,6 +57,7 @@ async function run(
 	);
 	const handlers: Handlers = {
 		"check-membership": handler,
+		"activity-event": handler,
 		"delete-rider": handler,
 		"evaluate-rider": handler,
 	};
@@ -83,15 +91,23 @@ describe("processBatch", () => {
 		expect(queueResult.explicitAcks).toEqual(["m1"]);
 	});
 
-	it("drops everything but delete-rider for a needs_reconnect rider", async () => {
+	it("drops everything but deletions for a needs_reconnect rider", async () => {
 		await seedRider(makeCtx(), { status: "needs_reconnect" });
 		const dropped = await run(CHECK, { kind: "ok" });
 		expect(dropped.handler).not.toHaveBeenCalled();
 		expect(dropped.queueResult.explicitAcks).toEqual(["m1"]);
 
+		const update = { ...REMOVED, aspect: "update" };
+		const notRemoved = await run(update, { kind: "ok" });
+		expect(notRemoved.handler).not.toHaveBeenCalled();
+
 		const deleted = await run(DELETE, { kind: "ok" });
 		expect(deleted.handler).toHaveBeenCalledOnce();
 		expect(deleted.queueResult.explicitAcks).toEqual(["m1"]);
+
+		const removed = await run(REMOVED, { kind: "ok" });
+		expect(removed.handler).toHaveBeenCalledOnce();
+		expect(removed.queueResult.explicitAcks).toEqual(["m1"]);
 	});
 
 	it("passes the message, rider and attempt info to the handler", async () => {

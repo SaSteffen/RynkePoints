@@ -79,6 +79,7 @@ describe("reconnect scope changes", () => {
 				athleteId: ATHLETE_A,
 				page: 1,
 				after: seasonStartEpoch("2026-01-01"),
+				startedAt: NOW,
 			},
 		]);
 	});
