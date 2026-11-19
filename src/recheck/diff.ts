@@ -4,7 +4,9 @@ import type { ActivityRecord, RunRecord, SwimRecord } from "../strava/activity";
 // R7): those not stored as the same kind, and those that differ in a stored
 // figure. The refresh time is no figure. Where the list lacks a figure the
 // stored activity has, the stored one stays and is no difference (FR-006).
-// Stored activities missing from the list are not looked at.
+// A stored activity the list should hold but doesn't is gone from Strava
+// (FR-006a): deleted, made private without the grant, or no longer a kept
+// sport.
 
 /** A rider's listed activities after the import's scope rule. */
 export interface KeptActivities {
@@ -93,4 +95,34 @@ export function differences(
 		runs: changed(listed.runs, stored.runs),
 		swims: changed(listed.swims, stored.swims),
 	};
+}
+
+/**
+ * The stored activities that are gone from Strava: those that start after
+ * `oldestListed`, the start of the list's last (oldest) entry before the scope
+ * rule, and aren't kept from the list as any kind. Only after it, since the
+ * list holds the newest 200 and stops there; an empty list (`undefined`)
+ * judges nothing.
+ */
+export function gone(
+	listed: KeptActivities,
+	stored: StoredActivities,
+	oldestListed: string | undefined,
+): number[] {
+	if (oldestListed === undefined) return [];
+	const since = Date.parse(oldestListed);
+	const kept = new Set(
+		[...listed.records, ...listed.runs, ...listed.swims].map(
+			(a) => a.strava_activity_id,
+		),
+	);
+	const ids = new Set<number>();
+	for (const table of [stored.rides, stored.runs, stored.swims]) {
+		for (const [id, activity] of table) {
+			if (!kept.has(id) && Date.parse(activity.start_date) > since) {
+				ids.add(id);
+			}
+		}
+	}
+	return [...ids];
 }

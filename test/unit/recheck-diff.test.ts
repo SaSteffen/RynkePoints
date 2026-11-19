@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
 	differences,
+	gone,
 	type KeptActivities,
 	type StoredActivities,
 } from "../../src/recheck/diff";
@@ -12,8 +13,9 @@ import type {
 
 // Which listed activities a re-check takes over (feature 036 research R7,
 // FR-003 to FR-007): new ones and those that differ in a kept figure; the
-// refresh time alone is no difference, a missing figure keeps the stored one,
-// and an activity missing from the list is left alone.
+// refresh time alone is no difference, and a missing figure keeps the stored
+// one. Which stored activities are gone from Strava (FR-006a): those missing
+// from the list that start after its oldest entry.
 
 const ATHLETE = 900001;
 const LISTED_AT = 2_000_000_000;
@@ -154,11 +156,56 @@ describe("differences", () => {
 		).toEqual(listed({ records: [{ ...changed, elapsed_time_s: 6000 }] }));
 	});
 
-	it("leaves a stored activity missing from the list alone", () => {
+	it("takes nothing for a stored activity missing from the list", () => {
 		const result = differences(
 			listed(),
 			stored([ride(1)], [run(2)], [swim(3)]),
 		);
 		expect(result).toEqual(listed());
+	});
+});
+
+describe("gone", () => {
+	const OLDEST = "2026-10-01T07:30:00Z";
+	const on = (day: string) => ({
+		start_date: `2026-10-${day}T07:30:00Z`,
+		start_date_local: `2026-10-${day}T09:30:00Z`,
+	});
+
+	it("names the stored rides, runs and swims the list lacks after its oldest entry", () => {
+		expect(
+			gone(
+				listed({ records: [ride(1)] }),
+				stored([ride(1), ride(4)], [run(2)], [swim(3)]),
+				OLDEST,
+			),
+		).toEqual([4, 2, 3]);
+	});
+
+	it("leaves what starts at or before the oldest listed entry", () => {
+		expect(
+			gone(
+				listed(),
+				stored([
+					ride(1, on("01")),
+					ride(2, { start_date: "2026-09-30T07:30:00Z" }),
+				]),
+				OLDEST,
+			),
+		).toEqual([]);
+	});
+
+	it("keeps an activity listed as another kind", () => {
+		expect(
+			gone(
+				listed({ records: [ride(1)], runs: [run(2)], swims: [swim(3)] }),
+				stored([ride(3)], [run(1)], [swim(2)]),
+				OLDEST,
+			),
+		).toEqual([]);
+	});
+
+	it("judges nothing for an empty list", () => {
+		expect(gone(listed(), stored([ride(1)]), undefined)).toEqual([]);
 	});
 });
