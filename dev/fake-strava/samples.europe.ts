@@ -13,9 +13,10 @@ import {
 // Sweden, Finland, Iceland, Germany, France, the Netherlands, Lithuania, the
 // UK and Canada). Only first names joined to the state they show, so nobody
 // real is meant; athlete IDs 991001–991099, apart from Hamburg's. The team has
-// no team events and no Team Rynke, and a ride counts from 25 km (feature 039):
-// nobody attends anything, and a ride is 25 km or longer unless it is there to
-// show one that doesn't count. The season runs from 1 September like
+// no team events and no Team Rynke (feature 039), and kilometres earn Rynke
+// from 25 km outdoors and from 1 km on virtual rides (rules version 5): nobody
+// attends anything, and an outdoor ride is 25 km or longer unless it is there
+// to show a shorter one. The season runs from 1 September like
 // Hamburg's, the qualification window opens on 1 January (feature 040): rides
 // from September to December count for the badges, not for Rynke.
 
@@ -100,14 +101,23 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		behaviour: "normal",
 		// Outdoors: 70 distance Rynke and 700 m (no Rynke), under the 84 needed
 		// from outside virtual rides. With the virtual rides: over 250.
-		rides: rides(27, (i) =>
-			i < 7
-				? ride(...slot(i), 100, 100, 26)
-				: ride(...slot(i), 100, 200, 31, {
-						sportType: "VirtualRide",
-						trainer: true,
-					}),
-		),
+		rides: [
+			...rides(27, (i) =>
+				i < 7
+					? ride(...slot(i), 100, 100, 26)
+					: ride(...slot(i), 100, 200, 31, {
+							sportType: "VirtualRide",
+							trainer: true,
+						}),
+			),
+			// Sa Calobra on Rouvy, Team Europe's example: 11.7 km and 700 m,
+			// under 25 km but virtual, so 1 Rynke for its full 10 km and its
+			// 700 m towards the elevation total (rules version 5).
+			ride(1, "19:30", 11.7, 700, 14, {
+				sportType: "VirtualRide",
+				trainer: true,
+			}),
+		],
 	},
 	{
 		athleteId: 991006,
@@ -134,8 +144,6 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			ride(8, "18:00", 55, 350, 25),
 			ride(8, "18:10", 48, 300, 25),
 			ride(9, "18:00", 8, 40, 10, { sportType: "Run" }),
-			// 20 km, under the 25 km minimum.
-			ride(10, "18:00", 20, 100, 24),
 		],
 	},
 	{
@@ -360,7 +368,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		athleteId: 991045,
 		firstName: "Siiri ShortRide",
 		state:
-			"Rides of 24.9, 25.0 and 60 km: the 24.9 km ride is too short, the others count (feature 039); a 15 km ride on 10 November is too short and before the window (feature 040)",
+			"Outdoor rides of 24.9, 25.0 and 60 km: all count, the 24.9 km ride with its elevation but no kilometre Rynke (rules version 5); a 15 km ride on 10 November is before the window (feature 040)",
 		scopes: ALL_SCOPES,
 		clubMember: true,
 		behaviour: "normal",
@@ -368,8 +376,8 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			ride(...slot(0), 24.9, 80, 24),
 			ride(...slot(1), 25, 80, 24),
 			ride(...slot(2), 60, 300, 25),
-			// Before the window opens and under 25 km: a plain ride that doesn't
-			// count, with both reasons (feature 040).
+			// Before the window opens and under 25 km: a pre-window ride, for the
+			// badges only (feature 040).
 			ride(0, "17:00", 15, 60, 22, { onDate: "11-10" }),
 		],
 	},
