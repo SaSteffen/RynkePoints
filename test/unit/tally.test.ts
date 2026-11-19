@@ -296,12 +296,6 @@ describe("tally", () => {
 			).toMatchObject({ trainingRynke: 125, trainingWithoutVirtual: 65 });
 		});
 	});
-
-	it("rejects invalid rules", () => {
-		expect(() =>
-			tally(riding(sums(0)), NO_EXTRAS, { ...CURRENT_RULES, version: 0 }),
-		).toThrow();
-	});
 });
 
 describe("tally without Team Rynke (feature 039 research R2)", () => {

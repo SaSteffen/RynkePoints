@@ -880,15 +880,6 @@ describe("determinism and output shape (FR-002)", () => {
 		]);
 		expect(resultFor(results, 1).activityRefreshedAt).toBe(1234);
 	});
-
-	it("rejects invalid rules", () => {
-		expect(() =>
-			evaluate([makeRide({ id: 1, km: 30, movingH: 1 })], {
-				...CURRENT_RULES,
-				distanceStepKm: 0,
-			}),
-		).toThrow();
-	});
 });
 
 describe("rideFromRow", () => {

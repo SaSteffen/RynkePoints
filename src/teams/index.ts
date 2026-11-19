@@ -1,4 +1,4 @@
-import { currentRules } from "../rynke/rules";
+import { assertValidRules, currentRules } from "../rynke/rules";
 import { europe } from "./europe";
 import { hamburg } from "./hamburg";
 import type { TeamData } from "./types";
@@ -7,6 +7,12 @@ import type { TeamData } from "./types";
 // `TEAM_ID` names. The founding team comes first.
 
 export const TEAMS: readonly TeamData[] = [hamburg, europe];
+
+// Every version of every team's rules is checked once, as the registry loads,
+// so the evaluation can trust the rules it is given.
+for (const team of TEAMS) {
+	for (const rules of team.rules) assertValidRules(rules);
+}
 
 /** The deployment's team; an unknown `TEAM_ID` is a configuration error. */
 export function teamFor(env: Pick<Env, "TEAM_ID">): TeamData {
