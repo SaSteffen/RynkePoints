@@ -25,8 +25,28 @@ const rider = (athleteId: number, rides: RideEntry[]): RideRider => ({
 });
 
 describe("periodOf", () => {
-	it("is the counting window for the season", () => {
+	it("is the season start to the deadline for the season", () => {
 		expect(periodOf("season", "2026-05-13", window)).toEqual(season);
+	});
+
+	it("starts on the season start when the window opens later (feature 040)", () => {
+		const later = {
+			seasonStart: "2026-09-01",
+			windowStart: "2027-01-01",
+			deadline: "2027-06-30",
+		};
+		expect(periodOf("season", "2026-11-19", later)).toEqual({
+			from: "2026-09-01",
+			to: "2027-06-30",
+		});
+		expect(periodOf("month", "2026-11-19", later)).toEqual({
+			from: "2026-11-01",
+			to: "2026-11-30",
+		});
+		expect(periodOf("week", "2026-09-02", later)).toEqual({
+			from: "2026-09-01",
+			to: "2026-09-06",
+		});
 	});
 
 	it("is the calendar month", () => {

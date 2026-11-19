@@ -604,6 +604,8 @@ export const fr: Catalog = {
 	"organiser.overview.deadline": "Date limite de qualification · {date}",
 	"organiser.overview.daysLeft": "Jours restants\u00a0: {n} ⏳",
 	"organiser.overview.deadlinePassed": "La date limite est passée",
+	"organiser.overview.beforeWindow":
+		"La qualification commence le {date}. D'ici là, personne ne peut prendre de retard, donc tout le monde est dans le rythme.",
 	"organiser.overview.qualified":
 		"{n} sur {count} ont atteint leur objectif d'entraînement 🎯",
 	"organiser.overview.groups": "Groupes",
@@ -1313,6 +1315,9 @@ export const fr: Catalog = {
 		"Fais glisser sur un graphique pour choisir des dates. «\u00a0Saison\u00a0» montre à nouveau tout.",
 	"organiser.graphs.hint.touch":
 		"Pince pour zoomer, glisse sur le côté pour déplacer, touche pour un jour. «\u00a0Saison\u00a0» montre à nouveau tout.",
+	"organiser.graphs.windowStart": "Début de la qualification",
+	"organiser.graphs.windowStart.hint":
+		"La ligne pointillée marque le début de la qualification le {date}. Les sorties d'avant ne rapportent aucun Rynke.",
 	"organiser.graphs.note.one":
 		"1 cycliste n'a pas de ligne\u00a0: pas encore d'accord pour les chiffres journaliers.",
 	"organiser.graphs.note.other":

@@ -62,13 +62,16 @@ export type Group = RiderStatus | "all" | "requests";
 const GROUPS: readonly Group[] = ["requests", "push", "on_track", "in", "all"];
 
 /**
- * Each rider's counting rides where their consent shares sessions by name
- * (feature 032); a rider missing from it shows "–". Null with the ride
- * figures off.
+ * Each rider's counting and pre-window rides where their consent shares
+ * sessions by name (feature 032); a rider missing from it shows "–". Null with
+ * the ride figures off.
  */
 export type RiderRides = ReadonlyMap<number, readonly RideEntry[]> | null;
 
-/** A rider's season sessions and typical ride, or null below version 3. */
+/**
+ * A rider's sessions and typical ride from the season start, as the riders'
+ * Season ranking counts them (feature 040), or null below version 3.
+ */
 function seasonSessions(
 	rides: RiderRides,
 	athleteId: number,
@@ -76,7 +79,7 @@ function seasonSessions(
 ): { sessions: number; typicalM: number | null } | null {
 	const own = rides?.get(athleteId);
 	if (!own) return null;
-	return figuresOf(own, { from: window.windowStart, to: window.deadline });
+	return figuresOf(own, { from: window.seasonStart, to: window.deadline });
 }
 
 /** Each listed rider's open requests, newest event first (019 FR-034). */
@@ -310,6 +313,20 @@ function renderTiles(
 	return html`<nav class="group-tiles${group === null ? " default" : ""}" id="tour-groups" aria-label="${i18n.t("organiser.overview.groups")}">
 ${tiles}</nav>
 ${group === null ? html`${showing("push", "phone")}${showing("all", "wide")}` : null}`;
+}
+
+/**
+ * Before the window opens nobody can fall behind, so everyone is on track: a
+ * note says why, until qualifying starts (feature 040).
+ */
+function renderBeforeWindow(
+	i18n: I18n,
+	window: CountingWindow,
+	today: string,
+): SafeHtml | null {
+	if (today >= window.windowStart) return null;
+	return html`<p class="overview-before-window">${i18n.t("organiser.overview.beforeWindow", { date: i18n.formatDate(window.windowStart) })}</p>
+`;
 }
 
 /** Whether `rider` belongs in the tile `group`. */
@@ -946,7 +963,7 @@ ${hasGraphs ? graphs : null}<div class="overview-qualified">${renderQualified(i1
 `;
 	return html`<div class="team-overview"${hasGraphs ? html` data-view="${view}"` : null}${inert ? html` inert` : null}>
 <h2>${i18n.t("organiser.overview.heading")}</h2>
-${renderDeadline(i18n, window, today, riders, team.art.coin)}${renderTiles(i18n, riders, group, passed, requests, hasEvents(wording))}${body}</div>`;
+${renderDeadline(i18n, window, today, riders, team.art.coin)}${renderTiles(i18n, riders, group, passed, requests, hasEvents(wording))}${renderBeforeWindow(i18n, window, today)}${body}</div>`;
 }
 
 /**

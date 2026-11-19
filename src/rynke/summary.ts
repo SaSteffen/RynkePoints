@@ -12,12 +12,15 @@ import { type DatedCorrection, weekEndOf } from "./weeks";
  * it can use, so a new column sends nobody back to adding up rides (feature 029
  * research R14).
  */
-export const RIDER_SUMMARY_VERSION = 3;
+export const RIDER_SUMMARY_VERSION = 4;
 /** The lowest version whose `days`, `weeks`, `run_days`, `active`, `attended` hold. */
 export const TEAM_SUMMARY_SINCE = 1;
 /** The lowest version with `virtual_days` and `own_days`. */
 export const OWN_SUMMARY_SINCE = 2;
-/** The lowest version with `rides` (feature 032). */
+/**
+ * The lowest version with `rides` (feature 032). Version 4 adds the pre-window
+ * rides; a version 3 row lacks only those until the daily job rewrites it.
+ */
 export const RIDE_SUMMARY_SINCE = 3;
 
 /** `[date, distanceM, distanceRynke, elevationDm]`, one per day of rides. */
@@ -33,8 +36,9 @@ export type VirtualDayEntry = [string, number];
 /** `[date, longestM, outdoor]`, one per day of rides; `outdoor` is 1 when any wasn't virtual. */
 export type OwnDayEntry = [string, number, 0 | 1];
 /**
- * `[date, distanceM, elevationDm]`, one per counting ride, with the full
- * distance and elevation (feature 032). No time, name or ID.
+ * `[date, distanceM, elevationDm]`, one per counting or pre-window ride, with
+ * the full distance and elevation (feature 032). No time, name or ID. The ride
+ * figures count from the season start; Rynke-based sums cut at the window.
  */
 export type RideEntry = [date: string, distanceM: number, elevationDm: number];
 
@@ -67,7 +71,10 @@ export interface SummaryFigures {
 		distanceRynke: number;
 		elevationDm: number;
 		virtual?: boolean;
-		/** Dated before the window opens: for the badges only (feature 040). */
+		/**
+		 * Dated before the window opens: for the badges, the ride figures and the
+		 * organiser's daily graphs, never for Rynke (feature 040).
+		 */
 		preWindow?: true;
 	})[];
 	runs: readonly StartedFigure[];
@@ -130,8 +137,8 @@ export function summaryOf(
 				ride.elevationDm,
 			]);
 		}
-		// The team's weeks count only the rides that earned Rynke, as do the
-		// ride figures below (feature 040 FR-010).
+		// The team's weeks count only the rides that earned Rynke (feature 040
+		// FR-010); the ride figures below count the season's rides.
 		if (ride.preWindow) continue;
 		const weekEnd = weekEndOf(ride.date);
 		const week = weeks.at(-1);
@@ -160,7 +167,6 @@ export function summaryOf(
 		ownDays: JSON.stringify(ownDays),
 		rides: JSON.stringify(
 			rides
-				.filter((r) => !r.preWindow)
 				.map((r): RideEntry => [r.date, r.distanceM, r.elevationDm])
 				.sort((a, b) => compareText(a[0], b[0]) || a[1] - b[1] || a[2] - b[2]),
 		),

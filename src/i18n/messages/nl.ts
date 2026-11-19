@@ -585,6 +585,8 @@ export const nl: Catalog = {
 	"organiser.overview.deadline": "Kwalificatiedeadline · {date}",
 	"organiser.overview.daysLeft": "Nog {n} dagen ⏳",
 	"organiser.overview.deadlinePassed": "De deadline is voorbij",
+	"organiser.overview.beforeWindow":
+		"De kwalificatie begint op {date}. Tot dan kan niemand achterlopen, dus iedereen is op koers.",
 	"organiser.overview.qualified":
 		"{n} van {count} hebben hun trainingsdoel gehaald 🎯",
 	"organiser.overview.groups": "Groepen",
@@ -1257,6 +1259,9 @@ export const nl: Catalog = {
 		"Sleep over een grafiek om datums te kiezen. “Seizoen” toont weer alles.",
 	"organiser.graphs.hint.touch":
 		"Knijp om te zoomen, sleep opzij om te verschuiven, tik voor een dag. “Seizoen” toont weer alles.",
+	"organiser.graphs.windowStart": "Kwalificatie begint",
+	"organiser.graphs.windowStart.hint":
+		"De stippellijn markeert het begin van de kwalificatie op {date}. Ritten daarvoor leveren geen Rynke op.",
 	"organiser.graphs.note.one":
 		"1 renner heeft geen lijn, nog niet akkoord met het tonen van dagcijfers.",
 	"organiser.graphs.note.other":

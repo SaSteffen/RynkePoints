@@ -98,7 +98,9 @@ their rides from September on are listed, and that the season end shown anywhere
 
 Before 1 January, a Europe rider opens their rides and sees every ride. Each ride that would count
 carries an orange "doesn't count yet" mark instead of the red "doesn't count", with the reason that
-qualification starts on 1 January 2027. These rides add no Rynke and appear in no graph.
+qualification starts on 1 January 2027. These rides add no Rynke and appear in no Rynke graph;
+the ride figures and the organiser's daily graphs count them from 1 September (maintainer,
+2026-11-19).
 
 **Why this priority**: Listing the rides without marking them would suggest they count; leaving
 them out would hide rides the rider can see on Strava.
@@ -114,14 +116,17 @@ and an organiser's view of the same rider; check the marks, the reason, the Rynk
    01.01.2027; it adds 0 Rynke.
 2. **Given** a Europe ride on 15 November 2026 that is also shorter than 25 km, **Then** it shows
    the red "doesn't count" mark, with the length reason and the pre-window reason.
-3. **Given** a rider with pre-window rides only, **Then** their Rynke, gauges, rankings, pace,
-   progress chart and ride figures are the same as for a rider with no rides at all.
-4. **Given** pre-window rides of several riders, **Then** no rider, team or organiser graph shows
-   them, and no team total or ranking counts them.
+3. **Given** a rider with pre-window rides only, **Then** their Rynke, gauges, Rynke ranking,
+   pace and progress chart are the same as for a rider with no rides at all.
+4. **Given** pre-window rides of several riders, **Then** no Rynke graph, Rynke total or Rynke
+   ranking shows or counts them.
 5. **Given** an organiser opening a Europe rider's rides, **Then** the pre-window rides show with
    the same orange mark and reason as the rider sees.
 6. **Given** a ride on the window start day, 1 January 2027, that meets every rule, **Then** it
    counts.
+7. **Given** pre-window rides of several riders, **When** a rider ranks the team by sessions, km or
+   elevation for the season, month or week, **Then** the rides count from 1 September, as in the
+   organiser's sessions column and daily graphs (FR-010a, FR-010b).
 
 ---
 
@@ -216,10 +221,20 @@ their rides don't count for it until then, and that they can already earn badges
 **What follows the window**
 
 - **FR-009**: A ride MUST count for Rynke only inside the qualification window. Rynke, gauges,
-  rankings, pace, the plan, progress charts, ride figures, the deadline countdown and every
-  organiser figure MUST follow the window.
-- **FR-010**: No graph a rider, team or organiser sees MUST show pre-window rides, and no total or
-  ranking based on Rynke or counting rides MUST count them.
+  the Rynke ranking, pace, the plan, progress charts, the deadline countdown and every organiser
+  Rynke figure MUST follow the window.
+- **FR-010**: No Rynke graph a rider, team or organiser sees MUST show pre-window rides, and no
+  total or ranking based on Rynke MUST count them.
+- **FR-010a**: The ride figures (sessions, km, elevation and the typical ride, feature 032) MUST
+  count counting and pre-window rides from the season start: the Season period runs from
+  1 September to the deadline, and Month and Week aren't cut at the window start. A team whose
+  window opens with its season sees no change (maintainer, 2026-11-19).
+- **FR-010b**: The organiser area MUST follow the same: the overview's sessions and typical ride
+  count from the season start, and the daily graphs start on the season start with a dashed line
+  named "Qualifikation beginnt" / "Qualifying starts" on the window start, explained in a line
+  above the graphs. Without a later window start there is no line and no explanation.
+- **FR-010c**: Until the window opens, the organiser overview MUST say under the group tiles when
+  qualifying starts and that until then nobody can fall behind, so everyone is on track.
 
 **Pre-window rides**
 
@@ -282,8 +297,8 @@ their rides don't count for it until then, and that they can already earn badges
   to before on the same day of the season.
 - **SC-002**: A Europe rider connecting in November sees 100% of their Strava rides since
   1 September, each one that meets every rule with the orange mark, and 0 Rynke.
-- **SC-003**: A walk through every Europe rider and organiser graph before 1 January finds 0
-  pre-window rides.
+- **SC-003**: A walk through every Europe rider and organiser Rynke graph before 1 January finds 0
+  pre-window rides; the ride figures and the organiser's daily graphs count them from 1 September.
 - **SC-004**: Europe's badges page lists every badge Hamburg lists except the event-only ones, and
   a Europe rider out on 24 December 2026 earns the Christmas Eve badge.
 - **SC-005**: Everywhere a season end shows for Europe, it is 31 August 2027.

@@ -581,6 +581,8 @@ export const da: Catalog = {
 	"organiser.overview.deadline": "Kvalifikationsfrist · {date}",
 	"organiser.overview.daysLeft": "Dage tilbage: {n} ⏳",
 	"organiser.overview.deadlinePassed": "Fristen er overskredet",
+	"organiser.overview.beforeWindow":
+		"Kvalifikationen begynder den {date}. Indtil da kan ingen komme bagud, så alle er på sporet.",
 	"organiser.overview.qualified": "{n} af {count} har nået træningsmålet 🎯",
 	"organiser.overview.groups": "Grupper",
 	"organiser.overview.group.push": "Har brug for et skub",
@@ -1241,6 +1243,9 @@ export const da: Catalog = {
 		"Træk hen over en graf for at vælge datoer. »Sæson« viser alt igen.",
 	"organiser.graphs.hint.touch":
 		"Knib for at zoome, træk sidelæns for at flytte, tryk for en dag. »Sæson« viser alt igen.",
+	"organiser.graphs.windowStart": "Kvalifikationen begynder",
+	"organiser.graphs.windowStart.hint":
+		"Den stiplede linje viser starten på kvalifikationen den {date}. Ture før den giver ingen Rynke.",
 	"organiser.graphs.note.one":
 		"1 rytter har ingen linje og har ikke sagt ja til de daglige tal endnu.",
 	"organiser.graphs.note.other":

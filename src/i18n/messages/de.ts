@@ -605,6 +605,8 @@ export const de = {
 	"organiser.overview.deadline": "Stichtag · {date}",
 	"organiser.overview.daysLeft": "Noch {n} Tage ⏳",
 	"organiser.overview.deadlinePassed": "Der Stichtag ist vorbei",
+	"organiser.overview.beforeWindow":
+		"Die Qualifikation beginnt am {date}. Bis dahin kann niemand zurückliegen, deshalb sind alle gut unterwegs.",
 	"organiser.overview.qualified":
 		"{n} von {count} haben ihr Trainingsziel erreicht 🎯",
 	"organiser.overview.groups": "Gruppen",
@@ -1284,6 +1286,9 @@ export const de = {
 		"Zieh über ein Diagramm, um Daten zu wählen. „Saison“ zeigt wieder alles.",
 	"organiser.graphs.hint.touch":
 		"Zum Zoomen zwei Finger, seitlich ziehen verschiebt, Tippen wählt einen Tag. „Saison“ zeigt wieder alles.",
+	"organiser.graphs.windowStart": "Qualifikation beginnt",
+	"organiser.graphs.windowStart.hint":
+		"Die gestrichelte Linie zeigt den Beginn der Qualifikation am {date}. Fahrten davor bringen keine Rynke.",
 	"organiser.graphs.note.one":
 		"1 Rider hat keine Linie und den Tageswerten noch nicht zugestimmt.",
 	"organiser.graphs.note.other":

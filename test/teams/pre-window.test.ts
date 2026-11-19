@@ -100,14 +100,20 @@ describe.runIf(window.windowStart > window.seasonStart)(
 			});
 		});
 
-		it("stays out of the team's weeks and the ride figures (FR-010)", async () => {
+		it("stays out of the team's weeks, not the ride figures (FR-010)", async () => {
 			const row = await env.DB.prepare(
 				"SELECT weeks, rides, days FROM rider_summaries WHERE athlete_id = ?",
 			)
 				.bind(ATHLETE_A)
 				.first<{ weeks: string; rides: string; days: string }>();
 			expect(row?.weeks).toBe("[]");
-			expect(row?.rides).toBe("[]");
+			// The ride figures count from the season start (FR-010a), the
+			// ride that fails another rule stays out.
+			expect(JSON.parse(row?.rides ?? "[]")).toEqual([
+				["2026-09-15", 60000, 4500],
+				["2026-11-15", 60000, 4500],
+				["2026-12-24", 60000, 4500],
+			]);
 			// The badges' days have them.
 			expect(JSON.parse(row?.days ?? "[]")).toEqual([
 				["2026-09-15", 60000, 0, 4500],

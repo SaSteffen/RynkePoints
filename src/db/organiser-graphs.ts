@@ -4,6 +4,7 @@ import {
 	type VirtualDayEntry,
 } from "../rynke/summary";
 import { SINCE_VERSION } from "../visibility";
+import { SEASON_RIDE } from "./badges";
 import { sharedRiderExists, sharedRiderIdsSince } from "./consents";
 
 // What the organiser's graphs read (feature 029 research R2): one row per rider
@@ -82,12 +83,12 @@ async function graphDaysAddedUp(
 			.prepare(
 				`SELECT l.athlete_id, substr(a.start_date_local, 1, 10) AS date,
 					SUM(a.distance_m) AS distance_m,
-					SUM(x.distance_rynke) AS distance_rynke,
-					SUM(x.elevation_dm) AS elevation_dm,
-					SUM(CASE WHEN x.is_virtual = 1 THEN a.distance_m END) AS virtual_m
+					SUM(r.distance_rynke) AS distance_rynke,
+					SUM(r.elevation_dm) AS elevation_dm,
+					SUM(CASE WHEN r.is_virtual = 1 THEN a.distance_m END) AS virtual_m
 				FROM (${agreed}) l
-				JOIN ride_results x ON x.athlete_id = l.athlete_id AND x.counts = 1
-				JOIN activities a ON a.strava_activity_id = x.strava_activity_id
+				JOIN ride_results r ON r.athlete_id = l.athlete_id AND ${SEASON_RIDE}
+				JOIN activities a ON a.strava_activity_id = r.strava_activity_id
 				GROUP BY 1, 2
 				ORDER BY 1, 2`,
 			)

@@ -31,8 +31,14 @@ export interface GraphRange {
 export type GraphDay = [number, number, number, number, number];
 
 export interface OrganiserGraphs {
+	/** The season start: the graphs show the rides from before the window too. */
 	firstDay: string;
 	lastDay: string;
+	/**
+	 * The day qualifying starts, when it comes after `firstDay`, for the dashed
+	 * line on the graphs (feature 040); null when the window opens with the season.
+	 */
+	windowStart: string | null;
 	presets: { season: GraphRange; "3m": GraphRange; "4w": GraphRange };
 	agreedCount: number;
 	group: string | null;
@@ -57,25 +63,26 @@ export interface OrganiserGraphs {
 
 /**
  * The figures per rider, and the team's over all who agreed, whichever are shown
- * (FR-011). A day outside the season is left out (FR-005). One past today, when a
+ * (FR-011), from the season start, before the window opens too (feature 040). A
+ * day outside the season is left out (FR-005). One past today, when a
  * rider's time zone is ahead of Berlin, goes on the last day (SC-005).
  */
 export function organiserGraphsView(input: {
 	rows: readonly GraphRow[];
 	riders: readonly GraphRider[];
 	requests: ReadonlyMap<number, readonly unknown[]>;
-	window: Pick<CountingWindow, "windowStart" | "deadline">;
+	window: Pick<CountingWindow, "seasonStart" | "windowStart" | "deadline">;
 	today: string;
 	group: string | null;
 	/**
-	 * The counting rides of riders whose consent shares sessions by name
+	 * The counting and pre-window rides of riders whose consent shares sessions by name
 	 * (feature 032); null with `RIDE_FIGURES` off.
 	 */
 	rides?: ReadonlyMap<number, readonly RideEntry[]> | null;
 }): OrganiserGraphs {
 	const { rows, riders, requests, window, today, group } = input;
 	const rides = input.rides ?? null;
-	const firstDay = window.windowStart;
+	const firstDay = window.seasonStart;
 	const lastDay =
 		today < firstDay ? firstDay : lastDayOf(today, window.deadline);
 	const start = dayNumber(firstDay);
@@ -99,6 +106,7 @@ export function organiserGraphsView(input: {
 	return {
 		firstDay,
 		lastDay,
+		windowStart: window.windowStart > firstDay ? window.windowStart : null,
 		presets: {
 			season: { from: 0, to: lastIndex },
 			"3m": {
@@ -274,12 +282,17 @@ ${chip(html` data-mode="running"`, "organiser.graphs.mode.running")}${chip(html`
 </div>
 <p class="org-graphs-hint org-graphs-hint-mouse">${i18n.t("organiser.graphs.hint.mouse")}</p>
 <p class="org-graphs-hint org-graphs-hint-touch">${i18n.t("organiser.graphs.hint.touch")}</p>
-<p id="organiser-graphs-help" class="visually-hidden">${i18n.t("progress.help")}</p>
+${
+	view.windowStart
+		? html`<p class="org-graphs-hint">${i18n.t("organiser.graphs.windowStart.hint", { date: i18n.formatDate(view.windowStart) })}</p>
+`
+		: null
+}<p id="organiser-graphs-help" class="visually-hidden">${i18n.t("progress.help")}</p>
 <p class="org-graphs-note" data-note hidden></p>
 <div class="org-graphs-tabs" role="group" aria-label="${i18n.t("organiser.graphs.tabs.label")}">
 ${metricsOf(view).map((metric) => chip(html` data-tab="${metric}"`, `organiser.graphs.tab.${metric}`))}</div>
 ${metricsOf(view).map((metric) => renderFigure(i18n, metric))}<p class="visually-hidden" aria-live="polite" data-live></p>
-${template("title.outdoor", i18n.t("organiser.graphs.title.outdoor"))}${template("title.virtual", i18n.t("organiser.graphs.title.virtual"))}${template("title.elevation", i18n.t("organiser.graphs.title.elevation"))}${view.sessions ? html`${template("title.sessions", i18n.t("organiser.graphs.title.sessions"))}${template("sessions", value("organiser.graphs.value.sessions"))}` : null}${template("average", i18n.t("organiser.graphs.average"))}${template("total", i18n.t("organiser.graphs.total"))}${template("km", value("organiser.graphs.value.km"))}${template("m", value("organiser.graphs.value.m"))}${template("summary.riders", value("organiser.graphs.summary.riders"))}${template("summary.average", i18n.t("organiser.graphs.summary.average"))}${template("summary.total", i18n.t("organiser.graphs.summary.total"))}${template("summary.none", i18n.t("organiser.graphs.summary.none"))}${template("note.one", i18n.t("organiser.graphs.note.one"))}${template("note.other", value("organiser.graphs.note.other"))}${template("note.nobody", i18n.t("organiser.graphs.note.nobody"))}${template("noMatch", i18n.tHtml("organiser.graphs.picker.noMatch", { query: slot("query") }))}${template("range", i18n.tHtml("organiser.graphs.readout.range", { from: slot("from"), to: slot("to") }))}${template("aria", i18n.tHtml("organiser.graphs.aria", { title: slot("title"), from: slot("from"), to: slot("to"), lines: slot("lines") }))}<template data-legend-entry><button type="button" class="org-legend-entry" aria-pressed="false"><span class="org-legend-key" aria-hidden="true"></span><span class="org-legend-name" data-slot="name"></span> <span data-slot="value"></span></button></template>
+${template("title.outdoor", i18n.t("organiser.graphs.title.outdoor"))}${template("title.virtual", i18n.t("organiser.graphs.title.virtual"))}${template("title.elevation", i18n.t("organiser.graphs.title.elevation"))}${view.sessions ? html`${template("title.sessions", i18n.t("organiser.graphs.title.sessions"))}${template("sessions", value("organiser.graphs.value.sessions"))}` : null}${view.windowStart ? template("windowStart", i18n.t("organiser.graphs.windowStart")) : null}${template("average", i18n.t("organiser.graphs.average"))}${template("total", i18n.t("organiser.graphs.total"))}${template("km", value("organiser.graphs.value.km"))}${template("m", value("organiser.graphs.value.m"))}${template("summary.riders", value("organiser.graphs.summary.riders"))}${template("summary.average", i18n.t("organiser.graphs.summary.average"))}${template("summary.total", i18n.t("organiser.graphs.summary.total"))}${template("summary.none", i18n.t("organiser.graphs.summary.none"))}${template("note.one", i18n.t("organiser.graphs.note.one"))}${template("note.other", value("organiser.graphs.note.other"))}${template("note.nobody", i18n.t("organiser.graphs.note.nobody"))}${template("noMatch", i18n.tHtml("organiser.graphs.picker.noMatch", { query: slot("query") }))}${template("range", i18n.tHtml("organiser.graphs.readout.range", { from: slot("from"), to: slot("to") }))}${template("aria", i18n.tHtml("organiser.graphs.aria", { title: slot("title"), from: slot("from"), to: slot("to"), lines: slot("lines") }))}<template data-legend-entry><button type="button" class="org-legend-entry" aria-pressed="false"><span class="org-legend-key" aria-hidden="true"></span><span class="org-legend-name" data-slot="name"></span> <span data-slot="value"></span></button></template>
 <script type="application/json" id="organiser-graphs-data">${graphData(view)}</script>
 </section>
 `;

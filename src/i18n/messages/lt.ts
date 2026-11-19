@@ -585,6 +585,8 @@ export const lt: Catalog = {
 	"organiser.overview.deadline": "Kvalifikacijos terminas · {date}",
 	"organiser.overview.daysLeft": "Liko dienų: {n} ⏳",
 	"organiser.overview.deadlinePassed": "Terminas praėjo",
+	"organiser.overview.beforeWindow":
+		"Kvalifikacija prasideda {date}. Iki tol niekas negali atsilikti, todėl visiems sekasi pagal planą.",
 	"organiser.overview.qualified":
 		"Treniruočių tikslą pasiekė: {n} iš {count} 🎯",
 	"organiser.overview.groups": "Grupės",
@@ -1295,6 +1297,9 @@ export const lt: Catalog = {
 		"Vilk per grafiką, kad pasirinktum datas. „Sezonas“ vėl rodo viską.",
 	"organiser.graphs.hint.touch":
 		"Suimk pirštais, kad keistum mastelį, vilk į šoną, kad perstumtum, bakstelėk dienai. „Sezonas“ vėl rodo viską.",
+	"organiser.graphs.windowStart": "Kvalifikacija prasideda",
+	"organiser.graphs.windowStart.hint":
+		"Punktyrinė linija žymi kvalifikacijos pradžią {date}. Važiavimai iki jos Rynke neuždirba.",
 	"organiser.graphs.note.one":
 		"1 dviratininkas neturi linijos, dar nesutiko rodyti dienos skaičių.",
 	"organiser.graphs.note.other":

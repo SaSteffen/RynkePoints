@@ -581,6 +581,8 @@ export const is: Catalog = {
 	"organiser.overview.deadline": "Frestur til að komast áfram · {date}",
 	"organiser.overview.daysLeft": "Dagar eftir: {n} ⏳",
 	"organiser.overview.deadlinePassed": "Fresturinn er liðinn",
+	"organiser.overview.beforeWindow":
+		"Tímabilið til að komast áfram hefst {date}. Fram að því getur enginn dregist aftur úr, svo allir eru á réttri leið.",
 	"organiser.overview.qualified": "{n} af {count} hafa náð æfingamarkmiðinu 🎯",
 	"organiser.overview.groups": "Hópar",
 	"organiser.overview.group.push": "Þarf hvatningu",
@@ -1251,6 +1253,9 @@ export const is: Catalog = {
 		"Dragðu yfir graf til að velja dagsetningar. „Tímabil“ sýnir allt aftur.",
 	"organiser.graphs.hint.touch":
 		"Klíptu til að þysja, dragðu til hliðar til að færa, ýttu fyrir dag. „Tímabil“ sýnir allt aftur.",
+	"organiser.graphs.windowStart": "Tímabilið hefst",
+	"organiser.graphs.windowStart.hint":
+		"Brotalínan sýnir hvenær tímabilið til að komast áfram hefst, {date}. Ferðir fyrir þann dag gefa engin Rynke.",
 	"organiser.graphs.note.one":
 		"1 hjólreiðamaður hefur enga línu og hefur ekki samþykkt dagstölurnar enn.",
 	"organiser.graphs.note.other":

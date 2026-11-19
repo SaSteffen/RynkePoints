@@ -577,6 +577,8 @@ export const fi: Catalog = {
 	"organiser.overview.deadline": "Karsinnan määräaika · {date}",
 	"organiser.overview.daysLeft": "Päiviä jäljellä: {n} ⏳",
 	"organiser.overview.deadlinePassed": "Määräaika on mennyt",
+	"organiser.overview.beforeWindow":
+		"Karsinta alkaa {date}. Siihen asti kukaan ei voi jäädä jälkeen, joten kaikki ovat raiteillaan.",
 	"organiser.overview.qualified":
 		"{n}/{count} on saavuttanut harjoitustavoitteen 🎯",
 	"organiser.overview.groups": "Ryhmät",
@@ -1246,6 +1248,9 @@ export const fi: Catalog = {
 		"Vedä kaavion yli valitaksesi päivät. ”Kausi” näyttää taas kaiken.",
 	"organiser.graphs.hint.touch":
 		"Nipistä zoomataksesi, vedä sivusuunnassa siirtääksesi, napauta valitaksesi päivän. ”Kausi” näyttää taas kaiken.",
+	"organiser.graphs.windowStart": "Karsinta alkaa",
+	"organiser.graphs.windowStart.hint":
+		"Katkoviiva näyttää karsinnan alun {date}. Sitä ennen ajetut lenkit eivät tuo Rynkejä.",
 	"organiser.graphs.note.one":
 		"1 ajajalla ei ole viivaa, koska hän ei ole vielä hyväksynyt päivälukujen näyttämistä.",
 	"organiser.graphs.note.other":
