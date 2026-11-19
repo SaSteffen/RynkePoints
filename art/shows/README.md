@@ -45,7 +45,8 @@ originals, `public/shows/`, `src/http/show-pictures.ts` and
 ## Checking a picture
 
 - Rynke looks like the reference (helmet with three vents, orange fur, light
-  muzzle), androgynous, no jewellery.
+  muzzle, no tail: [`../README.md`](../README.md#rynke-has-no-tail)),
+  androgynous, no jewellery.
 - The unicorn flies up to the right; the disco pose points up right and down
   left.
 - Nothing cropped; no ground, lights or background drawn.

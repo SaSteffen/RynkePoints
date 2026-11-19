@@ -119,6 +119,13 @@ each correction exactly once.
 4. **Given** a correction of −20 Team Rynke for a rider with 5, **When** it is
    added, **Then** it is recorded and their Team Rynke total stays at 0 (feature
    003 edge cases).
+5. **Given** an organiser entering a correction, **When** its date lies before the
+   qualification window or after the deadline, **Then** it is refused as outside
+   the season and nothing is recorded.
+6. **Given** a rider's correction dated outside the qualification window (recorded
+   before this rule, or the season start has moved on), **When** an organiser
+   opens the rider's list, **Then** it is listed with a note that it doesn't count,
+   and the rider's totals leave it out.
 
 ---
 
@@ -244,10 +251,13 @@ app uses the new value.
 **Corrections (Story 3)**
 
 - **FR-030**: For a listed rider, organisers MUST see the rider's corrections
-  (amounts, reason, date).
+  (amounts, reason, date), a correction dated outside the qualification window
+  marked as not counting (feature 003 FR-010).
 - **FR-031**: Organisers MUST be able to add a correction (feature 003, FR-010):
   a whole, signed amount of Training Rynke and one of Team Rynke, at least one of
-  them not 0, a reason of 1–200 characters and a date (default today). They MUST
+  them not 0, a reason of 1–200 characters and a date inside the qualification
+  window (default today, or the nearest day of the window when today is outside
+  it); another date is refused. They MUST
   be able to remove a correction after confirming. Corrections are not edited;
   a wrong one is removed and added again.
 

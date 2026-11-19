@@ -127,6 +127,8 @@ The spec has no open questions. These are the design decisions for Stories 1–3
   - `invalid_amount`: not an integer, both 0, or `|n| > 10000`;
   - `invalid_reason`: 1–200 characters after trimming;
   - `invalid_date`: not a calendar date;
+  - `outside_season`: a date outside the qualification window, as for events
+    (R5; review L-02);
   - `correction_missing`;
   - `rider_not_connected`.
 

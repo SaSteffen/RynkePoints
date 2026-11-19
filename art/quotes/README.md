@@ -56,8 +56,8 @@ lists the finished ones in `src/http/quote-monkeys.ts` and updates
 ## Checking a picture
 
 - Rynke looks like the reference (helmet with three vents, orange fur, light
-  muzzle, yellow jersey), full-body, talking, turned a little to the right,
-  where the bubble is.
+  muzzle, yellow jersey, no tail: [`../README.md`](../README.md#rynke-has-no-tail)),
+  full-body, talking, turned a little to the right, where the bubble is.
 - No speech bubble, ground or background drawn; nothing cropped.
 - No cream where the page should show through: a gap the drawing closes in
   gets a point in `holes`.

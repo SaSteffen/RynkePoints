@@ -7,6 +7,13 @@ page-switch shows in [`shows/`](shows/README.md). Badges, quote monkeys and
 shows are the three sets `pnpm badge-art` and `pnpm badge-build` make and
 trace.)
 
+## Rynke has no tail
+
+Rynke, the monkey, has no tail: not in a badge, a quote monkey, a show, an
+illustration or a coin, on any team, and not the extra monkeys in team
+pictures either. Every prompt says so; check for it before committing a
+picture, and send back any that shows one. (Other animals keep theirs.)
+
 `illustrations/` holds the raster originals of the app's illustrations, as they
 come out of the image generator. `pnpm illustrations` traces every file in it,
 whatever its name or extension (ImageMagick goes by the content), into a flat

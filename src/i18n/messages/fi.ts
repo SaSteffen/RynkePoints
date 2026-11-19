@@ -484,6 +484,7 @@ export const fi: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Tämä poistaa korjauksen; ajajan Rynket muuttuvat sen mukaan.",
 	"organiser.corrections.removeConfirm": "Kyllä, poista",
+	"organiser.corrections.outside": "Ei lasketa: päivämäärä kauden ulkopuolella",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Tiimi",

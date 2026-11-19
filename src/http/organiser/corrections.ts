@@ -15,6 +15,11 @@ import {
 	CorrectionRefused,
 	correctionChange,
 } from "../../rynke/correction-change";
+import {
+	type CountingWindow,
+	countingWindow,
+	inCountingWindow,
+} from "../../rynke/rules";
 import { hasTeamRynke } from "../../teams";
 import { notFound } from "../errors";
 import { html, type SafeHtml } from "../html";
@@ -67,7 +72,11 @@ function signed(n: number): string {
 	return n > 0 ? `+${n}` : `−${-n}`;
 }
 
-function correctionItem(i18n: I18n, correction: CorrectionRow): SafeHtml {
+function correctionItem(
+	i18n: I18n,
+	correction: CorrectionRow,
+	window: CountingWindow,
+): SafeHtml {
 	const amounts = [
 		correction.training === 0
 			? null
@@ -83,7 +92,12 @@ function correctionItem(i18n: I18n, correction: CorrectionRow): SafeHtml {
 	return html`<li class="organiser-event">
 <span class="organiser-event-title">${i18n.formatDate(`${correction.correction_date}T00:00:00Z`)} · ${amounts.join(" · ")}</span>
 <span class="organiser-event-name">${correction.reason}</span>
-${changeRecord(i18n, correction.changed_by_name, correction.changed_at)}
+${
+	inCountingWindow(correction.correction_date, window)
+		? null
+		: html`<p class="change-record">${i18n.t("organiser.corrections.outside")}</p>
+`
+}${changeRecord(i18n, correction.changed_by_name, correction.changed_at)}
 <details class="organiser-confirm">
 <summary>${i18n.t("organiser.corrections.remove")}</summary>
 <p>${i18n.t("organiser.corrections.removeWarning")}</p>
@@ -105,6 +119,12 @@ export function handleOrganiserRider(
 			(r) => r.athlete_id === athleteId,
 		);
 		if (!rider) return notFound(ctx, i18n, path);
+		const window = countingWindow(ctx.env);
+		// Today if it counts, else the nearest day that does, so the form's
+		// date is one it accepts.
+		let date = berlinDate(ctx.now());
+		if (date < window.windowStart) date = window.windowStart;
+		if (date > window.deadline) date = window.deadline;
 		const { results } = await listRiderCorrectionsStatement(
 			ctx.env.DB,
 			athleteId,
@@ -117,7 +137,7 @@ export function handleOrganiserRider(
 		const list =
 			results.length === 0
 				? html`<p>${i18n.t("organiser.corrections.none")}</p>`
-				: html`<ul class="organiser-events">${results.map((c) => correctionItem(i18n, c))}</ul>`;
+				: html`<ul class="organiser-events">${results.map((c) => correctionItem(i18n, c, window))}</ul>`;
 		return html`${noticeFromQuery(new URL(request.url), i18n)}
 <section class="organiser">
 <p><a href="${LIST}">${i18n.t("organiser.riders.back")}</a></p>
@@ -127,7 +147,7 @@ ${list}
 <form method="post" action="${path}/corrections" class="organiser-form">
 <label>${i18n.t("organiser.field.training")}<input type="number" name="training" step="1" min="-10000" max="10000"></label>
 ${teamField}<label>${i18n.t("organiser.field.reason")}<input type="text" name="reason" maxlength="200" required></label>
-<label>${i18n.t("organiser.field.date")}<input type="date" name="date" value="${berlinDate(ctx.now())}" required></label>
+<label>${i18n.t("organiser.field.date")}<input type="date" name="date" value="${date}" min="${window.windowStart}" max="${window.deadline}" required></label>
 <button class="button">${i18n.t("organiser.add")}</button>
 </form>
 </section>`;

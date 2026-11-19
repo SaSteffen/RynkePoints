@@ -484,6 +484,7 @@ export const sv: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Det tar bort korrigeringen; cyklistens Rynke följer med.",
 	"organiser.corrections.removeConfirm": "Ja, ta bort",
+	"organiser.corrections.outside": "Räknas inte: daterad utanför säsongen",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lag",

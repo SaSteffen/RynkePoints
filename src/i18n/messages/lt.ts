@@ -490,6 +490,7 @@ export const lt: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Pataisymas bus pašalintas; dviratininko Rynke pasikeis atitinkamai.",
 	"organiser.corrections.removeConfirm": "Taip, pašalinti",
+	"organiser.corrections.outside": "Neskaičiuojama: data už sezono ribų",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Komanda",

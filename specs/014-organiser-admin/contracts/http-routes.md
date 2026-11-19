@@ -20,7 +20,7 @@ POST requests:
 | `/organiser` | The season's events (dated on or after the season start, so an event past the deadline stays listed), newest first: kind, date, name and attendee count, each linking to its page (FR-010). A "new event" form (kind, date defaulting to today, optional name). A link to `/organiser/riders`. |
 | `/organiser/events/{id}` | The edit form (kind, date, name) and the change record. The attendance checklist of listed riders (FR-020), or only the list with a note when the event is in the future (FR-022). Delete inside a `<details>` confirmation (FR-013). An unknown id gives 404. |
 | `/organiser/riders` | Listed riders by first name, with a Strava link where names clash, each linking to the rider's corrections. Says so when there are none. |
-| `/organiser/riders/{athleteId}` | The rider's corrections, newest first: amounts, reason, date and change record, each with a confirmed "Remove". A form to add one (FR-030, FR-031). A rider who isn't listed gives 404. |
+| `/organiser/riders/{athleteId}` | The rider's corrections, newest first: amounts, reason, date and change record, each with a confirmed "Remove". A correction dated outside the qualification window carries a note that it doesn't count. A form to add one, its date limited to the window (FR-030, FR-031). A rider who isn't listed gives 404. |
 
 The change record shows the organiser's first name only while that organiser
 passes the consent filter (`SHARED_RIDER_IDS`); otherwise it shows "former
@@ -52,7 +52,7 @@ Each code has a message in German and English under
 | `unknown_kind`, `invalid_date`, `invalid_name` | 003 `TeamEventRefused` | As in 003 contracts/ride-evaluation.md. |
 | `event_missing` | 003 | The event was deleted meanwhile. The redirect goes to `/organiser`. |
 | `rider_not_connected` | 003 / R8 | A rider left or needs to reconnect. |
-| `outside_season` | organiser layer (R5) | The date is before the season start or after the deadline. |
+| `outside_season` | organiser layer (R5); `CorrectionRefused` (R8) | The date is before the season start or after the deadline; a correction's date has to lie in the qualification window. |
 | `future_event` | organiser layer (R5) | Attendance was saved for an event after today. |
 | `rider_not_listed` | organiser layer (R6) | An id in the form is not a listed rider. |
 | `invalid_amount`, `invalid_reason`, `correction_missing` | `CorrectionRefused` (R8) | A bad amount or reason, or the correction is gone. |

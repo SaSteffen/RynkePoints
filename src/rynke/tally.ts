@@ -2,7 +2,11 @@
 // FR-014a, research R12). Pure and in whole numbers, like `rides.ts`.
 
 import type { RidingSums, RidingTotals } from "./rides";
-import type { RynkeRules } from "./rules";
+import {
+	type CountingWindow,
+	inCountingWindow,
+	type RynkeRules,
+} from "./rules";
 import {
 	type AttendanceEvaluation,
 	TEAM_EVENT_KINDS,
@@ -40,15 +44,29 @@ export function extrasFromAttendance(evaluation: AttendanceEvaluation): Extras {
 }
 
 /**
- * Attendance plus the signed corrections; the breakdown stays attendance's
- * (feature 014 data-model.md).
+ * The corrections dated inside the qualification window, as attendance and
+ * rides count only there: one dated before it, or after the deadline, counts
+ * for nothing, so last season's corrections stay out of the next season
+ * (review L-02). Every sum of corrections goes through this.
+ */
+export function countingCorrections<T extends { date: string }>(
+	corrections: readonly T[],
+	window: Pick<CountingWindow, "windowStart" | "deadline">,
+): T[] {
+	return corrections.filter((c) => inCountingWindow(c.date, window));
+}
+
+/**
+ * Attendance plus the signed corrections that count; the breakdown stays
+ * attendance's (feature 014 data-model.md).
  */
 export function extrasFrom(
 	evaluation: AttendanceEvaluation,
-	corrections: readonly { training: number; team: number }[],
+	corrections: readonly { date: string; training: number; team: number }[],
+	window: Pick<CountingWindow, "windowStart" | "deadline">,
 ): Extras {
 	const extras = extrasFromAttendance(evaluation);
-	for (const correction of corrections) {
+	for (const correction of countingCorrections(corrections, window)) {
 		extras.training += correction.training;
 		extras.team += correction.team;
 	}

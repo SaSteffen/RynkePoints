@@ -488,6 +488,7 @@ export const en: Catalog = {
 	"organiser.corrections.removeWarning":
 		"This removes the correction; the rider's Rynke follow.",
 	"organiser.corrections.removeConfirm": "Yes, remove",
+	"organiser.corrections.outside": "Doesn't count: dated outside the season",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",

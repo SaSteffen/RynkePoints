@@ -154,6 +154,22 @@ describe("overviewRiders", () => {
 		});
 	});
 
+	// Review L-02: the same corrections as the balance counts.
+	it("sums only the corrections dated inside the window", () => {
+		const read = [
+			rider(5, "Lena", balance(100, 20, 100), [
+				{ date: "2025-12-31", training: 40, team: 5 },
+				{ date: "2026-01-01", training: 10, team: 0 },
+				{ date: "2026-05-31", training: 0, team: 2 },
+				{ date: "2026-06-01", training: 40, team: 5 },
+			]),
+		];
+		expect(
+			overviewRiders(read, CURRENT_RULES, RUNNING, TODAY)[0]?.breakdown
+				.corrections,
+		).toEqual({ training: 10, team: 2 });
+	});
+
 	it("links the profile only for a shared first name (014 withProfileLinks)", () => {
 		expect(byId(2)?.profileLink).toBe("https://www.strava.com/athletes/2");
 		expect(byId(3)?.profileLink).toBe("https://www.strava.com/athletes/3");
