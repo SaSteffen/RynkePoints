@@ -59,6 +59,9 @@ export const recheckRider: Handler<RecheckRiderMessage> = async (
 
 	if (await standsBack(rider, ctx)) return notMade({ skipped: 1 });
 
+	// Read before the list is fetched: an activity stored in between is then
+	// either listed or not judged, never taken for one deleted on Strava.
+	const stored = await readStoredActivities(ctx.env.DB, rider.athleteId);
 	const result = await listNewestActivities(ctx, {
 		athleteId: rider.athleteId,
 	});
@@ -77,7 +80,6 @@ export const recheckRider: Handler<RecheckRiderMessage> = async (
 	}
 
 	const kept = keptActivities(result.value, rider, ctx);
-	const stored = await readStoredActivities(ctx.env.DB, rider.athleteId);
 	const changed = differences(kept, stored);
 	const removed = gone(kept, stored, result.value.at(-1)?.start_date);
 	if (changed.records.length + changed.runs.length + changed.swims.length > 0) {
