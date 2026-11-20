@@ -52,7 +52,9 @@ enamel colours, no lettering.
 Where Gemini's colours are wrong, `colours.json` fixes them without it:
 `regions` gives single areas another colour ([x, y, colour] on the 2048 px
 canvas), `checker` makes a chequered pattern alternate (München's diamond ribbon:
-its box, its two colours, and the colours Gemini used for them).
+its box, its two colours, and the colours Gemini used for them). Only the biggest
+group of joined cells in the box is the pattern, so the riders' wheels nearby keep
+their own colour.
 
 Flensburg's `coin-flensburg-gate-rider.png` isn't Gemini's: it's draft 6
 (`coin-flensburg-merged`) with its last rider taken out and draft 5's rider
@@ -75,6 +77,12 @@ for shape only. They live in `reference/`:
   (public domain). It isn't given to Gemini: 100 Germany's back is drawn without a
   map, and the script draws this outline over it (`overlay` in `coins.json`: the
   file and its box on the canvas, [x, y, width]), so the shape is exact.
+- `muenchen-ribbon.svg`: München's diamond ribbon as a regular grid, made once
+  from the ribbon's area in the earlier coloured back: it paints that area white
+  and draws evenly spaced rows along the ribbon and cross lines at a fixed angle
+  to them. Gemini's own grid had uneven cells and lines that stopped halfway, so
+  no chequer could alternate on it everywhere. An `overlay` like the outline
+  above, over the whole canvas.
 
 A picture with `template` uses that prompt instead of `prompt.txt`:
 `edit-prompt.txt` takes a finished draft as `blank` and changes only what its scene

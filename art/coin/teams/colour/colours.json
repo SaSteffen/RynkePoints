@@ -16,7 +16,119 @@
 				"colours": ["water", "cream"],
 				"from": ["water", "cream", "glass", "sky"]
 			},
-			"regions": [[1120, 1458, "sky"]]
+			"regions": [
+				[1120, 1458, "sky"],
+				[1142, 1446, "sky"],
+				[1700, 1287, "yellow"]
+			]
+		},
+		{
+			"id": "coin-berlin-ampel-colour",
+			"name": "Berlin",
+			"blank": "../originals/coin-berlin-ampel.jpeg",
+			"references": [
+				{
+					"file": "../../originals/rynke-coin-back.jpeg",
+					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
+				}
+			],
+			"scene": "The Brandenburg Gate in warm light sandstone (cream) with a green copper quadriga on top; the TV tower's shaft light grey-white with its ball in silver-white and a red and white antenna tip; the Spree a clear mid blue; the Ampelmännchen bright green; the ground grass a fresh green."
+		},
+		{
+			"id": "coin-black-forest-cake-colour",
+			"name": "Black Forest",
+			"blank": "../originals/coin-black-forest-cake.jpeg",
+			"references": [
+				{
+					"file": "../../originals/rynke-coin-back.jpeg",
+					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
+				}
+			],
+			"scene": "The hills dark fir green, the fir outlines a deeper green; the farmhouse's walls and balcony warm wood brown, its big roof dark brick red-brown, the windows light; the Bollenhut's pompoms bright red on a white hat; the fence wood brown; the meadow a fresh green; the cake slice: dark chocolate brown sponge layers, white cream, one red cherry, the plate white."
+		},
+		{
+			"id": "coin-rheinruhr-crest-colour",
+			"name": "RheinRuhr",
+			"blank": "../originals/coin-rheinruhr-crest.jpeg",
+			"references": [
+				{
+					"file": "../../originals/rynke-coin-back.jpeg",
+					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
+				}
+			],
+			"scene": "The Zollverein headframe in its real rusty red steel, the wheels the same red, its base red brick; the crossed hammer and pick: heads dark grey steel, handles warm wood brown; the banner gold yellow with the words GLÜCK AUF in black; the spoil heap's flanks a dark green with the terrace lines and path lighter; the ground grass a fresh green."
+		},
+		{
+			"id": "coin-niederrhein-sheep-colour",
+			"name": "Niederrhein",
+			"blank": "../originals/coin-niederrhein-sheep.jpeg",
+			"references": [
+				{
+					"file": "../../originals/rynke-coin-back.jpeg",
+					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
+				}
+			],
+			"scene": "The windmill tower red brick, its cap dark, the sails' lattice wood brown with white sail cloth; the willows' trunks wood brown and their heads a fresh green; the dyke grass a fresh green; the Rhine a clear mid blue; the sheep white with a black face and legs."
+		},
+		{
+			"id": "coin-nieder-olm-cap-colour",
+			"name": "Nieder-Olm",
+			"blank": "../originals/coin-nieder-olm-cap.jpeg",
+			"references": [
+				{
+					"file": "../../originals/rynke-coin-back.jpeg",
+					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
+				}
+			],
+			"scene": "The vineyard hill a fresh green with darker green vine rows; the jester's cap in carnival red and yellow, its bells gold, its rim band gold; the grapevine stock wood brown with green leaves and a bunch of purple-blue grapes; the lead rider's small cap red and yellow like the big one; the ground grass a fresh green."
+		},
+		{
+			"id": "coin-frankfurt-bembel-colour",
+			"name": "Frankfurt",
+			"blank": "../originals/coin-frankfurt-bembel.jpeg",
+			"references": [
+				{
+					"file": "../../originals/rynke-coin-back.jpeg",
+					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
+				}
+			],
+			"scene": "The skyscrapers in light glass blue-grey with a few in silver-white, the Messeturm's shaft warm reddish with its pyramid top a darker red; the Bembel grey stoneware with cobalt blue painted flowers and leaves; the ribbed glass a pale glass white with a golden apple wine inside; the Römer's gables reddish brick with cream fronts; the Main a clear mid blue; the ground grass a fresh green."
+		},
+		{
+			"id": "coin-flensburg-gate-rider-colour",
+			"name": "Flensburg",
+			"blank": "../originals/coin-flensburg-gate-rider.png",
+			"references": [
+				{
+					"file": "../../originals/rynke-coin-back.jpeg",
+					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
+				}
+			],
+			"scene": "The Nordertor in red brick with its step gable and the dark archway; the lighthouse red and white; the water of the fjord a clear mid blue; the quay a dark grey; the ground grass a fresh green; the rider in the archway black like the other riders."
+		},
+		{
+			"id": "coin-mecklenburg-lake-colour",
+			"name": "Mecklenburg",
+			"blank": "../originals/coin-mecklenburg-lake.jpeg",
+			"references": [
+				{
+					"file": "../../originals/rynke-coin-back.jpeg",
+					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
+				}
+			],
+			"scene": "Schwerin Castle's walls in light cream sandstone, its roofs dark slate grey, the big central dome and the turret tips gold; the cranes light grey-white with black neck and wing tips and a small red cap; the lake a clear mid blue; the reeds a darker green; the beach sandy yellow; the beach chair wicker wood brown with a blue and white striped hood; the ground grass a fresh green."
+		},
+		{
+			"id": "coin-100-germany-nomap-colour",
+			"name": "100 Germany",
+			"blank": "../originals/coin-100-germany-nomap.jpeg",
+			"references": [
+				{
+					"file": "../../originals/rynke-coin-back.jpeg",
+					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
+				}
+			],
+			"scene": "The number 100: the 1 bold red, the two wheel-zeros black tyres with silver-white spokes; the dashed route red; the meadow a fresh green; everything else as on the Hamburg coin."
 		}
 	]
 }

@@ -84,7 +84,7 @@ const STARS = [
 ];
 
 // The coloured backs (art/coin/teams/colour): Hamburg's back palette
-// (coin-art.mjs) plus the greens, browns and red the other teams' scenes need,
+// (coin-art.mjs) plus the greens, browns, sand and red the other teams' scenes need,
 // bottom to top.
 const COLOUR_BACK = palette([
 	{ name: "cream", hex: "#fffdf5" },
@@ -96,6 +96,7 @@ const COLOUR_BACK = palette([
 	{ name: "fir", hex: "#3f7a3a" },
 	{ name: "brick", hex: "#b5562f" },
 	{ name: "wood", hex: "#c4802a" },
+	{ name: "sand", hex: "#f0c888" },
 	{ name: "quay", hex: "#5e5c55" },
 	{ name: "red", hex: "#ce223a" },
 	{ name: "yellow", hex: "#fbe122" },
@@ -476,7 +477,8 @@ function lettering(side, words, colour) {
 
 /**
  * A line drawing drawn over a generated back before tracing, where the
- * generator can't be trusted with the exact shape (a country's outline):
+ * generator can't be trusted with the exact shape (a country's outline, a
+ * regular pattern):
  * `file` in art/coin/teams, its top left corner at `box` [x, y] on the canvas,
  * `box[2]` px wide.
  */
@@ -634,30 +636,33 @@ function chequer(
 		next.get(r).push(s);
 		next.get(s).push(r);
 	}
+	// The pattern is the biggest group of cells joined by lines; smaller groups
+	// in the box (a wheel's spokes) aren't part of it and keep their colours.
 	const parity = new Map();
+	let group = [];
 	for (const start of cells) {
 		if (parity.has(start)) continue;
-		const group = [start];
+		const found = [start];
 		parity.set(start, 0);
-		for (let k = 0; k < group.length; k++)
-			for (const n of next.get(group[k]))
+		for (let k = 0; k < found.length; k++)
+			for (const n of next.get(found[k]))
 				if (!parity.has(n)) {
-					parity.set(n, 1 - parity.get(group[k]));
-					group.push(n);
+					parity.set(n, 1 - parity.get(found[k]));
+					found.push(n);
 				}
-		if (group.length < 4) continue;
-		const same = (id, c) => fill[id] === c.rgb;
-		let keep = 0;
-		for (const id of group) {
-			const want = parity.get(id) === 0 ? a : b;
-			const other = want === a ? b : a;
-			if (same(id, want)) keep += size.get(id);
-			else if (same(id, other)) keep -= size.get(id);
-		}
-		for (const id of group) {
-			const first = parity.get(id) === 0;
-			fill[id] = (first === keep >= 0 ? a : b).rgb;
-		}
+		if (found.length > group.length) group = found;
+	}
+	const same = (id, c) => fill[id] === c.rgb;
+	let keep = 0;
+	for (const id of group) {
+		const want = parity.get(id) === 0 ? a : b;
+		const other = want === a ? b : a;
+		if (same(id, want)) keep += size.get(id);
+		else if (same(id, other)) keep -= size.get(id);
+	}
+	for (const id of group) {
+		const first = parity.get(id) === 0;
+		fill[id] = (first === keep >= 0 ? a : b).rgb;
 	}
 }
 
