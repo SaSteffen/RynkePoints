@@ -816,9 +816,9 @@ export const en: Catalog = {
 	"badges.surprise.christmas": "Christmas",
 	"badges.surprise.christmas.for": "You were out over the Christmas holidays.",
 	"badges.surprise.night-owl": "Night owl",
-	"badges.surprise.night-owl.for": "You set off after 9:30 pm.",
+	"badges.surprise.night-owl.for": "You set off between 9:30 pm and 3 am.",
 	"badges.surprise.early-bird": "Early bird",
-	"badges.surprise.early-bird.for": "You set off before 6 am.",
+	"badges.surprise.early-bird.for": "You set off between 3 and 6 am.",
 	"badges.surprise.rest-day": "Rest day",
 	"badges.surprise.rest-day.for":
 		"Active every day for a week – and then a day off. Well earned!",

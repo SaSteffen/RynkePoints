@@ -825,9 +825,10 @@ export const nl: Catalog = {
 	"badges.surprise.christmas": "Kerst",
 	"badges.surprise.christmas.for": "Je was in de kerstdagen onderweg.",
 	"badges.surprise.night-owl": "Nachtuil",
-	"badges.surprise.night-owl.for": "Je vertrok na 21.30 uur.",
+	"badges.surprise.night-owl.for":
+		"Je vertrok tussen 21.30 uur en 3 uur 's nachts.",
 	"badges.surprise.early-bird": "Vroege vogel",
-	"badges.surprise.early-bird.for": "Je vertrok voor 6 uur 's ochtends.",
+	"badges.surprise.early-bird.for": "Je vertrok tussen 3 en 6 uur 's ochtends.",
 	"badges.surprise.rest-day": "Rustdag",
 	"badges.surprise.rest-day.for":
 		"Een week lang elke dag actief – en dan een dag vrij. Dik verdiend!",

@@ -860,9 +860,9 @@ export const fr: Catalog = {
 	"badges.surprise.christmas": "Noël",
 	"badges.surprise.christmas.for": "Tu es sorti·e pendant les fêtes de Noël.",
 	"badges.surprise.night-owl": "Oiseau de nuit",
-	"badges.surprise.night-owl.for": "Tu es parti·e après 21 h 30.",
+	"badges.surprise.night-owl.for": "Tu es parti·e entre 21 h 30 et 3 h.",
 	"badges.surprise.early-bird": "Lève-tôt",
-	"badges.surprise.early-bird.for": "Tu es parti·e avant 6 h.",
+	"badges.surprise.early-bird.for": "Tu es parti·e entre 3 h et 6 h.",
 	"badges.surprise.rest-day": "Jour de repos",
 	"badges.surprise.rest-day.for":
 		"Actif ou active chaque jour pendant une semaine – puis un jour de repos. Bien mérité\u00a0!",
