@@ -152,7 +152,8 @@
 		{
 			"id": "coin-flensburg-gate-rider",
 			"name": "Flensburg",
-			"scene": "Not drawn by Gemini: put together by hand from coin-flensburg-merged (its last rider removed) and the front-facing rider from coin-flensburg-front, set into the gate's archway behind the first rider (see README)."
+			"scene": "Not drawn by Gemini: put together by hand from coin-flensburg-merged (its last rider removed) and the front-facing rider from coin-flensburg-front, set into the gate's archway behind the first rider (see README).",
+			"overlay": { "file": "reference/flensburg-arch.svg", "box": [0, 0, 2048] }
 		},
 		{
 			"id": "coin-mecklenburg",

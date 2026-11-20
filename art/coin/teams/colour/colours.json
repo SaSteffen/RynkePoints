@@ -290,7 +290,31 @@
 					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
 				}
 			],
-			"scene": "The Nordertor in red brick with its step gable and the dark archway; the lighthouse red and white; the water of the fjord a clear mid blue; the quay a dark grey; the ground grass a fresh green; the rider in the archway black like the other riders."
+			"scene": "The Nordertor in red brick with its step gable and the dark archway; the lighthouse red and white; the water of the fjord a clear mid blue; the quay a dark grey; the ground grass a fresh green; the rider in the archway black like the other riders.",
+			"regions": [
+				[1292, 1178, "stone"],
+				[1303, 1261, "sky"],
+				[1291, 953, "bark"],
+				[1271, 991, "copper"],
+				[1127, 991, "copper"],
+				[1180, 991, "copper"],
+				[1232, 991, "copper"],
+				[1352, 991, "copper"],
+				[1404, 991, "copper"],
+				[1457, 991, "copper"],
+				[1121, 1079, "stone"],
+				[1463, 1079, "stone"],
+				[917, 693, "brick"],
+				[824, 713, "brick"],
+				[1011, 713, "brick"]
+			],
+			"recolour": [
+				{
+					"box": [1020, 690, 1530, 1340],
+					"from": "quay",
+					"to": "red"
+				}
+			]
 		},
 		{
 			"id": "coin-mecklenburg-lake-colour",

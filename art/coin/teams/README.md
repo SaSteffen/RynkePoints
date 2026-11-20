@@ -59,7 +59,8 @@ areas vote, so a pattern gets exactly the colours we drew (München's diamonds,
 `chocolate` are only for these fixes: no area votes for them. A fix whose area
 turns out as big as the sky gets a warning: its outline has a gap, which an
 `overlay` in `coins.json` with a short line closes (`rheinruhr-handle.svg`,
-`frankfurt-roemer.svg`, `niederrhein-willows.svg`, `black-forest-hill.svg`).
+`frankfurt-roemer.svg`, `niederrhein-willows.svg`, `black-forest-hill.svg`,
+`flensburg-arch.svg`).
 `badges` at the top of `colours.json` colours the band's three badges, which
 every drawing keeps from Hamburg's blank, like Hamburg's on every coin: road,
 mountain and the riders' jerseys yellow on the gold. A coin whose badges Gemini
