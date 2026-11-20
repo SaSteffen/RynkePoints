@@ -74,6 +74,12 @@ describe("minimum ride length in the handouts (feature 039)", () => {
 		expect(text).toContain(`date: "Rules version ${version}, as of `);
 	});
 
+	it("Hamburg's names the rules version in effect", () => {
+		const text = HANDOUTS["../../docs/rynke-punkte.md"];
+		const { version } = currentRules(hamburg.rules);
+		expect(text).toContain(`date: "Regelversion ${version}, Stand: `);
+	});
+
 	it("Hamburg's names no minimum ride length", () => {
 		const text = HANDOUTS["../../docs/rynke-punkte.md"];
 		expect(text).toBeDefined();
