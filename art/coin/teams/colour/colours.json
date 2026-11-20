@@ -11,10 +11,9 @@
 				}
 			],
 			"scene": "The Frauenkirche's towers in warm reddish brick with green copper domes; the pretzel golden brown with white salt grains; the diamond ribbon along the front in Bavarian light blue and white diamonds; grass a fresh green.",
-			"checker": {
-				"box": [150, 1250, 1900, 1760],
-				"colours": ["water", "cream"],
-				"from": ["water", "cream", "glass", "sky"]
+			"overlay": {
+				"file": "reference/muenchen-ribbon-colour.svg",
+				"box": [0, 0, 2048]
 			},
 			"regions": [
 				[1120, 1458, "sky"],

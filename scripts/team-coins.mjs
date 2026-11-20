@@ -114,13 +114,13 @@ const LINE_COLOURS = palette([
 const coins = JSON.parse(readFileSync(join(ROOT, DIR, "coins.json"), "utf8"));
 // The coloured backs' own fixes (art/coin/teams/colour/colours.json):
 // `regions`, [x, y, colour name] each, the area of the line drawing around
-// that canvas point filled with that colour; `checker`, a box [x0, y0, x1, y1]
-// and two colour names, whose small areas alternate like a chequered pattern
-// (München's diamond ribbon), whatever Gemini made of single ones.
+// that canvas point filled with that colour; `overlay`, an SVG drawn over
+// Gemini's take before the areas vote, so a pattern of our own (München's
+// diamonds, coloured by their place in the lattice) gets exactly its colours.
 const colourFixes = Object.fromEntries(
 	JSON.parse(
 		readFileSync(join(ROOT, DIR, "colour/colours.json"), "utf8"),
-	).coins.map((c) => [c.id, { regions: c.regions ?? [], checker: c.checker }]),
+	).coins.map((c) => [c.id, { regions: c.regions ?? [], overlay: c.overlay }]),
 );
 const problems = validateCoins(coins);
 if (problems.length > 0) {
@@ -271,6 +271,11 @@ try {
 			...outsideCoinWhite(),
 			colourPlaced,
 		]);
+		const fixes = colourFixes[`${id}-colour`];
+		if (fixes?.overlay)
+			await compose(colourPlaced, colourPlaced, {
+				draw: overlayImage(fixes.overlay),
+			});
 		const filled = join(tmp, `${team}-colour-filled.png`);
 		// The arc line's left end below the band would split the sky.
 		const lineForColour = join(tmp, `${team}-colour-line.png`);
@@ -279,12 +284,7 @@ try {
 		await compose(back, lineForColour, {
 			draw: `${arcEnd()}<circle cx="${C}" cy="${C}" r="${R - 4}" fill="none" stroke="${INK}" stroke-width="10"/><circle cx="${C}" cy="${C}" r="898" fill="none" stroke="${INK}" stroke-width="8"/>`,
 		});
-		fillRegions(
-			lineForColour,
-			colourPlaced,
-			filled,
-			colourFixes[`${id}-colour`],
-		);
+		fillRegions(lineForColour, colourPlaced, filled, fixes);
 		const colourBack = join(tmp, `${team}-colour-back.png`);
 		await compose(filled, colourBack, {
 			wipe: [`<g fill="${INK}">${colourBand()}</g>`],
@@ -499,7 +499,7 @@ function overlayImage({ file, box: [x, y, width] }) {
  * Gemini added beyond the lines (an extra chain, stray strokes) is dropped.
  * Areas touching the canvas edge stay white paper.
  */
-function fillRegions(line, colour, out, { regions = [], checker } = {}) {
+function fillRegions(line, colour, out, { regions = [] } = {}) {
 	const raw = (file) =>
 		execFileSync(
 			magick,
@@ -556,7 +556,6 @@ function fillRegions(line, colour, out, { regions = [], checker } = {}) {
 		}
 		fill.push(edge ? null : COLOUR_BACK[votes.indexOf(Math.max(...votes))].rgb);
 	}
-	if (checker) chequer(region, fill, isInk, checker);
 	for (const [x, y, name] of regions) {
 		const id = region[y * SIZE + x];
 		const c = COLOUR_BACK.find((p) => p.name === name);
@@ -579,95 +578,6 @@ function fillRegions(line, colour, out, { regions = [], checker } = {}) {
 			input: pixels,
 		},
 	);
-}
-
-/**
- * Recolours the small areas inside `box` that are in one of the colours
- * `from` in two alternating `colours`: areas sharing a line get different
- * ones. Which of the two each gets follows what most of
- * them (by size) already have.
- */
-function chequer(
-	region,
-	fill,
-	isInk,
-	{ box: [x0, y0, x1, y1], colours, from = colours },
-) {
-	const [a, b] = colours.map((name) =>
-		COLOUR_BACK.find((c) => c.name === name),
-	);
-	if (!a || !b) throw new Error(`checker colours ${colours}: no such colour`);
-	const inside = new Map();
-	const size = new Map();
-	for (let y = 0; y < SIZE; y++)
-		for (let x = 0; x < SIZE; x++) {
-			const id = region[y * SIZE + x];
-			if (id < 0) continue;
-			size.set(id, (size.get(id) ?? 0) + 1);
-			const within = x >= x0 && x <= x1 && y >= y0 && y <= y1;
-			inside.set(id, (inside.get(id) ?? true) && within);
-		}
-	// Only the pattern's own cells: small, and in one of the colours Gemini
-	// gave them (`from`, its two plus any it mixed up with them).
-	const was = from.map((name) => COLOUR_BACK.find((c) => c.name === name)?.rgb);
-	const cells = new Set(
-		[...inside]
-			.filter(([id, v]) => v && size.get(id) < 8000 && was.includes(fill[id]))
-			.map(([id]) => id),
-	);
-	// Areas across a line from each other, weighted by how long the line is:
-	// areas meeting only at a corner share a few pixels and don't count.
-	const touch = new Map();
-	const D = 7;
-	for (let y = y0 + D; y <= y1 - D; y++)
-		for (let x = x0 + D; x <= x1 - D; x++) {
-			const i = y * SIZE + x;
-			if (!isInk(i)) continue;
-			for (const [p, q] of [
-				[i - D, i + D],
-				[i - D * SIZE, i + D * SIZE],
-			]) {
-				const [r, s] = [region[p], region[q]];
-				if (r === s || !cells.has(r) || !cells.has(s)) continue;
-				const key = r < s ? `${r},${s}` : `${s},${r}`;
-				touch.set(key, (touch.get(key) ?? 0) + 1);
-			}
-		}
-	const next = new Map([...cells].map((id) => [id, []]));
-	for (const [key, n] of touch) {
-		if (n < 12) continue;
-		const [r, s] = key.split(",").map(Number);
-		next.get(r).push(s);
-		next.get(s).push(r);
-	}
-	// The pattern is the biggest group of cells joined by lines; smaller groups
-	// in the box (a wheel's spokes) aren't part of it and keep their colours.
-	const parity = new Map();
-	let group = [];
-	for (const start of cells) {
-		if (parity.has(start)) continue;
-		const found = [start];
-		parity.set(start, 0);
-		for (let k = 0; k < found.length; k++)
-			for (const n of next.get(found[k]))
-				if (!parity.has(n)) {
-					parity.set(n, 1 - parity.get(found[k]));
-					found.push(n);
-				}
-		if (found.length > group.length) group = found;
-	}
-	const same = (id, c) => fill[id] === c.rgb;
-	let keep = 0;
-	for (const id of group) {
-		const want = parity.get(id) === 0 ? a : b;
-		const other = want === a ? b : a;
-		if (same(id, want)) keep += size.get(id);
-		else if (same(id, other)) keep -= size.get(id);
-	}
-	for (const id of group) {
-		const first = parity.get(id) === 0;
-		fill[id] = (first === keep >= 0 ? a : b).rgb;
-	}
 }
 
 /** The front's two stars, wiped when a long name takes their room. */

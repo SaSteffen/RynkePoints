@@ -51,10 +51,9 @@ enamel colours, no lettering.
 
 Where Gemini's colours are wrong, `colours.json` fixes them without it:
 `regions` gives single areas another colour ([x, y, colour] on the 2048 px
-canvas), `checker` makes a chequered pattern alternate (München's diamond ribbon:
-its box, its two colours, and the colours Gemini used for them). Only the biggest
-group of joined cells in the box is the pattern, so the riders' wheels nearby keep
-their own colour.
+canvas), and `overlay` draws an SVG of our own over Gemini's take before the
+areas vote, so a pattern gets exactly the colours we drew (München's diamonds,
+`reference/muenchen-ribbon-colour.svg`).
 
 Flensburg's `coin-flensburg-gate-rider.png` isn't Gemini's: it's draft 6
 (`coin-flensburg-merged`) with its last rider taken out and draft 5's rider
@@ -80,10 +79,12 @@ for shape only. They live in `reference/`:
 - `muenchen-ribbon.svg`: München's ribbon as a lozengy lattice (the Bavarian
   diamonds), made once from the ribbon's area in the earlier coloured back: it
   paints that area white and draws two families of lines leaning the same angle
-  either way from the ribbon's smoothed top edge, along its normal, so the cells
-  are regular diamonds bent with the ribbon. Gemini's own grid had uneven cells
-  and lines that stopped halfway, so no chequer could alternate on it everywhere.
-  An `overlay` like the outline above, over the whole canvas.
+  either way from the ribbon's top edge (smoothed to a cubic), along its normal,
+  so the cells are regular diamonds bent with the ribbon. Gemini's own grid had
+  uneven cells and lines that stopped halfway. An `overlay` like the outline
+  above, over the whole canvas. `muenchen-ribbon-colour.svg` is the same lattice
+  with each diamond filled blue or white by its place in it, the colour pass's
+  `overlay`.
 
 A picture with `template` uses that prompt instead of `prompt.txt`:
 `edit-prompt.txt` takes a finished draft as `blank` and changes only what its scene
