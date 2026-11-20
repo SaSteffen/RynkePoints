@@ -97,6 +97,22 @@ describe("recordDeadlineResults", () => {
 		expect(await kept()).toEqual(first);
 	});
 
+	it("keeps the result of a rider who must reconnect that day", async () => {
+		await seedRider(makeCtx(), {
+			athleteId: LATER,
+			status: "needs_reconnect",
+		});
+		await seedBalance(LATER, { qualified: true, trainingRynke: 300 });
+		await recordDeadlineResults(runOn("2027-07-01"));
+		expect(await kept()).toContainEqual({
+			athlete_id: LATER,
+			deadline: "2027-06-30",
+			qualified: 1,
+			training_rynke: 300,
+			team_rynke: 0,
+		});
+	});
+
 	it("goes with the rider", async () => {
 		await recordDeadlineResults(runOn("2027-07-01"));
 		await deleteRider(env.DB, ATHLETE_A);
