@@ -85,7 +85,9 @@ const STARS = [
 
 // The coloured backs (art/coin/teams/colour): Hamburg's back palette
 // (coin-art.mjs) plus the greens, browns, sand and red the other teams' scenes need,
-// bottom to top.
+// bottom to top. Colours marked `fix` are never voted for, only named in
+// colours.json's fixes: Gemini's take rarely has them, and as candidates they
+// would pull areas away from the colours it meant.
 const COLOUR_BACK = palette([
 	{ name: "cream", hex: "#fffdf5" },
 	{ name: "sky", hex: "#a9d6f2" },
@@ -97,6 +99,9 @@ const COLOUR_BACK = palette([
 	{ name: "brick", hex: "#b5562f" },
 	{ name: "wood", hex: "#c4802a" },
 	{ name: "sand", hex: "#f0c888" },
+	{ name: "stone", hex: "#a3a6a4", fix: true },
+	{ name: "bark", hex: "#7a5a3c", fix: true },
+	{ name: "chocolate", hex: "#4a2c1e", fix: true },
 	{ name: "quay", hex: "#5e5c55" },
 	{ name: "red", hex: "#ce223a" },
 	{ name: "yellow", hex: "#fbe122" },
@@ -116,11 +121,20 @@ const coins = JSON.parse(readFileSync(join(ROOT, DIR, "coins.json"), "utf8"));
 // `regions`, [x, y, colour name] each, the area of the line drawing around
 // that canvas point filled with that colour; `overlay`, an SVG drawn over
 // Gemini's take before the areas vote, so a pattern of our own (München's
-// diamonds, coloured by their place in the lattice) gets exactly its colours.
+// diamonds, coloured by their place in the lattice) gets exactly its colours;
+// `recolour`, {box, from, to} each, every area of colour `from` wholly inside
+// the box [x0, y0, x1, y1] turned `to` (a forest's see-through trees).
 const colourFixes = Object.fromEntries(
 	JSON.parse(
 		readFileSync(join(ROOT, DIR, "colour/colours.json"), "utf8"),
-	).coins.map((c) => [c.id, { regions: c.regions ?? [], overlay: c.overlay }]),
+	).coins.map((c) => [
+		c.id,
+		{
+			regions: c.regions ?? [],
+			overlay: c.overlay,
+			recolour: c.recolour ?? [],
+		},
+	]),
 );
 const problems = validateCoins(coins);
 if (problems.length > 0) {
@@ -277,19 +291,21 @@ try {
 				draw: overlayImage(fixes.overlay),
 			});
 		const filled = join(tmp, `${team}-colour-filled.png`);
-		// The arc line's left end below the band would split the sky.
 		const lineForColour = join(tmp, `${team}-colour-line.png`);
 		// A sketchy ring with gaps would let the white outside or the ring's gold
 		// leak into the scene: both its circles drawn closed.
 		await compose(back, lineForColour, {
-			draw: `${arcEnd()}<circle cx="${C}" cy="${C}" r="${R - 4}" fill="none" stroke="${INK}" stroke-width="10"/><circle cx="${C}" cy="${C}" r="898" fill="none" stroke="${INK}" stroke-width="8"/>`,
+			draw: `<circle cx="${C}" cy="${C}" r="${R - 4}" fill="none" stroke="${INK}" stroke-width="10"/><circle cx="${C}" cy="${C}" r="898" fill="none" stroke="${INK}" stroke-width="8"/>`,
 		});
 		fillRegions(lineForColour, colourPlaced, filled, fixes);
 		const colourBack = join(tmp, `${team}-colour-back.png`);
 		await compose(filled, colourBack, {
 			wipe: [`<g fill="${INK}">${colourBand()}</g>`],
 		});
-		const traced = traceImage(colourBack, { colours: COLOUR_BACK });
+		const traced = traceImage(colourBack, {
+			colours: COLOUR_BACK,
+			fixes: fixes?.recolour ?? [],
+		});
 		const colourOut = `${out}/rynke-coin-back.svg`;
 		writeFileSync(
 			join(ROOT, colourOut),
@@ -369,16 +385,6 @@ function backScene() {
  */
 function colourBand() {
 	return `<g clip-path="url(#above)">${annulus(ARC.r - 6, BAND.outer - 4)}</g>`;
-}
-/**
- * The arc line's left end below the coloured back's band, wiped. (The right
- * end runs into the Eiffel Tower and stays.)
- */
-function arcEnd() {
-	const from = C - 380;
-	const to = C + 200;
-	const x = (y) => C - Math.sqrt(ARC.r ** 2 - (y - C) ** 2);
-	return `<path fill="none" stroke="white" stroke-width="16" d="M${x(from)},${from}A${ARC.r},${ARC.r} 0 0,0 ${x(to)},${to}"/>`;
 }
 
 /** The arc line, drawn again whole where the wiping cut into it. */
@@ -515,7 +521,8 @@ function fillRegions(line, colour, out, { regions = [] } = {}) {
 	const nearest = (i) => {
 		let best = 0;
 		let bestD = Number.POSITIVE_INFINITY;
-		for (const [k, { rgb }] of COLOUR_BACK.entries()) {
+		for (const [k, { rgb, fix }] of COLOUR_BACK.entries()) {
+			if (fix) continue;
 			const d =
 				(paint[3 * i] - rgb[0]) ** 2 +
 				(paint[3 * i + 1] - rgb[1]) ** 2 +
@@ -564,6 +571,12 @@ function fillRegions(line, colour, out, { regions = [] } = {}) {
 				`colour fix [${x}, ${y}, ${name}]: no area or no such colour`,
 			);
 		fill[id] = c.rgb;
+		// An outline with a gap lets the area run out into the sky: say so.
+		const size = region.reduce((n, r) => n + (r === id), 0);
+		if (size > 400000)
+			console.warn(
+				`  colour fix [${x}, ${y}, ${name}]: its area is ${size} px, as big as the sky; does its outline leak?`,
+			);
 	}
 	const pixels = Buffer.alloc(3 * n);
 	const inkRgb = COLOUR_BACK.find((p) => p.name === "ink").rgb;
@@ -571,6 +584,24 @@ function fillRegions(line, colour, out, { regions = [] } = {}) {
 		const c = region[i] === -1 ? inkRgb : (fill[region[i]] ?? [255, 255, 255]);
 		pixels.set(c, 3 * i);
 	}
+	// The arc line's left end below the band, which the drawings keep from
+	// Hamburg's blank, would cross the sky: where it has one colour on both
+	// sides it takes that colour. Wiping it out of the line drawing instead cut
+	// a gap into every line crossing it, and areas ran out through the gaps.
+	for (let y = C - 380; y <= C + 200; y++)
+		for (let x = 0; x < C; x++) {
+			const i = y * SIZE + x;
+			const d = Math.hypot(x - C, y - C);
+			if (region[i] !== -1 || Math.abs(d - ARC.r) > 10) continue;
+			const at = (r) => {
+				const j =
+					Math.round(C + ((y - C) * r) / d) * SIZE +
+					Math.round(C + ((x - C) * r) / d);
+				return region[j] === -1 ? null : fill[region[j]];
+			};
+			const inner = at(ARC.r - 15);
+			if (inner && inner === at(ARC.r + 15)) pixels.set(inner, 3 * i);
+		}
 	execFileSync(
 		magick,
 		["-size", `${SIZE}x${SIZE}`, "-depth", "8", "rgb:-", out],

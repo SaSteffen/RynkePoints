@@ -56,6 +56,10 @@
 		{
 			"id": "coin-rheinruhr-crest",
 			"name": "RheinRuhr",
+			"overlay": {
+				"file": "reference/rheinruhr-handle.svg",
+				"box": [0, 0, 2048]
+			},
 			"references": [
 				{
 					"file": "reference/rheinruhr-spoil-heap.jpg",
@@ -72,6 +76,10 @@
 		{
 			"id": "coin-niederrhein-sheep",
 			"name": "Niederrhein",
+			"overlay": {
+				"file": "reference/niederrhein-willows.svg",
+				"box": [0, 0, 2048]
+			},
 			"scene": "Main motif: a Lower Rhine windmill, a tall round brick tower mill with a cap and four big lattice sails, big, slightly left of centre, the top sail's tip just below the arc line, never crossing it. Support: at the left, in front of the mill's foot, a row of three pollarded willows (Kopfweiden), short thick trunks with round bushy heads of thin upright branches, getting smaller towards the left edge. Ground: completely flat land, a grassy dyke along the front with the river Rhine behind it as a thin band of calm water, the road running along the top of the dyke. Dry touch: a sheep stands on the road on the climb, between the lead rider (the one highest up, nearest the Eiffel Tower) and the second rider, as big as a rider's bike, calmly chewing and unimpressed; the second, third and fourth riders sit a little further down the climb to make room for it, so the sheep looks like part of the group. Only this one sheep, no other animals, nothing else at the roadside."
 		},
 		{
@@ -92,6 +100,10 @@
 		{
 			"id": "coin-frankfurt-bembel",
 			"name": "Frankfurt",
+			"overlay": {
+				"file": "reference/frankfurt-roemer.svg",
+				"box": [0, 0, 2048]
+			},
 			"scene": "Main motif: the Frankfurt skyline as one tight group of four or five skyscrapers including the Messeturm with its pyramid top, slightly left of centre, the tallest reaching the arc line. Behind it, as a backdrop, the way the pretzel stands behind the church on Munich's coin: one giant apple-wine jug (Bembel), drawn as the real thing and not as a symbol: a round-bellied stoneware jug with a narrow neck, a spout, a handle and a lid, its belly decorated with the typical painted pattern of simple flowers and leaves in outline; so big that it spans most of the scene's width behind the skyscrapers, which stand in front of it and overlap it; next to it, overlapping its right side, a ribbed apple-wine glass (Geripptes) with its diamond grid of ribs, half as tall as the jug, its top below the arc line. Support: at the left, in front of the skyline's foot, the three stepped gables of the Römer, the old town hall, simple outlines. Ground: the river Main as the ground band across the whole front, calm wave lines, the road running along its bank. Nothing else: no second jug or glass, nothing at the roadside."
 		},
 		{

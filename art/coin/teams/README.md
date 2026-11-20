@@ -51,9 +51,19 @@ enamel colours, no lettering.
 
 Where Gemini's colours are wrong, `colours.json` fixes them without it:
 `regions` gives single areas another colour ([x, y, colour] on the 2048 px
-canvas), and `overlay` draws an SVG of our own over Gemini's take before the
+canvas); `recolour` turns every area of one colour wholly inside a box into
+another (`box`, `from`, `to`: a tower's see-through inside, a badge's pink
+riders); and `overlay` draws an SVG of our own over Gemini's take before the
 areas vote, so a pattern gets exactly the colours we drew (München's diamonds,
-`reference/muenchen-ribbon-colour.svg`).
+`reference/muenchen-ribbon-colour.svg`). The palette's `stone`, `bark` and
+`chocolate` are only for these fixes: no area votes for them. A fix whose area
+turns out as big as the sky gets a warning: its outline has a gap, which an
+`overlay` in `coins.json` with a short line closes (`rheinruhr-handle.svg`,
+`frankfurt-roemer.svg`, `niederrhein-willows.svg`).
+
+The arc line's left end below the band, which the drawings keep from
+Hamburg's blank, takes the colour on both its sides wherever they match, so it
+disappears from the sky without cutting the lines that cross it.
 
 Flensburg's `coin-flensburg-gate-rider.png` isn't Gemini's: it's draft 6
 (`coin-flensburg-merged`) with its last rider taken out and draft 5's rider

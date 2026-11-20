@@ -31,7 +31,19 @@
 					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
 				}
 			],
-			"scene": "The Brandenburg Gate in warm light sandstone (cream) with a green copper quadriga on top; the TV tower's shaft light grey-white with its ball in silver-white and a red and white antenna tip; the Spree a clear mid blue; the Ampelmännchen bright green; the ground grass a fresh green."
+			"scene": "The Brandenburg Gate in warm light sandstone (cream) with a green copper quadriga on top; the TV tower's shaft light grey-white with its ball in silver-white and a red and white antenna tip; the Spree a clear mid blue; the Ampelmännchen bright green; the ground grass a fresh green.",
+			"regions": [
+				[400, 1154, "sand"],
+				[1319, 1402, "grass"],
+				[1474, 1256, "ink"],
+				[1478, 1266, "ink"],
+				[1462, 1282, "ink"],
+				[1376, 1291, "ink"],
+				[1381, 1301, "ink"],
+				[1361, 1317, "ink"],
+				[1287, 1322, "ink"],
+				[1290, 1333, "ink"]
+			]
 		},
 		{
 			"id": "coin-black-forest-cake-colour",
@@ -43,7 +55,25 @@
 					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
 				}
 			],
-			"scene": "The hills dark fir green, the fir outlines a deeper green; the farmhouse's walls and balcony warm wood brown, its big roof dark brick red-brown, the windows light; the Bollenhut's pompoms bright red on a white hat; the fence wood brown; the meadow a fresh green; the cake slice: dark chocolate brown sponge layers, white cream, one red cherry, the plate white."
+			"scene": "The hills dark fir green, the fir outlines a deeper green; the farmhouse's walls and balcony warm wood brown, its big roof dark brick red-brown, the windows light; the Bollenhut's pompoms bright red on a white hat; the fence wood brown; the meadow a fresh green; the cake slice: dark chocolate brown sponge layers, white cream, one red cherry, the plate white.",
+			"regions": [[1463, 1226, "chocolate"], [1517, 1241, "chocolate"]],
+			"recolour": [
+				{
+					"box": [1600, 820, 1880, 1300],
+					"from": "fir",
+					"to": "sky"
+				},
+				{
+					"box": [1600, 820, 1880, 1300],
+					"from": "grass",
+					"to": "sky"
+				},
+				{
+					"box": [1230, 1620, 1470, 1840],
+					"from": "sand",
+					"to": "gold"
+				}
+			]
 		},
 		{
 			"id": "coin-rheinruhr-crest-colour",
@@ -55,7 +85,49 @@
 					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
 				}
 			],
-			"scene": "The Zollverein headframe in its real rusty red steel, the wheels the same red, its base red brick; the crossed hammer and pick: heads dark grey steel, handles warm wood brown; the banner gold yellow with the words GLÜCK AUF in black; the spoil heap's flanks a dark green with the terrace lines and path lighter; the ground grass a fresh green."
+			"scene": "The Zollverein headframe in its real rusty red steel, the wheels the same red, its base red brick; the crossed hammer and pick: heads dark grey steel, handles warm wood brown; the banner gold yellow with the words GLÜCK AUF in black; the spoil heap's flanks a dark green with the terrace lines and path lighter; the ground grass a fresh green.",
+			"regions": [
+				[1200, 788, "wood"],
+				[1147, 1229, "sky"],
+				[1544, 1333, "sky"],
+				[1515, 1350, "sky"],
+				[1473, 1362, "sky"],
+				[1410, 1385, "sky"],
+				[1429, 1371, "sky"],
+				[1451, 1359, "sky"],
+				[1361, 1373, "sky"],
+				[1339, 1380, "sky"],
+				[1354, 1391, "sky"],
+				[1334, 1402, "sky"],
+				[1374, 1395, "sky"],
+				[1319, 1415, "sky"],
+				[1264, 1424, "sky"],
+				[1222, 1445, "sky"],
+				[1191, 1459, "sky"],
+				[1138, 1462, "sky"],
+				[1498, 1298, "sky"],
+				[1492, 1319, "sky"],
+				[1298, 1387, "sky"],
+				[1173, 1423, "sky"],
+				[1499, 1255, "ink"],
+				[1497, 1266, "ink"],
+				[1478, 1283, "ink"],
+				[1395, 1290, "ink"],
+				[1397, 1301, "ink"],
+				[1375, 1318, "ink"],
+				[1303, 1322, "ink"],
+				[1304, 1333, "ink"],
+				[1287, 1348, "ink"],
+				[1183, 1361, "ink"],
+				[1184, 1372, "ink"]
+			],
+			"recolour": [
+				{
+					"box": [1230, 1620, 1470, 1840],
+					"from": "sand",
+					"to": "gold"
+				}
+			]
 		},
 		{
 			"id": "coin-niederrhein-sheep-colour",
@@ -67,7 +139,19 @@
 					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
 				}
 			],
-			"scene": "The windmill tower red brick, its cap dark, the sails' lattice wood brown with white sail cloth; the willows' trunks wood brown and their heads a fresh green; the dyke grass a fresh green; the Rhine a clear mid blue; the sheep white with a black face and legs."
+			"scene": "The windmill tower red brick, its cap dark, the sails' lattice wood brown with white sail cloth; the willows' trunks wood brown and their heads a fresh green; the dyke grass a fresh green; the Rhine a clear mid blue; the sheep white with a black face and legs.",
+			"regions": [
+				[248, 1232, "bark"],
+				[402, 1330, "bark"],
+				[512, 1320, "bark"]
+			],
+			"recolour": [
+				{
+					"box": [1230, 1620, 1470, 1840],
+					"from": "sand",
+					"to": "gold"
+				}
+			]
 		},
 		{
 			"id": "coin-nieder-olm-cap-colour",
@@ -79,7 +163,45 @@
 					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
 				}
 			],
-			"scene": "The vineyard hill a fresh green with darker green vine rows; the jester's cap in carnival red and yellow, its bells gold, its rim band gold; the grapevine stock wood brown with green leaves and a bunch of purple-blue grapes; the lead rider's small cap red and yellow like the big one; the ground grass a fresh green."
+			"scene": "The vineyard hill a fresh green with darker green vine rows; the jester's cap in carnival red and yellow, its bells gold, its rim band gold; the grapevine stock wood brown with green leaves and a bunch of purple-blue grapes; the lead rider's small cap red and yellow like the big one; the ground grass a fresh green.",
+			"regions": [
+				[842, 645, "red"],
+				[745, 1492, "yellow"],
+				[389, 1208, "bark"],
+				[380, 1322, "bark"],
+				[304, 1465, "bark"],
+				[383, 1457, "bark"],
+				[561, 1110, "water"],
+				[440, 1111, "water"],
+				[476, 1110, "water"],
+				[517, 1114, "water"],
+				[539, 1137, "water"],
+				[456, 1137, "water"],
+				[494, 1139, "water"],
+				[427, 1151, "water"],
+				[575, 1151, "water"],
+				[516, 1170, "water"],
+				[446, 1180, "water"],
+				[549, 1182, "water"],
+				[483, 1184, "water"],
+				[414, 1178, "water"],
+				[579, 1180, "water"],
+				[518, 1211, "water"],
+				[562, 1209, "water"],
+				[472, 1209, "water"],
+				[449, 1221, "water"],
+				[490, 1236, "water"],
+				[553, 1236, "water"],
+				[521, 1251, "water"],
+				[464, 1256, "water"],
+				[546, 1268, "water"],
+				[498, 1278, "water"],
+				[464, 1289, "water"],
+				[525, 1296, "water"],
+				[489, 1315, "water"],
+				[520, 1323, "water"],
+				[504, 1346, "water"]
+			]
 		},
 		{
 			"id": "coin-frankfurt-bembel-colour",
@@ -91,7 +213,30 @@
 					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
 				}
 			],
-			"scene": "The skyscrapers in light glass blue-grey with a few in silver-white, the Messeturm's shaft warm reddish with its pyramid top a darker red; the Bembel grey stoneware with cobalt blue painted flowers and leaves; the ribbed glass a pale glass white with a golden apple wine inside; the Römer's gables reddish brick with cream fronts; the Main a clear mid blue; the ground grass a fresh green."
+			"scene": "The skyscrapers in light glass blue-grey with a few in silver-white, the Messeturm's shaft warm reddish with its pyramid top a darker red; the Bembel grey stoneware with cobalt blue painted flowers and leaves; the ribbed glass a pale glass white with a golden apple wine inside; the Römer's gables reddish brick with cream fronts; the Main a clear mid blue; the ground grass a fresh green.",
+			"regions": [[1303, 1490, "yellow"], [400, 1215, "sand"]],
+			"recolour": [
+				{
+					"box": [560, 780, 660, 1200],
+					"from": "sky",
+					"to": "glass"
+				},
+				{
+					"box": [390, 840, 495, 1120],
+					"from": "sky",
+					"to": "glass"
+				},
+				{
+					"box": [900, 370, 1500, 1460],
+					"from": "copper",
+					"to": "stone"
+				},
+				{
+					"box": [1230, 1620, 1470, 1840],
+					"from": "sand",
+					"to": "gold"
+				}
+			]
 		},
 		{
 			"id": "coin-flensburg-gate-rider-colour",
@@ -115,7 +260,29 @@
 					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
 				}
 			],
-			"scene": "Schwerin Castle's walls in light cream sandstone, its roofs dark slate grey, the big central dome and the turret tips gold; the cranes light grey-white with black neck and wing tips and a small red cap; the lake a clear mid blue; the reeds a darker green; the beach sandy yellow; the beach chair wicker wood brown with a blue and white striped hood; the ground grass a fresh green."
+			"scene": "Schwerin Castle's walls in light cream sandstone, its roofs dark slate grey, the big central dome and the turret tips gold; the cranes light grey-white with black neck and wing tips and a small red cap; the lake a clear mid blue; the reeds a darker green; the beach sandy yellow; the beach chair wicker wood brown with a blue and white striped hood; the ground grass a fresh green.",
+			"recolour": [
+				{
+					"box": [791, 484, 1136, 745],
+					"from": "glass",
+					"to": "stone"
+				},
+				{
+					"box": [1136, 503, 1452, 735],
+					"from": "glass",
+					"to": "stone"
+				},
+				{
+					"box": [1396, 680, 1685, 894],
+					"from": "glass",
+					"to": "stone"
+				},
+				{
+					"box": [1230, 1620, 1470, 1840],
+					"from": "sand",
+					"to": "gold"
+				}
+			]
 		},
 		{
 			"id": "coin-100-germany-nomap-colour",
@@ -127,7 +294,35 @@
 					"shows": "our Hamburg coin's back in full colour: copy its colours and finish, not its scene"
 				}
 			],
-			"scene": "The number 100: the 1 bold red, the two wheel-zeros black tyres with silver-white spokes; the dashed route red; the meadow a fresh green; everything else as on the Hamburg coin."
+			"scene": "The number 100: the 1 bold red, the two wheel-zeros black tyres with silver-white spokes; the dashed route red; the meadow a fresh green; everything else as on the Hamburg coin.",
+			"regions": [[987, 745, "cream"]],
+			"recolour": [
+				{
+					"box": [1590, 640, 1880, 1290],
+					"from": "fir",
+					"to": "sky"
+				},
+				{
+					"box": [1590, 640, 1880, 1290],
+					"from": "grass",
+					"to": "sky"
+				},
+				{
+					"box": [1100, 1240, 1570, 1500],
+					"from": "grass",
+					"to": "sky"
+				},
+				{
+					"box": [1230, 1620, 1470, 1840],
+					"from": "sand",
+					"to": "gold"
+				},
+				{
+					"box": [1230, 1620, 1470, 1840],
+					"from": "yellow",
+					"to": "gold"
+				}
+			]
 		}
 	]
 }
