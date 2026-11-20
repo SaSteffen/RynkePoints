@@ -77,12 +77,13 @@ for shape only. They live in `reference/`:
   (public domain). It isn't given to Gemini: 100 Germany's back is drawn without a
   map, and the script draws this outline over it (`overlay` in `coins.json`: the
   file and its box on the canvas, [x, y, width]), so the shape is exact.
-- `muenchen-ribbon.svg`: München's diamond ribbon as a regular grid, made once
-  from the ribbon's area in the earlier coloured back: it paints that area white
-  and draws evenly spaced rows along the ribbon and cross lines at a fixed angle
-  to them. Gemini's own grid had uneven cells and lines that stopped halfway, so
-  no chequer could alternate on it everywhere. An `overlay` like the outline
-  above, over the whole canvas.
+- `muenchen-ribbon.svg`: München's ribbon as a lozengy lattice (the Bavarian
+  diamonds), made once from the ribbon's area in the earlier coloured back: it
+  paints that area white and draws two families of lines leaning the same angle
+  either way from the ribbon's smoothed top edge, along its normal, so the cells
+  are regular diamonds bent with the ribbon. Gemini's own grid had uneven cells
+  and lines that stopped halfway, so no chequer could alternate on it everywhere.
+  An `overlay` like the outline above, over the whole canvas.
 
 A picture with `template` uses that prompt instead of `prompt.txt`:
 `edit-prompt.txt` takes a finished draft as `blank` and changes only what its scene
