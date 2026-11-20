@@ -68,6 +68,12 @@ describe("minimum ride length in the handouts (feature 039)", () => {
 		expect(text).toContain("up to **50 km/h**");
 	});
 
+	it("Europe's names the rules version in effect", () => {
+		const text = HANDOUTS["../../docs/teams/europe/rynke-points.md"];
+		const { version } = currentRules(europe.rules);
+		expect(text).toContain(`date: "Rules version ${version}, as of `);
+	});
+
 	it("Hamburg's names no minimum ride length", () => {
 		const text = HANDOUTS["../../docs/rynke-punkte.md"];
 		expect(text).toBeDefined();

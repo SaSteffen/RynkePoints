@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { artUrl } from "../../src/http/art";
+import { ART_VERSIONS } from "../../src/http/art-versions";
 import { escapeHtml } from "../../src/http/html";
 import {
 	renderBreakdown,
@@ -211,9 +212,14 @@ describe("renderRules handout (026 FR-022)", () => {
 			"Die Regeln als PDF (auf Englisch)",
 		],
 	] as const)(
-		"%s in %s links its own handout",
-		(_, locale, team, href, label) => {
-			expect(link(locale === "en" ? en : de, team)).toEqual([href, label]);
+		"%s in %s links its own handout, with the PDF's hash",
+		(_, locale, team, path, label) => {
+			const hash = ART_VERSIONS[path];
+			expect(hash).toMatch(/^[0-9a-f]{10}$/);
+			expect(link(locale === "en" ? en : de, team)).toEqual([
+				`${path}?v=${hash}`,
+				label,
+			]);
 		},
 	);
 });

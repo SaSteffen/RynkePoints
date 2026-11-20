@@ -189,4 +189,6 @@ export const ART_VERSIONS: Readonly<Record<string, string>> = {
 	"/teams/europe/badges/team-running-1000.svg": "e24ebfdf98",
 	"/teams/europe/coin/rynke-coin-back.svg": "8949e31924",
 	"/teams/europe/coin/rynke-coin-front.svg": "d1209e4e40",
+	"/rynke-punkte.pdf": "9582ccfbb0",
+	"/teams/europe/rynke-points.pdf": "805ff0885d",
 };
