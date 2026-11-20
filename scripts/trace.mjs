@@ -202,10 +202,19 @@ function pbm(inside, w, h) {
 	return Buffer.concat([head, body]);
 }
 
-function trace(bitmap) {
+function trace(bitmap, speckles = POTRACE[1]) {
 	const svg = execFileSync(
 		"potrace",
-		["-b", "svg", "--flat", ...POTRACE, "-o", "-"],
+		[
+			"-b",
+			"svg",
+			"--flat",
+			"-t",
+			`${speckles}`,
+			...POTRACE.slice(2),
+			"-o",
+			"-",
+		],
 		{
 			input: bitmap,
 			maxBuffer: 64 * 1024 * 1024,
@@ -217,6 +226,18 @@ function trace(bitmap) {
 		.replace(/\s+/g, " ")
 		.trim();
 	return transform && d ? { transform, d } : null;
+}
+
+/**
+ * One shape traced on its own, `inside(i)` true for its pixels on a `w` × `h`
+ * image, in `hex`, 100 user units across like `traceImage`'s markup: for fine
+ * detail drawn over a traced picture, which would close its small gaps.
+ * `speckles` is the largest dot or gap dropped, in pixels.
+ */
+export function traceShape(inside, w, h, hex, { speckles = 48 } = {}) {
+	const layer = trace(pbm(inside, w, h), speckles);
+	if (!layer) return "";
+	return `<g transform="scale(${(100 / w).toFixed(6)}) ${layer.transform}"><path fill="${hex}" d="${layer.d}"/></g>`;
 }
 
 /** `{ name, hex }` colours, bottom to top, as `traceImage` takes them. */

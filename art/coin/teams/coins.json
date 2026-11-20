@@ -60,6 +60,8 @@
 		{
 			"id": "coin-rheinruhr-crest",
 			"name": "RheinRuhr",
+			"tower": [22, -1],
+			"badges": [[746, 1749], [1032, 1769], [1346, 1744]],
 			"overlay": {
 				"file": "reference/rheinruhr-handle.svg",
 				"box": [0, 0, 2048]
@@ -94,6 +96,10 @@
 		{
 			"id": "coin-nieder-olm-cap",
 			"name": "Nieder-Olm",
+			"overlay": {
+				"file": "reference/nieder-olm-lines.svg",
+				"box": [0, 0, 2048]
+			},
 			"scene": "Main motif: a rounded vineyard hill rising in the middle of the scene, covered with a few calm, widely spaced rows of vines that follow its curve. The hill wears a giant carnival jester's cap (Narrenkappe), the way the pretzel stands behind the church on Munich's coin: the cap sits on the hilltop like a hat on a head, so big that it covers the whole top of the hill, its three soft floppy points hanging down over the vine rows to the left, the right and the back, a round bell at each point's tip, a broad band around its rim; its top just below the arc line. Support: in the left foreground, standing on the ground, a big old grapevine stock with a few large leaves and a heavy bunch of grapes, about half as tall as the hill, touching the hill's foot. Ground: the foot of the vineyard across the whole front, the road running along it. Dry touch: the lead rider wears a small jester's cap of the same kind over the helmet. Nothing else: no vineyard hut, no other hats."
 		},
 		{
@@ -153,7 +159,10 @@
 			"id": "coin-flensburg-gate-rider",
 			"name": "Flensburg",
 			"scene": "Not drawn by Gemini: put together by hand from coin-flensburg-merged (its last rider removed) and the front-facing rider from coin-flensburg-front, set into the gate's archway behind the first rider (see README).",
-			"overlay": { "file": "reference/flensburg-arch.svg", "box": [0, 0, 2048] }
+			"overlay": {
+				"file": "reference/flensburg-lines.svg",
+				"box": [0, 0, 2048]
+			}
 		},
 		{
 			"id": "coin-mecklenburg",

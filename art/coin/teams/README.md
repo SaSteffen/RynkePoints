@@ -55,16 +55,25 @@ canvas); `recolour` turns every area of one colour wholly inside a box into
 another (`box`, `from`, `to`: a tower's see-through inside, a badge's pink
 riders); and `overlay` draws an SVG of our own over Gemini's take before the
 areas vote, so a pattern gets exactly the colours we drew (München's diamonds,
-`reference/muenchen-ribbon-colour.svg`). The palette's `stone`, `bark` and
-`chocolate` are only for these fixes: no area votes for them. A fix whose area
-turns out as big as the sky gets a warning: its outline has a gap, which an
-`overlay` in `coins.json` with a short line closes (`rheinruhr-handle.svg`,
-`frankfurt-roemer.svg`, `niederrhein-willows.svg`, `black-forest-hill.svg`,
-`flensburg-arch.svg`).
-`badges` at the top of `colours.json` colours the band's three badges, which
-every drawing keeps from Hamburg's blank, like Hamburg's on every coin: road,
-mountain and the riders' jerseys yellow on the gold. A coin whose badges Gemini
-moved has its own `badges` (RheinRuhr).
+`reference/muenchen-ribbon-colour.svg`). The palette's `stone`, `bark`,
+`chocolate` and `grape` are only for these fixes: no area votes for them. A
+fix whose area turns out as big as the sky gets a warning: its outline has a
+gap, which an `overlay` in `coins.json` with a short line closes
+(`rheinruhr-handle.svg`, `frankfurt-roemer.svg`, `niederrhein-willows.svg`,
+`black-forest-hill.svg`, `flensburg-lines.svg`, `nieder-olm-lines.svg`, which
+also swaps the lead rider's jester's cap for a helmet).
+
+The Eiffel Tower and the band's three badges look the same on every coin,
+Hamburg's: the drawings copy them from the blank, each a little differently
+(RheinRuhr redrew the riders' badge), so the script sets the blank's own in
+their place. A drawing that moved its whole scene says how far for the tower
+(`tower` in `coins.json`, RheinRuhr's). The coloured backs get the tower of
+Hamburg's coloured back, its fine lattice traced on its own over the scene,
+which shows through it: what's beside the tower in each row, or `behind` in
+`colours.json` where that's wrong (`nieder-olm-behind.svg`: the hill running
+down behind its foot). `badges` at the top of `colours.json` colours the
+badges like Hamburg's: road, mountain and the riders' jerseys yellow on the
+gold.
 
 The arc line's ends below the band, which the drawings keep from Hamburg's
 blank (where Hamburg's chain hangs), take the colour on both their sides
