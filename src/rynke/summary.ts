@@ -11,8 +11,11 @@ import { type DatedCorrection, weekEndOf } from "./weeks";
  * again. Readers don't follow it: each states the lowest version whose columns
  * it can use, so a new column sends nobody back to adding up rides (feature 029
  * research R14).
+ *
+ * 5: a correction counts only inside the qualification window, so every
+ * balance stored before that is worked out again.
  */
-export const RIDER_SUMMARY_VERSION = 4;
+export const RIDER_SUMMARY_VERSION = 5;
 /** The lowest version whose `days`, `weeks`, `run_days`, `active`, `attended` hold. */
 export const TEAM_SUMMARY_SINCE = 1;
 /** The lowest version with `virtual_days` and `own_days`. */
