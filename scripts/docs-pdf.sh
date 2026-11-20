@@ -55,3 +55,6 @@ for handout in "${handouts[@]}"; do
 
 	echo "wrote $pdf"
 done
+
+# The links carry each PDF's hash (src/http/art-versions.ts).
+node scripts/art-versions.mjs

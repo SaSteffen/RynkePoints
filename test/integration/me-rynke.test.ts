@@ -1290,7 +1290,7 @@ describe("GET /me rules and notices (US6)", () => {
 		const link = section(settings, 'id="settings-rules"')?.match(
 			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
 		);
-		expect(link?.[1]).toBe(hamburg.rulesHandout.path);
+		expect(link?.[1]).toBe(artUrl(hamburg.rulesHandout.path));
 		expect(link?.[2]).toBe("Die Regeln als PDF");
 		expect(notice).toBeNull();
 		expect(html).not.toContain("gelten neue Regeln");

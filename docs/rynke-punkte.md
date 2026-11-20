@@ -2,14 +2,15 @@
 title: "Rynke-Punkte"
 subtitle: "So sammelst du deine Rynke für die Tour de Paris"
 author: "Team Rynkeby Hamburg"
-date: "Stand: November 2026"
+date: "Regelversion 3, Stand: 9. Oktober 2026"
 lang: de
 ---
 
 <!--
 Maintainers: this handout is informational only. The specification
 specs/003-rynke-evaluation/spec.md is authoritative; if the two differ, fix this
-file (FR-019). Render it with `pnpm docs:pdf` and commit
+file (FR-019). The front matter names the rules version in effect: raise it
+with every new version in src/teams/hamburg.ts. Render it with `pnpm docs:pdf` and commit
 public/rynke-punkte.pdf: the app links riders to that PDF.
 -->
 
