@@ -65,6 +65,19 @@ function validatePictures(data, key, file) {
 		)
 			problems.push(`${where}: erase must be [x0, y0, x1, y1] pixel boxes`);
 
+		const references = m?.references ?? [];
+		if (
+			!Array.isArray(references) ||
+			!references.every(
+				(r) =>
+					typeof r?.file === "string" &&
+					r.file.trim() !== "" &&
+					typeof r?.shows === "string" &&
+					r.shows.trim() !== "",
+			)
+		)
+			problems.push(`${where}: references must be { file, shows } pairs`);
+
 		const scene = typeof m?.scene === "string" ? m.scene : "";
 		if (!scene.trim()) problems.push(`${where}: empty scene`);
 		for (const [, name] of scene.matchAll(PLACEHOLDER)) {

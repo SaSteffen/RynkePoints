@@ -12,6 +12,11 @@
 // into art/coin/teams/<team>/rynke-coin-line-{front,back}.svg. A team without
 // a generated back yet gets only its front.
 //
+// A back with a coloured take (art/coin/teams/colour/originals/
+// coin-<team>-colour.*, pnpm badge-art coin-<team>-colour) is traced in colour
+// too, into art/coin/teams/<team>/rynke-coin-back.svg: its lettering band
+// painted black and the name set in gold, like Hamburg's coloured back.
+//
 // It also writes the reference the generator gets for every back:
 // Hamburg's back with its lettering and its own scene wiped, the frame, the
 // climb, the Eiffel Tower and the bottom icons kept
@@ -19,10 +24,12 @@
 //
 // The lettering is set here, not drawn by the generator: it spells every name
 // right and fits any length. It follows Hamburg's letters (hollow, rounded,
-// Nunito Black from album/fonts) on the same arcs and shrinks only when a
-// name won't fit; on the front, a long name takes the two stars' room first.
-// Chromium (Playwright's, as for the e2e tests) sets it, ImageMagick and
-// potrace do the rest, like pnpm coin-art.
+// Nunito from album/fonts, the dot between the words solid) on the same arcs
+// and shrinks only when a name won't fit; on the front, a long name takes the
+// two stars' room first. The letters go into the SVG as the font's own
+// outlines, not traced, so they stay crisp. Chromium (Playwright's, as for
+// the e2e tests) wipes the old lettering, ImageMagick and potrace trace the
+// rest, like pnpm coin-art.
 //
 //   pnpm team-coins                every team
 //   pnpm team-coins berlin muenchen  only these teams (ids without "coin-")
@@ -39,6 +46,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { openSync as openFont } from "fontkit";
 import { validateCoins } from "./quote-prompts.mjs";
 import { palette, traceImage } from "./trace.mjs";
 
@@ -47,6 +55,8 @@ const DIR = "art/coin/teams";
 const HAMBURG = "art/coin/reference/rynke-coin-line-drawing.jpeg";
 const BLANK_BACK = `${DIR}/reference/coin-back-blank.png`;
 const FONT = "album/fonts/Nunito-Black.woff2";
+// The letters' outline, as thick as the drawing's lines.
+const LETTER_LINE = 9;
 
 // Every side is set on a 2048 px canvas, the coin centred with radius R.
 const SIZE = 2048;
@@ -71,6 +81,28 @@ const STARS = [
 	[C - 800, C],
 	[C + 800, C],
 ];
+
+// The coloured backs (art/coin/teams/colour): Hamburg's back palette
+// (coin-art.mjs) plus the greens, browns and red the other teams' scenes need,
+// bottom to top.
+const COLOUR_BACK = palette([
+	{ name: "cream", hex: "#fffdf5" },
+	{ name: "sky", hex: "#a9d6f2" },
+	{ name: "glass", hex: "#e8f3fb" },
+	{ name: "water", hex: "#3a8fd0" },
+	{ name: "grass", hex: "#7fbf5a" },
+	{ name: "copper", hex: "#6fae8f" },
+	{ name: "fir", hex: "#3f7a3a" },
+	{ name: "brick", hex: "#b5562f" },
+	{ name: "wood", hex: "#c4802a" },
+	{ name: "quay", hex: "#5e5c55" },
+	{ name: "red", hex: "#ce223a" },
+	{ name: "yellow", hex: "#fbe122" },
+	{ name: "gold", hex: "#c99a2e" },
+	{ name: "ink", hex: "#1c1b13" },
+]);
+const GOLD = "#c99a2e";
+const INK = "#1c1b13";
 
 const LINE_COLOURS = palette([
 	{ name: "paper", hex: "#ffffff" },
@@ -110,7 +142,7 @@ const page = await browser.newPage({
 	viewport: { width: SIZE, height: SIZE },
 	deviceScaleFactor: 1,
 });
-const font = readFileSync(join(ROOT, FONT)).toString("base64");
+const font = openFont(join(ROOT, FONT));
 
 try {
 	// Hamburg's two sides on the canvas, everything outside the coin (the
@@ -143,18 +175,24 @@ try {
 	});
 	console.log(`${BLANK_BACK} (${statSync(join(ROOT, BLANK_BACK)).size} bytes)`);
 
-	for (const { team, name, id } of teams) {
+	for (const { team, name, id, overlay } of teams) {
 		const out = `${DIR}/${team}`;
 		mkdirSync(join(ROOT, out), { recursive: true });
 		const upper = name.toUpperCase();
 
 		const front = join(tmp, `${team}-front.png`);
-		const frontSpan = await compose(hamburg.front, front, {
-			wipe: [frontBand()],
-			text: { side: "front", words: `TEAM RYNKEBY ${upper}` },
+		const frontText = lettering("front", `TEAM RYNKEBY ${upper}`);
+		await compose(hamburg.front, front, {
+			wipe: [frontBand(), frontText.stars ? "" : starsWipe()],
 		});
-		trace(front, `${out}/rynke-coin-line-front.svg`, `${name}, front`, HAMBURG);
-		console.log(`  front lettering: ${fitNote(frontSpan)}`);
+		trace(
+			front,
+			`${out}/rynke-coin-line-front.svg`,
+			`${name}, front`,
+			HAMBURG,
+			frontText.markup,
+		);
+		console.log(`  front lettering: ${fitNote(frontText)}`);
 
 		const original = originalOf(id);
 		if (!original) {
@@ -184,12 +222,57 @@ try {
 			placed,
 		]);
 		const back = join(tmp, `${team}-back.png`);
-		const backSpan = await compose(placed, back, {
+		const backText = lettering("back", `${upper} • PARIS`);
+		await compose(placed, back, {
 			wipe: [backBand()],
-			text: { side: "back", words: `${upper} • PARIS` },
+			draw: overlay ? overlayImage(overlay) : "",
 		});
-		trace(back, `${out}/rynke-coin-line-back.svg`, `${name}, back`, original);
-		console.log(`  back lettering: ${fitNote(backSpan)}`);
+		trace(
+			back,
+			`${out}/rynke-coin-line-back.svg`,
+			`${name}, back`,
+			original,
+			backText.markup,
+		);
+		console.log(`  back lettering: ${fitNote(backText)}`);
+
+		const colourOriginal = originalOf(
+			`${id}-colour`,
+			`${DIR}/colour/originals`,
+		);
+		if (!colourOriginal) continue;
+		const colourPlaced = join(tmp, `${team}-colour-placed.png`);
+		execFileSync(magick, [
+			join(ROOT, colourOriginal),
+			"-fuzz",
+			"12%",
+			"-trim",
+			"+repage",
+			"-resize",
+			`${2 * R}x${2 * R}!`,
+			"-background",
+			"white",
+			"-gravity",
+			"center",
+			"-extent",
+			`${SIZE}x${SIZE}`,
+			...outsideCoinWhite(),
+			colourPlaced,
+		]);
+		const colourBack = join(tmp, `${team}-colour-back.png`);
+		await compose(colourPlaced, colourBack, {
+			wipe: [`<g fill="${INK}">${backBand()}</g>`],
+		});
+		const traced = traceImage(colourBack, { colours: COLOUR_BACK });
+		const colourOut = `${out}/rynke-coin-back.svg`;
+		writeFileSync(
+			join(ROOT, colourOut),
+			`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 ${traced.height}">` +
+				`<title>Rynke coin, ${name}, back</title>` +
+				`<!-- Generated by scripts/team-coins.mjs from ${colourOriginal}; replace that, then run pnpm team-coins. -->` +
+				`${traced.markup}<g transform="scale(${100 / SIZE})">${lettering("back", `${upper} • PARIS`, GOLD).markup}</g></svg>\n`,
+		);
+		console.log(`${colourOut} (${statSync(join(ROOT, colourOut)).size} bytes)`);
 	}
 } finally {
 	await browser.close();
@@ -216,13 +299,13 @@ function outsideCoinWhite() {
 	];
 }
 
-/** The generated back for `id` in originals/, any image type. */
-function originalOf(id) {
+/** The generated picture `id` in `dir` (the backs' originals/), any image type. */
+function originalOf(id, dir = `${DIR}/originals`) {
 	try {
-		const file = readdirSync(join(ROOT, DIR, "originals")).find((f) =>
+		const file = readdirSync(join(ROOT, dir)).find((f) =>
 			f.startsWith(`${id}.`),
 		);
-		return file && `${DIR}/originals/${file}`;
+		return file && `${dir}/${file}`;
 	} catch {
 		return undefined;
 	}
@@ -262,12 +345,11 @@ function backArc() {
 
 /**
  * Sets `base` on the canvas in Chromium, paints the `wipe` areas white and
- * sets the lettering, then saves the page as `out`.
+ * draws `draw` on top, then saves the page as `out`.
  */
-async function compose(base, out, { wipe = [], draw = "", text } = {}) {
+async function compose(base, out, { wipe = [], draw = "" } = {}) {
 	const image = readFileSync(base).toString("base64");
 	const html = `<!doctype html><html><head><style>
-@font-face { font-family: Coin; src: url(data:font/woff2;base64,${font}) format("woff2"); }
 html, body { margin: 0; background: white; }
 svg { display: block; }
 </style></head><body>
@@ -281,26 +363,12 @@ svg { display: block; }
 <image href="data:image/png;base64,${image}" width="${SIZE}" height="${SIZE}"/>
 <g fill="white">${wipe.join("")}</g>
 ${draw}
-<g id="stars-wipe" fill="white"></g>
-<g id="lettering"></g>
 </svg></body></html>`;
 	await page.setContent(html);
-	let fit;
-	if (text) {
-		fit = await page.evaluate(setLettering, {
-			...text,
-			size: FONT_SIZE[text.side],
-			span: SPAN,
-			band: BAND,
-			stars: STARS,
-			c: C,
-		});
-	}
 	await page.screenshot({
 		path: out,
 		clip: { x: 0, y: 0, width: SIZE, height: SIZE },
 	});
-	return fit;
 }
 
 function fitNote({ degrees, scale, stars }) {
@@ -311,86 +379,88 @@ function fitNote({ degrees, scale, stars }) {
 	);
 }
 
-/** In the page: sets `words` round the arc, sized to fit (see SPAN). */
-async function setLettering({ side, words, size, span, band, stars, c }) {
-	await document.fonts.load(`${size}px Coin`);
-	const ns = "http://www.w3.org/2000/svg";
-	const g = document.getElementById("lettering");
-	const capHeight = 0.705;
+/**
+ * `words` round the arc in the font's own outlines, as SVG on the canvas,
+ * sized to fit (see SPAN): the top text clockwise with its baseline inside,
+ * the bottom text anticlockwise with its baseline outside, both upright and
+ * centred on the band. Letters are hollow, the dot between words solid;
+ * with a `colour`, letters and dot are solid in it.
+ */
+function lettering(side, words, colour) {
 	const bottom = side === "front";
-
-	const make = (fontSize) => {
-		g.replaceChildren();
-		// Bottom text runs anticlockwise through the bottom with its baseline
-		// outside, top text clockwise through the top with its baseline inside:
-		// both upright, centred on the band.
-		const r = band.centre + ((bottom ? 1 : -1) * capHeight * fontSize) / 2;
-		const a = (Math.PI / 180) * 30;
-		const x = r * Math.cos(a);
-		const y = r * Math.sin(a) * (bottom ? -1 : 1);
-		const path = document.createElementNS(ns, "path");
-		path.id = "arc";
-		path.setAttribute(
-			"d",
-			`M${c - x},${c + y}A${r},${r} 0 1,${bottom ? 0 : 1} ${c + x},${c + y}`,
-		);
-		path.setAttribute("fill", "none");
-		g.append(path);
-		for (const [stroke, width, fill] of [
-			["white", 34, "white"],
-			["#1c1b13", 9, "white"],
-		]) {
-			const t = document.createElementNS(ns, "text");
-			t.setAttribute("font-family", "Coin");
-			t.setAttribute("font-size", String(fontSize));
-			t.setAttribute("letter-spacing", String(fontSize * 0.02));
-			t.setAttribute("fill", fill);
-			t.setAttribute("stroke", stroke);
-			t.setAttribute("stroke-width", String(width));
-			t.setAttribute("stroke-linejoin", "round");
-			const tp = document.createElementNS(ns, "textPath");
-			tp.setAttribute("href", "#arc");
-			tp.setAttribute("startOffset", "50%");
-			tp.setAttribute("text-anchor", "middle");
-			tp.textContent = words;
-			t.append(tp);
-			g.append(t);
-		}
-		const length = g.querySelector("text").getComputedTextLength();
-		return (length / r) * (180 / Math.PI);
+	const capHeight = font.capHeight / font.unitsPerEm;
+	const run = font.layout(words);
+	const missing = run.glyphs.filter((g) => g.id === 0);
+	if (missing.length > 0)
+		throw new Error(`${FONT} has no glyph for a letter in "${words}"`);
+	const set = (fontSize) => {
+		const k = fontSize / font.unitsPerEm;
+		const spacing = fontSize * 0.02;
+		const r = BAND.centre + ((bottom ? 1 : -1) * capHeight * fontSize) / 2;
+		const advances = run.positions.map((p) => p.xAdvance * k + spacing);
+		const length = advances.reduce((a, b) => a + b, 0) - spacing;
+		let x = -length / 2;
+		const paths = run.glyphs.map((glyph, i) => {
+			const mid = x + (run.positions[i].xAdvance * k) / 2;
+			const left = x + run.positions[i].xOffset * k;
+			x += advances[i];
+			const phi = mid / r;
+			const deg = (phi * 180) / Math.PI;
+			const [px, py] = bottom
+				? [C + r * Math.sin(phi), C + r * Math.cos(phi)]
+				: [C + r * Math.sin(phi), C - r * Math.cos(phi)];
+			const d = glyph.path.toSVG();
+			if (!d) return "";
+			const solid = colour || glyph.codePoints.includes(0x2022);
+			const paint = solid
+				? `fill="${colour ?? INK}"`
+				: `fill="none" stroke="#1c1b13" stroke-width="${(LETTER_LINE / k).toFixed(1)}" stroke-linejoin="round"`;
+			return (
+				`<path transform="translate(${px.toFixed(2)},${py.toFixed(2)}) rotate(${(bottom ? -deg : deg).toFixed(3)}) ` +
+				`translate(${(left - mid).toFixed(2)},0) scale(${k.toFixed(5)},${(-k).toFixed(5)})" ${paint} d="${d}"/>`
+			);
+		});
+		return { degrees: (length / r) * (180 / Math.PI), markup: paths.join("") };
 	};
-
-	let degrees = make(size);
-	let room = bottom ? span.front : span.back;
+	let text = set(FONT_SIZE[side]);
+	let room = bottom ? SPAN.front : SPAN.back;
+	const stars = !bottom || text.degrees <= SPAN.front;
+	// A long name takes the stars' room.
+	if (!stars) room = SPAN.frontNoStars;
 	let scale = 1;
-	const keepStars = !bottom || degrees <= span.front;
-	if (!keepStars) {
-		// A long name takes the stars' room.
-		room = span.frontNoStars;
-		const wipe = document.getElementById("stars-wipe");
-		for (const [x, y] of stars) {
-			const dot = document.createElementNS(ns, "circle");
-			dot.setAttribute("cx", String(x));
-			dot.setAttribute("cy", String(y));
-			dot.setAttribute("r", "85");
-			wipe.append(dot);
-		}
+	if (text.degrees > room) {
+		scale = room / text.degrees;
+		text = set(FONT_SIZE[side] * scale);
 	}
-	if (degrees > room) {
-		scale = room / degrees;
-		degrees = make(size * scale);
-	}
-	return { degrees, scale, stars: keepStars };
+	return { ...text, scale, stars };
 }
 
-function trace(png, out, title, source) {
+/**
+ * A line drawing drawn over a generated back before tracing, where the
+ * generator can't be trusted with the exact shape (a country's outline):
+ * `file` in art/coin/teams, its top left corner at `box` [x, y] on the canvas,
+ * `box[2]` px wide.
+ */
+function overlayImage({ file, box: [x, y, width] }) {
+	const svg = readFileSync(join(ROOT, DIR, file)).toString("base64");
+	return `<image href="data:image/svg+xml;base64,${svg}" x="${x}" y="${y}" width="${width}"/>`;
+}
+
+/** The front's two stars, wiped when a long name takes their room. */
+function starsWipe() {
+	return STARS.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="85"/>`).join("");
+}
+
+function trace(png, out, title, source, letters = "") {
 	const traced = traceImage(png, { colours: LINE_COLOURS, omit: ["paper"] });
 	writeFileSync(
 		join(ROOT, out),
 		`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 ${traced.height}">` +
 			`<title>Rynke coin, ${title}, line drawing</title>` +
 			`<!-- Generated by scripts/team-coins.mjs from ${source}; replace that, then run pnpm team-coins. -->` +
-			`${traced.markup}</svg>\n`,
+			`${traced.markup}` +
+			(letters && `<g transform="scale(${100 / SIZE})">${letters}</g>`) +
+			`</svg>\n`,
 	);
 	console.log(`${out} (${statSync(join(ROOT, out)).size} bytes)`);
 }

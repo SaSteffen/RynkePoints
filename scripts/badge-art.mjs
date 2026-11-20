@@ -43,6 +43,7 @@
 // badges per run (default 10).
 import {
 	copyFileSync,
+	existsSync,
 	mkdirSync,
 	readdirSync,
 	readFileSync,
@@ -131,9 +132,10 @@ const REFERENCE = {
 	coin: root("art/coin/teams/reference/coin-back-blank.png"),
 };
 
-// Four lists: the badges, the Team page's quote monkeys (art/quotes),
-// Rynke in the page-switch shows (art/shows) and the German teams' coin
-// backs (art/coin/teams); then the teams' own badges.
+// Five lists: the badges, the Team page's quote monkeys (art/quotes),
+// Rynke in the page-switch shows (art/shows), the German teams' coin
+// backs (art/coin/teams) and the same in colour (art/coin/teams/colour); then
+// the teams' own badges.
 const SETS = [
 	{
 		dir: "art/badges",
@@ -160,6 +162,14 @@ const SETS = [
 		check: validateCoins,
 		group: "coin",
 	},
+	// The same backs coloured: each takes its line back as the first picture.
+	{
+		dir: "art/coin/teams/colour",
+		list: "colours.json",
+		key: "coins",
+		check: validateCoins,
+		group: "coin",
+	},
 ];
 const problems = [];
 const items = SETS.flatMap(({ dir, list, key, check, group }) => {
@@ -169,13 +179,40 @@ const items = SETS.flatMap(({ dir, list, key, check, group }) => {
 	if (!template.includes("{{scene}}"))
 		problems.push(`${dir}/prompt.txt: no {{scene}}`);
 	if (!Array.isArray(data[key])) return [];
-	return data[key].map((item) => ({
-		...item,
-		file: item.id,
-		out: root(`${dir}/originals`),
-		reference: REFERENCE[item.group ?? group ?? "monkey"],
-		prompt: () => buildPrompt(template, data.snippets ?? {}, item),
-	}));
+	return data[key].map((item) => {
+		// A picture's own references (a real-world photo of a thing in its scene)
+		// go along after the group's, each with a line saying what it shows.
+		const extra = (item.references ?? []).map((r) => ({
+			...r,
+			path: root(`${dir}/${r.file}`),
+		}));
+		for (const { path, file } of extra)
+			if (!existsSync(path))
+				problems.push(`${dir}: ${item.id}: reference ${file} is missing`);
+		// A picture may bring its own first picture in place of the group's (a
+		// coin back whose climb has another shape).
+		const base = item.blank
+			? root(`${dir}/${item.blank}`)
+			: REFERENCE[item.group ?? group ?? "monkey"];
+		if (item.blank && !existsSync(base))
+			problems.push(`${dir}: ${item.id}: blank ${item.blank} is missing`);
+		return {
+			...item,
+			file: item.id,
+			out: root(`${dir}/originals`),
+			reference: [base, ...extra.map((r) => r.path)],
+			prompt: () =>
+				buildPrompt(
+					// A picture may use another prompt beside the list's (an edit of
+					// a finished picture instead of a new one).
+					item.template
+						? readFileSync(root(`${dir}/${item.template}`), "utf8").trim()
+						: template,
+					data.snippets ?? {},
+					item,
+				) + referenceNote(extra),
+		};
+	});
 });
 // A team's own takes of badges whose shared picture shows another team's
 // motifs (feature 026 FR-024), art/badges/teams/<team>/: the shared badge's
@@ -202,6 +239,19 @@ for (const team of teamArtDirs()) {
 			prompt: () => buildPrompt(badgeTemplate, shared.snippets ?? {}, item),
 		});
 	}
+}
+
+/** The prompt's words on a picture's own references, after the first one. */
+function referenceNote(extra) {
+	if (extra.length === 0) return "";
+	const lines = extra.map(
+		(r, i) => `- Attached picture ${i + 2}: ${r.shows.trim()}`,
+	);
+	return (
+		"\n\nMore attached pictures, real photos to show what a thing in the scene really looks like:\n" +
+		lines.join("\n") +
+		"\nUse them only as a model for that thing's shape and proportions, redrawn in the coin's clean line style. Don't copy anything else from them: no surroundings, buildings, trees, people or colours. The first attached picture stays the coin to draw on."
+	);
 }
 
 /** The teams with their own badge scenes under art/badges/teams/. */
@@ -317,11 +367,19 @@ async function openChat(page) {
 	return editor;
 }
 
+/** Attaches the references one after the other, in order. */
+async function attach(page, editor, files) {
+	for (const [n, file] of [files].flat().entries()) {
+		if (n > 0) await step();
+		await attachOne(page, editor, file);
+	}
+}
+
 /**
- * Attaches the reference through the upload menu's image input, else its file
+ * Attaches one reference through the upload menu's image input, else its file
  * chooser, else a drop on the editor.
  */
-async function attach(page, editor, file) {
+async function attachOne(page, editor, file) {
 	try {
 		await page
 			.getByRole("button", { name: SELECTORS.uploadMenu })
@@ -346,18 +404,21 @@ async function attach(page, editor, file) {
 	} catch {
 		await page.keyboard.press("Escape").catch(() => {});
 		const data = readFileSync(file).toString("base64");
-		await editor.evaluate(async (el, b64) => {
-			const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-			const dt = new DataTransfer();
-			dt.items.add(
-				new File([bytes], "badge-reference.png", { type: "image/png" }),
-			);
-			for (const type of ["dragenter", "dragover", "drop"]) {
-				el.dispatchEvent(
-					new DragEvent(type, { bubbles: true, dataTransfer: dt }),
-				);
-			}
-		}, data);
+		const type = /\.jpe?g$/i.test(file) ? "image/jpeg" : "image/png";
+		const name = `badge-reference.${type === "image/jpeg" ? "jpg" : "png"}`;
+		await editor.evaluate(
+			async (el, [b64, type, name]) => {
+				const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+				const dt = new DataTransfer();
+				dt.items.add(new File([bytes], name, { type }));
+				for (const event of ["dragenter", "dragover", "drop"]) {
+					el.dispatchEvent(
+						new DragEvent(event, { bubbles: true, dataTransfer: dt }),
+					);
+				}
+			},
+			[data, type, name],
+		);
 	}
 	const preview = await firstVisible(page, SELECTORS.attachmentPreview, 30_000);
 	if (!preview) throw new Error("the reference image didn't attach");

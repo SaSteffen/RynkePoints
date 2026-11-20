@@ -1,0 +1,13 @@
+The first attached picture is the back of our team coin as a black line drawing on white. The second attached picture is our Hamburg coin's back in full colour: the colours and the finish to copy. Colour the first picture in exactly that style.
+
+Keep every line of the first picture exactly where it is, as black outlines: the same coin, the same scene, the same riders, the same Eiffel Tower, the same icons. Don't add, move, redraw or leave out anything; only fill the shapes between the lines with flat colour.
+
+Colours, as on the Hamburg coin: the outer ring gold with a black outline; the band above the thin arc line solid black and EMPTY, no letters in it; the sky a light, even sky blue; water a clear mid blue with white wave lines; the climb and the road a warm yellow; the Eiffel Tower and the riders black; the three round icons at the bottom gold on black, on a black strip below the horizontal line. Everything else in the scene in a few clear, flat, friendly colours:
+
+{{scene}}
+
+Style: flat enamel colours like a struck enamel pin, each shape one even colour, black outlines about 8 px thick on a 2048 px canvas; no gradients, no shading, no texture, no glow, no shadows.
+
+Text: NO lettering anywhere, no title, no team name, no "PARIS", no signature. The band above the arc line stays plain black. The only words allowed are those the first picture already shows.
+
+Canvas: square 1:1, 2048 x 2048 px, plain pure white background. One coin only, seen straight from the front, perfectly round, centred, about 1900 px across, nothing else on the canvas.

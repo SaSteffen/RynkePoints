@@ -1,19 +1,23 @@
 The attached picture is the back of our team coin as a black line drawing on white: the coin's double outer ring, a thin arc line with an empty band above it for lettering, a scene, a horizontal line, and three round icons along the bottom (a winding road, mountains, two riders). Draw a new back of the coin in exactly the same style, frame and layout.
 
-Keep exactly as in the attached picture: the double outer ring; the thin arc line and the EMPTY band above it; the horizontal line and the three round icons below it; on the right, the road climbing up a hill with four small riders on road bikes, and the Eiffel Tower standing on the hilltop at the right edge.
+Keep exactly as in the attached picture: the double outer ring; the thin arc line and the EMPTY band above it; the horizontal line and the three round icons below it; on the right, the road climbing up a hill with four small riders on road bikes, and the Eiffel Tower standing on the hilltop at the right edge. Only the climb's shape and where the riders sit may change, and only where the scene below says so.
 
-Fill the empty left and middle of the scene with this, in place of what is missing there:
+Fill the empty left and middle of the scene with this:
 
 {{scene}}
 
-The road comes in from the left over the ground and climbs to the Eiffel Tower on the right, the riders on it as in the picture.
+Composition, the most important part. The scene is one picture of one place, built like a poster, not a collection of objects:
+- Ground: one ground band runs across the whole scene, from the left edge of the ring to the foot of the climb, filling the lower third of the scene. The road comes in from the left along it and climbs to the Eiffel Tower. Everything in the scene stands on this ground line; nothing floats in the air (except things that fly) and nothing is pasted in front of something else.
+- Main motif: big and tall, standing on the ground line slightly left of the coin's centre, about two fifths of the coin wide. Its top reaches right up to the thin arc line, so the scene fills the dome; where it reaches the arc line, the arc line stops behind it. It never goes beyond the arc line into the lettering band.
+- Support: on the same ground line, at the left unless the scene says otherwise, about half to two thirds as tall as the main motif, touching or overlapping the main motif's side, so the two make one connected skyline that falls away from the main motif towards the left edge of the ring.
+- Dry touch: small, in front, on the ground at the roadside just before the first rider.
+- Balance: the picture's weight sits in the left and middle, the climb and the Eiffel Tower on the right; the sky above the support and between the main motif and the Eiffel Tower stays calm and mostly empty. No gaps in the ground, no object squeezed against the ring, no object cut off.
+- Nothing else: no extra buildings, trees, people, animals, flags or decoration beyond what is named. No monkey, no orangutan, no other city's landmarks.
 
-Composition: few, large, clear shapes; the main motif big, in the left half and middle, the support smaller beside it, the dry touch small. Nothing else: no extra buildings, people, animals, flags or decoration beyond what is named. No monkey, no orangutan, no other city's landmarks. Every part of the scene stays below the thin arc line; nothing reaches into the lettering band.
+Style: a clean black line drawing like the attached picture, as for a coin maker's design draft: uniform black outlines (#1C1B13) about 8 px thick on a 2048 px canvas, white inside, no fills, no solid black areas, no grey, no colour, no shading, no hatching, no gradients. Trees, windows and other repeated things are drawn as outlines too, never filled in. Small details may use thinner lines, but no line thinner than about 5 px.
 
-Style: a clean black line drawing like the attached picture, as for a coin maker's design draft: uniform black outlines (#1C1B13) about 8 px thick on a 2048 px canvas, white inside, no fills, no grey, no colour, no shading, no hatching, no gradients. Small details may use thinner lines, but no line thinner than about 5 px.
-
-Text: NO lettering in the band above the arc line, no title, no team name, no "PARIS", no signature, no dimensions. The only words or numbers allowed are those the scene above names in quotes.
+Text: NO lettering in the band above the arc line, no title, no team name, no "PARIS", no signature, no dimensions, no names written on buildings or signs. The only words or numbers allowed are those the scene above names in quotes.
 
 Canvas: square 1:1, 2048 x 2048 px, plain pure white background. One coin only, seen straight from the front, perfectly round, centred, about 1900 px across, nothing else on the canvas.
 
-Check before you finish: one round coin centred on plain white; the band above the arc line is empty; the Eiffel Tower, the climb with four riders and the three bottom icons are there as in the attached picture; the scene shows exactly what was named and nothing more; no colour anywhere.
+Check before you finish: one round coin centred on plain white; the band above the arc line is empty; the main motif reaches up to the arc line; every object stands on the one ground line; the Eiffel Tower, the climb with four riders and the three bottom icons are there as in the attached picture; the scene shows exactly what was named and nothing more; no colour and no filled black areas anywhere.

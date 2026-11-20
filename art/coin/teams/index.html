@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>German Team Coins</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: a proof sheet. One block per team: its notes, then a strip of proofs (front, then every draft of the back, oldest first), on white proof cards. */
+:root {
+  --paper: #eef0ec;
+  --card: #ffffff;
+  --ink: #1c1b13;
+  --muted: #5d6157;
+  --line: #d3d7cf;
+  --gold: #b88a00;
+  --good: #2f7a3b;
+  --fix: #a8650c;
+  --chip-good: #e2f1e3;
+  --chip-fix: #f8ead3;
+  --chip-old: #e4e6e1;
+  --display: "Nunito", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #171814; --card: #23241f; --ink: #ecebe2; --muted: #a4a89c; --line: #3a3c34;
+  --gold: #e3b62d; --good: #7cc987; --fix: #e8a54a;
+  --chip-good: #1f3323; --chip-fix: #3a2c15; --chip-old: #2c2e28; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #171814; --card: #23241f; --ink: #ecebe2; --muted: #a4a89c; --line: #3a3c34;
+  --gold: #e3b62d; --good: #7cc987; --fix: #e8a54a;
+  --chip-good: #1f3323; --chip-fix: #3a2c15; --chip-old: #2c2e28; color-scheme: dark }
+
+body { background: var(--paper); color: var(--ink); font: 15px/1.55 var(--body); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 40px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2 { font-family: var(--display); font-weight: 900; text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(30px, 5vw, 46px); }
+h2 { font-size: 26px; }
+.lede { max-width: 68ch; color: var(--muted); margin: 12px 0 0; }
+.eyebrow { font: 600 12px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 8px; }
+.toggle { font: 600 14px/1 var(--body); color: var(--ink); background: transparent; border: 1.5px solid var(--line);
+  border-radius: 999px; padding: 9px 14px; cursor: pointer; }
+.toggle[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+.ref { margin-top: 36px; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 28px; align-items: center; }
+.ref p { margin: 10px 0 0; color: var(--muted); max-width: 52ch; }
+
+.teams { display: flex; flex-direction: column; margin-top: 44px; border-top: 2px solid var(--ink); }
+.team { display: flex; flex-direction: column; gap: 18px; padding-block: 32px; border-bottom: 1px solid var(--line); }
+.head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 12px 40px; }
+.title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.scene { margin: 8px 0 0; color: var(--muted); max-width: 60ch; }
+
+.strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+body.hide-front .proof.front, body.hide-unpicked .proof.unpicked { display: none; }
+.proof { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.proof-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; min-height: 22px; }
+.label { font: 600 12px/1.3 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.proof.current .label { color: var(--ink); }
+.link { font: 500 12px/1 var(--body); color: var(--muted); background: none; border: 0; padding: 2px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.coin { display: block; padding: 0; border: 0; background: #fff; border-radius: 12px; cursor: zoom-in; aspect-ratio: 1; width: 100%; max-width: 100%; }
+.proof.old .coin { opacity: .72; }
+.coin img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 5%; box-sizing: border-box; }
+.ref .coin { aspect-ratio: auto; }
+.ref .coin img { padding: 0; height: auto; border-radius: 10px; }
+.note { font-size: 13.5px; line-height: 1.45; margin: 0; }
+
+.chip { font: 600 12px/1 var(--body); padding: 6px 10px; border-radius: 999px; white-space: nowrap; }
+.chip.good { background: var(--chip-good); color: var(--good); }
+.chip.fix { background: var(--chip-fix); color: var(--fix); }
+.chip.picked { background: var(--good); color: var(--card); font-weight: 700; }
+.chip.old { background: var(--chip-old); color: var(--muted); }
+.proof.colour .label { color: var(--gold); }
+.issues { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.issues li { display: grid; grid-template-columns: 10px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.issues li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transform: translateY(-1px); }
+.issues li.good::before { background: var(--good); }
+.issues li.fix::before { background: var(--fix); }
+
+dialog { border: 0; padding: 0; background: #fff; border-radius: 14px; width: min(92vw, 92vh, 980px); max-width: none; }
+dialog::backdrop { background: rgba(10, 10, 8, .78); }
+dialog img { display: block; width: 100%; height: auto; }
+dialog form { position: absolute; top: 10px; right: 10px; margin: 0; }
+dialog button { font: 600 14px/1 var(--body); background: #1c1b13; color: #fff; border: 0; border-radius: 999px; padding: 10px 14px; cursor: pointer; }
+dialog .cap { position: absolute; left: 14px; bottom: 12px; font: 600 13px/1 var(--body); color: #1c1b13; background: rgba(255,255,255,.9); padding: 6px 10px; border-radius: 999px; }
+
+@media (max-width: 860px) {
+  .head, .ref { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+}
+@media (max-width: 520px) {
+  .strip { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .proof-head { flex-direction: column; gap: 4px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Rynke coin · drafts for the German teams</div>
+  <h1>Ten team coins, every draft</h1>
+  <p class="lede">For each team: the front, every draft of the back, and the back in colour where it's been coloured. "Your pick" marks the draft chosen for each team. Click a coin to see it large; "Gemini" shows the drawing before cleanup and lettering. Open this page from a checkout of the repo: it shows the files beside it, so after <code>pnpm team-coins</code> a reload shows the new state.</p>
+
+  <div class="controls">
+    <button type="button" class="toggle" id="t-front" aria-pressed="true">Show fronts</button>
+    <button type="button" class="toggle" id="t-unpicked" aria-pressed="true">Show drafts not picked</button>
+  </div>
+
+  <section class="ref" aria-label="Hamburg reference">
+    <button type="button" class="coin" data-big="../reference/rynke-coin-line-drawing.jpeg" data-cap="Hamburg, the model"><img src="../reference/rynke-coin-line-drawing.jpeg" alt="Hamburg's coin, front and back, line drawing"></button>
+    <div>
+      <div class="eyebrow">The model</div>
+      <h2>Hamburg</h2>
+      <p>Every coin keeps this frame: the double ring, Rynke on the front, and on the back the climb with four riders, the Eiffel Tower and the three icons. The drafts copy Hamburg's layout too: one big local object tying the scene together, everything standing on one band of ground. The coloured backs follow <a href="../originals/rynke-coin-back.jpeg">Hamburg's coloured back</a>: gold ring, black band with gold letters, flat enamel colours.</p>
+    </div>
+  </section>
+
+  <div class="teams" id="teams"></div>
+</div>
+
+<dialog id="big" aria-label="Coin, large">
+  <img id="big-img" alt="">
+  <form method="dialog"><button type="submit" id="big-close">Close</button></form>
+  <span class="cap" id="big-cap"></span>
+</dialog>
+
+<script>
+// Each draft: label, its folder here, its Gemini original in originals/, status
+// ("picked", "good" or "fix"), a note, and `colour: true` once
+// <dir>/rynke-coin-back.svg exists (pnpm badge-art coin-<dir>-colour, then
+// pnpm team-coins <dir>).
+const TEAMS = [
+  { id: "muenchen", name: "München",
+    scene: "Frauenkirche in front of a giant pretzel, a broad blue-white diamond ribbon across the front.",
+    drafts: [
+      { label: "Draft 1", dir: "muenchen", status: "picked", colour: true,
+        note: "Pretzel as backdrop, ribbon as the ground. Coloured as the first test." },
+      { label: "Draft 2 · with beer", dir: "muenchen-beer", status: "good",
+        note: "Same, plus a dimpled Maßkrug with foam next to the pretzel, behind the church." },
+    ] },
+  { id: "berlin", name: "Berlin",
+    scene: "Brandenburg Gate with the TV tower right behind it, the Spree along the front, the Ampelmännchen leading the riders.",
+    drafts: [
+      { label: "Draft 1", dir: "berlin", status: "good",
+        note: "One group. A small Ampelmännchen traffic light close to the Eiffel Tower." },
+      { label: "Draft 2 · Ampelmännchen leads", dir: "berlin-ampel", status: "picked",
+        note: "No traffic light: the Ampelmännchen strides ahead of the lead rider, hat and all." },
+    ] },
+  { id: "black-forest", name: "Black Forest",
+    scene: "Farmhouse in front of fir-covered hills, a Bollenhut on the fence, a slice of cherry cake on the hilltop.",
+    drafts: [
+      { label: "Draft 1", dir: "black-forest", status: "good",
+        note: "Firs as outlines. A water mill instead of the hat." },
+      { label: "Draft 3 · cake on the hilltop", dir: "black-forest-cake", status: "good",
+        note: "Its own blank with a longer climb and a flat hilltop: the cake on its plate stands beside the tower, the riders climb towards it." },
+    ] },
+  { id: "rheinruhr", name: "RheinRuhr",
+    scene: "Zollverein headframe in front of a giant hammer and pick, “GLÜCK AUF” on a ribbon, the climb as a smooth spoil heap.",
+    drafts: [
+      { label: "Draft 1", dir: "rheinruhr", status: "good",
+        note: "Pit wheel on a brick plinth with hammer and pick, a smooth heap with a winding path." },
+      { label: "Draft 2 · hammer and pick", dir: "rheinruhr-crest", status: "picked",
+        note: "Headframe in front of a giant hammer and pick, “GLÜCK AUF” on a ribbon." },
+    ] },
+  { id: "niederrhein", name: "Niederrhein",
+    scene: "Tower windmill, pollarded willows, flat land with the dyke, a sheep riding along in the group.",
+    drafts: [
+      { label: "Draft 1", dir: "niederrhein", status: "fix",
+        note: "The top sail touches the lettering. The sheep is very small." },
+      { label: "Draft 3 · sheep in the group", dir: "niederrhein-sheep", status: "good",
+        note: "The sheep walks between the lead rider and the second." },
+    ] },
+  { id: "nieder-olm", name: "Nieder-Olm",
+    scene: "Vineyard hill wearing a giant jester's cap, the lead rider in a small one.",
+    drafts: [
+      { label: "Draft 1", dir: "nieder-olm", status: "good",
+        note: "Vineyard hill with the round hut. Dense rows of vines." },
+      { label: "Draft 2 · giant cap", dir: "nieder-olm-cap", status: "picked",
+        note: "The hill wears the jester's cap." },
+    ] },
+  { id: "frankfurt", name: "Frankfurt",
+    scene: "A giant painted Bembel behind the skyline, the ribbed glass against it, the Römer, the Main.",
+    drafts: [
+      { label: "Draft 1", dir: "frankfurt", status: "fix",
+        note: "Calm skyline. Bembel and glass sit in the river strip." },
+      { label: "Draft 2 · giant Bembel", dir: "frankfurt-bembel", status: "picked",
+        note: "Painted Bembel behind the skyline, the ribbed glass against it." },
+    ] },
+  { id: "flensburg", name: "Flensburg",
+    scene: "Lighthouse in the middle, a smaller sailing ship at the left, the Nordertor at the foot of the climb, a gull on a bollard.",
+    drafts: [
+      { label: "Draft 1", dir: "flensburg", status: "good",
+        note: "Ship big and in front, sails gathered on the yards." },
+      { label: "Draft 3 · gate at the climb", dir: "flensburg-gate", status: "picked",
+        note: "The road comes out of the gate's arch onto the climb. Draft 6 gives it draft 4's gate and draft 2's lighthouse." },
+      { label: "Draft 4 · own blank", dir: "flensburg-rider", status: "good",
+        note: "Big gate with a deep arch, the last rider alone on a flat stretch in front of it." },
+      { label: "Draft 6 · draft 3 with the real gate", dir: "flensburg-merged", status: "good",
+        note: "Draft 3, its gate redrawn after a photo of the real Nordertor and its lighthouse after draft 2's." },
+      { label: "Draft 5 · out of the gate", dir: "flensburg-front", status: "good",
+        note: "Blank without riders: the last rider comes out of the gate's arch towards us, the other three climb towards the Eiffel Tower." },
+    ] },
+  { id: "mecklenburg", name: "Mecklenburg",
+    scene: "Schwerin Castle reflected in the lake, three big cranes in an arc, a beach chair on the island shore.",
+    drafts: [
+      { label: "Draft 1", dir: "mecklenburg", status: "fix",
+        note: "The lake is barely there; the road runs as a dashed line along the bottom." },
+      { label: "Draft 2 · cranes and lake", dir: "mecklenburg-lake", status: "picked",
+        note: "Big cranes in an arc, the castle reflected in a real lake." },
+    ] },
+  { id: "100-germany", name: "100 Germany",
+    scene: "Germany's outline floating behind the scene, a dashed route out of it, “100” with bicycle wheels as the zeros.",
+    drafts: [
+      { label: "Draft 1", dir: "100-germany", status: "fix",
+        note: "The map runs into the lettering." },
+      { label: "Draft 2 · route out of Germany", dir: "100-germany-route", status: "good",
+        note: "The map as a floating outline, a dashed route out of it. Gemini's outline is only roughly Germany." },
+      { label: "Draft 3 · the real outline", dir: "100-germany-nomap", status: "picked",
+        note: "Draft 2 without Gemini's map; the script draws Germany's true outline (Natural Earth data) in its place." },
+    ] },
+];
+const STATUS = { good: "Looks good", fix: "Needs a fix", picked: "Your pick" };
+
+const card = (t, d, kind) => {
+  const colour = kind === "colour";
+  const file = `${d.dir}/rynke-coin-${colour ? "back" : "line-back"}.svg`;
+  const label = colour ? `${d.label} · colour` : d.label;
+  return `
+  <div class="proof ${colour ? "colour" : ""} ${d.status === "picked" ? "picked" : "unpicked"}">
+    <div class="proof-head"><span class="label">${label}</span>
+      ${colour ? "" : `<button type="button" class="link" data-big="originals/coin-${d.dir}.jpeg" data-cap="${t.name}, ${d.label}, Gemini's drawing">Gemini</button>`}</div>
+    <button type="button" class="coin" data-big="${file}" data-cap="${t.name}, back, ${label}">
+      <img src="${file}" alt="${t.name} coin, back, ${label}" loading="lazy"></button>
+    <span><span class="chip ${d.status}">${STATUS[d.status]}</span></span>
+    <p class="note">${colour ? "Gemini coloured the line drawing like Hamburg's coloured back; the lettering is set in gold." : d.note}</p>
+  </div>`;
+};
+
+document.getElementById("teams").innerHTML = TEAMS.map(t => `
+  <article class="team" id="team-${t.id}">
+    <div class="head">
+      <div class="title-row"><h2>${t.name}</h2></div>
+      <p class="scene">${t.scene}</p>
+    </div>
+    <div class="strip">
+      <div class="proof front">
+        <div class="proof-head"><span class="label">Front</span></div>
+        <button type="button" class="coin" data-big="${t.id}/rynke-coin-line-front.svg" data-cap="${t.name}, front">
+          <img src="${t.id}/rynke-coin-line-front.svg" alt="${t.name} coin, front" loading="lazy"></button>
+        <p class="note">Hamburg's front with the team's name.</p>
+      </div>
+      ${t.drafts.map(d => card(t, d) + (d.colour ? card(t, d, "colour") : "")).join("")}
+    </div>
+  </article>`).join("");
+
+const dlg = document.getElementById("big");
+document.addEventListener("click", e => {
+  const c = e.target.closest("[data-big]");
+  if (!c) return;
+  document.getElementById("big-img").src = c.dataset.big;
+  document.getElementById("big-img").alt = c.dataset.cap;
+  document.getElementById("big-cap").textContent = c.dataset.cap;
+  dlg.showModal();
+});
+dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+
+for (const [id, cls] of [["t-front", "hide-front"], ["t-unpicked", "hide-unpicked"]]) {
+  document.getElementById(id).addEventListener("click", e => {
+    const on = e.currentTarget.getAttribute("aria-pressed") !== "true";
+    e.currentTarget.setAttribute("aria-pressed", on);
+    document.body.classList.toggle(cls, !on);
+  });
+}
+</script>
+</body>
+</html>

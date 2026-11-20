@@ -1,0 +1,11 @@
+The first attached picture is a finished back of our team coin, a black line drawing on white. Draw it again exactly as it is: the same coin, frame, layout, scene, objects, sizes, positions and line style, the band above the arc line empty. Change only this:
+
+{{scene}}
+
+Everything the change doesn't name stays exactly as in the first picture, line for line: don't add, move, enlarge, shrink or leave out anything else.
+
+Style: a clean black line drawing like the first picture: uniform black outlines (#1C1B13) about 8 px thick on a 2048 px canvas, white inside, no fills, no solid black areas, no grey, no colour, no shading.
+
+Text: NO lettering in the band above the arc line, no title, no team name, no "PARIS", no signature. The only words or numbers allowed are those the first picture already shows.
+
+Canvas: square 1:1, 2048 x 2048 px, plain pure white background. One coin only, seen straight from the front, perfectly round, centred, about 1900 px across, nothing else on the canvas.

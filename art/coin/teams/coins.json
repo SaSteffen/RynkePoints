@@ -1,57 +1,164 @@
 {
 	"snippets": {
-		"roadside": "small, about the size of one of the riders, at the roadside where the road starts to climb"
+		"roadside": "small, standing on the ground at the roadside just before the first rider"
 	},
 	"coins": [
 		{
 			"id": "coin-berlin",
 			"name": "Berlin",
-			"scene": "Main motif: the Berlin TV tower (Fernsehturm), tall and slim with its ball and antenna, its tip staying below the arc line. Support: the Brandenburg Gate with its columns and the quadriga on top, smaller, at the left. Ground: the river Spree running along the bottom, a few calm wave lines. Dry touch: the East German traffic-light man (Ampelmännchen, the little walking man with his hat) walking along the road beside the riders, {{roadside}}."
+			"scene": "Main motif, one group: the Brandenburg Gate, big and wide, its columns and the quadriga on top, standing in the middle of the scene; right behind it, a little to its right, the Berlin TV tower (Fernsehturm) rises high, slim, with its ball and antenna, the antenna tip reaching the arc line. Support: the river Spree as the ground band across the whole front, calm wave lines, the road running along its bank. Dry touch: a pedestrian traffic light on its pole with the East German walking man (Ampelmännchen, the little man with the hat) in it, {{roadside}}."
+		},
+		{
+			"id": "coin-berlin-ampel",
+			"name": "Berlin",
+			"scene": "Main motif, one group: the Brandenburg Gate, big and wide, its columns and the quadriga on top, standing in the middle of the scene; right behind it, a little to its right, the Berlin TV tower (Fernsehturm) rises high, slim, with its ball and antenna, the antenna tip reaching the arc line. Support: the river Spree as the ground band across the whole front, calm wave lines, the road running along its bank. Dry touch: the East German walking man (Ampelmännchen) himself, out of his traffic light, walks on the road just in front of the lead rider and leads the group like a road captain: the real Ampelmännchen figure with his round head, small nose, wide-brimmed hat, short body and long striding legs, one arm swinging forward, about as tall as a rider on the bike, drawn as an outline, white inside, never filled black. No traffic light, no pole, no box around him."
 		},
 		{
 			"id": "coin-muenchen",
 			"name": "München",
-			"scene": "Main motif: the Frauenkirche in Munich, its two tall towers with their round onion-shaped domes, big, in the left half. Support: next to the church and about as tall as its nave, a big Bavarian pretzel (Brezn) standing upright beside a big one-litre beer mug (Maßkrug) with a foam head, together as one group. The Bavarian blue-and-white: a long ribbon with the Bavarian diamond (lozenge) pattern, drawn as a grid of diagonal diamonds, waving across the scene in front of the church's base. Ground: a meadow. Nothing else: no maypole."
+			"scene": "Main motif: the Frauenkirche in Munich, slightly left of centre, its two tall towers with their round onion-shaped domes reaching the arc line, the long nave in front of their foot. Behind it, as a backdrop: one giant Bavarian pretzel (Brezn), seen flat from the front, so big that it spans most of the scene's width and its loops frame the two towers, which stand in front of it and overlap it. Draw the pretzel as a real baked pretzel, not a symbol: a thick dough strand with a fat belly at the bottom, thin crossed arms, the knot in the middle, a few coarse salt crystals and the split crust along the belly, all as outlines. Ground: across the whole front of the scene, in front of the church's foot, a broad ribbon in the Bavarian blue-and-white diamond (lozenge) pattern, waving in two gentle curves from the left edge of the ring to the foot of the climb, wide and prominent, its diamonds drawn as a clear, even grid of outlined slanted diamonds, big enough to count; the road runs along it into the climb. Nothing else: no beer, no maypole, no flags."
+		},
+		{
+			"id": "coin-muenchen-beer",
+			"name": "München",
+			"scene": "Main motif: the Frauenkirche in Munich, slightly left of centre, its two tall towers with their round onion-shaped domes reaching the arc line, the long nave in front of their foot. Behind it, as a backdrop: one giant Bavarian pretzel (Brezn), seen flat from the front, so big that it spans most of the scene's width and its loops frame the two towers, which stand in front of it and overlap it. Draw the pretzel as a real baked pretzel, not a symbol: a thick dough strand with a fat belly at the bottom, thin crossed arms, the knot in the middle, a few coarse salt crystals and the split crust along the belly, all as outlines. Together with the pretzel, as part of the same backdrop: a big one-litre Munich beer mug (Maßkrug), drawn as the real thing and not as a symbol: thick glass with rows of round dimples, a heavy handle, a head of foam spilling a little over the rim, standing behind the church's nave at the right of the pretzel, overlapping the pretzel's right loop, about two thirds as tall as the pretzel, its top below the arc line. Ground: across the whole front of the scene, in front of the church's foot, a broad ribbon in the Bavarian blue-and-white diamond (lozenge) pattern, waving in two gentle curves from the left edge of the ring to the foot of the climb, wide and prominent, its diamonds drawn as a clear, even grid of outlined slanted diamonds, big enough to count; the road runs along it into the climb. Nothing else: no second mug, no maypole, no flags."
 		},
 		{
 			"id": "coin-black-forest",
 			"name": "Black Forest",
-			"scene": "One calm valley view, everything belonging together. Behind: two soft rounded hills, completely covered with dark fir forest, drawn as rows of simple pointed fir silhouettes, the hilltops well below the arc line. Main motif: in the middle, in front of the hills, one Black Forest farmhouse sitting on a sloping meadow, big: a huge hipped roof that comes down on both sides almost to the ground and takes up two thirds of the house's height, a small hipped half-gable at the front, under it two short rows of small windows and a wooden balcony running along the front. Support: in the left foreground, on top of a post of a short wooden fence that runs along the meadow, hangs a Bollenhut, the traditional Black Forest hat, big and clearly readable: a flat round hat with a wide brim, seen slightly from above, its top covered with fourteen big round woollen pompoms set close together in a cross shape; it is the only hat and nobody wears it. Ground: the meadow slopes gently down to the road, a few short grass tufts. Dry touch: a slice of Black Forest cherry cake, layered, with a swirl of cream and one cherry on top, on a small plate on a little wooden table at the roadside, {{roadside}}. Nothing else: no extra trees in the foreground, no bushes, no cuckoo clock, no animals."
+			"scene": "One calm valley. Main motif: a Black Forest farmhouse, big and wide, in the middle of the scene: a huge hipped roof that comes down on both sides almost to the ground and takes up two thirds of the house's height, a small half-gable at the front, under it two short rows of small windows and a wooden balcony. Right behind the house, a rounded hill covered with fir trees rises up to the arc line; the firs are simple pointed outlines, white inside, never filled black. Support: at the left, touching the house's side, a small wooden mill with a big wooden water wheel, a little stream running from the wheel along the front. Ground: a meadow across the whole front, the stream in it, the road running along it. Dry touch: a slice of Black Forest cherry cake, layered, with cream and one cherry on top, on a small plate on a little wooden table, {{roadside}}. Nothing else: no extra trees in the foreground, no hat, no cuckoo clock, no animals."
+		},
+		{
+			"id": "coin-black-forest-cake",
+			"name": "Black Forest",
+			"scene": "One calm valley view, everything belonging together. Behind: two soft rounded hills, covered with fir forest, drawn as rows of simple pointed fir outlines, the hilltops well below the arc line. Main motif: in the middle, in front of the hills, one Black Forest farmhouse sitting on a sloping meadow, big: a huge hipped roof that comes down on both sides almost to the ground and takes up two thirds of the house's height, a small hipped half-gable at the front, under it two short rows of small windows and a wooden balcony running along the front. Support: in the left foreground, on top of a post of a short wooden fence that runs along the meadow, hangs a Bollenhut, the traditional Black Forest hat, big and clearly readable: a flat round hat with a wide brim, seen slightly from above, its top covered with fourteen big round woollen pompoms set close together in a cross shape; it is the only hat and nobody wears it. Ground: the meadow slopes gently down to the road, a few short grass tufts. The climb is exactly as in the attached picture: it starts further left than usual and ends in a wide flat hilltop between the top of the climb and the Eiffel Tower's foot; keep that shape and keep the four riders where they are. Detail: on that flat hilltop, in the middle between the top of the climb and the Eiffel Tower's foot, a slice of Black Forest cherry cake on a plate stands directly on the hilltop's ground line, no table: the slice seen from the side, layered, a swirl of cream and one cherry on top, the plate a flat oval under it; about as tall as a rider on the bike; the riders are climbing towards it. It is the only thing on the hilltop besides the Eiffel Tower. The farmhouse, the hills and the fence stay left of where the climb starts. Nothing else: no table, no extra trees in the foreground, no bushes, no water mill, no cuckoo clock, no animals, and no cake anywhere else.",
+			"blank": "reference/blackforest-blank.png"
 		},
 		{
 			"id": "coin-rheinruhr",
 			"name": "RheinRuhr",
-			"scene": "Main motif: the double headframe of the Zollverein coal mine (Schacht XII), the steel winding tower with its two big wheels on top. Support: a gasometer, the tall round industrial gas holder, at the left. Ground: flat industrial land. Dry touch: the climb is a spoil heap (a mining slag heap), not a mountain; a small signpost on it reads \"GLÜCK AUF\", {{roadside}}."
+			"references": [
+				{
+					"file": "reference/rheinruhr-pit-wheel.jpg",
+					"shows": "a real old pit wheel set up as a monument in a Ruhr town: the big spoked winding wheel standing upright on its steel trestle on a low plinth. Model for the pit-wheel monument at the roadside."
+				},
+				{
+					"file": "reference/rheinruhr-spoil-heap.jpg",
+					"shows": "a real Ruhr spoil heap (Halde Haniel): a smooth, even, man-made flank with a path climbing it and a flat top. Model for the hill the riders climb."
+				}
+			],
+			"scene": "Main motif: the double headframe of the Zollverein coal mine (Schacht XII), the steel winding tower drawn in outline, its two big wheels on top, standing on its brick base, big, slightly left of centre, its top reaching the arc line. Support: at the left, a gasometer, the tall round industrial gas holder, its right side behind the headframe's leg. Ground: flat industrial land with a canal of calm water along the front, the road running along the canal. The climb: the hill the riders climb to the Eiffel Tower is a Ruhr spoil heap (Halde), not a rocky mountain: a smooth, man-made, flat-topped mound with even, straight flanks, two or three clean horizontal terrace lines across them and one serpentine path, a few short grass tufts; no rocks, cracks or scribbles; the Eiffel Tower stands on its flat top. Dry touch, the way it stands in Ruhr towns: an old pit wheel (Seilscheibe, a big spoked winding wheel from a headframe) set up upright as a monument on a low brick plinth at the foot of the heap, at the roadside just before the first rider, about as tall as two riders; on the plinth a plain rectangular plaque with crossed hammer and pick (Schlägel und Eisen, the miners' sign) above the words \"GLÜCK AUF\" in big clear capitals. No other words anywhere, nothing written on the headframe."
+		},
+		{
+			"id": "coin-rheinruhr-crest",
+			"name": "RheinRuhr",
+			"references": [
+				{
+					"file": "reference/rheinruhr-spoil-heap.jpg",
+					"shows": "a real Ruhr spoil heap (Halde Haniel): a smooth, even, man-made flank with a path climbing it and a flat top. Model for the hill the riders climb."
+				}
+			],
+			"scene": "Main motif: the double headframe of the Zollverein coal mine (Schacht XII), the steel winding tower drawn in clean outline, its two big wheels on top, standing on its brick base, slightly left of centre, its top reaching the arc line, nothing written on it. Behind it, as a backdrop, the way the pretzel stands behind the church on Munich's coin: the miners' sign, a giant crossed hammer and pick (Schlägel und Eisen), so big that it spans most of the scene's width, the two long handles crossing right behind the headframe, the hammer head and the pick head up at the left and right just below the arc line, drawn as simple solid tools in outline, the headframe standing in front of it and overlapping it. Ground: across the whole front of the scene, a broad ribbon banner waving in two gentle curves from the left edge of the ring to the foot of the climb, wide and prominent, with the words \"GLÜCK AUF\" written once on it in big clear capitals; the road runs along it into the climb. The climb: the hill the riders climb to the Eiffel Tower is a Ruhr spoil heap (Halde), not a rocky mountain: a smooth, man-made, flat-topped mound with even, straight flanks, two clean horizontal terrace lines and one serpentine path; no rocks or scribbles; the Eiffel Tower stands on its flat top. Nothing else: no gasometer, no pit wheel, no sign, no canal, no other words anywhere."
 		},
 		{
 			"id": "coin-niederrhein",
 			"name": "Niederrhein",
-			"scene": "Main motif: a Lower Rhine windmill, a tall tower mill with four sails. Support: a row of pollarded willows (Kopfweiden), short thick trunks with bushy heads of thin branches. Ground: completely flat land with a dyke along the river Rhine. Dry touch: everything is dead flat all the way, the road a dead straight line, until the climb starts abruptly and steeply right before Paris."
+			"scene": "Main motif: a Lower Rhine windmill, a tall round brick tower mill with a cap and four big lattice sails, big, slightly left of centre, the top sail's tip reaching the arc line. Support: at the left, in front of the mill's foot, a row of three pollarded willows (Kopfweiden), short thick trunks with round bushy heads of thin upright branches, getting smaller towards the left edge. Ground: completely flat land, a grassy dyke along the front with the river Rhine behind it as a thin band of calm water, the road running along the top of the dyke. Dry touch: a single sheep grazing on the dyke, {{roadside}}, looking at the riders."
+		},
+		{
+			"id": "coin-niederrhein-sheep",
+			"name": "Niederrhein",
+			"scene": "Main motif: a Lower Rhine windmill, a tall round brick tower mill with a cap and four big lattice sails, big, slightly left of centre, the top sail's tip just below the arc line, never crossing it. Support: at the left, in front of the mill's foot, a row of three pollarded willows (Kopfweiden), short thick trunks with round bushy heads of thin upright branches, getting smaller towards the left edge. Ground: completely flat land, a grassy dyke along the front with the river Rhine behind it as a thin band of calm water, the road running along the top of the dyke. Dry touch: a sheep stands on the road on the climb, between the lead rider (the one highest up, nearest the Eiffel Tower) and the second rider, as big as a rider's bike, calmly chewing and unimpressed; the second, third and fourth riders sit a little further down the climb to make room for it, so the sheep looks like part of the group. Only this one sheep, no other animals, nothing else at the roadside."
 		},
 		{
 			"id": "coin-nieder-olm",
 			"name": "Nieder-Olm",
-			"scene": "Main motif: a small round vineyard hut (Weinbergshäuschen, a little round stone hut with a cone roof) among rolling hills covered with rows of vines. Support: a big glass of wine on a stem. Ground: gentle rolling vineyard hills. Dry touch: the lead rider wears a carnival jester's cap (Narrenkappe) over the helmet."
+			"scene": "Main motif: a rounded vineyard hill rising in the middle of the scene up to the arc line, covered with neat rows of vines that follow its curve, and on its top a small round vineyard hut (Weinbergshäuschen, a little round stone hut with a cone roof). Support: in the left foreground, standing on the ground, a big old grapevine stock with a few large leaves and a heavy bunch of grapes, about half as tall as the hill. Ground: the foot of the vineyard across the whole front, the road running along it. Dry touch: the lead rider wears a carnival jester's cap (Narrenkappe) with bells over the helmet."
+		},
+		{
+			"id": "coin-nieder-olm-cap",
+			"name": "Nieder-Olm",
+			"scene": "Main motif: a rounded vineyard hill rising in the middle of the scene, covered with a few calm, widely spaced rows of vines that follow its curve. The hill wears a giant carnival jester's cap (Narrenkappe), the way the pretzel stands behind the church on Munich's coin: the cap sits on the hilltop like a hat on a head, so big that it covers the whole top of the hill, its three soft floppy points hanging down over the vine rows to the left, the right and the back, a round bell at each point's tip, a broad band around its rim; its top just below the arc line. Support: in the left foreground, standing on the ground, a big old grapevine stock with a few large leaves and a heavy bunch of grapes, about half as tall as the hill, touching the hill's foot. Ground: the foot of the vineyard across the whole front, the road running along it. Dry touch: the lead rider wears a small jester's cap of the same kind over the helmet. Nothing else: no vineyard hut, no other hats."
 		},
 		{
 			"id": "coin-frankfurt",
 			"name": "Frankfurt",
-			"scene": "Main motif: the Frankfurt skyline, a group of skyscrapers including the Messeturm with its pyramid top, the tallest staying below the arc line. Support: the stepped gables of the Römer, the old half-timbered town hall facades, in front of the skyline at the left. Ground: the river Main along the bottom, a few calm wave lines. Dry touch: an apple-wine jug (Bembel, a grey stoneware jug) with a ribbed glass (Geripptes) next to it at the roadside, {{roadside}}."
+			"scene": "Main motif: the Frankfurt skyline as one tight group of four or five skyscrapers including the Messeturm with its pyramid top, slightly left of centre, the tallest reaching the arc line. Support: at the left, in front of the skyline's foot, the three stepped gables of the Römer, the old town hall, simple outlines. Ground: the river Main as the ground band across the whole front, calm wave lines, the road running along its bank. Dry touch: an apple-wine jug (Bembel, a stoneware jug) with a ribbed glass (Geripptes) next to it, {{roadside}}."
+		},
+		{
+			"id": "coin-frankfurt-bembel",
+			"name": "Frankfurt",
+			"scene": "Main motif: the Frankfurt skyline as one tight group of four or five skyscrapers including the Messeturm with its pyramid top, slightly left of centre, the tallest reaching the arc line. Behind it, as a backdrop, the way the pretzel stands behind the church on Munich's coin: one giant apple-wine jug (Bembel), drawn as the real thing and not as a symbol: a round-bellied stoneware jug with a narrow neck, a spout, a handle and a lid, its belly decorated with the typical painted pattern of simple flowers and leaves in outline; so big that it spans most of the scene's width behind the skyscrapers, which stand in front of it and overlap it; next to it, overlapping its right side, a ribbed apple-wine glass (Geripptes) with its diamond grid of ribs, half as tall as the jug, its top below the arc line. Support: at the left, in front of the skyline's foot, the three stepped gables of the Römer, the old town hall, simple outlines. Ground: the river Main as the ground band across the whole front, calm wave lines, the road running along its bank. Nothing else: no second jug or glass, nothing at the roadside."
 		},
 		{
 			"id": "coin-flensburg",
 			"name": "Flensburg",
-			"scene": "Main motif: an old sailing ship with two masts and furled sails in the harbour of the Flensburg fjord (Förde). Support: a lighthouse at the left. Ground: the fjord's water along the bottom, a few calm wave lines. Dry touch: a wooden rum barrel at the roadside with a swing-top beer bottle on it, its stopper just popping open with a few short lines, {{roadside}}."
+			"scene": "Main motif: an old wooden sailing ship with two tall masts, its sails furled (rolled up on the yards), lying at the quay in the Flensburg fjord (Förde), big, slightly left of centre, the mast tops reaching the arc line, the rigging as a few clean lines. Support: at the left, a lighthouse on the quay, about half as tall as the masts. Ground: the fjord's calm water as the ground band across the whole front, with a stone quay along it, the road running along the quay. Dry touch: a wooden rum barrel with a swing-top beer bottle on it, its stopper just popping open with a few short lines, {{roadside}}."
+		},
+		{
+			"id": "coin-flensburg-gate",
+			"name": "Flensburg",
+			"scene": "Main motif: a tall lighthouse on the quay in the middle of the scene, round and slender, with its gallery and lantern room on top, the lantern's roof reaching the arc line. Behind it at the left, a smaller old wooden sailing ship with two masts and furled sails, lying at the quay in the Flensburg fjord (Förde), its masts about two thirds as tall as the lighthouse, the lighthouse overlapping its stern. Support: at the right of the lighthouse, touching it, the Nordertor, Flensburg's old brick city gate: a narrow gatehouse with one big round archway through it and a tall stepped gable on top, about half as tall as the lighthouse, standing right at the foot of the climb. The riders come out of the gate: the road runs along the quay, through the gate's archway and straight on up the climb to the Eiffel Tower, one continuous road. The fourth rider is just riding out of the archway, his front wheel already outside, the other three riders ahead of him, spread up the climb, the lead rider near the top. Ground: the fjord's calm water as the ground band across the whole front, with a stone quay along it. Dry touch: a seagull sitting on a mooring bollard on the quay, at the left of the lighthouse's foot, not on the road. Nothing else: no barrel, no bottle, no words, no second road, no stairs or ramps."
+		},
+		{
+			"id": "coin-flensburg-rider",
+			"name": "Flensburg",
+			"blank": "reference/flensburg-blank.png",
+			"scene": "Main motif: a tall lighthouse on the quay, round and slender, with its gallery and lantern room on top, the lantern's roof reaching the arc line, standing left of the coin's centre. Behind it at the left, a smaller old wooden sailing ship with two masts and furled sails, lying at the quay in the Flensburg fjord (Förde), its masts about two thirds as tall as the lighthouse, the lighthouse overlapping its stern. Support: the Nordertor, Flensburg's old brick city gate, right of the lighthouse and touching it: a gatehouse with one big round archway through it and a tall stepped gable on top, about half as tall as the lighthouse. The gate stands exactly over the lone rider on the flat stretch of road in the attached picture: draw the archway around that rider, so he is riding out of the gate, his front wheel just outside the arch, the gate's walls on both sides of him. Keep that rider and the flat road exactly where they are. From the gate the road goes on along the flat and up the climb, where the other three riders ride ahead, as in the attached picture. One continuous road. Ground: the fjord's calm water as the ground band across the whole front, left of the gate, with a stone quay along it. Dry touch: a seagull sitting on a mooring bollard on the quay at the left of the lighthouse's foot, not on the road. Nothing else: no barrel, no bottle, no words, no second road, no stairs or ramps, no extra riders."
+		},
+		{
+			"id": "coin-flensburg-front",
+			"name": "Flensburg",
+			"blank": "reference/flensburg-empty-blank.png",
+			"scene": "The attached picture has the climb but no riders yet: you draw the four riders. Main motif: a tall lighthouse on the quay, round and slender, with its gallery and lantern room on top, the lantern's roof reaching the arc line, standing left of the coin's centre. Behind it at the left, a smaller old wooden sailing ship with two masts and furled sails, lying at the quay in the Flensburg fjord (Förde), its masts about two thirds as tall as the lighthouse, the lighthouse overlapping its stern. Support: the Nordertor, Flensburg's old brick city gate, seen straight from the front, right of the lighthouse and touching it, standing right where the road in the attached picture begins, at the foot of the climb: a gatehouse with one big round archway, a tall stepped gable on top, about half as tall as the lighthouse. The road comes out of the archway towards us and bends right onto the climb. Riders, four, small, simple, in the same clean line style as the Eiffel Tower: one rider is just coming out of the open archway towards us, seen from the front, filling the lower half of the arch; the other three ride up the climb towards the Eiffel Tower, seen from the side, spread along it, the lead rider near the top. Ground: the fjord's calm water as the ground band across the front, left of the gate, with a stone quay along it. Dry touch: a seagull sitting on a mooring bollard on the quay at the left of the lighthouse's foot, not on the road. Nothing else: no barrel, no bottle, no words, no second road, no stairs or ramps, no more than four riders."
+		},
+		{
+			"id": "coin-flensburg-merged",
+			"name": "Flensburg",
+			"template": "edit-prompt.txt",
+			"blank": "originals/coin-flensburg-gate.jpeg",
+			"references": [
+				{
+					"file": "reference/flensburg-nordertor.jpg",
+					"shows": "the real Nordertor in Flensburg, a photo: a wide brick gatehouse with one round archway in the middle, rectangular windows on both sides of and above the arch, and a tall stepped gable with narrow blind niches and one small arched opening near the top"
+				},
+				{
+					"file": "reference/flensburg-lighthouse.png",
+					"shows": "the lighthouse as it should look: its domed lantern with the ball on top, the gallery with its railing and brackets, the plain round tower with three small windows"
+				}
+			],
+			"scene": "Redraw the Nordertor, the gate at the foot of the climb, so it looks like the real one in attached picture 2: a wide brick gatehouse, the round archway in the middle, rectangular windows beside and above the arch, a tall stepped gable with narrow blind niches. Redraw the lighthouse like attached picture 3. Both keep their place and size in the first picture; the road still runs through the gate's archway, and the riders stay exactly where they are."
 		},
 		{
 			"id": "coin-mecklenburg",
 			"name": "Mecklenburg",
-			"scene": "Main motif: Schwerin Castle on its island in the lake, the fairy-tale palace with its many towers, turrets and golden dome. Support: a wicker beach chair (Strandkorb) on a bit of beach at the left. Ground: the lake along the bottom, a few calm wave lines. Dry touch: three cranes (the birds, long necks and legs stretched out) flying over the lake in a loose row."
+			"scene": "Main motif: Schwerin Castle on its island in the lake, slightly left of centre, drawn simply: a few big towers and turrets with pointed roofs and the large central dome, its tip reaching the arc line, only the main windows, no tiny details. Support: at the left, on a strip of sandy beach, a wicker beach chair (Strandkorb), about a third as tall as the castle. Ground: the lake's calm water as the ground band across the whole front, the road running along its shore. Dry touch: three cranes (the birds, long necks and legs stretched out) flying in a loose row in the sky between the castle and the Eiffel Tower, small."
+		},
+		{
+			"id": "coin-mecklenburg-lake",
+			"name": "Mecklenburg",
+			"scene": "Main motif: Schwerin Castle on its island in the lake, slightly left of centre, drawn simply: a few big towers and turrets with pointed roofs and the large central dome, its tip reaching the arc line, only the main windows, no tiny details. Tying it together, the way the pretzel and the ribbon do on Munich's coin: three big cranes (the birds) fly in one sweeping arc across the sky from behind the castle's dome towards the Eiffel Tower, wings spread wide, long necks and legs stretched out, each about as big as a castle tower, the first one overlapping the dome. Ground: across the whole front, the lake as a broad band of calm water with clear gentle wave lines and the castle mirrored faintly in it, a few reeds at its edges; the castle island's shore runs into it. Support: at the left, on a small strip of sandy beach right at the castle island's shore, touching it, a wicker beach chair (Strandkorb), about a third as tall as the castle. The road runs along the far shore into the climb. Nothing else: no dashed road markings, no boats."
 		},
 		{
 			"id": "coin-100-germany",
 			"name": "100 Germany",
-			"scene": "Main motif: the outline of Germany as a simple map shape, with a road running out of it towards the climb and Paris. Support: a small kilometre stone at the start of the road reading \"100\". Ground: a gentle meadow. Dry touch: a cup of coffee and a croissant on a small café table at the roadside, {{roadside}}."
+			"scene": "Main motif: the outline of Germany as a big flat cut-out sign, like a giant map shape standing upright on two short posts on the meadow, slightly left of centre, its northern tip reaching the arc line. Support: at the left, in front of the sign's foot, a big old milestone (kilometre stone) reading \"100\", about a third as tall as the sign. Ground: a meadow across the whole front, the road running along it from the sign towards the climb. Dry touch: a cup of coffee and a croissant on a small round café table, {{roadside}}."
+		},
+		{
+			"id": "coin-100-germany-route",
+			"name": "100 Germany",
+			"scene": "Main motif, as a backdrop the way the pretzel stands behind the church on Munich's coin: the outline of Germany, big, slightly left of centre, drawn as a plain map outline floating behind the scene like a map on the sky, not a sign, no posts, no stand, its northern tip just below the arc line, empty inside: no towns, no dots, no names, no borders inside. The riders' road starts inside the map: a dashed route line runs from the middle of Germany down out of its south-western edge onto the road and on to the climb and Paris. In front of the map's lower part, standing on the ground, the number \"100\" in big, bold, hollow outline figures, about a third as tall as the map, the two zeros drawn as two bicycle wheels with spokes and hubs. Ground: a meadow across the whole front, the road running along it into the climb. Nothing else: no milestone, no stone, no sign, no table, no food, no other words or numbers."
+		},
+		{
+			"id": "coin-100-germany-nomap",
+			"name": "100 Germany",
+			"template": "edit-prompt.txt",
+			"blank": "originals/coin-100-germany-route.jpeg",
+			"scene": "Leave out Germany's outline completely: no map line anywhere, the space where it was stays empty white sky. Keep the dashed route exactly where it is, starting at the same point, and keep the \"100\" with the bicycle-wheel zeros, the riders, the climb and the Eiffel Tower exactly as they are.",
+			"overlay": {
+				"file": "reference/germany-outline.svg",
+				"box": [690, 355, 622]
+			}
 		}
 	]
 }
