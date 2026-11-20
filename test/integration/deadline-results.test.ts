@@ -4,7 +4,7 @@ import { deleteRider } from "../../src/db/riders";
 import { recordDeadlineResults } from "../../src/work/scheduled";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C } from "../support/fixtures";
-import { seedBalance } from "../support/rider-view";
+import { seedBalance, seedEmptySummary, seedRide } from "../support/rider-view";
 
 // The results kept when the qualification deadline had passed (review L-12,
 // feature 016 data-model.md): the daily run takes them once. The test team's
@@ -38,10 +38,14 @@ beforeEach(async () => {
 	const ctx = makeCtx();
 	await seedRider(ctx, { athleteId: ATHLETE_A, firstName: "Anna" });
 	await seedRider(ctx, { athleteId: ATHLETE_B, firstName: "Ben" });
-	// Listed, but without a balance yet.
 	await seedRider(ctx, { athleteId: ATHLETE_C, firstName: "Cara" });
 	await seedRider(ctx, { athleteId: GUEST, guest: true });
 	await seedRider(ctx, { athleteId: UNLISTED, consentVersion: null });
+	// Every rider evaluated: nothing for the record to wait for.
+	for (const id of [ATHLETE_A, ATHLETE_B, ATHLETE_C, GUEST, UNLISTED]) {
+		await seedEmptySummary(id);
+	}
+	await seedBalance(ATHLETE_C);
 	await seedBalance(ATHLETE_A, {
 		qualified: true,
 		trainingRynke: 300,
@@ -75,8 +79,7 @@ describe("recordDeadlineResults", () => {
 				training_rynke: 240,
 				team_rynke: 20,
 			},
-			// No balance: 0 and not qualified. No guest, no rider outside the
-			// team's sharing.
+			// No guest, no rider outside the team's sharing.
 			{
 				athlete_id: ATHLETE_C,
 				deadline: "2027-06-30",
@@ -85,6 +88,35 @@ describe("recordDeadlineResults", () => {
 				team_rynke: 0,
 			},
 		]);
+	});
+
+	it("waits for the evaluations still to run", async () => {
+		// Ben's last ride before the deadline isn't judged yet.
+		await seedRide(ATHLETE_B, { id: 1 });
+		await recordDeadlineResults(runOn("2027-07-01"));
+		expect(await kept()).toEqual([]);
+		await seedRide(ATHLETE_B, { id: 1, result: { counts: true } });
+		await seedBalance(ATHLETE_B, { trainingRynke: 250, teamRynke: 20 });
+		await recordDeadlineResults(runOn("2027-07-02"));
+		expect(await kept()).toContainEqual(
+			expect.objectContaining({ athlete_id: ATHLETE_B, training_rynke: 250 }),
+		);
+	});
+
+	it("waits a week at most, a rider without a balance kept as 0", async () => {
+		await env.DB.prepare("DELETE FROM rynke_balances WHERE athlete_id = ?")
+			.bind(ATHLETE_C)
+			.run();
+		await recordDeadlineResults(runOn("2027-07-07"));
+		expect(await kept()).toEqual([]);
+		await recordDeadlineResults(runOn("2027-07-08"));
+		expect(await kept()).toContainEqual({
+			athlete_id: ATHLETE_C,
+			deadline: "2027-06-30",
+			qualified: 0,
+			training_rynke: 0,
+			team_rynke: 0,
+		});
 	});
 
 	it("keeps the day's results through later changes and later riders", async () => {

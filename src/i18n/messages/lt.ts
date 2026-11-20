@@ -842,9 +842,9 @@ export const lt: Catalog = {
 	"badges.surprise.christmas": "Kalėdos",
 	"badges.surprise.christmas.for": "Per Kalėdų šventes buvai lauke.",
 	"badges.surprise.night-owl": "Naktinė pelėda",
-	"badges.surprise.night-owl.for": "Išvažiavai po 21:30.",
+	"badges.surprise.night-owl.for": "Išvažiavai tarp 21:30 ir 3:00.",
 	"badges.surprise.early-bird": "Ankstyvas paukštis",
-	"badges.surprise.early-bird.for": "Išvažiavai prieš 6:00.",
+	"badges.surprise.early-bird.for": "Išvažiavai tarp 3:00 ir 6:00.",
 	"badges.surprise.rest-day": "Poilsio diena",
 	"badges.surprise.rest-day.for":
 		"Savaitę aktyvus kiekvieną dieną – o tada laisva diena. Užsitarnauta!",

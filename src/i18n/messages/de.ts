@@ -847,9 +847,10 @@ export const de = {
 	"badges.surprise.christmas.for":
 		"Du warst an den Weihnachtsfeiertagen unterwegs.",
 	"badges.surprise.night-owl": "Nachteule",
-	"badges.surprise.night-owl.for": "Du bist nach 21:30 Uhr losgefahren.",
+	"badges.surprise.night-owl.for":
+		"Du bist zwischen 21:30 und 3 Uhr losgefahren.",
 	"badges.surprise.early-bird": "Frühaufsteher",
-	"badges.surprise.early-bird.for": "Du bist vor 6 Uhr losgefahren.",
+	"badges.surprise.early-bird.for": "Du bist zwischen 3 und 6 Uhr losgefahren.",
 	"badges.surprise.rest-day": "Ruhetag",
 	"badges.surprise.rest-day.for":
 		"Eine Woche lang jeden Tag aktiv – und dann einen Tag Pause. Verdient!",

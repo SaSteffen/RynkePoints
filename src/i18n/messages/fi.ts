@@ -817,9 +817,9 @@ export const fi: Catalog = {
 	"badges.surprise.christmas": "Joulu",
 	"badges.surprise.christmas.for": "Olit liikkeellä joulupyhinä.",
 	"badges.surprise.night-owl": "Yökyöpeli",
-	"badges.surprise.night-owl.for": "Lähdit liikkeelle klo 21.30 jälkeen.",
+	"badges.surprise.night-owl.for": "Lähdit liikkeelle klo 21.30 ja 3 välillä.",
 	"badges.surprise.early-bird": "Aamuvirkku",
-	"badges.surprise.early-bird.for": "Lähdit liikkeelle ennen klo 6.",
+	"badges.surprise.early-bird.for": "Lähdit liikkeelle klo 3 ja 6 välillä.",
 	"badges.surprise.rest-day": "Lepopäivä",
 	"badges.surprise.rest-day.for":
 		"Aktiivinen joka päivä viikon ajan – ja sitten vapaapäivä. Ansaittu!",

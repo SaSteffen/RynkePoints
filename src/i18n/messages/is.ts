@@ -821,9 +821,9 @@ export const is: Catalog = {
 	"badges.surprise.christmas": "Jól",
 	"badges.surprise.christmas.for": "Þú varst úti yfir jólin.",
 	"badges.surprise.night-owl": "Nátthrafn",
-	"badges.surprise.night-owl.for": "Þú lagðir af stað eftir kl. 21:30.",
+	"badges.surprise.night-owl.for": "Þú lagðir af stað á milli kl. 21:30 og 3.",
 	"badges.surprise.early-bird": "Morgunhani",
-	"badges.surprise.early-bird.for": "Þú lagðir af stað fyrir kl. 6.",
+	"badges.surprise.early-bird.for": "Þú lagðir af stað á milli kl. 3 og 6.",
 	"badges.surprise.rest-day": "Hvíldardagur",
 	"badges.surprise.rest-day.for":
 		"Virk/ur alla daga í viku – og svo frídagur. Vel verðskuldað!",

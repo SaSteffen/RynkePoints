@@ -842,8 +842,9 @@ describe("GET /organiser/riders, sessions (ride stats ranking US2)", () => {
 });
 
 describe("GET /organiser/riders, after the deadline (review L-12)", () => {
-	// The first daily run after the deadline, and the page the day after.
-	const afterwards = makeCtx({ now: Date.UTC(2027, 6, 1, 3, 17) / 1000 });
+	// The daily run a week after the deadline, which keeps the results even
+	// with riders still to evaluate, and the page that day.
+	const afterwards = makeCtx({ now: Date.UTC(2027, 6, 8, 3, 17) / 1000 });
 
 	it("lists who qualified at the deadline and who changed since", async () => {
 		await seedBalance(QUALIFIED.id, {

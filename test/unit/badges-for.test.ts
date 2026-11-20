@@ -133,7 +133,7 @@ describe("badgesFor", () => {
 	});
 
 	it("keeps the catalog version", () => {
-		expect(BADGE_CATALOG_VERSION).toBe(9);
+		expect(BADGE_CATALOG_VERSION).toBe(10);
 	});
 });
 

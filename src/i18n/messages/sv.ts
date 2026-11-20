@@ -812,9 +812,10 @@ export const sv: Catalog = {
 	"badges.surprise.christmas": "Jul",
 	"badges.surprise.christmas.for": "Du var ute under juldagarna.",
 	"badges.surprise.night-owl": "Nattuggla",
-	"badges.surprise.night-owl.for": "Du gav dig iväg efter kl. 21.30.",
+	"badges.surprise.night-owl.for":
+		"Du gav dig iväg mellan kl. 21.30 och kl. 3.",
 	"badges.surprise.early-bird": "Morgonpigg",
-	"badges.surprise.early-bird.for": "Du gav dig iväg före kl. 6.",
+	"badges.surprise.early-bird.for": "Du gav dig iväg mellan kl. 3 och kl. 6.",
 	"badges.surprise.rest-day": "Vilodag",
 	"badges.surprise.rest-day.for":
 		"Aktiv varje dag i en vecka – och sedan en ledig dag. Välförtjänt!",

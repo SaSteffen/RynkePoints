@@ -811,9 +811,9 @@ export const da: Catalog = {
 	"badges.surprise.christmas": "Jul",
 	"badges.surprise.christmas.for": "Du var ude i juledagene.",
 	"badges.surprise.night-owl": "Natugle",
-	"badges.surprise.night-owl.for": "Du tog af sted efter kl. 21.30.",
+	"badges.surprise.night-owl.for": "Du tog af sted mellem kl. 21.30 og kl. 3.",
 	"badges.surprise.early-bird": "Morgenfrisk",
-	"badges.surprise.early-bird.for": "Du tog af sted før kl. 6.",
+	"badges.surprise.early-bird.for": "Du tog af sted mellem kl. 3 og kl. 6.",
 	"badges.surprise.rest-day": "Hviledag",
 	"badges.surprise.rest-day.for":
 		"Aktiv hver dag i en uge – og så en fridag. Velfortjent!",
