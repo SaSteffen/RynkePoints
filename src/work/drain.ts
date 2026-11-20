@@ -45,6 +45,8 @@ import { notifyRiders } from "./send-notification";
  * before the drain can use 20 of them: 10 messages, each at most 2 (a
  * withdrawal asks the gateway and revokes; a re-check refreshes and lists). An
  * item uses at most 2, a token refresh and its Strava call, so 15 fit the rest.
+ * Its notifications only go to the queue, one `send-notification` per device,
+ * whose push is that message's one request.
  */
 export const DRAIN_LIMIT = 15;
 
