@@ -11,6 +11,7 @@ import { isPreWindow, type UnknownFigureCode } from "../rynke/rides";
 import {
 	type CountingWindow,
 	eventInWindow,
+	maxSpeedKmhFor,
 	type RynkeRules,
 	type Share,
 } from "../rynke/rules";
@@ -612,7 +613,9 @@ function reasonLines(
 				return {
 					code,
 					kmhTenths: Math.ceil(tenths),
-					limitKmh: rules?.maxSpeedKmh ?? null,
+					limitKmh: rules
+						? maxSpeedKmhFor(rules, ride.result?.isVirtual ?? false)
+						: null,
 				};
 			case "climbing_rate":
 				return {

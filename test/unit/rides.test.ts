@@ -456,6 +456,57 @@ describe("minimum ride length (feature 039 research R5)", () => {
 	});
 });
 
+// Europe's version 6: a virtual ride may average up to 50 km/h; rides outdoors
+// keep 45 km/h.
+describe("a higher speed limit for virtual rides", () => {
+	const FAST_VIRTUAL: RynkeRules = {
+		...CURRENT_RULES,
+		version: 99,
+		virtualMaxSpeedKmh: 50,
+	};
+
+	it("exactly 50 km/h counts on a virtual or trainer ride, a metre more doesn't", () => {
+		const { results } = evaluate(
+			[
+				makeRide({
+					id: 1,
+					km: 100,
+					movingH: 2,
+					sportType: "VirtualRide",
+					start: day(1),
+				}),
+				makeRide({ id: 2, km: 100, movingH: 2, trainer: true, start: day(2) }),
+				makeRide({
+					id: 3,
+					km: 100.001,
+					movingH: 2,
+					sportType: "VirtualRide",
+					start: day(3),
+				}),
+			],
+			FAST_VIRTUAL,
+		);
+		expect(resultFor(results, 1).counts).toBe(true);
+		expect(resultFor(results, 2).counts).toBe(true);
+		expect(resultFor(results, 3).reasons).toEqual(["too_fast"]);
+	});
+
+	it("keeps 45 km/h for rides outdoors", () => {
+		const { results } = evaluate(
+			[makeRide({ id: 1, km: 90.001, movingH: 2 })],
+			FAST_VIRTUAL,
+		);
+		expect(resultFor(results, 1).reasons).toEqual(["too_fast"]);
+	});
+
+	it("without it, a virtual ride keeps 45 km/h", () => {
+		const { results } = evaluate([
+			makeRide({ id: 1, km: 90.001, movingH: 2, sportType: "VirtualRide" }),
+		]);
+		expect(resultFor(results, 1).reasons).toEqual(["too_fast"]);
+	});
+});
+
 // Europe's version 5: under the minimum for its kind a ride still counts with
 // its elevation; only its kilometres earn nothing.
 describe("minimum for kilometre Rynke, outdoor and virtual", () => {

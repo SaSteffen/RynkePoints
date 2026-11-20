@@ -13,7 +13,10 @@ file (FR-019). For now it is an English translation of Hamburg's
 docs/rynke-punkte.md with this team's name (spec 026 task T082), and this team's
 own rules since feature 039: no Team Rynke, team events or Tour de Paris days,
 and since rules version 5 (2026-11-19) the minimum for kilometre Rynke, 25 km
-outdoors and 1 km on virtual rides. Keep the rest in step with Hamburg's. Render
+outdoors and 1 km on virtual rides, and since rules version 6 (2026-11-20) an
+average of up to 50 km/h on virtual rides. It names the training season (1
+September to 31 August) and the qualification period (1 January to 30 June)
+apart. Keep the rest in step with Hamburg's. Render
 it with `pnpm docs:pdf` and commit public/teams/europe/rynke-points.pdf: the app
 links riders to that PDF.
 -->
@@ -54,16 +57,22 @@ power.
 # What is it about?
 
 Everyone who rides with us on the Tour de Paris should be well prepared on the
-bike. To show this, you collect **Training Rynke** over the season, for the
-kilometres and the elevation of your rides.
+bike. To show this, you collect **Training Rynke** in the qualification
+period, for the kilometres and the elevation of your rides.
 
-# When is the season?
+# Training season and qualification period
 
-The season runs from **1 September to 31 August**. Rides earn Rynke from
-**1 January to 30 June**, counted by the day a ride starts in your time zone.
-Rides before 1 January or after 30 June earn no Rynke, and by 30 June you need
-all your Training Rynke for the Tour. From 1 September on, your rides already
-count for the badges in RynkePoints.
+There are two periods:
+
+- The **training season** runs from **1 September to 31 August**. From
+  1 September on, RynkePoints shows your rides, and they count for the badges.
+- The **qualification period** runs from **1 January to 30 June**, inside the
+  training season. Only rides in it earn Rynke, counted by the day a ride
+  starts in your time zone. By 30 June you need all your Training Rynke for
+  the Tour.
+
+That's why your rides from the autumn already show up, but don't earn Rynke
+yet.
 
 # What do I need for the Tour?
 
@@ -79,7 +88,7 @@ Of these 250 Training Rynke, at least 84 have to come from outside virtual rides
 | For                                      | Training Rynke |
 |------------------------------------------|---------------:|
 | every full 10 km of a ride               |              1 |
-| every full 1000 m of elevation (season) |              5 |
+| every full 1000 m of elevation (total)   |              5 |
 
 Kilometres bring Rynke only from **25 km** on outdoors and from **1 km** on
 virtual rides. Elevation brings Rynke too, and it counts from the **first
@@ -97,10 +106,10 @@ many short ones.
 
 A ride outdoors needs at least **25 km** for its kilometres to bring Rynke, a
 virtual ride at least **1 km**. A shorter ride still counts: its elevation goes
-into your season total like any other.
+into your elevation total like any other.
 
 **Elevation**, on the other hand, is **never lost**. RynkePoints adds up every
-metre of elevation of all your rides from 1 January to 30 June, short rides
+metre of elevation of all your rides in the qualification period, short rides
 included. There is no minimum for elevation. Every **full 1000 m** in
 total gives 5 Training Rynke. Whatever isn't enough for the next 1000 yet stays
 and keeps counting with your next rides.
@@ -115,7 +124,7 @@ and keeps counting with your next rides.
 | 2 rides of 25 km each           |              4 | 2 + 2, not 50 km = 5               |
 | 15 km virtual                   |              1 | at least 1 km virtual              |
 | 20 km with 1000 m elevation     |              5 | 0 for km + 5 for elevation         |
-| 12 km outdoors with 400 m       |              0 | 400 m go into your season total    |
+| 12 km outdoors with 400 m       |              0 | 400 m go into your elevation total |
 | 1999 m of elevation in one ride |              5 | 1 full 1000, 999 m stay            |
 | 2 rides of 600 m elevation each |              5 | 1200 m together, 200 m stay        |
 | 1999 + 1 m elevation in 2 rides |             10 | 2000 m together                    |
@@ -126,7 +135,7 @@ and keeps counting with your next rides.
 A ride doesn't count **at all** if your breaks together last **longer than your
 moving time**, that is, more than half of the whole recording. Moving time is
 the time you were moving. Then there are no Rynke for its kilometres or its
-elevation, and its elevation doesn't count towards your season total either. If
+elevation, and its elevation doesn't count towards your elevation total either. If
 you ride for 4 hours, your breaks can add up to 4 hours at most.
 
 | Recording                                         | Moving time | Breaks | Training Rynke |
@@ -169,7 +178,9 @@ These recordings bring no Rynke, neither for kilometres nor for elevation:
 - **E-bike and e-mountain bike rides.**
 - **Rides too slow or too fast.** If your average (distance divided by moving
   time) is **below 10 km/h** or **above 45 km/h**, that wasn't a bike ride but
-  more likely a walk or a trip by car or train.
+  more likely a walk or a trip by car or train. On **virtual rides** the
+  average may go up to **50 km/h**: on routes with long descents, an honest
+  virtual ride can be that fast.
 - **Climbing too fast.** Nobody manages more than **1500 m of elevation per hour
   of moving time** over a whole ride under their own power. That was a cable
   car or a lift.
@@ -183,6 +194,8 @@ These recordings bring no Rynke, neither for kilometres nor for elevation:
 | 300 km in 4 h moving time (train)                     |              0 | average 75 km/h               |
 | 25 km in 3 h moving time (walk)                       |              0 | average 8.3 km/h              |
 | 30 km in 3 h moving time                              |              3 | average of exactly 10 km/h counts |
+| 50 km virtual in 1 h moving time, mostly downhill     |              5 | virtual: up to 50 km/h        |
+| 50 km outdoors in 1 h moving time                     |              0 | average 50 km/h               |
 | 30 km and 2000 m elevation in 1 h moving time (cable car) |          0 | 2000 m of elevation per hour  |
 | 200 km entered by hand                                |              0 | entered manually              |
 | 100 km on an e-bike                                   |              0 | e-bike                        |
@@ -204,7 +217,8 @@ without. Short sessions count too: their kilometres bring Rynke from 1 km on,
 and their elevation counts from the first metre. A virtual ride is any ride
 that Strava marks as a virtual ride or as an indoor trainer ride. For the Tour,
 though: you need at least **84 Training
-Rynke**, a third of the 250, from rides outdoors and corrections. The rest may
+Rynke**, a third of the 250, from rides outdoors and corrections for rides
+outdoors (see "Corrections"). The rest may
 come from virtual rides. Whatever you collect virtually stays in your total, but
 on its own it won't get you to Paris.
 
@@ -230,9 +244,10 @@ ride you up the hill.
 
 # Which rides count?
 
-- Only rides from **1 January to 30 June** earn Rynke. Nothing before or after
-  does. Your rides from before 1 January already show up on your RynkePoints
-  page, marked "doesn't count yet", and they count for the badges.
+- Only rides in the qualification period, **1 January to 30 June**, earn Rynke.
+  Nothing before or after does. Your rides of the training season from before
+  1 January already show up on your RynkePoints page, marked "doesn't count
+  yet", and they count for the badges.
 - What matters is the ride's start date in your time zone.
 - If you change a ride on Strava (for example its route) or delete it,
   RynkePoints recalculates your Rynke.
@@ -245,11 +260,16 @@ If something isn't right, for example your bike computer failed on a ride, talk
 to the organisers. They can correct your Rynke, giving a reason. The
 correction stays, even when RynkePoints recalculates your Rynke.
 
+A correction counts like Rynke from a ride outdoors, also towards the 84 you
+need from outside virtual rides. So the organisers only correct rides
+outdoors. If a virtual ride went wrong, upload it to Strava again from your
+app.
+
 # Where do I see my total?
 
 On your RynkePoints page you see your Training Rynke, how many you're still
 missing, whether you're in, and where your Rynke come from. There
-you also see your elevation for the season and how much is missing for the next
+you also see your elevation total and how much is missing for the next
 5 Training Rynke, and, if you ride virtually, how many Training Rynke you have
 without virtual rides.
 
@@ -261,8 +281,8 @@ rides, your kilometres and your elevation, but without your name.
 
 # Do the rules change?
 
-Yes, that can happen during the season. Then RynkePoints recalculates all Rynke
-of the **whole season retroactively** under the new rules, including for rides
+Yes, that can happen during the training season. Then RynkePoints recalculates
+all Rynke **retroactively** under the new rules, including for rides
 you uploaded before the change. So someone who had enough before may fall below
 afterwards, and the other way round. The organisers' corrections are kept.
 

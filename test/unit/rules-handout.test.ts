@@ -61,6 +61,13 @@ describe("minimum ride length in the handouts (feature 039)", () => {
 		expect(text).not.toContain("not even for its elevation");
 	});
 
+	it("Europe's names the higher speed limit for virtual rides", () => {
+		const text = HANDOUTS["../../docs/teams/europe/rynke-points.md"];
+		expect(currentRules(europe.rules).virtualMaxSpeedKmh).toBe(50);
+		expect(text).toContain("**above 45 km/h**");
+		expect(text).toContain("up to **50 km/h**");
+	});
+
 	it("Hamburg's names no minimum ride length", () => {
 		const text = HANDOUTS["../../docs/rynke-punkte.md"];
 		expect(text).toBeDefined();
