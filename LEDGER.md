@@ -8,7 +8,6 @@ Priority: **P1** can delete or hide a rider's data · **P2** wrong figures or te
 
 | ID | Pri | Where | Problem | Fix |
 |---|---|---|---|---|
-| R04 | P1 | `src/work/delete-rider.ts` | Confirming a deauthorization with the stored refresh token loses a race with a concurrent refresh; the refused refresh deletes a rider who never withdrew. | On refused, re-read the credentials and retry once with the newer token before deleting. |
 | R05 | P2 | `src/work/scheduled.ts` | The deadline record is taken right after the day's re-evaluations are queued, before they run, so it can hold stale totals. | Take it once no rider needs evaluation, or from a fresh evaluation. |
 | R06 | P2 | `src/badges/evaluate.ts` | New Night owl / Early bird times and the solstice change don't reach existing riders: the badge catalog version wasn't raised. | Raise `BADGE_CATALOG_VERSION` and note why. |
 | R07 | P2 | `src/i18n/messages/*` | Early bird says "before 6 am", Night owl "after 9:30 pm"; rides from 00:00 to 02:59 now earn Night owl. | Update both texts in all ten catalogs. |
