@@ -42,6 +42,7 @@ const ERROR_CODES = [
 	"event_missing",
 	"rider_not_connected",
 	"outside_season",
+	"outside_window",
 	"future_event",
 	"rider_not_listed",
 	"invalid_amount",

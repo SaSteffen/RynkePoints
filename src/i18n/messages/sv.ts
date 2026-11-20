@@ -436,6 +436,8 @@ export const sv: Catalog = {
 	"organiser.error.rider_not_connected":
 		"En cyklist har slutat eller måste ansluta igen först.",
 	"organiser.error.outside_season": "Datumet ligger utanför säsongen.",
+	"organiser.error.outside_window":
+		"Datumet ligger utanför kvalificeringsperioden.",
 	"organiser.error.future_event":
 		"Närvaro kan registreras när aktiviteten har ägt rum.",
 	"organiser.error.rider_not_listed":
@@ -484,7 +486,8 @@ export const sv: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Det tar bort korrigeringen; cyklistens Rynke följer med.",
 	"organiser.corrections.removeConfirm": "Ja, ta bort",
-	"organiser.corrections.outside": "Räknas inte: daterad utanför säsongen",
+	"organiser.corrections.outside":
+		"Räknas inte: daterad utanför kvalificeringsperioden",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lag",

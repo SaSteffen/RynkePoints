@@ -441,6 +441,8 @@ export const lt: Catalog = {
 	"organiser.error.rider_not_connected":
 		"Kažkuris dviratininkas išėjo arba pirmiausia turi prisijungti iš naujo.",
 	"organiser.error.outside_season": "Data yra už sezono ribų.",
+	"organiser.error.outside_window":
+		"Data yra už kvalifikacijos laikotarpio ribų.",
 	"organiser.error.future_event":
 		"Dalyvavimą galima pažymėti, kai renginys įvyks.",
 	"organiser.error.rider_not_listed":
@@ -490,7 +492,8 @@ export const lt: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Pataisymas bus pašalintas; dviratininko Rynke pasikeis atitinkamai.",
 	"organiser.corrections.removeConfirm": "Taip, pašalinti",
-	"organiser.corrections.outside": "Neskaičiuojama: data už sezono ribų",
+	"organiser.corrections.outside":
+		"Neskaičiuojama: data už kvalifikacijos laikotarpio ribų",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Komanda",

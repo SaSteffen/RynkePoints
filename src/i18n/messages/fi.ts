@@ -436,6 +436,8 @@ export const fi: Catalog = {
 	"organiser.error.rider_not_connected":
 		"Joku ajaja on lopettanut tai hänen on ensin yhdistettävä uudelleen.",
 	"organiser.error.outside_season": "Päivämäärä on kauden ulkopuolella.",
+	"organiser.error.outside_window":
+		"Päivämäärä on karsintajakson ulkopuolella.",
 	"organiser.error.future_event":
 		"Osallistumisen voi kirjata, kun tapahtuma on pidetty.",
 	"organiser.error.rider_not_listed":
@@ -484,7 +486,8 @@ export const fi: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Tämä poistaa korjauksen; ajajan Rynket muuttuvat sen mukaan.",
 	"organiser.corrections.removeConfirm": "Kyllä, poista",
-	"organiser.corrections.outside": "Ei lasketa: päivämäärä kauden ulkopuolella",
+	"organiser.corrections.outside":
+		"Ei lasketa: päivämäärä karsintajakson ulkopuolella",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Tiimi",

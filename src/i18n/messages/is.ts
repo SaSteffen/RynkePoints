@@ -437,6 +437,8 @@ export const is: Catalog = {
 	"organiser.error.rider_not_connected":
 		"Hjólreiðamaður er hættur eða þarf fyrst að tengjast aftur.",
 	"organiser.error.outside_season": "Dagsetningin er utan tímabilsins.",
+	"organiser.error.outside_window":
+		"Dagsetningin er utan tímabilsins til að komast áfram.",
 	"organiser.error.future_event":
 		"Mætingu má skrá þegar viðburðurinn hefur farið fram.",
 	"organiser.error.rider_not_listed":
@@ -487,7 +489,7 @@ export const is: Catalog = {
 		"Þetta fjarlægir leiðréttinguna; Rynke hjólreiðamannsins fylgja með.",
 	"organiser.corrections.removeConfirm": "Já, fjarlægja",
 	"organiser.corrections.outside":
-		"Telst ekki með: dagsetning utan tímabilsins",
+		"Telst ekki með: dagsetning utan tímabilsins til að komast áfram",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lið",

@@ -463,6 +463,8 @@ export const de = {
 	"organiser.error.rider_not_connected":
 		"Jemand ist ausgetreten oder muss sich erst neu verbinden.",
 	"organiser.error.outside_season": "Das Datum liegt außerhalb der Saison.",
+	"organiser.error.outside_window":
+		"Das Datum liegt außerhalb des Qualifikationszeitraums.",
 	"organiser.error.future_event":
 		"Die Teilnahme lässt sich erst eintragen, wenn der Termin war.",
 	"organiser.error.rider_not_listed":
@@ -512,7 +514,8 @@ export const de = {
 	"organiser.corrections.removeWarning":
 		"Das entfernt die Korrektur; die Rynke der Person passen sich an.",
 	"organiser.corrections.removeConfirm": "Ja, entfernen",
-	"organiser.corrections.outside": "Zählt nicht: Datum außerhalb der Saison",
+	"organiser.corrections.outside":
+		"Zählt nicht: Datum außerhalb des Qualifikationszeitraums",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
