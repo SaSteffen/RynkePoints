@@ -898,11 +898,17 @@ describe("STYLE", () => {
 			expect(declsOf(page)["max-width"]).toBeUndefined();
 			expect(declsOf(page, MEDIUM)["max-width"]).toBe("var(--rp-content-max)");
 		}
-		// The leaderboard gets a column of its own beside the other team cards.
-		expect(declsOf(".team-grid>.leaderboard", MEDIUM)).toMatchObject({
-			"grid-column": "2",
-			"grid-row": "1/-1",
-		});
+		// The leaderboard, or Rank by with the place card and the ranking, gets
+		// a column of its own beside the other team cards.
+		for (const column of [
+			".team-grid>.leaderboard",
+			".team-grid>.team-ranking",
+		]) {
+			expect(declsOf(column, MEDIUM)).toMatchObject({
+				"grid-column": "2",
+				"grid-row": "1/-1",
+			});
+		}
 		expect(declsOf(".settings-grid", MEDIUM).columns).toBe("2");
 		expect(declsOf(".settings-group")["break-inside"]).toBe("avoid");
 		// Both labels of an event button share one cell, so hovering never

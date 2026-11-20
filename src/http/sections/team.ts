@@ -845,8 +845,9 @@ export function handleTeam(
 							),
 						)
 					: waiting(renderTeamChart(i18n, kind, totals));
-			// "Rank by" sits above everything it changes: the place card and the
-			// leaderboard (on wide screens at the top of the left column).
+			// "Rank by" changes only the place card and the leaderboard, so it
+			// sits right above them; the peloton and the chart, which it doesn't
+			// change, come first. On wide screens the three take the right column.
 			const rankBy = rides ? renderRankBy(i18n, view) : null;
 			const pelotonCard =
 				rows.length > 0 ? waiting(renderPeloton(i18n, kind, rows)) : null;
@@ -868,7 +869,7 @@ export function handleTeam(
 					ranking.rows,
 					ranking.team,
 				);
-				return html`${head}<div class="team-grid">${rankBy}${place}${pelotonCard}${chart}${list}</div>`;
+				return html`${head}<div class="team-grid">${pelotonCard}${chart}${rankingGroup(rankBy, place, list)}</div>`;
 			}
 			const leaderboard = renderLeaderboard(
 				i18n,
@@ -881,7 +882,7 @@ export function handleTeam(
 				// place and the rows wait under the note too.
 				waiting,
 			);
-			return html`${head}<div class="team-grid">${rankBy}${viewer ? waiting(renderPlace(i18n, viewer)) : null}${pelotonCard}${chart}${leaderboard}</div>`;
+			return html`${head}<div class="team-grid">${pelotonCard}${chart}${rankingGroup(rankBy, viewer ? waiting(renderPlace(i18n, viewer)) : null, leaderboard)}</div>`;
 		},
 	);
 }
@@ -911,7 +912,19 @@ async function singleView(
 		riders.find((r) => r.athleteId === rider.athleteId),
 	);
 	const weeks = teamWeeksKm(riders, ends);
-	return html`${renderReconnect(i18n, rider)}${renderRideTeamTotal(i18n, teamRideTotals(riders, season), weeks, ctx.team.name)}<div class="team-grid">${renderRankBy(i18n, view)}${renderRidePlaceCard(i18n, view, ranking)}${renderKmChart(i18n, weeks)}${renderRideLeaderboard(i18n, view, figure, ranking.rows, ranking.team)}</div>`;
+	return html`${renderReconnect(i18n, rider)}${renderRideTeamTotal(i18n, teamRideTotals(riders, season), weeks, ctx.team.name)}<div class="team-grid">${renderKmChart(i18n, weeks)}${rankingGroup(renderRankBy(i18n, view), renderRidePlaceCard(i18n, view, ranking), renderRideLeaderboard(i18n, view, figure, ranking.rows, ranking.team))}</div>`;
+}
+
+/**
+ * "Rank by", the place card and the ranking together, the control on top
+ * (on wide screens the right column of `.team-grid`).
+ */
+function rankingGroup(
+	rankBy: SafeHtml | null,
+	place: SafeHtml | null,
+	list: SafeHtml,
+): SafeHtml {
+	return html`<div class="team-ranking">${rankBy}${place}${list}</div>`;
 }
 
 /**
