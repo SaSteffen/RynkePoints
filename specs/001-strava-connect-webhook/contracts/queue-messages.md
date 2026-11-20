@@ -21,9 +21,10 @@ scheduled step, and Rynke storage in the activity handlers: see
 ## Common consumer rules
 
 1. **Rider check.** Load the rider by `athleteId`. If missing, ack and drop. If
-   `needs_reconnect`, ack and drop everything except `delete-rider` and
-   `activity-event` with aspect `delete`: deletions need no Strava, so a ride
-   deleted meanwhile stops counting at once.
+   `needs_reconnect`, ack and drop everything except `delete-rider`,
+   `evaluate-rider` and `activity-event` with aspect `delete`: these need no
+   Strava, so a ride deleted meanwhile stops counting at once, and the season
+   start's clean-up reaches the rider's summary.
 2. **Budget deferral.** Before each Strava call, check the rate budget. If it is
    exhausted, or Strava answers `429`, re-send the same body with
    `delaySeconds = min(until the next window or UTC midnight, 43200)` and ack the
