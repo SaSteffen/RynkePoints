@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { hamburg } from "../../src/teams/hamburg";
@@ -177,7 +178,7 @@ describe("GET /me Overview", () => {
 			'action="/lang"',
 			'id="install"',
 			`<h2>${escapeHtml(de["rynke.rules.heading"])}</h2>`,
-			`href="${hamburg.rulesHandout.path}"`,
+			`href="${artUrl(hamburg.rulesHandout.path)}"`,
 		]) {
 			expect(page).not.toContain(absent);
 		}

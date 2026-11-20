@@ -7,6 +7,7 @@ import { FIXABLE_REASONS } from "../rynke/rides";
 import { dayNumber } from "../rynke/weeks";
 import { STRAVA_ORIGIN } from "../strava/result";
 import type { CoinArt, RulesHandout } from "../teams/types";
+import { artUrl } from "./art";
 import { coinArt, flippingCoin, miniCoin } from "./coin";
 import { html, type SafeHtml } from "./html";
 import {
@@ -427,7 +428,7 @@ ${
 		virtual: wholeKm(i18n, rules.distanceMinKm.virtual),
 	})}</p>
 `
-}<p><a class="tap" href="${handout.path}">${i18n.t(HANDOUT_LABEL[handout.locale])}</a></p>`;
+}<p><a class="tap" href="${artUrl(handout.path)}">${i18n.t(HANDOUT_LABEL[handout.locale])}</a></p>`;
 }
 
 /**

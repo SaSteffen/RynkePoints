@@ -2,7 +2,7 @@
 title: "Rynke Points"
 subtitle: "How to collect your Rynke for the Tour de Paris"
 author: "Team Rynkeby Europe"
-date: "As of November 2026"
+date: "Rules version 6, as of 20 November 2026"
 lang: en
 ---
 
@@ -16,7 +16,8 @@ and since rules version 5 (2026-11-19) the minimum for kilometre Rynke, 25 km
 outdoors and 1 km on virtual rides, and since rules version 6 (2026-11-20) an
 average of up to 50 km/h on virtual rides. It names the training season (1
 September to 31 August) and the qualification period (1 January to 30 June)
-apart. Keep the rest in step with Hamburg's. Render
+apart. The front matter names the rules version in effect: raise it with every new
+version in src/teams/europe.ts. Keep the rest in step with Hamburg's. Render
 it with `pnpm docs:pdf` and commit public/teams/europe/rynke-points.pdf: the app
 links riders to that PDF.
 -->
