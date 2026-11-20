@@ -503,7 +503,7 @@ export const nb: Catalog = {
 	"team.kind.team": "Team",
 	"team.place": "Plass {place} av {count} ryttere 🚴",
 	"team.place.next": "{n} Rynke til neste plass",
-	"team.place.lead": "Du leder feltet. Ta med deg de andre!",
+	"team.place.lead": "Du ligger fremst. Ta med deg de andre!",
 	"team.peloton.heading": "Feltet 🚴",
 	"team.peloton.hint": "Hver mynt er en rytter. Fronten sykler til høyre.",
 	"team.peloton.back": "Bakerst i feltet",

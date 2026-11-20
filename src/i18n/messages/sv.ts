@@ -501,7 +501,7 @@ export const sv: Catalog = {
 	"team.kind.team": "Team",
 	"team.place": "Plats {place} av {count} cyklister 🚴",
 	"team.place.next": "{n} Rynke till nästa plats",
-	"team.place.lead": "Du leder klungan. Ta med dig de andra!",
+	"team.place.lead": "Du ligger först. Ta med dig de andra!",
 	"team.peloton.heading": "Klungan 🚴",
 	"team.peloton.hint": "Varje mynt är en cyklist. Täten cyklar till höger.",
 	"team.peloton.back": "Längst bak",

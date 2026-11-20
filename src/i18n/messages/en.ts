@@ -505,7 +505,7 @@ export const en: Catalog = {
 	"team.kind.team": "Team",
 	"team.place": "Position {place} of {count} riders 🚴",
 	"team.place.next": "{n}\u00a0Rynke to pass the next place",
-	"team.place.lead": "You lead the peloton. Bring the others along!",
+	"team.place.lead": "You're out in front. Bring the others along!",
 	"team.peloton.heading": "The peloton 🚴",
 	"team.peloton.hint": "Every coin is a rider. The front rides on the right.",
 	"team.peloton.back": "Back of the bunch",

@@ -501,7 +501,7 @@ export const fi: Catalog = {
 	"team.kind.team": "Tiimi",
 	"team.place": "Sija {place}/{count} 🚴",
 	"team.place.next": "{n} Rynkeä seuraavaan sijaan",
-	"team.place.lead": "Johdat pelotonia. Ota muut mukaan!",
+	"team.place.lead": "Olet kärjessä. Ota muut mukaan!",
 	"team.peloton.heading": "Peloton 🚴",
 	"team.peloton.hint": "Jokainen kolikko on ajaja. Kärki ajaa oikealla.",
 	"team.peloton.back": "Joukon peränpää",
