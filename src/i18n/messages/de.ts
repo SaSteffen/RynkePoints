@@ -463,6 +463,8 @@ export const de = {
 	"organiser.error.rider_not_connected":
 		"Jemand ist ausgetreten oder muss sich erst neu verbinden.",
 	"organiser.error.outside_season": "Das Datum liegt außerhalb der Saison.",
+	"organiser.error.outside_window":
+		"Das Datum liegt außerhalb des Qualifikationszeitraums.",
 	"organiser.error.future_event":
 		"Die Teilnahme lässt sich erst eintragen, wenn der Termin war.",
 	"organiser.error.rider_not_listed":
@@ -512,7 +514,8 @@ export const de = {
 	"organiser.corrections.removeWarning":
 		"Das entfernt die Korrektur; die Rynke der Person passen sich an.",
 	"organiser.corrections.removeConfirm": "Ja, entfernen",
-	"organiser.corrections.outside": "Zählt nicht: Datum außerhalb der Saison",
+	"organiser.corrections.outside":
+		"Zählt nicht: Datum außerhalb des Qualifikationszeitraums",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
@@ -528,7 +531,7 @@ export const de = {
 	"team.kind.team": "Team",
 	"team.place": "Position {place} von {count} 🚴",
 	"team.place.next": "Noch {n}\u00a0Rynke bis zum nächsten Platz",
-	"team.place.lead": "Du führst das Peloton an. Nimm die anderen mit!",
+	"team.place.lead": "Du liegst vorn. Nimm die anderen mit!",
 	"team.peloton.heading": "Das Peloton 🚴",
 	"team.peloton.hint": "Jede Münze ist ein Rider. Rechts fährt die Spitze.",
 	"team.peloton.back": "Ende des Feldes",
@@ -847,9 +850,10 @@ export const de = {
 	"badges.surprise.christmas.for":
 		"Du warst an den Weihnachtsfeiertagen unterwegs.",
 	"badges.surprise.night-owl": "Nachteule",
-	"badges.surprise.night-owl.for": "Du bist nach 21:30 Uhr losgefahren.",
+	"badges.surprise.night-owl.for":
+		"Du bist zwischen 21:30 und 3 Uhr losgefahren.",
 	"badges.surprise.early-bird": "Frühaufsteher",
-	"badges.surprise.early-bird.for": "Du bist vor 6 Uhr losgefahren.",
+	"badges.surprise.early-bird.for": "Du bist zwischen 3 und 6 Uhr losgefahren.",
 	"badges.surprise.rest-day": "Ruhetag",
 	"badges.surprise.rest-day.for":
 		"Eine Woche lang jeden Tag aktiv – und dann einen Tag Pause. Verdient!",

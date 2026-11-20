@@ -145,7 +145,7 @@ describe("Tour de Paris days", () => {
 			date: TOUR_DAY,
 			name: "",
 		});
-		expect(res.headers.get("Location")).toBe("/organiser?error=outside_season");
+		expect(res.headers.get("Location")).toBe("/organiser?error=outside_window");
 		expect(await eventIds("team_training")).toEqual([]);
 	});
 

@@ -437,6 +437,8 @@ export const nb: Catalog = {
 	"organiser.error.rider_not_connected":
 		"En rytter har sluttet eller må koble til på nytt først.",
 	"organiser.error.outside_season": "Datoen ligger utenfor sesongen.",
+	"organiser.error.outside_window":
+		"Datoen ligger utenfor kvalifiseringsperioden.",
 	"organiser.error.future_event":
 		"Deltakelse kan registreres når arrangementet har funnet sted.",
 	"organiser.error.rider_not_listed":
@@ -486,7 +488,8 @@ export const nb: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Dette fjerner korrigeringen; rytterens Rynke følger med.",
 	"organiser.corrections.removeConfirm": "Ja, fjern",
-	"organiser.corrections.outside": "Teller ikke: datert utenfor sesongen",
+	"organiser.corrections.outside":
+		"Teller ikke: datert utenfor kvalifiseringsperioden",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lag",
@@ -503,7 +506,7 @@ export const nb: Catalog = {
 	"team.kind.team": "Team",
 	"team.place": "Plass {place} av {count} ryttere 🚴",
 	"team.place.next": "{n} Rynke til neste plass",
-	"team.place.lead": "Du leder feltet. Ta med deg de andre!",
+	"team.place.lead": "Du ligger fremst. Ta med deg de andre!",
 	"team.peloton.heading": "Feltet 🚴",
 	"team.peloton.hint": "Hver mynt er en rytter. Fronten sykler til høyre.",
 	"team.peloton.back": "Bakerst i feltet",
@@ -812,9 +815,9 @@ export const nb: Catalog = {
 	"badges.surprise.christmas": "Jul",
 	"badges.surprise.christmas.for": "Du var ute i juledagene.",
 	"badges.surprise.night-owl": "Nattugle",
-	"badges.surprise.night-owl.for": "Du dro ut etter kl. 21.30.",
+	"badges.surprise.night-owl.for": "Du dro ut mellom kl. 21.30 og kl. 3.",
 	"badges.surprise.early-bird": "Morgenfugl",
-	"badges.surprise.early-bird.for": "Du dro ut før kl. 6.",
+	"badges.surprise.early-bird.for": "Du dro ut mellom kl. 3 og kl. 6.",
 	"badges.surprise.rest-day": "Hviledag",
 	"badges.surprise.rest-day.for":
 		"Aktiv hver dag i en uke – og så en fridag. Velfortjent!",

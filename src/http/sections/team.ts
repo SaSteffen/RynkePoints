@@ -828,11 +828,6 @@ export function handleTeam(
 				);
 				return html`${head}<div class="team-grid">${leaderboard}${renderTeamChart(i18n, kind, totals)}</div>`;
 			}
-			// Without the Training ranking (TRAINING_LEADERBOARD "off") only the
-			// peloton and the team chart stay: no place, no list.
-			if (!ranksTraining) {
-				return html`${head}<div class="team-grid">${rows.length > 0 ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}</div>`;
-			}
 			// One chart: before the window the team's km week by week from the
 			// season start, once it opens the Rynke chart.
 			const chart =
@@ -845,12 +840,17 @@ export function handleTeam(
 							),
 						)
 					: waiting(renderTeamChart(i18n, kind, totals));
+			const pelotonCard =
+				rows.length > 0 ? waiting(renderPeloton(i18n, kind, rows)) : null;
+			// Without the Training ranking (TRAINING_LEADERBOARD "off") only the
+			// peloton and the team chart stay: no place, no list.
+			if (!ranksTraining) {
+				return html`${head}<div class="team-grid">${pelotonCard}${chart}</div>`;
+			}
 			// "Rank by" changes only the place card and the leaderboard, so it
 			// sits right above them; the peloton and the chart, which it doesn't
 			// change, come first. On wide screens the three take the right column.
 			const rankBy = rides ? renderRankBy(i18n, view) : null;
-			const pelotonCard =
-				rows.length > 0 ? waiting(renderPeloton(i18n, kind, rows)) : null;
 			// A ride figure: only the place card and the leaderboard follow it
 			// (032 contracts/pages.md).
 			if (figure) {

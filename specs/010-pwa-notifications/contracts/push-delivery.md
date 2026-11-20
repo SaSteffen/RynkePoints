@@ -103,8 +103,9 @@ Content-Length: 0
 
 The text is `/me/notification-text` when it answers `200` (issue #45), else the
 cached `/notification-text`, else the server's, else the title alone. The icons
-always come from `/notification-text` (cached, else the server's): they are the
-team's, and without that text the device shows none.
+come from `/notification-text` (cached, else the server's): they are the team's.
+Without that text the device shows the icons every team shares, the coin head
+and the notification badge.
 
 ```js
 showNotification(text.title, {

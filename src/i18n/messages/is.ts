@@ -437,6 +437,8 @@ export const is: Catalog = {
 	"organiser.error.rider_not_connected":
 		"Hjólreiðamaður er hættur eða þarf fyrst að tengjast aftur.",
 	"organiser.error.outside_season": "Dagsetningin er utan tímabilsins.",
+	"organiser.error.outside_window":
+		"Dagsetningin er utan tímabilsins til að komast áfram.",
 	"organiser.error.future_event":
 		"Mætingu má skrá þegar viðburðurinn hefur farið fram.",
 	"organiser.error.rider_not_listed":
@@ -487,7 +489,7 @@ export const is: Catalog = {
 		"Þetta fjarlægir leiðréttinguna; Rynke hjólreiðamannsins fylgja með.",
 	"organiser.corrections.removeConfirm": "Já, fjarlægja",
 	"organiser.corrections.outside":
-		"Telst ekki með: dagsetning utan tímabilsins",
+		"Telst ekki með: dagsetning utan tímabilsins til að komast áfram",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lið",
@@ -504,7 +506,7 @@ export const is: Catalog = {
 	"team.kind.team": "Liðs",
 	"team.place": "Sæti {place} af {count} 🚴",
 	"team.place.next": "{n} Rynke í næsta sæti",
-	"team.place.lead": "Þú leiðir hópinn. Taktu hina með!",
+	"team.place.lead": "Þú ert í forystu. Taktu hina með!",
 	"team.peloton.heading": "Hópurinn 🚴",
 	"team.peloton.hint":
 		"Hver peningur er hjólreiðamaður. Fremstir hjóla til hægri.",
@@ -821,9 +823,9 @@ export const is: Catalog = {
 	"badges.surprise.christmas": "Jól",
 	"badges.surprise.christmas.for": "Þú varst úti yfir jólin.",
 	"badges.surprise.night-owl": "Nátthrafn",
-	"badges.surprise.night-owl.for": "Þú lagðir af stað eftir kl. 21:30.",
+	"badges.surprise.night-owl.for": "Þú lagðir af stað á milli kl. 21:30 og 3.",
 	"badges.surprise.early-bird": "Morgunhani",
-	"badges.surprise.early-bird.for": "Þú lagðir af stað fyrir kl. 6.",
+	"badges.surprise.early-bird.for": "Þú lagðir af stað á milli kl. 3 og 6.",
 	"badges.surprise.rest-day": "Hvíldardagur",
 	"badges.surprise.rest-day.for":
 		"Virk/ur alla daga í viku – og svo frídagur. Vel verðskuldað!",

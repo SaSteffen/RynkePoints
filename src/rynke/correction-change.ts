@@ -63,7 +63,7 @@ export class CorrectionRefused extends Error {
 		| "invalid_amount"
 		| "invalid_reason"
 		| "invalid_date"
-		| "outside_season"
+		| "outside_window"
 		| "correction_missing"
 		| "rider_not_connected";
 
@@ -234,7 +234,7 @@ function validCorrection(
 		throw new CorrectionRefused("invalid_date");
 	}
 	if (!inCountingWindow(correction.date, window)) {
-		throw new CorrectionRefused("outside_season");
+		throw new CorrectionRefused("outside_window");
 	}
 	return { training, team, reason, date: correction.date };
 }

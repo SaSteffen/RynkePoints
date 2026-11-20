@@ -436,6 +436,8 @@ export const sv: Catalog = {
 	"organiser.error.rider_not_connected":
 		"En cyklist har slutat eller måste ansluta igen först.",
 	"organiser.error.outside_season": "Datumet ligger utanför säsongen.",
+	"organiser.error.outside_window":
+		"Datumet ligger utanför kvalificeringsperioden.",
 	"organiser.error.future_event":
 		"Närvaro kan registreras när aktiviteten har ägt rum.",
 	"organiser.error.rider_not_listed":
@@ -484,7 +486,8 @@ export const sv: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Det tar bort korrigeringen; cyklistens Rynke följer med.",
 	"organiser.corrections.removeConfirm": "Ja, ta bort",
-	"organiser.corrections.outside": "Räknas inte: daterad utanför säsongen",
+	"organiser.corrections.outside":
+		"Räknas inte: daterad utanför kvalificeringsperioden",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lag",
@@ -501,7 +504,7 @@ export const sv: Catalog = {
 	"team.kind.team": "Team",
 	"team.place": "Plats {place} av {count} cyklister 🚴",
 	"team.place.next": "{n} Rynke till nästa plats",
-	"team.place.lead": "Du leder klungan. Ta med dig de andra!",
+	"team.place.lead": "Du ligger först. Ta med dig de andra!",
 	"team.peloton.heading": "Klungan 🚴",
 	"team.peloton.hint": "Varje mynt är en cyklist. Täten cyklar till höger.",
 	"team.peloton.back": "Längst bak",
@@ -812,9 +815,10 @@ export const sv: Catalog = {
 	"badges.surprise.christmas": "Jul",
 	"badges.surprise.christmas.for": "Du var ute under juldagarna.",
 	"badges.surprise.night-owl": "Nattuggla",
-	"badges.surprise.night-owl.for": "Du gav dig iväg efter kl. 21.30.",
+	"badges.surprise.night-owl.for":
+		"Du gav dig iväg mellan kl. 21.30 och kl. 3.",
 	"badges.surprise.early-bird": "Morgonpigg",
-	"badges.surprise.early-bird.for": "Du gav dig iväg före kl. 6.",
+	"badges.surprise.early-bird.for": "Du gav dig iväg mellan kl. 3 och kl. 6.",
 	"badges.surprise.rest-day": "Vilodag",
 	"badges.surprise.rest-day.for":
 		"Aktiv varje dag i en vecka – och sedan en ledig dag. Välförtjänt!",

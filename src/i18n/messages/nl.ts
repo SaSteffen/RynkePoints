@@ -444,6 +444,8 @@ export const nl: Catalog = {
 	"organiser.error.rider_not_connected":
 		"Een renner is gestopt of moet eerst opnieuw verbinden.",
 	"organiser.error.outside_season": "De datum valt buiten het seizoen.",
+	"organiser.error.outside_window":
+		"De datum valt buiten de kwalificatieperiode.",
 	"organiser.error.future_event":
 		"Aanwezigheid kan worden geregistreerd zodra het evenement heeft plaatsgevonden.",
 	"organiser.error.rider_not_listed":
@@ -492,7 +494,8 @@ export const nl: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Dit verwijdert de correctie; de Rynke van de renner passen zich aan.",
 	"organiser.corrections.removeConfirm": "Ja, verwijderen",
-	"organiser.corrections.outside": "Telt niet mee: datum buiten het seizoen",
+	"organiser.corrections.outside":
+		"Telt niet mee: datum buiten de kwalificatieperiode",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
@@ -509,7 +512,7 @@ export const nl: Catalog = {
 	"team.kind.team": "Team",
 	"team.place": "Plaats {place} van {count} renners 🚴",
 	"team.place.next": "{n} Rynke om de volgende plaats in te halen",
-	"team.place.lead": "Jij leidt het peloton. Neem de anderen mee!",
+	"team.place.lead": "Jij ligt voorop. Neem de anderen mee!",
 	"team.peloton.heading": "Het peloton 🚴",
 	"team.peloton.hint": "Elke munt is een renner. De kop rijdt rechts.",
 	"team.peloton.back": "Achteraan in het peloton",
@@ -825,9 +828,10 @@ export const nl: Catalog = {
 	"badges.surprise.christmas": "Kerst",
 	"badges.surprise.christmas.for": "Je was in de kerstdagen onderweg.",
 	"badges.surprise.night-owl": "Nachtuil",
-	"badges.surprise.night-owl.for": "Je vertrok na 21.30 uur.",
+	"badges.surprise.night-owl.for":
+		"Je vertrok tussen 21.30 uur en 3 uur 's nachts.",
 	"badges.surprise.early-bird": "Vroege vogel",
-	"badges.surprise.early-bird.for": "Je vertrok voor 6 uur 's ochtends.",
+	"badges.surprise.early-bird.for": "Je vertrok tussen 3 en 6 uur 's ochtends.",
 	"badges.surprise.rest-day": "Rustdag",
 	"badges.surprise.rest-day.for":
 		"Een week lang elke dag actief – en dan een dag vrij. Dik verdiend!",

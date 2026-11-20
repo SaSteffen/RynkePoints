@@ -20,7 +20,11 @@ import {
 } from "../db/riders";
 import { listRidersNeedingEvaluation } from "../db/rynke";
 import { pruneUsageAlerts, pruneUsageHistory } from "../db/usage";
-import { countingWindow, currentRules } from "../rynke/rules";
+import {
+	type CountingWindow,
+	countingWindow,
+	currentRules,
+} from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
 import { settleWithdrawals } from "../strava/withdraw";
 import { daysBefore, historyStart, utcDay } from "../usage/allowances";
@@ -34,6 +38,8 @@ const GIVE_UP_AFTER_SECONDS = 7 * 24 * 3600;
 const RECONNECT_GRACE_SECONDS = 7 * 24 * 3600;
 /** Long enough for the purge's deletion to land first (review L-11). */
 const PURGE_EVALUATION_DELAY_SECONDS = 60;
+/** The longest the deadline record waits for evaluations, in days. */
+const DEADLINE_WAIT_DAYS = GIVE_UP_AFTER_SECONDS / (24 * 3600);
 
 /**
  * The hourly cron in `wrangler.jsonc`: usage (feature 025 research R2), then
@@ -154,18 +160,39 @@ export async function purgePreSeasonActivities(ctx: Ctx): Promise<void> {
 /**
  * Once the qualification deadline has passed, keeps each listed rider's result
  * as it stands, for the organisers (review L-12): the first run after the
- * deadline takes it, a later one changes nothing. Results of another deadline,
- * last season's, are deleted. They go with the rider.
+ * deadline that finds every rider evaluated takes it, a later one changes
+ * nothing. Results of another deadline, last season's, are deleted. They go
+ * with the rider.
  */
 export async function recordDeadlineResults(ctx: Ctx): Promise<void> {
-	const { deadline } = countingWindow(ctx.env);
+	const window = countingWindow(ctx.env);
+	const today = berlinDate(ctx.now());
+	const ready =
+		today > window.deadline && !(await awaitingEvaluation(ctx, window, today));
 	await ctx.env.DB.batch(
-		recordDeadlineResultsStatements(
-			ctx.env.DB,
-			deadline,
-			berlinDate(ctx.now()) > deadline,
-		),
+		recordDeadlineResultsStatements(ctx.env.DB, window.deadline, ready),
 	);
+}
+
+/**
+ * Whether the deadline record should wait for the evaluations this run has
+ * just queued: a stored result may still be stale. It waits at most a week, as
+ * long as failed work is retried, so an evaluation that keeps failing can't
+ * hold it back for good.
+ */
+async function awaitingEvaluation(
+	ctx: Ctx,
+	window: CountingWindow,
+	today: string,
+): Promise<boolean> {
+	if (daysBefore(today, DEADLINE_WAIT_DAYS) > window.deadline) return false;
+	const ids = await listRidersNeedingEvaluation(
+		ctx.env.DB,
+		currentRules(ctx.team.rules).version,
+		window,
+		BADGE_CATALOG_VERSION,
+	);
+	return ids.length > 0;
 }
 
 /**

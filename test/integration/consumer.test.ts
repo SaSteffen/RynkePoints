@@ -91,11 +91,15 @@ describe("processBatch", () => {
 		expect(queueResult.explicitAcks).toEqual(["m1"]);
 	});
 
-	it("drops everything but deletions for a needs_reconnect rider", async () => {
+	it("drops everything but deletions and evaluations for a needs_reconnect rider", async () => {
 		await seedRider(makeCtx(), { status: "needs_reconnect" });
 		const dropped = await run(CHECK, { kind: "ok" });
 		expect(dropped.handler).not.toHaveBeenCalled();
 		expect(dropped.queueResult.explicitAcks).toEqual(["m1"]);
+
+		const evaluated = await run(EVALUATE, { kind: "ok" });
+		expect(evaluated.handler).toHaveBeenCalledOnce();
+		expect(evaluated.queueResult.explicitAcks).toEqual(["m1"]);
 
 		const update = { ...REMOVED, aspect: "update" };
 		const notRemoved = await run(update, { kind: "ok" });

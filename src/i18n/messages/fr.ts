@@ -458,6 +458,8 @@ export const fr: Catalog = {
 	"organiser.error.rider_not_connected":
 		"Un·e cycliste est parti·e ou doit d'abord se reconnecter.",
 	"organiser.error.outside_season": "La date est en dehors de la saison.",
+	"organiser.error.outside_window":
+		"La date est en dehors de la période de qualification.",
 	"organiser.error.future_event":
 		"La présence peut être enregistrée une fois l'événement passé.",
 	"organiser.error.rider_not_listed":
@@ -508,7 +510,7 @@ export const fr: Catalog = {
 		"Cela retire la correction\u00a0; les Rynke du ou de la cycliste suivent.",
 	"organiser.corrections.removeConfirm": "Oui, retirer",
 	"organiser.corrections.outside":
-		"Ne compte pas : date en dehors de la saison",
+		"Ne compte pas : date en dehors de la période de qualification",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Équipe",
@@ -525,7 +527,7 @@ export const fr: Catalog = {
 	"team.kind.team": "Équipe",
 	"team.place": "Place {place} sur {count} 🚴",
 	"team.place.next": "{n} Rynke pour la place suivante",
-	"team.place.lead": "Tu mènes le peloton. Emmène les autres\u00a0!",
+	"team.place.lead": "Tu es en tête. Emmène les autres\u00a0!",
 	"team.peloton.heading": "Le peloton 🚴",
 	"team.peloton.hint":
 		"Chaque pièce est un·e cycliste. La tête roule à droite.",
@@ -860,9 +862,9 @@ export const fr: Catalog = {
 	"badges.surprise.christmas": "Noël",
 	"badges.surprise.christmas.for": "Tu es sorti·e pendant les fêtes de Noël.",
 	"badges.surprise.night-owl": "Oiseau de nuit",
-	"badges.surprise.night-owl.for": "Tu es parti·e après 21 h 30.",
+	"badges.surprise.night-owl.for": "Tu es parti·e entre 21 h 30 et 3 h.",
 	"badges.surprise.early-bird": "Lève-tôt",
-	"badges.surprise.early-bird.for": "Tu es parti·e avant 6 h.",
+	"badges.surprise.early-bird.for": "Tu es parti·e entre 3 h et 6 h.",
 	"badges.surprise.rest-day": "Jour de repos",
 	"badges.surprise.rest-day.for":
 		"Actif ou active chaque jour pendant une semaine – puis un jour de repos. Bien mérité\u00a0!",

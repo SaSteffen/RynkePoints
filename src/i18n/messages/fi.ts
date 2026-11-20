@@ -436,6 +436,8 @@ export const fi: Catalog = {
 	"organiser.error.rider_not_connected":
 		"Joku ajaja on lopettanut tai hänen on ensin yhdistettävä uudelleen.",
 	"organiser.error.outside_season": "Päivämäärä on kauden ulkopuolella.",
+	"organiser.error.outside_window":
+		"Päivämäärä on karsintajakson ulkopuolella.",
 	"organiser.error.future_event":
 		"Osallistumisen voi kirjata, kun tapahtuma on pidetty.",
 	"organiser.error.rider_not_listed":
@@ -484,7 +486,8 @@ export const fi: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Tämä poistaa korjauksen; ajajan Rynket muuttuvat sen mukaan.",
 	"organiser.corrections.removeConfirm": "Kyllä, poista",
-	"organiser.corrections.outside": "Ei lasketa: päivämäärä kauden ulkopuolella",
+	"organiser.corrections.outside":
+		"Ei lasketa: päivämäärä karsintajakson ulkopuolella",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Tiimi",
@@ -501,7 +504,7 @@ export const fi: Catalog = {
 	"team.kind.team": "Tiimi",
 	"team.place": "Sija {place}/{count} 🚴",
 	"team.place.next": "{n} Rynkeä seuraavaan sijaan",
-	"team.place.lead": "Johdat pelotonia. Ota muut mukaan!",
+	"team.place.lead": "Olet kärjessä. Ota muut mukaan!",
 	"team.peloton.heading": "Peloton 🚴",
 	"team.peloton.hint": "Jokainen kolikko on ajaja. Kärki ajaa oikealla.",
 	"team.peloton.back": "Joukon peränpää",
@@ -817,9 +820,9 @@ export const fi: Catalog = {
 	"badges.surprise.christmas": "Joulu",
 	"badges.surprise.christmas.for": "Olit liikkeellä joulupyhinä.",
 	"badges.surprise.night-owl": "Yökyöpeli",
-	"badges.surprise.night-owl.for": "Lähdit liikkeelle klo 21.30 jälkeen.",
+	"badges.surprise.night-owl.for": "Lähdit liikkeelle klo 21.30 ja 3 välillä.",
 	"badges.surprise.early-bird": "Aamuvirkku",
-	"badges.surprise.early-bird.for": "Lähdit liikkeelle ennen klo 6.",
+	"badges.surprise.early-bird.for": "Lähdit liikkeelle klo 3 ja 6 välillä.",
 	"badges.surprise.rest-day": "Lepopäivä",
 	"badges.surprise.rest-day.for":
 		"Aktiivinen joka päivä viikon ajan – ja sitten vapaapäivä. Ansaittu!",

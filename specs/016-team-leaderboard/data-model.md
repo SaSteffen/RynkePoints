@@ -131,7 +131,9 @@ One row per listed rider, kept for the organisers (FR-036).
 
 The daily run's step `recordDeadlineResults` first deletes rows of any other deadline, then,
 once Berlin's day is after the deadline and no row has this deadline yet, inserts one row for
-each listed rider (`listedRiderFilter`, guests left out). `readTeam` reads a rider's row with
+each listed rider (`listedRiderFilter`, guests left out), a rider who must reconnect that day
+included. While a rider still needs evaluation (`listRidersNeedingEvaluation`), it waits for
+the next day, at most until a week after the deadline. `readTeam` reads a rider's row with
 the balance; the overview uses it only where `deadline` is the window's. No consent version
 changes: the organisers already see these figures, and the privacy notice names that they are
 kept. `RiderData` `deadlineResult`: organisers only (004).

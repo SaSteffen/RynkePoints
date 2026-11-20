@@ -4,7 +4,7 @@ import {
 	env,
 	getQueueResult,
 } from "cloudflare:test";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getRider } from "../../src/db/riders";
 import { storeWork } from "../../src/db/strava-work";
 import { evaluateChange } from "../../src/rynke/apply";
@@ -251,13 +251,67 @@ describe("a check that is made", () => {
 				start_date: "2026-10-01T07:30:00Z",
 				start_date_local: "2026-10-01T09:30:00Z",
 			}),
+		);
+		for (let id = 100; id < 300; id++) {
+			fake.addActivity(ATHLETE_A, makeStravaActivity({ id }));
+		}
+		fake.activities.delete(8);
+		await process();
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id = 8",
+			),
+		).toBe(1);
+	});
+
+	it("removes an older one too when the list is shorter than 200: it holds every activity", async () => {
+		await stored(
+			makeStravaActivity({
+				id: 8,
+				start_date: "2026-10-01T07:30:00Z",
+				start_date_local: "2026-10-01T09:30:00Z",
+			}),
 			makeStravaActivity({ id: 9 }),
 		);
 		fake.activities.delete(8);
 		await process();
 		expect(
 			await count(
-				"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id = 8",
+				"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id IN (8, 9)",
+			),
+		).toBe(1);
+		expect(await result(9)).toMatchObject({ counts: 1 });
+	});
+
+	it("keeps an activity stored while the list was fetched", async () => {
+		await stored(
+			makeStravaActivity({ id: 3, start_date: "2026-10-03T07:30:00Z" }),
+		);
+		// Uploaded after Strava answered, stored by the drain before the check
+		// reads what is stored: newer than the oldest listed, but not listed.
+		const late = makeStravaActivity({ id: 5 });
+		const spy = vi.mocked(globalThis.fetch);
+		const strava = spy.getMockImplementation();
+		if (!strava) throw new Error("no fake Strava");
+		spy.mockImplementation(async (input, init) => {
+			const response = await strava(input, init);
+			if (
+				new URL(new Request(input, init).url).pathname.endsWith(
+					"/athlete/activities",
+				)
+			) {
+				await evaluateChange(ctx, ATHLETE_A, {
+					kind: "upsert",
+					records: [toActivityRecord(late, ATHLETE_A, NOW) ?? []].flat(),
+					runs: [],
+				});
+			}
+			return response;
+		});
+		await process();
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id = 5",
 			),
 		).toBe(1);
 	});

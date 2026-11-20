@@ -21,7 +21,7 @@ refetches the ride for its name, and the Rynke stay the same.
 
 | Step | Behaviour |
 |---|---|
-| Rider check | Common rule 1: missing or `needs_reconnect` riders are dropped. |
+| Rider check | Common rule 1: missing riders are dropped. A `needs_reconnect` rider is evaluated too: it needs no Strava. |
 | Work | `applyAndEvaluate` with `{ kind: "none" }` under `CURRENT_RULES`. No Strava request, no budget check. |
 | Result | `ok`; a D1 failure is transient (common rule 3). |
 | Idempotency | Running it any number of times leaves the same rows; the second run writes nothing. |

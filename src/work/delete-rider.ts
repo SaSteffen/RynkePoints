@@ -1,4 +1,4 @@
-import { deleteRider as deleteRiderRows } from "../db/riders";
+import { deleteRider as deleteRiderRows, getCredentials } from "../db/riders";
 import { getAccessToken } from "../strava/tokens";
 import { withdrawStoredGrant } from "../strava/withdraw";
 import type { Handler } from "./consumer";
@@ -19,6 +19,7 @@ export const deleteRider: Handler<DeleteRiderMessage> = async (
 		// Strava signs no event, so one refresh asks Strava: a grant it still
 		// renews was never withdrawn, and the event wasn't Strava's (review
 		// L-05). Like a revocation, it doesn't wait behind a backlog.
+		const before = await getCredentials(ctx.env, rider.athleteId);
 		const grant = await getAccessToken(ctx, rider.athleteId, {
 			force: true,
 			priority: "interactive",
@@ -32,6 +33,15 @@ export const deleteRider: Handler<DeleteRiderMessage> = async (
 		if (grant.kind !== "refresh-refused") {
 			// Retried; the last attempt deletes anyway (Principle I).
 			return { kind: "transient", reason: `grant check: ${grant.kind}` };
+		}
+		// Strava also refuses a refresh token another refresh has just renewed
+		// (a drain item, a recheck): then the grant is alive after all.
+		const after = await getCredentials(ctx.env, rider.athleteId);
+		if (after && after.refreshToken !== before?.refreshToken) {
+			console.warn(
+				`Deauthorization for athlete ${rider.athleteId} ignored: the grant was renewed meanwhile`,
+			);
+			return { kind: "ok" };
 		}
 	}
 	if (message.revoke) {

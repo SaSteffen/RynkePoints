@@ -131,7 +131,7 @@ describe("POST /organiser/events", () => {
 	});
 
 	it.each([
-		["before the season start", "2025-12-31", "outside_season"],
+		["before the window", "2025-12-31", "outside_window"],
 		["not a date", "2026-02-30", "invalid_date"],
 	])("refuses a date %s", async (_name, date, code) => {
 		const res = await post("/organiser/events", {
@@ -179,7 +179,7 @@ describe("POST /organiser/events/{id}", () => {
 		expect(item).toContain(escapeHtml(de["rynke.source.technique_training"]));
 	});
 
-	it("refuses a new date outside the season, nothing changes (FR-012)", async () => {
+	it("refuses a new date outside the window, nothing changes (FR-012)", async () => {
 		const id = await insertEvent("team_training", "2026-09-01");
 		const before = await events();
 		const res = await post(`/organiser/events/${id}`, {
@@ -187,7 +187,7 @@ describe("POST /organiser/events/{id}", () => {
 			date: "2025-06-01",
 			name: "",
 		});
-		expectRedirect(res, `/organiser/events/${id}?error=outside_season`);
+		expectRedirect(res, `/organiser/events/${id}?error=outside_window`);
 		expect(await events()).toEqual(before);
 	});
 

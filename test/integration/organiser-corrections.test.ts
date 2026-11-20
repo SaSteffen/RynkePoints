@@ -174,9 +174,9 @@ describe("POST /organiser/riders/{id}/corrections", () => {
 		["a 201-character reason", { reason: "x".repeat(201) }, "invalid_reason"],
 		["a bad date", { date: "2026-02-30" }, "invalid_date"],
 		// Review L-02: only the qualification window counts, as for events.
-		["a date before the window", { date: "2025-12-31" }, "outside_season"],
-		["a date after the deadline", { date: "2027-07-01" }, "outside_season"],
-		["a date in an earlier year", { date: "2020-01-01" }, "outside_season"],
+		["a date before the window", { date: "2025-12-31" }, "outside_window"],
+		["a date after the deadline", { date: "2027-07-01" }, "outside_window"],
+		["a date in an earlier year", { date: "2020-01-01" }, "outside_window"],
 	] as [string, Record<string, string>, string][])(
 		"refuses %s, nothing written",
 		async (_name, fields, code) => {

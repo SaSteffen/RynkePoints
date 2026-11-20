@@ -439,6 +439,8 @@ export const en: Catalog = {
 	"organiser.error.rider_not_connected":
 		"A rider has left or must reconnect first.",
 	"organiser.error.outside_season": "The date is outside the season.",
+	"organiser.error.outside_window":
+		"The date is outside the qualifying period.",
 	"organiser.error.future_event":
 		"Attendance can be recorded once the event has taken place.",
 	"organiser.error.rider_not_listed":
@@ -488,7 +490,8 @@ export const en: Catalog = {
 	"organiser.corrections.removeWarning":
 		"This removes the correction; the rider's Rynke follow.",
 	"organiser.corrections.removeConfirm": "Yes, remove",
-	"organiser.corrections.outside": "Doesn't count: dated outside the season",
+	"organiser.corrections.outside":
+		"Doesn't count: dated outside the qualifying period",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
@@ -505,7 +508,7 @@ export const en: Catalog = {
 	"team.kind.team": "Team",
 	"team.place": "Position {place} of {count} riders 🚴",
 	"team.place.next": "{n}\u00a0Rynke to pass the next place",
-	"team.place.lead": "You lead the peloton. Bring the others along!",
+	"team.place.lead": "You're out in front. Bring the others along!",
 	"team.peloton.heading": "The peloton 🚴",
 	"team.peloton.hint": "Every coin is a rider. The front rides on the right.",
 	"team.peloton.back": "Back of the bunch",
@@ -816,9 +819,9 @@ export const en: Catalog = {
 	"badges.surprise.christmas": "Christmas",
 	"badges.surprise.christmas.for": "You were out over the Christmas holidays.",
 	"badges.surprise.night-owl": "Night owl",
-	"badges.surprise.night-owl.for": "You set off after 9:30 pm.",
+	"badges.surprise.night-owl.for": "You set off between 9:30 pm and 3 am.",
 	"badges.surprise.early-bird": "Early bird",
-	"badges.surprise.early-bird.for": "You set off before 6 am.",
+	"badges.surprise.early-bird.for": "You set off between 3 and 6 am.",
 	"badges.surprise.rest-day": "Rest day",
 	"badges.surprise.rest-day.for":
 		"Active every day for a week – and then a day off. Well earned!",

@@ -198,7 +198,8 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 - A stored ride that is missing from the list but started after the list's oldest entry: gone from
   Strava without an event reaching the app (deleted, made private without the grant, changed to a
   sport type the app doesn't keep), so it is removed as a reported deletion would be (FR-006a). One
-  that started at or before the oldest entry is left alone: the list stops at 200. An empty list
+  that started at or before the oldest entry is left alone: the list stops at 200. A list of fewer
+  than 200 holds every activity, so then an older one missing from it is removed too. An empty list
   removes nothing.
 - A private ride of a rider who didn't grant access to private rides: ignored, as in the import.
 - Strava's list lacks a figure that the stored ride has: the stored figure stays. A missing figure
@@ -238,8 +239,9 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 - **FR-006**: A check MUST NOT blank a stored figure because the list lacks it.
 - **FR-006a**: A stored activity that started after the list's oldest entry and that the list
   doesn't hold, after the rules of FR-005, MUST be removed and the rider evaluated again, as for a
-  deletion Strava reports. A stored activity that started at or before that entry MUST stay; an
-  empty list removes nothing.
+  deletion Strava reports. A stored activity that started at or before that entry MUST stay,
+  unless the list holds fewer than 200 entries: then it holds every activity, and any stored one
+  it doesn't hold MUST be removed. An empty list removes nothing.
 - **FR-007**: A check that finds no difference MUST NOT write any ride, verdict, Rynke or badge
   again. The only thing it records is that the rider was checked.
 

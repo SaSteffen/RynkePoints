@@ -441,6 +441,8 @@ export const lt: Catalog = {
 	"organiser.error.rider_not_connected":
 		"Kažkuris dviratininkas išėjo arba pirmiausia turi prisijungti iš naujo.",
 	"organiser.error.outside_season": "Data yra už sezono ribų.",
+	"organiser.error.outside_window":
+		"Data yra už kvalifikacijos laikotarpio ribų.",
 	"organiser.error.future_event":
 		"Dalyvavimą galima pažymėti, kai renginys įvyks.",
 	"organiser.error.rider_not_listed":
@@ -490,7 +492,8 @@ export const lt: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Pataisymas bus pašalintas; dviratininko Rynke pasikeis atitinkamai.",
 	"organiser.corrections.removeConfirm": "Taip, pašalinti",
-	"organiser.corrections.outside": "Neskaičiuojama: data už sezono ribų",
+	"organiser.corrections.outside":
+		"Neskaičiuojama: data už kvalifikacijos laikotarpio ribų",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Komanda",
@@ -507,7 +510,7 @@ export const lt: Catalog = {
 	"team.kind.team": "Komandos",
 	"team.place": "Vieta {place} iš {count} 🚴",
 	"team.place.next": "{n} Rynke iki kitos vietos",
-	"team.place.lead": "Tu pirmauji pelotone. Patrauk kitus kartu!",
+	"team.place.lead": "Tu pirmauji. Patrauk kitus kartu!",
 	"team.peloton.heading": "Pelotonas 🚴",
 	"team.peloton.hint":
 		"Kiekviena moneta – dviratininkas. Priekis važiuoja dešinėje.",
@@ -842,9 +845,9 @@ export const lt: Catalog = {
 	"badges.surprise.christmas": "Kalėdos",
 	"badges.surprise.christmas.for": "Per Kalėdų šventes buvai lauke.",
 	"badges.surprise.night-owl": "Naktinė pelėda",
-	"badges.surprise.night-owl.for": "Išvažiavai po 21:30.",
+	"badges.surprise.night-owl.for": "Išvažiavai tarp 21:30 ir 3:00.",
 	"badges.surprise.early-bird": "Ankstyvas paukštis",
-	"badges.surprise.early-bird.for": "Išvažiavai prieš 6:00.",
+	"badges.surprise.early-bird.for": "Išvažiavai tarp 3:00 ir 6:00.",
 	"badges.surprise.rest-day": "Poilsio diena",
 	"badges.surprise.rest-day.for":
 		"Savaitę aktyvus kiekvieną dieną – o tada laisva diena. Užsitarnauta!",

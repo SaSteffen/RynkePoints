@@ -8831,7 +8831,7 @@ km
 Höhenmeter
 1
 Position 1 von 41 🚴
-Du führst das Peloton an. Nimm die anderen mit!
+Du liegst vorn. Nimm die anderen mit!
 Rangliste
 41 Rider
 Ohne Namen. Die Linie zeigt die Saison bisher.
@@ -10145,12 +10145,12 @@ erreicht am 05.10.2026
 Teilen
 [img /badges/surprise-night-owl.svg?v=76e9cfe103] Nachteule
 Nachteule
-Du bist nach 21:30 Uhr losgefahren.
+Du bist zwischen 21:30 und 3 Uhr losgefahren.
 erreicht am 27.09.2026
 Teilen
 [img /badges/surprise-early-bird.svg?v=bd9a3d58ef] Frühaufsteher
 Frühaufsteher
-Du bist vor 6 Uhr losgefahren.
+Du bist zwischen 3 und 6 Uhr losgefahren.
 erreicht am 01.01.2026
 Teilen
 [img /badges/surprise-new-year.svg?v=d19af33505] Neujahr

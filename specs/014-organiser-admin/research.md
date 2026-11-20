@@ -58,8 +58,9 @@ The spec has no open questions. These are the design decisions for Stories 1–3
 - **Decision**: the organiser handlers check two things before calling feature
   003:
   - The event date must satisfy `inCountingWindow(date, countingWindow(env,
-    CURRENT_RULES))`, otherwise the change is refused with `outside_season`
-    (FR-012). The check runs on create, and on update only when the date changes.
+    CURRENT_RULES))`, otherwise the change is refused with `outside_window`
+    (FR-012); a Tour de Paris day must lie in the season, otherwise
+    `outside_season` (feature 021 FR-003). The check runs on create, and on update only when the date changes.
   - Saving attendance for an event whose date is after `berlinDate(now)` is
     refused with `future_event` (FR-022).
 
@@ -127,7 +128,7 @@ The spec has no open questions. These are the design decisions for Stories 1–3
   - `invalid_amount`: not an integer, both 0, or `|n| > 10000`;
   - `invalid_reason`: 1–200 characters after trimming;
   - `invalid_date`: not a calendar date;
-  - `outside_season`: a date outside the qualification window, as for events
+  - `outside_window`: a date outside the qualification window, as for events
     (R5; review L-02);
   - `correction_missing`;
   - `rider_not_connected`.

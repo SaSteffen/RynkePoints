@@ -162,8 +162,8 @@ describe("badge catalog", () => {
 		expect(new Set(BADGES.map((b) => b.id)).size).toBe(132);
 	});
 
-	it("is at version 9 since run length's 15 km and Pi-Run steps", () => {
-		expect(BADGE_CATALOG_VERSION).toBe(9);
+	it("is at version 10 since the night owl's hours after midnight", () => {
+		expect(BADGE_CATALOG_VERSION).toBe(10);
 	});
 
 	it("puts the Tour de Paris after the winter months and before the surprises (021)", () => {

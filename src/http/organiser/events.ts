@@ -89,16 +89,19 @@ async function eventForm(request: Request) {
 }
 
 /**
- * Whether a valid `date` falls outside the season (R5) for an event of `kind`:
- * a tour day may lie after the deadline (feature 021 FR-003). An unknown kind
- * is 003's to refuse.
+ * The refusal of a valid `date` outside the days an event of `kind` may have
+ * (R5), `null` inside them: the qualification window, but for a tour day the
+ * season, after the deadline too (feature 021 FR-003). An unknown kind is
+ * 003's to refuse.
  */
-function outsideSeason(ctx: Ctx, kind: string, date: string): boolean {
-	return (
-		isCalendarDate(date) &&
-		isEventKind(kind) &&
-		!eventInWindow(kind, date, countingWindow(ctx.env))
-	);
+function outsideRefusal(
+	ctx: Ctx,
+	kind: string,
+	date: string,
+): "outside_season" | "outside_window" | null {
+	if (!isCalendarDate(date) || !isEventKind(kind)) return null;
+	if (eventInWindow(kind, date, countingWindow(ctx.env))) return null;
+	return kind === "tour_de_paris" ? "outside_season" : "outside_window";
 }
 
 /** The kind, date and name fields, filled with `event`. */
@@ -326,9 +329,8 @@ export async function handleCreateEvent(
 	const rider = await requireOrganiserPost(request, ctx, i18n, LIST);
 	if (rider instanceof Response) return rider;
 	const event = await eventForm(request);
-	if (outsideSeason(ctx, event.kind, event.date)) {
-		return redirectWith(LIST, "error", "outside_season");
-	}
+	const outside = outsideRefusal(ctx, event.kind, event.date);
+	if (outside) return redirectWith(LIST, "error", outside);
 	try {
 		const { eventId } = await teamEventChange(ctx, {
 			kind: "create-event",
@@ -360,12 +362,11 @@ export async function handleUpdateEvent(
 		eventId,
 	).first<TeamEventRecordRow>();
 	if (!stored) return redirectWith(LIST, "error", "event_missing");
-	if (
-		(event.date !== stored.event_date || event.kind !== stored.kind) &&
-		outsideSeason(ctx, event.kind, event.date)
-	) {
-		return redirectWith(path, "error", "outside_season");
-	}
+	const outside =
+		event.date !== stored.event_date || event.kind !== stored.kind
+			? outsideRefusal(ctx, event.kind, event.date)
+			: null;
+	if (outside) return redirectWith(path, "error", outside);
 	try {
 		await teamEventChange(ctx, {
 			kind: "update-event",

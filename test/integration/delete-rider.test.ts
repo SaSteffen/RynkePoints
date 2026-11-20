@@ -10,6 +10,7 @@ import { upsertFailedWork } from "../../src/db/failed-work";
 import { getRider } from "../../src/db/riders";
 import { handleFetch, handleQueue } from "../../src/index";
 import { toActivityRecord } from "../../src/strava/activity";
+import { getAccessToken } from "../../src/strava/tokens";
 import { MAX_ATTEMPTS } from "../../src/work/handler";
 import type { DeleteRiderMessage, WorkMessage } from "../../src/work/messages";
 import { approve } from "../support/callback";
@@ -174,6 +175,29 @@ describe("delete-rider", () => {
 			activities: 1,
 			push_subscriptions: 2,
 		});
+	});
+
+	it("keeps a rider whose token another refresh renewed first", async () => {
+		await seedEverything();
+		// A drain item's refresh wins the race: Strava then refuses the check's
+		// refresh with the token it has just replaced.
+		const spy = vi.mocked(globalThis.fetch);
+		const strava = spy.getMockImplementation();
+		if (!strava) throw new Error("no fake Strava");
+		let raced = false;
+		spy.mockImplementation(async (input, init) => {
+			const request = new Request(input, init);
+			if (!raced && new URL(request.url).pathname === "/oauth/token") {
+				raced = true;
+				const ok = await getAccessToken(ctx, ATHLETE_A, { force: true });
+				expect(ok.kind).toBe("ok");
+			}
+			return strava(request);
+		});
+		const { result } = await deliver(DEAUTHORIZED);
+		expect(result.explicitAcks).toEqual(["m1"]);
+		expect(fake.callsTo("token")).toHaveLength(2);
+		expect(await getRider(env.DB, ATHLETE_A)).not.toBeNull();
 	});
 
 	it("retries while Strava can't answer, and deletes on the last attempt", async () => {

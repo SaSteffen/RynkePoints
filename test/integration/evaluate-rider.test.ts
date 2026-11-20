@@ -110,15 +110,17 @@ describe("evaluate-rider", () => {
 		});
 	});
 
-	it("drops the message for a needs_reconnect rider", async () => {
+	it("evaluates a needs_reconnect rider too, still without Strava", async () => {
 		await seedRider(ctx, { status: "needs_reconnect" });
 		await seedRides();
 		const result = await deliver(MESSAGE);
 		expect(result.explicitAcks).toEqual(["m1"]);
+		expect(await resultRows()).toHaveLength(2);
 		expect(await tableCounts()).toMatchObject({
-			ride_results: 0,
-			rynke_balances: 0,
+			rynke_balances: 1,
+			rider_summaries: 1,
 		});
+		expect(fake.calls).toEqual([]);
 	});
 
 	it("retries when D1 fails", async () => {

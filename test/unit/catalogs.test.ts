@@ -323,6 +323,7 @@ const CONTRACT_IDS = [
 	"organiser.error.event_missing",
 	"organiser.error.rider_not_connected",
 	"organiser.error.outside_season",
+	"organiser.error.outside_window",
 	"organiser.error.future_event",
 	"organiser.error.rider_not_listed",
 	"organiser.error.invalid_amount",

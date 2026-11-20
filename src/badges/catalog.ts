@@ -92,8 +92,11 @@ export interface Badge {
  * FR-005). 7: the tour badges are personal (feature 021 FR-010).
  * 8: the Winterschlaf beendet surprise badge (feature 013 FR-018).
  * 9: run length's 15 km and Pi-Run (31.4 km) steps.
+ * 10: rides before the qualification window count; the night owl's night
+ * runs to 3:00, the early bird's morning from 3:00 to 6:00; the solstice badge
+ * follows the real solstice days.
  */
-export const BADGE_CATALOG_VERSION = 9;
+export const BADGE_CATALOG_VERSION = 10;
 
 /** In the spec's order: personal first, then team. */
 export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
