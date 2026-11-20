@@ -115,6 +115,7 @@ const COLOUR_BACK = palette([
 	{ name: "bark", hex: "#7a5a3c", fix: true },
 	{ name: "chocolate", hex: "#4a2c1e", fix: true },
 	{ name: "grape", hex: "#5b3f86", fix: true },
+	{ name: "tile", hex: "#8a3b26", fix: true },
 	{ name: "quay", hex: "#5e5c55" },
 	{ name: "red", hex: "#ce223a" },
 	{ name: "yellow", hex: "#fbe122" },
@@ -274,7 +275,7 @@ try {
 		const backText = lettering("back", `${upper} • PARIS`);
 		await compose(placed, back, {
 			wipe: [backBand()],
-			draw: overlay ? overlayImage(overlay) : "",
+			draw: [overlay ?? []].flat().map(overlayImage).join(""),
 		});
 		setTower(back, tower.ink, tower, shift);
 		setBadges(back, badges, ownBadges);

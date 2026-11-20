@@ -56,12 +56,14 @@ another (`box`, `from`, `to`: a tower's see-through inside, a badge's pink
 riders); and `overlay` draws an SVG of our own over Gemini's take before the
 areas vote, so a pattern gets exactly the colours we drew (München's diamonds,
 `reference/muenchen-ribbon-colour.svg`). The palette's `stone`, `bark`,
-`chocolate` and `grape` are only for these fixes: no area votes for them. A
+`chocolate`, `grape` and `tile` (München's roof, darker than its brick walls)
+are only for these fixes: no area votes for them. A
 fix whose area turns out as big as the sky gets a warning: its outline has a
 gap, which an `overlay` in `coins.json` with a short line closes
 (`rheinruhr-handle.svg`, `frankfurt-roemer.svg`, `niederrhein-willows.svg`,
 `black-forest-hill.svg`, `flensburg-lines.svg`, `nieder-olm-lines.svg`, which
-also swaps the lead rider's jester's cap for a helmet).
+also swaps the lead rider's jester's cap for a helmet; `muenchen-lines.svg`,
+the church's east end, a second overlay in a list after the ribbon).
 
 The Eiffel Tower and the band's three badges look the same on every coin,
 Hamburg's: the drawings copy them from the blank, each a little differently
