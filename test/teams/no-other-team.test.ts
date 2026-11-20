@@ -140,11 +140,20 @@ describe(`${team.id}'s site shows no other team (SC-001)`, () => {
 			icon: team.art.icons.icon192,
 			badge: team.art.icons.notificationBadge,
 		});
-		// The service worker is every team's: it names no icon of its own.
+		// The service worker is every team's: it names only icons they all
+		// share, for when the team's text can't be read.
 		expect(SERVICE_WORKER).toBeDefined();
+		const shared = artOf(team).filter((path) =>
+			TEAMS.every((t) => artOf(t).includes(path)),
+		);
 		for (const path of TEAMS.flatMap(artOf)) {
-			expect(SERVICE_WORKER).not.toContain(path);
+			if (!shared.includes(path)) expect(SERVICE_WORKER).not.toContain(path);
 		}
+		const named = [
+			...(SERVICE_WORKER ?? "").matchAll(/"(\/[^"]+\.(?:png|svg))"/g),
+		].map((m) => m[1]);
+		expect(named).toHaveLength(2);
+		for (const path of named) expect(shared).toContain(path);
 	});
 
 	it("names its own team where a page names one", async () => {

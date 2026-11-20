@@ -444,6 +444,8 @@ export const nl: Catalog = {
 	"organiser.error.rider_not_connected":
 		"Een renner is gestopt of moet eerst opnieuw verbinden.",
 	"organiser.error.outside_season": "De datum valt buiten het seizoen.",
+	"organiser.error.outside_window":
+		"De datum valt buiten de kwalificatieperiode.",
 	"organiser.error.future_event":
 		"Aanwezigheid kan worden geregistreerd zodra het evenement heeft plaatsgevonden.",
 	"organiser.error.rider_not_listed":
@@ -492,7 +494,8 @@ export const nl: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Dit verwijdert de correctie; de Rynke van de renner passen zich aan.",
 	"organiser.corrections.removeConfirm": "Ja, verwijderen",
-	"organiser.corrections.outside": "Telt niet mee: datum buiten het seizoen",
+	"organiser.corrections.outside":
+		"Telt niet mee: datum buiten de kwalificatieperiode",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",

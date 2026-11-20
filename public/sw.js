@@ -15,6 +15,11 @@ const TEXT = `/notification-text?lang=${lang}`;
 const RIDER_TEXT = `/me/notification-text?lang=${lang}`;
 /** Where a notification may lead; the rider page unless the text says. */
 const PAGES = ["/me", "/me/badges"];
+/** The icons every team shares, for when the team's can't be read. */
+const SHARED_ICONS = {
+	icon: "/icons/favicon.svg",
+	badge: "/icons/badge-96.png",
+};
 
 self.addEventListener("install", (event) => {
 	event.waitUntil(
@@ -75,7 +80,8 @@ async function riderText() {
 
 /**
  * The cached text, else the server's, else the app name alone (FR-032). It
- * holds the team's icons: this file is the same for every team.
+ * holds the team's icons: this file is the same for every team, so it names
+ * only the icons they all share.
  */
 async function teamText() {
 	try {
@@ -84,7 +90,7 @@ async function teamText() {
 		if (!response.ok) throw new Error(`status ${response.status}`);
 		return await response.json();
 	} catch {
-		return { title: "RynkePoints" };
+		return { title: "RynkePoints", ...SHARED_ICONS };
 	}
 }
 

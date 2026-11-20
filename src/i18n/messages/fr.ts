@@ -458,6 +458,8 @@ export const fr: Catalog = {
 	"organiser.error.rider_not_connected":
 		"Un·e cycliste est parti·e ou doit d'abord se reconnecter.",
 	"organiser.error.outside_season": "La date est en dehors de la saison.",
+	"organiser.error.outside_window":
+		"La date est en dehors de la période de qualification.",
 	"organiser.error.future_event":
 		"La présence peut être enregistrée une fois l'événement passé.",
 	"organiser.error.rider_not_listed":
@@ -508,7 +510,7 @@ export const fr: Catalog = {
 		"Cela retire la correction\u00a0; les Rynke du ou de la cycliste suivent.",
 	"organiser.corrections.removeConfirm": "Oui, retirer",
 	"organiser.corrections.outside":
-		"Ne compte pas : date en dehors de la saison",
+		"Ne compte pas : date en dehors de la période de qualification",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Équipe",

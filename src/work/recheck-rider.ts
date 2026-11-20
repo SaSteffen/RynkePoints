@@ -9,7 +9,7 @@ import type { Rider } from "../db/riders";
 import { anyWorkReady } from "../db/strava-work";
 import { differences, gone } from "../recheck/diff";
 import type { StravaActivity } from "../strava/activity";
-import { listNewestActivities } from "../strava/client";
+import { listNewestActivities, PER_PAGE } from "../strava/client";
 import { budgetDecision, halfDayUsed } from "../strava/rate-limit";
 import { utcDay } from "../usage/allowances";
 import { evaluateAndNotify } from "./activity-event";
@@ -81,7 +81,12 @@ export const recheckRider: Handler<RecheckRiderMessage> = async (
 
 	const kept = keptActivities(result.value, rider, ctx);
 	const changed = differences(kept, stored);
-	const removed = gone(kept, stored, result.value.at(-1)?.start_date);
+	const removed = gone(
+		kept,
+		stored,
+		result.value.at(-1)?.start_date,
+		result.value.length < PER_PAGE,
+	);
 	if (changed.records.length + changed.runs.length + changed.swims.length > 0) {
 		await evaluateAndNotify(ctx, rider.athleteId, {
 			kind: "upsert",

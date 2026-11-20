@@ -57,7 +57,8 @@ check if the gates allow; it is one request and converges.
   verdict, Rynke, badges and notification as for a reported change.
 - A listed activity lacking a figure the stored one has: stored value kept, no write.
 - A stored activity missing from the list that started after its oldest entry: removed, with the
-  rider evaluated again (FR-006a). One that started at or before it, or any with an empty list:
+  rider evaluated again (FR-006a). One that started at or before it: still stored, unless the list
+  holds fewer than 200 entries, all there are, when it is removed too. Any with an empty list:
   still stored.
 - A list in the wrong order: nothing stored, `failed` and `unordered` counted, stamp put back.
 - Each gate: no request, `skipped` counted, stamp put back.

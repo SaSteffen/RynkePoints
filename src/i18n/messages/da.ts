@@ -440,6 +440,8 @@ export const da: Catalog = {
 	"organiser.error.rider_not_connected":
 		"En rytter er stoppet eller skal forbinde igen først.",
 	"organiser.error.outside_season": "Datoen ligger uden for sæsonen.",
+	"organiser.error.outside_window":
+		"Datoen ligger uden for kvalifikationsperioden.",
 	"organiser.error.future_event":
 		"Deltagelse kan registreres, når arrangementet har fundet sted.",
 	"organiser.error.rider_not_listed":
@@ -488,7 +490,8 @@ export const da: Catalog = {
 	"organiser.corrections.removeWarning":
 		"Det fjerner rettelsen; rytterens Rynke følger med.",
 	"organiser.corrections.removeConfirm": "Ja, fjern",
-	"organiser.corrections.outside": "Tæller ikke: dateret uden for sæsonen",
+	"organiser.corrections.outside":
+		"Tæller ikke: dateret uden for kvalifikationsperioden",
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Hold",

@@ -81,12 +81,14 @@ async function processMessage(
 	}
 
 	const rider = await getRider(ctx.env.DB, body.athleteId);
-	// Deletions need no Strava, so they apply while a rider must reconnect too
-	// (review L-03): a ride deleted meanwhile stops counting at once.
-	const deletes =
+	// Deletions and evaluations need no Strava, so they apply while a rider must
+	// reconnect too (review L-03): a ride deleted meanwhile stops counting at
+	// once, and the season start's clean-up reaches their summary.
+	const withoutStrava =
 		body.kind === "delete-rider" ||
+		body.kind === "evaluate-rider" ||
 		(body.kind === "activity-event" && body.aspect === "delete");
-	if (!rider || (rider.status === "needs_reconnect" && !deletes)) {
+	if (!rider || (rider.status === "needs_reconnect" && !withoutStrava)) {
 		message.ack();
 		return;
 	}

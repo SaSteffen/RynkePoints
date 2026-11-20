@@ -52,7 +52,8 @@ Each code has a message in German and English under
 | `unknown_kind`, `invalid_date`, `invalid_name` | 003 `TeamEventRefused` | As in 003 contracts/ride-evaluation.md. |
 | `event_missing` | 003 | The event was deleted meanwhile. The redirect goes to `/organiser`. |
 | `rider_not_connected` | 003 / R8 | A rider left or needs to reconnect. |
-| `outside_season` | organiser layer (R5); `CorrectionRefused` (R8) | The date is before the season start or after the deadline; a correction's date has to lie in the qualification window. |
+| `outside_window` | organiser layer (R5); `CorrectionRefused` (R8) | An event's or a correction's date is outside the qualification window. |
+| `outside_season` | organiser layer (R5) | A Tour de Paris day is outside the season (feature 021 FR-003). |
 | `future_event` | organiser layer (R5) | Attendance was saved for an event after today. |
 | `rider_not_listed` | organiser layer (R6) | An id in the form is not a listed rider. |
 | `invalid_amount`, `invalid_reason`, `correction_missing` | `CorrectionRefused` (R8) | A bad amount or reason, or the correction is gone. |

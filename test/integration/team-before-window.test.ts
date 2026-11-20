@@ -167,6 +167,23 @@ describe("GET /team before the window opens", () => {
 		expect(peloton).toContain('aria-label="2 Rider zwischen');
 	});
 
+	it("waits under the note with the Training ranking off too, with the km chart", async () => {
+		const off = {
+			...before,
+			env: { ...before.env, TRAINING_LEADERBOARD: "off" },
+		};
+		const { html } = await riderPage(off, VIEWER, "/team");
+		expect(html).toContain(
+			`<div class="before-window"><div class="before-window-card" inert aria-hidden="true"><figure class="peloton`,
+		);
+		expect(html).toContain(NOTE);
+		const chart = sectionOf(html, '<figure class="team-chart', "</figure>");
+		expect(chart).toContain(escapeHtml(de["team.ride.chart.heading"]));
+		expect(html.match(/<figure class="team-chart/g)).toHaveLength(1);
+		expect(html).not.toContain('<section class="leaderboard');
+		expect(html).not.toContain('<section class="my-place');
+	});
+
 	it("is the Hamburg page it was once the window has opened", async () => {
 		const { html } = await riderPage(started, VIEWER, "/team");
 		expect(html).not.toContain("before-window");
