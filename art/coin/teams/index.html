@@ -146,7 +146,7 @@ const TEAMS = [
     drafts: [
       { label: "Draft 1", dir: "berlin", status: "good",
         note: "One group. A small Ampelmännchen traffic light close to the Eiffel Tower." },
-      { label: "Draft 2 · Ampelmännchen leads", dir: "berlin-ampel", status: "picked",
+      { label: "Draft 2 · Ampelmännchen leads", dir: "berlin-ampel", colour: true, status: "picked",
         note: "No traffic light: the Ampelmännchen strides ahead of the lead rider, hat and all." },
     ] },
   { id: "black-forest", name: "Black Forest",
@@ -154,7 +154,7 @@ const TEAMS = [
     drafts: [
       { label: "Draft 1", dir: "black-forest", status: "good",
         note: "Firs as outlines. A water mill instead of the hat." },
-      { label: "Draft 3 · cake on the hilltop", dir: "black-forest-cake", status: "good",
+      { label: "Draft 3 · cake on the hilltop", dir: "black-forest-cake", colour: true, status: "good",
         note: "Its own blank with a longer climb and a flat hilltop: the cake on its plate stands beside the tower, the riders climb towards it." },
     ] },
   { id: "rheinruhr", name: "RheinRuhr",
@@ -162,7 +162,7 @@ const TEAMS = [
     drafts: [
       { label: "Draft 1", dir: "rheinruhr", status: "good",
         note: "Pit wheel on a brick plinth with hammer and pick, a smooth heap with a winding path." },
-      { label: "Draft 2 · hammer and pick", dir: "rheinruhr-crest", status: "picked",
+      { label: "Draft 2 · hammer and pick", dir: "rheinruhr-crest", colour: true, status: "picked",
         note: "Headframe in front of a giant hammer and pick, “GLÜCK AUF” on a ribbon." },
     ] },
   { id: "niederrhein", name: "Niederrhein",
@@ -170,7 +170,7 @@ const TEAMS = [
     drafts: [
       { label: "Draft 1", dir: "niederrhein", status: "fix",
         note: "The top sail touches the lettering. The sheep is very small." },
-      { label: "Draft 3 · sheep in the group", dir: "niederrhein-sheep", status: "good",
+      { label: "Draft 3 · sheep in the group", dir: "niederrhein-sheep", colour: true, status: "good",
         note: "The sheep walks between the lead rider and the second." },
     ] },
   { id: "nieder-olm", name: "Nieder-Olm",
@@ -178,7 +178,7 @@ const TEAMS = [
     drafts: [
       { label: "Draft 1", dir: "nieder-olm", status: "good",
         note: "Vineyard hill with the round hut. Dense rows of vines." },
-      { label: "Draft 2 · giant cap", dir: "nieder-olm-cap", status: "picked",
+      { label: "Draft 2 · giant cap", dir: "nieder-olm-cap", colour: true, status: "picked",
         note: "The hill wears the jester's cap." },
     ] },
   { id: "frankfurt", name: "Frankfurt",
@@ -186,7 +186,7 @@ const TEAMS = [
     drafts: [
       { label: "Draft 1", dir: "frankfurt", status: "fix",
         note: "Calm skyline. Bembel and glass sit in the river strip." },
-      { label: "Draft 2 · giant Bembel", dir: "frankfurt-bembel", status: "picked",
+      { label: "Draft 2 · giant Bembel", dir: "frankfurt-bembel", colour: true, status: "picked",
         note: "Painted Bembel behind the skyline, the ribbed glass against it." },
     ] },
   { id: "flensburg", name: "Flensburg",
@@ -200,7 +200,7 @@ const TEAMS = [
         note: "Big gate with a deep arch, the last rider alone on a flat stretch in front of it." },
       { label: "Draft 6 · draft 3 with the real gate", dir: "flensburg-merged", status: "good",
         note: "Draft 3, its gate redrawn after a photo of the real Nordertor and its lighthouse after draft 2's." },
-      { label: "Draft 7 · rider in the gate", dir: "flensburg-gate-rider", png: true, status: "picked",
+      { label: "Draft 7 · rider in the gate", dir: "flensburg-gate-rider", png: true, colour: true, status: "picked",
         note: "Draft 6 put together by hand, no Gemini: its last rider taken out, draft 5's rider set into the archway behind the first one." },
       { label: "Draft 5 · out of the gate", dir: "flensburg-front", status: "good",
         note: "Blank without riders: the last rider comes out of the gate's arch towards us, the other three climb towards the Eiffel Tower." },
@@ -210,7 +210,7 @@ const TEAMS = [
     drafts: [
       { label: "Draft 1", dir: "mecklenburg", status: "fix",
         note: "The lake is barely there; the road runs as a dashed line along the bottom." },
-      { label: "Draft 2 · cranes and lake", dir: "mecklenburg-lake", status: "picked",
+      { label: "Draft 2 · cranes and lake", dir: "mecklenburg-lake", colour: true, status: "picked",
         note: "Big cranes in an arc, the castle reflected in a real lake." },
     ] },
   { id: "100-germany", name: "100 Germany",
@@ -220,7 +220,7 @@ const TEAMS = [
         note: "The map runs into the lettering." },
       { label: "Draft 2 · route out of Germany", dir: "100-germany-route", status: "good",
         note: "The map as a floating outline, a dashed route out of it. Gemini's outline is only roughly Germany." },
-      { label: "Draft 3 · the real outline", dir: "100-germany-nomap", status: "picked",
+      { label: "Draft 3 · the real outline", dir: "100-germany-nomap", colour: true, status: "picked",
         note: "Draft 2 without Gemini's map; the script draws Germany's true outline (Natural Earth data) in its place." },
     ] },
 ];

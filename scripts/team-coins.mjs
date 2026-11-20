@@ -274,7 +274,11 @@ try {
 		const filled = join(tmp, `${team}-colour-filled.png`);
 		// The arc line's left end below the band would split the sky.
 		const lineForColour = join(tmp, `${team}-colour-line.png`);
-		await compose(back, lineForColour, { draw: arcEnd() });
+		// A sketchy ring with gaps would let the white outside or the ring's gold
+		// leak into the scene: both its circles drawn closed.
+		await compose(back, lineForColour, {
+			draw: `${arcEnd()}<circle cx="${C}" cy="${C}" r="${R - 4}" fill="none" stroke="${INK}" stroke-width="10"/><circle cx="${C}" cy="${C}" r="898" fill="none" stroke="${INK}" stroke-width="8"/>`,
+		});
 		fillRegions(
 			lineForColour,
 			colourPlaced,
