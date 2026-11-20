@@ -75,6 +75,32 @@ describe("distanceMinKm", () => {
 	});
 });
 
+// The speed limit of virtual rides: absent on Hamburg's rules, a whole number
+// above the lowest speed when set.
+describe("virtualMaxSpeedKmh", () => {
+	const withLimit = (virtualMaxSpeedKmh: number): RynkeRules => ({
+		...CURRENT_RULES,
+		version: 99,
+		virtualMaxSpeedKmh,
+	});
+
+	it("is on none of Hamburg's rule objects", () => {
+		for (const rules of hamburg.rules) {
+			expect("virtualMaxSpeedKmh" in rules).toBe(false);
+		}
+	});
+
+	it("is accepted as a whole number above the lowest speed", () => {
+		expect(() => assertValidRules(withLimit(50))).not.toThrow();
+	});
+
+	it.each([10, 0, 50.5])("refuses %s", (limit) => {
+		expect(() => assertValidRules(withLimit(limit))).toThrow(
+			/virtualMaxSpeedKmh/,
+		);
+	});
+});
+
 // No Team Rynke is a rule value too (feature 039 research R2).
 describe("teamThreshold: null", () => {
 	const ZERO_TEAM = Object.fromEntries(
