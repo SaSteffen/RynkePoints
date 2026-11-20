@@ -14,7 +14,7 @@ docs/rynke-punkte.md with this team's name (spec 026 task T082), and this team's
 own rules since feature 039: no Team Rynke, team events or Tour de Paris days,
 and since rules version 5 (2026-11-19) the minimum for kilometre Rynke, 25 km
 outdoors and 1 km on virtual rides, and since rules version 6 (2026-11-20) an
-average of up to 60 km/h on virtual rides. It names the training season (1
+average of up to 50 km/h on virtual rides. It names the training season (1
 September to 31 August) and the qualification period (1 January to 30 June)
 apart. Keep the rest in step with Hamburg's. Render
 it with `pnpm docs:pdf` and commit public/teams/europe/rynke-points.pdf: the app
@@ -179,7 +179,7 @@ These recordings bring no Rynke, neither for kilometres nor for elevation:
 - **Rides too slow or too fast.** If your average (distance divided by moving
   time) is **below 10 km/h** or **above 45 km/h**, that wasn't a bike ride but
   more likely a walk or a trip by car or train. On **virtual rides** the
-  average may go up to **60 km/h**: on routes with long descents, an honest
+  average may go up to **50 km/h**: on routes with long descents, an honest
   virtual ride can be that fast.
 - **Climbing too fast.** Nobody manages more than **1500 m of elevation per hour
   of moving time** over a whole ride under their own power. That was a cable
@@ -194,7 +194,7 @@ These recordings bring no Rynke, neither for kilometres nor for elevation:
 | 300 km in 4 h moving time (train)                     |              0 | average 75 km/h               |
 | 25 km in 3 h moving time (walk)                       |              0 | average 8.3 km/h              |
 | 30 km in 3 h moving time                              |              3 | average of exactly 10 km/h counts |
-| 50 km virtual in 1 h moving time, mostly downhill     |              5 | virtual: up to 60 km/h        |
+| 50 km virtual in 1 h moving time, mostly downhill     |              5 | virtual: up to 50 km/h        |
 | 50 km outdoors in 1 h moving time                     |              0 | average 50 km/h               |
 | 30 km and 2000 m elevation in 1 h moving time (cable car) |          0 | 2000 m of elevation per hour  |
 | 200 km entered by hand                                |              0 | entered manually              |

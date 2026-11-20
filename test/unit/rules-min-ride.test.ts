@@ -91,10 +91,10 @@ describe("virtualMaxSpeedKmh", () => {
 	});
 
 	it("is accepted as a whole number above the lowest speed", () => {
-		expect(() => assertValidRules(withLimit(60))).not.toThrow();
+		expect(() => assertValidRules(withLimit(50))).not.toThrow();
 	});
 
-	it.each([10, 0, 55.5])("refuses %s", (limit) => {
+	it.each([10, 0, 50.5])("refuses %s", (limit) => {
 		expect(() => assertValidRules(withLimit(limit))).toThrow(
 			/virtualMaxSpeedKmh/,
 		);

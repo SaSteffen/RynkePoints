@@ -456,29 +456,29 @@ describe("minimum ride length (feature 039 research R5)", () => {
 	});
 });
 
-// Europe's version 6: a virtual ride may average up to 60 km/h; rides outdoors
+// Europe's version 6: a virtual ride may average up to 50 km/h; rides outdoors
 // keep 45 km/h.
 describe("a higher speed limit for virtual rides", () => {
 	const FAST_VIRTUAL: RynkeRules = {
 		...CURRENT_RULES,
 		version: 99,
-		virtualMaxSpeedKmh: 60,
+		virtualMaxSpeedKmh: 50,
 	};
 
-	it("exactly 60 km/h counts on a virtual or trainer ride, a metre more doesn't", () => {
+	it("exactly 50 km/h counts on a virtual or trainer ride, a metre more doesn't", () => {
 		const { results } = evaluate(
 			[
 				makeRide({
 					id: 1,
-					km: 120,
+					km: 100,
 					movingH: 2,
 					sportType: "VirtualRide",
 					start: day(1),
 				}),
-				makeRide({ id: 2, km: 120, movingH: 2, trainer: true, start: day(2) }),
+				makeRide({ id: 2, km: 100, movingH: 2, trainer: true, start: day(2) }),
 				makeRide({
 					id: 3,
-					km: 120.001,
+					km: 100.001,
 					movingH: 2,
 					sportType: "VirtualRide",
 					start: day(3),

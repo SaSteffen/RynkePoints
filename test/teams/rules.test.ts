@@ -130,7 +130,7 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 		const inEffect = currentRules(europe.rules);
 		expect("minRideKm" in inEffect).toBe(false);
 		expect(inEffect.distanceMinKm).toEqual({ outdoor: 25, virtual: 1 });
-		expect(inEffect.virtualMaxSpeedKmh).toBe(60);
+		expect(inEffect.virtualMaxSpeedKmh).toBe(50);
 		for (const rules of hamburg.rules) {
 			expect("virtualMaxSpeedKmh" in rules).toBe(false);
 		}
@@ -164,7 +164,7 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 			'"team_training":{"team":0,"training":0},' +
 			'"technique_training":{"team":0,"training":0},' +
 			'"training_weekend_day":{"team":0,"training":0}},' +
-			'"teamThreshold":null,"trainingThreshold":250,"virtualMaxSpeedKmh":60}';
+			'"teamThreshold":null,"trainingThreshold":250,"virtualMaxSpeedKmh":50}';
 		expect(inEffect.version).toBe(6);
 		expect(
 			rulesFingerprint(inEffect),

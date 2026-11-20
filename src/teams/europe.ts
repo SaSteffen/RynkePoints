@@ -48,13 +48,13 @@ const EUROPE_RULES_V5: RynkeRules = {
 };
 
 // Version 6 (Team Europe's rules review, 2026-11-20): a virtual ride may
-// average up to 60 km/h, as long descents on Rouvy or Zwift do; rides
+// average up to 50 km/h, as long descents on Rouvy or Zwift do; rides
 // outdoors keep 45 km/h, which catches car and train trips.
 const EUROPE_RULES_V6: RynkeRules = {
 	...EUROPE_RULES_V5,
 	version: 6,
 	effectiveDate: "2026-11-20",
-	virtualMaxSpeedKmh: 60,
+	virtualMaxSpeedKmh: 50,
 };
 
 // Team Rynkeby Europe (feature 026). English by default, the common phrases and

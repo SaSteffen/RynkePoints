@@ -63,9 +63,9 @@ describe("minimum ride length in the handouts (feature 039)", () => {
 
 	it("Europe's names the higher speed limit for virtual rides", () => {
 		const text = HANDOUTS["../../docs/teams/europe/rynke-points.md"];
-		expect(currentRules(europe.rules).virtualMaxSpeedKmh).toBe(60);
+		expect(currentRules(europe.rules).virtualMaxSpeedKmh).toBe(50);
 		expect(text).toContain("**above 45 km/h**");
-		expect(text).toContain("up to **60 km/h**");
+		expect(text).toContain("up to **50 km/h**");
 	});
 
 	it("Hamburg's names no minimum ride length", () => {
