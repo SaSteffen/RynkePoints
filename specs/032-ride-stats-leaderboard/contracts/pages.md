@@ -24,10 +24,14 @@ their parameter out, so `/team` stays `/team`.
 The page is today's page plus the "Rank by" control above the leaderboard (SC-003). The
 control's Rynke segment is `aria-current`. No period control is shown and no ride figures are read.
 
+A control sits right above what it changes (amended 2026-11-20). After the team total and the kind
+switch come the peloton and the team chart, which "Rank by" doesn't change; then `div.team-ranking`
+holds "Rank by", the place card and the leaderboard, in that order. On wide screens that group is the
+right column.
+
 ### A ride figure picked
 
-- The team total, kind switch, place card position, peloton and team chart above the leaderboard stay as
-  they are with Rynke (the draft's "new rider ranking" row). Only the place card and the leaderboard follow
+- The team total, kind switch, peloton and team chart stay as they are with Rynke (the draft's "new rider ranking" row). Only the place card and the leaderboard follow
   the pick.
 - **"Rank by"**: `nav.rank-by` with four `a.segmented[data-swap]` links (Rynke, Sessions, km, Elevation).
   The current one has `aria-current="true"`.
@@ -52,8 +56,7 @@ There is one view and no kind switch (FR-012), in this order:
 
 - Team card: season km, sessions and elevation, and this week's km gain.
 - A chart of the team's km per week, with the running total, from the existing `weekBars`.
-- The place card.
-- The ranking. "Rank by" offers Sessions, km and Elevation only; with `by` absent it picks km.
+- `div.team-ranking`: "Rank by", the place card and the ranking. "Rank by" offers Sessions, km and Elevation only; with `by` absent it picks km.
 
 There is no quote, peloton or coin.
 

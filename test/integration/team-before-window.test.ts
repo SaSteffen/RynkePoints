@@ -71,7 +71,7 @@ beforeEach(async () => {
 });
 
 describe("GET /team before the window opens", () => {
-	it("opens on km, with Rank by above everything it changes", async () => {
+	it("opens on km, with Rank by right above what it changes", async () => {
 		const { html } = await riderPage(before, VIEWER, "/team");
 		// km is the default, so its link is the plain /team and Rynke's names itself.
 		expect(linksOf(html, "rank-by")).toEqual([
@@ -85,10 +85,11 @@ describe("GET /team before the window opens", () => {
 			inOrder(
 				order(html, [
 					'<section class="team-total',
-					'<div class="rank-controls">',
-					'<section class="my-place',
 					'<figure class="peloton',
 					'<figure class="team-chart',
+					'<div class="team-ranking">',
+					'<div class="rank-controls">',
+					'<section class="my-place',
 					'<section class="leaderboard',
 				]),
 			),
@@ -131,8 +132,8 @@ describe("GET /team before the window opens", () => {
 		const { html } = await riderPage(before, VIEWER, "/team");
 		const place = sectionOf(html, '<section class="my-place', "</section>");
 		expect(place).not.toBe("");
-		expect(html.indexOf("before-window-card")).toBeGreaterThan(
-			html.indexOf(place),
+		expect(html).not.toContain(
+			'<div class="before-window-card" inert aria-hidden="true"><section class="my-place',
 		);
 		const board = sectionOf(html, '<section class="leaderboard', "</section>");
 		expect(board).not.toContain("before-window");
@@ -177,10 +178,10 @@ describe("GET /team before the window opens", () => {
 		expect(
 			inOrder(
 				order(html, [
-					'<div class="rank-controls">',
-					'<section class="my-place',
 					'<figure class="peloton',
 					'<figure class="team-chart',
+					'<div class="rank-controls">',
+					'<section class="my-place',
 					'<section class="leaderboard',
 				]),
 			),

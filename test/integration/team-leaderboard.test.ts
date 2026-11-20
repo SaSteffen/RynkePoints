@@ -451,9 +451,9 @@ describe("GET /team, the team's progress (US2)", () => {
 			'<blockquote class="quote',
 			'<section class="team-total',
 			'<nav class="kind-switch"',
-			'<section class="my-place',
 			'<figure class="peloton',
 			'<figure class="team-chart',
+			'<section class="my-place',
 			'<section class="leaderboard',
 		].map(at);
 		expect(order.every((i) => i > 0)).toBe(true);
