@@ -251,8 +251,10 @@ describe("a check that is made", () => {
 				start_date: "2026-10-01T07:30:00Z",
 				start_date_local: "2026-10-01T09:30:00Z",
 			}),
-			makeStravaActivity({ id: 9 }),
 		);
+		for (let id = 100; id < 300; id++) {
+			fake.addActivity(ATHLETE_A, makeStravaActivity({ id }));
+		}
 		fake.activities.delete(8);
 		await process();
 		expect(
@@ -260,6 +262,25 @@ describe("a check that is made", () => {
 				"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id = 8",
 			),
 		).toBe(1);
+	});
+
+	it("removes an older one too when the list is shorter than 200: it holds every activity", async () => {
+		await stored(
+			makeStravaActivity({
+				id: 8,
+				start_date: "2026-10-01T07:30:00Z",
+				start_date_local: "2026-10-01T09:30:00Z",
+			}),
+			makeStravaActivity({ id: 9 }),
+		);
+		fake.activities.delete(8);
+		await process();
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id IN (8, 9)",
+			),
+		).toBe(1);
+		expect(await result(9)).toMatchObject({ counts: 1 });
 	});
 
 	it("keeps an activity stored while the list was fetched", async () => {

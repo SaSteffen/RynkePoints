@@ -100,17 +100,19 @@ export function differences(
 /**
  * The stored activities that are gone from Strava: those that start after
  * `oldestListed`, the start of the list's last (oldest) entry before the scope
- * rule, and aren't kept from the list as any kind. Only after it, since the
- * list holds the newest 200 and stops there; an empty list (`undefined`)
- * judges nothing.
+ * rule, and aren't kept from the list as any kind. Only after it, since a full
+ * list holds the newest 200 and stops there; a shorter one (`whole`) holds the
+ * rider's every activity, so then every stored one is judged. An empty list
+ * (`undefined`) judges nothing.
  */
 export function gone(
 	listed: KeptActivities,
 	stored: StoredActivities,
 	oldestListed: string | undefined,
+	whole: boolean,
 ): number[] {
 	if (oldestListed === undefined) return [];
-	const since = Date.parse(oldestListed);
+	const since = whole ? Number.NEGATIVE_INFINITY : Date.parse(oldestListed);
 	const kept = new Set(
 		[...listed.records, ...listed.runs, ...listed.swims].map(
 			(a) => a.strava_activity_id,

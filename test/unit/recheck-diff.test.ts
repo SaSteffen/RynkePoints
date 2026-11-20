@@ -15,7 +15,8 @@ import type {
 // FR-003 to FR-007): new ones and those that differ in a kept figure; the
 // refresh time alone is no difference, and a missing figure keeps the stored
 // one. Which stored activities are gone from Strava (FR-006a): those missing
-// from the list that start after its oldest entry.
+// from the list that start after its oldest entry, or any when the list is
+// shorter than a page and so holds every activity.
 
 const ATHLETE = 900001;
 const LISTED_AT = 2_000_000_000;
@@ -178,11 +179,12 @@ describe("gone", () => {
 				listed({ records: [ride(1)] }),
 				stored([ride(1), ride(4)], [run(2)], [swim(3)]),
 				OLDEST,
+				false,
 			),
 		).toEqual([4, 2, 3]);
 	});
 
-	it("leaves what starts at or before the oldest listed entry", () => {
+	it("leaves what starts at or before the oldest entry of a full list", () => {
 		expect(
 			gone(
 				listed(),
@@ -191,8 +193,24 @@ describe("gone", () => {
 					ride(2, { start_date: "2026-09-30T07:30:00Z" }),
 				]),
 				OLDEST,
+				false,
 			),
 		).toEqual([]);
+	});
+
+	it("judges every stored activity when the list is shorter than a page", () => {
+		expect(
+			gone(
+				listed({ records: [ride(1)] }),
+				stored([
+					ride(1),
+					ride(2, on("01")),
+					ride(3, { start_date: "2026-09-30T07:30:00Z" }),
+				]),
+				OLDEST,
+				true,
+			),
+		).toEqual([2, 3]);
 	});
 
 	it("keeps an activity listed as another kind", () => {
@@ -201,11 +219,12 @@ describe("gone", () => {
 				listed({ records: [ride(1)], runs: [run(2)], swims: [swim(3)] }),
 				stored([ride(3)], [run(1)], [swim(2)]),
 				OLDEST,
+				true,
 			),
 		).toEqual([]);
 	});
 
 	it("judges nothing for an empty list", () => {
-		expect(gone(listed(), stored([ride(1)]), undefined)).toEqual([]);
+		expect(gone(listed(), stored([ride(1)]), undefined, true)).toEqual([]);
 	});
 });

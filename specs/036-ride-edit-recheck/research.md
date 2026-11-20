@@ -119,7 +119,8 @@ go through the same evaluate-and-notify path as a reported activity.
 before it (FR-007). After it, only changed verdicts, balances and badges are written, as today.
 Stored activities missing from the list that started after its oldest entry are gone from Strava
 and go through the same deletion as a reported one (FR-006a); older ones are left alone, since
-the list stops at 200. An activity arriving by event and by
+the list stops at 200. A list of fewer than 200 is the rider's whole history, so then older ones
+missing from it are gone as well. An activity arriving by event and by
 check converges, because both are upserts by activity ID followed by a full evaluation.
 
 **Rows read**: about 200 per check: 60,000 a day at the allowance, 200,000 at 999 riders, of

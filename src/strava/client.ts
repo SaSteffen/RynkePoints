@@ -22,7 +22,8 @@ export type { StravaResult } from "./result";
 /** A stored rider (refreshed as needed) or a just-issued access token. */
 export type StravaAuth = { athleteId: number } | { accessToken: string };
 
-const PER_PAGE = 200;
+/** Entries per list request; a shorter answer is the list's last page. */
+export const PER_PAGE = 200;
 const MAX_CLUB_PAGES = 20;
 
 /**
