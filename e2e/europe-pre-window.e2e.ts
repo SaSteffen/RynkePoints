@@ -96,15 +96,20 @@ test("the Team page leads with km and keeps Rynke waiting", async ({
 	await expect(page.locator(".team-total-week")).toContainText(
 		"Rynke count from 01/01/2027",
 	);
-	// Rank by sits above the place card it changes, then the peloton and the km
-	// chart follow (the leaderboard has its own column on wide screens).
-	const tops = await Promise.all(
-		[".rank-controls", ".my-place", "figure.peloton", "figure.team-chart"].map(
-			async (selector) => (await page.locator(selector).boundingBox())?.y,
-		),
-	);
-	expect(tops.every((y) => y !== undefined)).toBe(true);
-	expect(tops).toEqual([...tops].sort((a, b) => (a ?? 0) - (b ?? 0)));
+	// The peloton and the km chart, which Rank by doesn't change, come first;
+	// Rank by sits right above the place card and the leaderboard it changes
+	// (on wide screens the three have their own column).
+	const inOrder = async (selectors: readonly string[]) => {
+		const tops = await Promise.all(
+			selectors.map(
+				async (selector) => (await page.locator(selector).boundingBox())?.y,
+			),
+		);
+		expect(tops.every((y) => y !== undefined)).toBe(true);
+		expect(tops).toEqual([...tops].sort((a, b) => (a ?? 0) - (b ?? 0)));
+	};
+	await inOrder(["figure.peloton", "figure.team-chart"]);
+	await inOrder([".rank-controls", ".my-place", ".leaderboard"]);
 	await expect(
 		page.locator(".before-window", { has: page.locator("figure.peloton") }),
 	).toContainText("Rynke count from 01/01/2027");
