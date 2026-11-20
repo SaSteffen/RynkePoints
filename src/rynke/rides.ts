@@ -5,7 +5,7 @@
 // by cross-multiplication, shares as fractions (research R3).
 
 import type { ActivityRow } from "../strava/activity";
-import type { CountingWindow, RynkeRules } from "./rules";
+import { type CountingWindow, maxSpeedKmhFor, type RynkeRules } from "./rules";
 
 /** Why a ride doesn't count, in the order a result lists them (FR-016). */
 export const REASON_CODES = [
@@ -227,7 +227,9 @@ function reasonsFor(
 	}
 	const speed = ride.distanceM * 3600;
 	if (speed < rules.minSpeedKmh * 1000 * moving) reasons.push("too_slow");
-	if (speed > rules.maxSpeedKmh * 1000 * moving) reasons.push("too_fast");
+	if (speed > maxSpeedKmhFor(rules, isVirtual(ride)) * 1000 * moving) {
+		reasons.push("too_fast");
+	}
 	if (elevationDm * 3600 > rules.maxClimbMPerH * 10 * moving) {
 		reasons.push("climbing_rate");
 	}

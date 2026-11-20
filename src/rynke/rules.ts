@@ -32,6 +32,14 @@ export interface RynkeRules {
 	maxPausedShare: Share;
 	minSpeedKmh: number;
 	maxSpeedKmh: number;
+	/**
+	 * The highest average speed of a virtual ride, in whole km/h (decided with
+	 * Team Europe on 2026-11-20): descents on Rouvy or Zwift push an honest
+	 * indoor average past the outdoor limit, and no car or train can be
+	 * recorded as a virtual ride. Absent means `maxSpeedKmh` for every ride, so
+	 * a team without one keeps its rule objects and fingerprints.
+	 */
+	virtualMaxSpeedKmh?: number;
 	maxClimbMPerH: number;
 	/**
 	 * The shortest ride that counts, in whole kilometres (feature 039 research
@@ -60,6 +68,13 @@ export interface RynkeRules {
 	 */
 	minOutsideTraining: number;
 	teamEvents: Readonly<Record<TeamEventKind, TeamEventAmounts>>;
+}
+
+/** The highest average speed a ride of this kind may have under `rules`. */
+export function maxSpeedKmhFor(rules: RynkeRules, virtual: boolean): number {
+	return virtual
+		? (rules.virtualMaxSpeedKmh ?? rules.maxSpeedKmh)
+		: rules.maxSpeedKmh;
 }
 
 /**
@@ -253,6 +268,15 @@ export function assertValidRules(rules: RynkeRules): void {
 	}
 	if (rules.minSpeedKmh >= rules.maxSpeedKmh) {
 		throw new Error("rules.minSpeedKmh must be below rules.maxSpeedKmh");
+	}
+	if (
+		rules.virtualMaxSpeedKmh !== undefined &&
+		(!Number.isInteger(rules.virtualMaxSpeedKmh) ||
+			rules.virtualMaxSpeedKmh <= rules.minSpeedKmh)
+	) {
+		throw new Error(
+			"rules.virtualMaxSpeedKmh must be a whole number above rules.minSpeedKmh when set",
+		);
 	}
 	const { num, den } = rules.maxPausedShare;
 	if (

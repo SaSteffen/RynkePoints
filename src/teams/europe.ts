@@ -47,6 +47,16 @@ const EUROPE_RULES_V5: RynkeRules = {
 	distanceMinKm: { outdoor: 25, virtual: 1 },
 };
 
+// Version 6 (Team Europe's rules review, 2026-11-20): a virtual ride may
+// average up to 60 km/h, as long descents on Rouvy or Zwift do; rides
+// outdoors keep 45 km/h, which catches car and train trips.
+const EUROPE_RULES_V6: RynkeRules = {
+	...EUROPE_RULES_V5,
+	version: 6,
+	effectiveDate: "2026-11-20",
+	virtualMaxSpeedKmh: 60,
+};
+
 // Team Rynkeby Europe (feature 026). English by default, the common phrases and
 // badge names, its own coin. Everything it hasn't supplied yet is copied from
 // the founding team and named in `placeholders` (FR-053), so `team-check
@@ -61,7 +71,12 @@ export const europe: TeamData = {
 	foreignLocale: "en",
 	// The founding team's versions 1–3, which Europe ran on since feature 026,
 	// then its own (feature 039 research R4).
-	rules: [...hamburg.rules.slice(0, 3), EUROPE_RULES_V4, EUROPE_RULES_V5],
+	rules: [
+		...hamburg.rules.slice(0, 3),
+		EUROPE_RULES_V4,
+		EUROPE_RULES_V5,
+		EUROPE_RULES_V6,
+	],
 	// No team events and no Tour de Paris days (feature 039 research R3).
 	eventKinds: [],
 	colours: hamburg.colours,

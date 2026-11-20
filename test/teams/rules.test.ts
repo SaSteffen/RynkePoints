@@ -119,8 +119,10 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 		}
 	});
 
-	it("gives Europe Hamburg's three versions, then its own versions 4 and 5", () => {
-		expect(europe.rules.map((rules) => rules.version)).toEqual([1, 2, 3, 4, 5]);
+	it("gives Europe Hamburg's three versions, then its own versions 4 to 6", () => {
+		expect(europe.rules.map((rules) => rules.version)).toEqual([
+			1, 2, 3, 4, 5, 6,
+		]);
 		for (const [i, rules] of hamburg.rules.entries()) {
 			expect(europe.rules[i]).toBe(rules);
 		}
@@ -128,6 +130,10 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 		const inEffect = currentRules(europe.rules);
 		expect("minRideKm" in inEffect).toBe(false);
 		expect(inEffect.distanceMinKm).toEqual({ outdoor: 25, virtual: 1 });
+		expect(inEffect.virtualMaxSpeedKmh).toBe(60);
+		for (const rules of hamburg.rules) {
+			expect("virtualMaxSpeedKmh" in rules).toBe(false);
+		}
 	});
 
 	// Research R15: Hamburg's "at most a third virtual" written as a whole
@@ -146,7 +152,7 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 		expect(inEffect.minOutsideTraining).toBe(84);
 	});
 
-	it("pins Europe's version 5 values to its version", () => {
+	it("pins Europe's version 6 values to its version", () => {
 		const inEffect = currentRules(europe.rules);
 		const fingerprint =
 			'{"distanceMinKm":{"outdoor":25,"virtual":1},"distanceStepKm":10,' +
@@ -158,8 +164,8 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 			'"team_training":{"team":0,"training":0},' +
 			'"technique_training":{"team":0,"training":0},' +
 			'"training_weekend_day":{"team":0,"training":0}},' +
-			'"teamThreshold":null,"trainingThreshold":250}';
-		expect(inEffect.version).toBe(5);
+			'"teamThreshold":null,"trainingThreshold":250,"virtualMaxSpeedKmh":60}';
+		expect(inEffect.version).toBe(6);
 		expect(
 			rulesFingerprint(inEffect),
 			"a rule value changed: raise Europe's version and effectiveDate, then update this fingerprint",
