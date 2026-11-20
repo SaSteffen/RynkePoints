@@ -528,7 +528,7 @@ export const de = {
 	"team.kind.team": "Team",
 	"team.place": "Position {place} von {count} 🚴",
 	"team.place.next": "Noch {n}\u00a0Rynke bis zum nächsten Platz",
-	"team.place.lead": "Du führst das Peloton an. Nimm die anderen mit!",
+	"team.place.lead": "Du liegst vorn. Nimm die anderen mit!",
 	"team.peloton.heading": "Das Peloton 🚴",
 	"team.peloton.hint": "Jede Münze ist ein Rider. Rechts fährt die Spitze.",
 	"team.peloton.back": "Ende des Feldes",

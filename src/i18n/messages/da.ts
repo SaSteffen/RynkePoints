@@ -505,7 +505,7 @@ export const da: Catalog = {
 	"team.kind.team": "Team",
 	"team.place": "Plads {place} af {count} ryttere 🚴",
 	"team.place.next": "{n} Rynke til næste plads",
-	"team.place.lead": "Du fører feltet. Tag de andre med!",
+	"team.place.lead": "Du ligger forrest. Tag de andre med!",
 	"team.peloton.heading": "Feltet 🚴",
 	"team.peloton.hint": "Hver mønt er en rytter. Fronten kører til højre.",
 	"team.peloton.back": "Bagerst i feltet",

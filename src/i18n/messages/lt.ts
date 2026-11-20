@@ -507,7 +507,7 @@ export const lt: Catalog = {
 	"team.kind.team": "Komandos",
 	"team.place": "Vieta {place} iš {count} 🚴",
 	"team.place.next": "{n} Rynke iki kitos vietos",
-	"team.place.lead": "Tu pirmauji pelotone. Patrauk kitus kartu!",
+	"team.place.lead": "Tu pirmauji. Patrauk kitus kartu!",
 	"team.peloton.heading": "Pelotonas 🚴",
 	"team.peloton.hint":
 		"Kiekviena moneta – dviratininkas. Priekis važiuoja dešinėje.",

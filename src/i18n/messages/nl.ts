@@ -509,7 +509,7 @@ export const nl: Catalog = {
 	"team.kind.team": "Team",
 	"team.place": "Plaats {place} van {count} renners 🚴",
 	"team.place.next": "{n} Rynke om de volgende plaats in te halen",
-	"team.place.lead": "Jij leidt het peloton. Neem de anderen mee!",
+	"team.place.lead": "Jij ligt voorop. Neem de anderen mee!",
 	"team.peloton.heading": "Het peloton 🚴",
 	"team.peloton.hint": "Elke munt is een renner. De kop rijdt rechts.",
 	"team.peloton.back": "Achteraan in het peloton",

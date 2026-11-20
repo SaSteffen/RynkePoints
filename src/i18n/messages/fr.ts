@@ -525,7 +525,7 @@ export const fr: Catalog = {
 	"team.kind.team": "Équipe",
 	"team.place": "Place {place} sur {count} 🚴",
 	"team.place.next": "{n} Rynke pour la place suivante",
-	"team.place.lead": "Tu mènes le peloton. Emmène les autres\u00a0!",
+	"team.place.lead": "Tu es en tête. Emmène les autres\u00a0!",
 	"team.peloton.heading": "Le peloton 🚴",
 	"team.peloton.hint":
 		"Chaque pièce est un·e cycliste. La tête roule à droite.",

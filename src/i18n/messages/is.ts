@@ -504,7 +504,7 @@ export const is: Catalog = {
 	"team.kind.team": "Liðs",
 	"team.place": "Sæti {place} af {count} 🚴",
 	"team.place.next": "{n} Rynke í næsta sæti",
-	"team.place.lead": "Þú leiðir hópinn. Taktu hina með!",
+	"team.place.lead": "Þú ert í forystu. Taktu hina með!",
 	"team.peloton.heading": "Hópurinn 🚴",
 	"team.peloton.hint":
 		"Hver peningur er hjólreiðamaður. Fremstir hjóla til hægri.",
