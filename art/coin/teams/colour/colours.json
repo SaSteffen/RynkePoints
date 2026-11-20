@@ -1,4 +1,12 @@
 {
+	"badges": [
+		[754, 1805, "yellow"],
+		[1027, 1780, "yellow"],
+		[1037, 1726, "yellow"],
+		[1092, 1757, "yellow"],
+		[1297, 1715, "yellow"],
+		[1342, 1717, "yellow"]
+	],
 	"coins": [
 		{
 			"id": "coin-muenchen-colour",
@@ -56,17 +64,43 @@
 				}
 			],
 			"scene": "The hills dark fir green, the fir outlines a deeper green; the farmhouse's walls and balcony warm wood brown, its big roof dark brick red-brown, the windows light; the Bollenhut's pompoms bright red on a white hat; the fence wood brown; the meadow a fresh green; the cake slice: dark chocolate brown sponge layers, white cream, one red cherry, the plate white.",
-			"regions": [[1463, 1226, "chocolate"], [1517, 1241, "chocolate"]],
+			"regions": [
+				[1463, 1226, "chocolate"],
+				[1517, 1241, "chocolate"],
+				[1850, 760, "sky"],
+				[1600, 1050, "grass"],
+				[1850, 1100, "grass"]
+			],
 			"recolour": [
 				{
-					"box": [1600, 820, 1880, 1300],
+					"box": [1700, 600, 1880, 855],
 					"from": "fir",
 					"to": "sky"
 				},
 				{
-					"box": [1600, 820, 1880, 1300],
+					"box": [1700, 600, 1880, 855],
 					"from": "grass",
 					"to": "sky"
+				},
+				{
+					"box": [1700, 855, 1880, 1005],
+					"from": "sky",
+					"to": "fir"
+				},
+				{
+					"box": [1700, 855, 1880, 1005],
+					"from": "grass",
+					"to": "fir"
+				},
+				{
+					"box": [1640, 1005, 1880, 1300],
+					"from": "sky",
+					"to": "grass"
+				},
+				{
+					"box": [1640, 1005, 1880, 1300],
+					"from": "fir",
+					"to": "grass"
 				},
 				{
 					"box": [1230, 1620, 1470, 1840],
@@ -86,6 +120,14 @@
 				}
 			],
 			"scene": "The Zollverein headframe in its real rusty red steel, the wheels the same red, its base red brick; the crossed hammer and pick: heads dark grey steel, handles warm wood brown; the banner gold yellow with the words GLÜCK AUF in black; the spoil heap's flanks a dark green with the terrace lines and path lighter; the ground grass a fresh green.",
+			"badges": [
+				[761, 1806, "yellow"],
+				[1038, 1780, "yellow"],
+				[1049, 1726, "yellow"],
+				[1105, 1758, "yellow"],
+				[1311, 1715, "yellow"],
+				[1352, 1720, "yellow"]
+			],
 			"regions": [
 				[1200, 788, "wood"],
 				[1147, 1229, "sky"],
@@ -165,7 +207,7 @@
 			],
 			"scene": "The vineyard hill a fresh green with darker green vine rows; the jester's cap in carnival red and yellow, its bells gold, its rim band gold; the grapevine stock wood brown with green leaves and a bunch of purple-blue grapes; the lead rider's small cap red and yellow like the big one; the ground grass a fresh green.",
 			"regions": [
-				[842, 645, "red"],
+				[1000, 400, "red"],
 				[745, 1492, "yellow"],
 				[389, 1208, "bark"],
 				[380, 1322, "bark"],

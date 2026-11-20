@@ -124,13 +124,18 @@ const coins = JSON.parse(readFileSync(join(ROOT, DIR, "coins.json"), "utf8"));
 // diamonds, coloured by their place in the lattice) gets exactly its colours;
 // `recolour`, {box, from, to} each, every area of colour `from` wholly inside
 // the box [x0, y0, x1, y1] turned `to` (a forest's see-through trees).
+// `badges` at the top, regions like these for the band's three badges, which
+// every drawing keeps from Hamburg's blank: coloured like Hamburg's on every
+// coin (road, mountain and jerseys yellow); a coin's own `badges` where Gemini
+// moved them.
+const colourList = JSON.parse(
+	readFileSync(join(ROOT, DIR, "colour/colours.json"), "utf8"),
+);
 const colourFixes = Object.fromEntries(
-	JSON.parse(
-		readFileSync(join(ROOT, DIR, "colour/colours.json"), "utf8"),
-	).coins.map((c) => [
+	colourList.coins.map((c) => [
 		c.id,
 		{
-			regions: c.regions ?? [],
+			regions: [...(c.badges ?? colourList.badges ?? []), ...(c.regions ?? [])],
 			overlay: c.overlay,
 			recolour: c.recolour ?? [],
 		},
@@ -293,9 +298,11 @@ try {
 		const filled = join(tmp, `${team}-colour-filled.png`);
 		const lineForColour = join(tmp, `${team}-colour-line.png`);
 		// A sketchy ring with gaps would let the white outside or the ring's gold
-		// leak into the scene: both its circles drawn closed.
+		// leak into the scene: both its circles drawn closed. The black band too,
+		// as it will be: a shape reaching up under it (a cap's horn) ends at it
+		// instead of running round through the wiped lettering into the sky.
 		await compose(back, lineForColour, {
-			draw: `<circle cx="${C}" cy="${C}" r="${R - 4}" fill="none" stroke="${INK}" stroke-width="10"/><circle cx="${C}" cy="${C}" r="898" fill="none" stroke="${INK}" stroke-width="8"/>`,
+			draw: `<circle cx="${C}" cy="${C}" r="${R - 4}" fill="none" stroke="${INK}" stroke-width="10"/><circle cx="${C}" cy="${C}" r="898" fill="none" stroke="${INK}" stroke-width="8"/><g fill="${INK}">${colourBand()}</g>`,
 		});
 		fillRegions(lineForColour, colourPlaced, filled, fixes);
 		const colourBack = join(tmp, `${team}-colour-back.png`);
@@ -584,12 +591,14 @@ function fillRegions(line, colour, out, { regions = [] } = {}) {
 		const c = region[i] === -1 ? inkRgb : (fill[region[i]] ?? [255, 255, 255]);
 		pixels.set(c, 3 * i);
 	}
-	// The arc line's left end below the band, which the drawings keep from
-	// Hamburg's blank, would cross the sky: where it has one colour on both
-	// sides it takes that colour. Wiping it out of the line drawing instead cut
-	// a gap into every line crossing it, and areas ran out through the gaps.
+	// The arc line's ends below the band, which the drawings keep from
+	// Hamburg's blank (where Hamburg's chain hangs), would cross the sky: where
+	// it has one colour on both sides it takes that colour. Wiping it out of the
+	// line drawing instead cut a gap into every line crossing it, and areas ran
+	// out through the gaps. The right end only as far down as it goes: below,
+	// the Eiffel Tower's lattice crosses that circle.
 	for (let y = C - 380; y <= C + 200; y++)
-		for (let x = 0; x < C; x++) {
+		for (let x = 0; x < (y <= C - ARC.end + 40 ? SIZE : C); x++) {
 			const i = y * SIZE + x;
 			const d = Math.hypot(x - C, y - C);
 			if (region[i] !== -1 || Math.abs(d - ARC.r) > 10) continue;

@@ -59,11 +59,18 @@ areas vote, so a pattern gets exactly the colours we drew (München's diamonds,
 `chocolate` are only for these fixes: no area votes for them. A fix whose area
 turns out as big as the sky gets a warning: its outline has a gap, which an
 `overlay` in `coins.json` with a short line closes (`rheinruhr-handle.svg`,
-`frankfurt-roemer.svg`, `niederrhein-willows.svg`).
+`frankfurt-roemer.svg`, `niederrhein-willows.svg`, `black-forest-hill.svg`).
+`badges` at the top of `colours.json` colours the band's three badges, which
+every drawing keeps from Hamburg's blank, like Hamburg's on every coin: road,
+mountain and the riders' jerseys yellow on the gold. A coin whose badges Gemini
+moved has its own `badges` (RheinRuhr).
 
-The arc line's left end below the band, which the drawings keep from
-Hamburg's blank, takes the colour on both its sides wherever they match, so it
-disappears from the sky without cutting the lines that cross it.
+The arc line's ends below the band, which the drawings keep from Hamburg's
+blank (where Hamburg's chain hangs), take the colour on both their sides
+wherever they match, so they disappear from the sky without cutting the lines
+that cross them. The areas are found with the black band already in place, so
+a shape reaching up under it (Nieder-Olm's middle horn) ends at the band
+instead of running through the lettering into the sky.
 
 Flensburg's `coin-flensburg-gate-rider.png` isn't Gemini's: it's draft 6
 (`coin-flensburg-merged`) with its last rider taken out and draft 5's rider

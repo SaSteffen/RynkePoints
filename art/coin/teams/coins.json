@@ -36,7 +36,11 @@
 			"id": "coin-black-forest-cake",
 			"name": "Black Forest",
 			"scene": "One calm valley view, everything belonging together. Behind: two soft rounded hills, covered with fir forest, drawn as rows of simple pointed fir outlines, the hilltops well below the arc line. Main motif: in the middle, in front of the hills, one Black Forest farmhouse sitting on a sloping meadow, big: a huge hipped roof that comes down on both sides almost to the ground and takes up two thirds of the house's height, a small hipped half-gable at the front, under it two short rows of small windows and a wooden balcony running along the front. Support: in the left foreground, on top of a post of a short wooden fence that runs along the meadow, hangs a Bollenhut, the traditional Black Forest hat, big and clearly readable: a flat round hat with a wide brim, seen slightly from above, its top covered with fourteen big round woollen pompoms set close together in a cross shape; it is the only hat and nobody wears it. Ground: the meadow slopes gently down to the road, a few short grass tufts. The climb is exactly as in the attached picture: it starts further left than usual and ends in a wide flat hilltop between the top of the climb and the Eiffel Tower's foot; keep that shape and keep the four riders where they are. Detail: on that flat hilltop, in the middle between the top of the climb and the Eiffel Tower's foot, a slice of Black Forest cherry cake on a plate stands directly on the hilltop's ground line, no table: the slice seen from the side, layered, a swirl of cream and one cherry on top, the plate a flat oval under it; about as tall as a rider on the bike; the riders are climbing towards it. It is the only thing on the hilltop besides the Eiffel Tower. The farmhouse, the hills and the fence stay left of where the climb starts. Nothing else: no table, no extra trees in the foreground, no bushes, no water mill, no cuckoo clock, no animals, and no cake anywhere else.",
-			"blank": "reference/blackforest-blank.png"
+			"blank": "reference/blackforest-blank.png",
+			"overlay": {
+				"file": "reference/black-forest-hill.svg",
+				"box": [0, 0, 2048]
+			}
 		},
 		{
 			"id": "coin-rheinruhr",
