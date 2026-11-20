@@ -194,12 +194,14 @@ const TEAMS = [
     drafts: [
       { label: "Draft 1", dir: "flensburg", status: "good",
         note: "Ship big and in front, sails gathered on the yards." },
-      { label: "Draft 3 · gate at the climb", dir: "flensburg-gate", status: "picked",
+      { label: "Draft 3 · gate at the climb", dir: "flensburg-gate", status: "good",
         note: "The road comes out of the gate's arch onto the climb. Draft 6 gives it draft 4's gate and draft 2's lighthouse." },
       { label: "Draft 4 · own blank", dir: "flensburg-rider", status: "good",
         note: "Big gate with a deep arch, the last rider alone on a flat stretch in front of it." },
       { label: "Draft 6 · draft 3 with the real gate", dir: "flensburg-merged", status: "good",
         note: "Draft 3, its gate redrawn after a photo of the real Nordertor and its lighthouse after draft 2's." },
+      { label: "Draft 7 · rider in the gate", dir: "flensburg-gate-rider", png: true, status: "picked",
+        note: "Draft 6 put together by hand, no Gemini: its last rider taken out, draft 5's rider set into the archway behind the first one." },
       { label: "Draft 5 · out of the gate", dir: "flensburg-front", status: "good",
         note: "Blank without riders: the last rider comes out of the gate's arch towards us, the other three climb towards the Eiffel Tower." },
     ] },
@@ -231,11 +233,11 @@ const card = (t, d, kind) => {
   return `
   <div class="proof ${colour ? "colour" : ""} ${d.status === "picked" ? "picked" : "unpicked"}">
     <div class="proof-head"><span class="label">${label}</span>
-      ${colour ? "" : `<button type="button" class="link" data-big="originals/coin-${d.dir}.jpeg" data-cap="${t.name}, ${d.label}, Gemini's drawing">Gemini</button>`}</div>
+      ${colour ? "" : `<button type="button" class="link" data-big="originals/coin-${d.dir}.${d.png ? "png" : "jpeg"}" data-cap="${t.name}, ${d.label}, Gemini's drawing">Gemini</button>`}</div>
     <button type="button" class="coin" data-big="${file}" data-cap="${t.name}, back, ${label}">
       <img src="${file}" alt="${t.name} coin, back, ${label}" loading="lazy"></button>
     <span><span class="chip ${d.status}">${STATUS[d.status]}</span></span>
-    <p class="note">${colour ? "Gemini coloured the line drawing like Hamburg's coloured back; the lettering is set in gold." : d.note}</p>
+    <p class="note">${colour ? "The script colours the line drawing area by area; Gemini's coloured take only says which colour each area gets. The ribbon's diamonds are made to alternate, the name is set in gold." : d.note}</p>
   </div>`;
 };
 

@@ -42,8 +42,22 @@ asks Gemini to colour the line drawing like Hamburg's: gold ring, black band, fl
 enamel colours, no lettering.
 
 1. `pnpm badge-art coin-<team>-colour` into `colour/originals/`.
-2. `pnpm team-coins <team>` paints the band black, sets the name in gold and traces
-   it in the palette in `scripts/team-coins.mjs` into `<team>/rynke-coin-back.svg`.
+2. `pnpm team-coins <team>` colours the line drawing itself, area by area: each
+   area enclosed by its lines gets the one colour most of it has in Gemini's take,
+   from the palette in `scripts/team-coins.mjs`. So the lines stay exactly the
+   line drawing's, every area is one flat colour, and whatever Gemini added beyond
+   the lines (Hamburg's bicycle chain) is dropped. It then paints the band black,
+   sets the name in gold and traces it into `<team>/rynke-coin-back.svg`.
+
+Where Gemini's colours are wrong, `colours.json` fixes them without it:
+`regions` gives single areas another colour ([x, y, colour] on the 2048 px
+canvas), `checker` makes a chequered pattern alternate (München's diamond ribbon:
+its box, its two colours, and the colours Gemini used for them).
+
+Flensburg's `coin-flensburg-gate-rider.png` isn't Gemini's: it's draft 6
+(`coin-flensburg-merged`) with its last rider taken out and draft 5's rider
+(`coin-flensburg-front`), coming out towards us, set into the gate's archway behind
+the first rider, put together with ImageMagick.
 
 A scene can bring real photos of things in it (`references` in `coins.json`, each
 with a line on what it shows); Gemini gets them after the blank back, as a model

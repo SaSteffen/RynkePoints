@@ -130,6 +130,11 @@
 			"scene": "Redraw the Nordertor, the gate at the foot of the climb, so it looks like the real one in attached picture 2: a wide brick gatehouse, the round archway in the middle, rectangular windows beside and above the arch, a tall stepped gable with narrow blind niches. Redraw the lighthouse like attached picture 3. Both keep their place and size in the first picture; the road still runs through the gate's archway, and the riders stay exactly where they are."
 		},
 		{
+			"id": "coin-flensburg-gate-rider",
+			"name": "Flensburg",
+			"scene": "Not drawn by Gemini: put together by hand from coin-flensburg-merged (its last rider removed) and the front-facing rider from coin-flensburg-front, set into the gate's archway behind the first rider (see README)."
+		},
+		{
 			"id": "coin-mecklenburg",
 			"name": "Mecklenburg",
 			"scene": "Main motif: Schwerin Castle on its island in the lake, slightly left of centre, drawn simply: a few big towers and turrets with pointed roofs and the large central dome, its tip reaching the arc line, only the main windows, no tiny details. Support: at the left, on a strip of sandy beach, a wicker beach chair (Strandkorb), about a third as tall as the castle. Ground: the lake's calm water as the ground band across the whole front, the road running along its shore. Dry touch: three cranes (the birds, long necks and legs stretched out) flying in a loose row in the sky between the castle and the Eiffel Tower, small."

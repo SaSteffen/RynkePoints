@@ -14,8 +14,9 @@
 //
 // A back with a coloured take (art/coin/teams/colour/originals/
 // coin-<team>-colour.*, pnpm badge-art coin-<team>-colour) is traced in colour
-// too, into art/coin/teams/<team>/rynke-coin-back.svg: its lettering band
-// painted black and the name set in gold, like Hamburg's coloured back.
+// too, into art/coin/teams/<team>/rynke-coin-back.svg: the line drawing's
+// areas filled with the colours Gemini gave them (fillRegions), its lettering
+// band painted black and the name set in gold, like Hamburg's coloured back.
 //
 // It also writes the reference the generator gets for every back:
 // Hamburg's back with its lettering and its own scene wiped, the frame, the
@@ -110,6 +111,16 @@ const LINE_COLOURS = palette([
 ]);
 
 const coins = JSON.parse(readFileSync(join(ROOT, DIR, "coins.json"), "utf8"));
+// The coloured backs' own fixes (art/coin/teams/colour/colours.json):
+// `regions`, [x, y, colour name] each, the area of the line drawing around
+// that canvas point filled with that colour; `checker`, a box [x0, y0, x1, y1]
+// and two colour names, whose small areas alternate like a chequered pattern
+// (München's diamond ribbon), whatever Gemini made of single ones.
+const colourFixes = Object.fromEntries(
+	JSON.parse(
+		readFileSync(join(ROOT, DIR, "colour/colours.json"), "utf8"),
+	).coins.map((c) => [c.id, { regions: c.regions ?? [], checker: c.checker }]),
+);
 const problems = validateCoins(coins);
 if (problems.length > 0) {
 	console.error(`${DIR}/coins.json is not valid:\n  ${problems.join("\n  ")}`);
@@ -259,9 +270,19 @@ try {
 			...outsideCoinWhite(),
 			colourPlaced,
 		]);
+		const filled = join(tmp, `${team}-colour-filled.png`);
+		// The arc line's left end below the band would split the sky.
+		const lineForColour = join(tmp, `${team}-colour-line.png`);
+		await compose(back, lineForColour, { draw: arcEnd() });
+		fillRegions(
+			lineForColour,
+			colourPlaced,
+			filled,
+			colourFixes[`${id}-colour`],
+		);
 		const colourBack = join(tmp, `${team}-colour-back.png`);
-		await compose(colourPlaced, colourBack, {
-			wipe: [`<g fill="${INK}">${backBand()}</g>`],
+		await compose(filled, colourBack, {
+			wipe: [`<g fill="${INK}">${colourBand()}</g>`],
 		});
 		const traced = traceImage(colourBack, { colours: COLOUR_BACK });
 		const colourOut = `${out}/rynke-coin-back.svg`;
@@ -337,6 +358,24 @@ function backScene() {
 		`<rect x="1208" y="1318" width="38" height="22"/>`
 	);
 }
+/**
+ * The coloured back's black band, down to the arc line, which it takes in, so
+ * it ends level like Hamburg's.
+ */
+function colourBand() {
+	return `<g clip-path="url(#above)">${annulus(ARC.r - 6, BAND.outer - 4)}</g>`;
+}
+/**
+ * The arc line's left end below the coloured back's band, wiped. (The right
+ * end runs into the Eiffel Tower and stays.)
+ */
+function arcEnd() {
+	const from = C - 380;
+	const to = C + 200;
+	const x = (y) => C - Math.sqrt(ARC.r ** 2 - (y - C) ** 2);
+	return `<path fill="none" stroke="white" stroke-width="16" d="M${x(from)},${from}A${ARC.r},${ARC.r} 0 0,0 ${x(to)},${to}"/>`;
+}
+
 /** The arc line, drawn again whole where the wiping cut into it. */
 function backArc() {
 	const x = Math.sqrt(ARC.r ** 2 - ARC.end ** 2);
@@ -444,6 +483,182 @@ function lettering(side, words, colour) {
 function overlayImage({ file, box: [x, y, width] }) {
 	const svg = readFileSync(join(ROOT, DIR, file)).toString("base64");
 	return `<image href="data:image/svg+xml;base64,${svg}" x="${x}" y="${y}" width="${width}"/>`;
+}
+
+/**
+ * Colours the line drawing `line` area by area: every area enclosed by its
+ * lines gets the one palette colour most of it has in `colour` (Gemini's
+ * coloured take, placed the same way), unless `fixes` name another. The lines
+ * stay the line drawing's, each area stays one flat colour, and whatever
+ * Gemini added beyond the lines (an extra chain, stray strokes) is dropped.
+ * Areas touching the canvas edge stay white paper.
+ */
+function fillRegions(line, colour, out, { regions = [], checker } = {}) {
+	const raw = (file) =>
+		execFileSync(
+			magick,
+			[file, "-resize", `${SIZE}x${SIZE}!`, "-depth", "8", "rgb:-"],
+			{
+				maxBuffer: SIZE * SIZE * 4,
+			},
+		);
+	const ink = raw(line);
+	const paint = raw(colour);
+	const n = SIZE * SIZE;
+	const isInk = (i) => ink[3 * i] + ink[3 * i + 1] + ink[3 * i + 2] < 3 * 128;
+	const nearest = (i) => {
+		let best = 0;
+		let bestD = Number.POSITIVE_INFINITY;
+		for (const [k, { rgb }] of COLOUR_BACK.entries()) {
+			const d =
+				(paint[3 * i] - rgb[0]) ** 2 +
+				(paint[3 * i + 1] - rgb[1]) ** 2 +
+				(paint[3 * i + 2] - rgb[2]) ** 2;
+			if (d < bestD) [best, bestD] = [k, d];
+		}
+		return best;
+	};
+	const region = new Int32Array(n).fill(-1);
+	const fill = [];
+	const stack = new Int32Array(n);
+	for (let start = 0; start < n; start++) {
+		if (region[start] !== -1 || isInk(start)) continue;
+		const id = fill.length;
+		const votes = new Float64Array(COLOUR_BACK.length);
+		let edge = false;
+		let top = 0;
+		stack[top++] = start;
+		region[start] = id;
+		while (top > 0) {
+			const i = stack[--top];
+			const k = nearest(i);
+			// Gemini's own outlines fall on our areas' edges: they count less.
+			votes[k] += COLOUR_BACK[k].name === "ink" ? 0.3 : 1;
+			const x = i % SIZE;
+			const y = (i - x) / SIZE;
+			if (x === 0 || y === 0 || x === SIZE - 1 || y === SIZE - 1) edge = true;
+			for (const j of [
+				x > 0 ? i - 1 : -1,
+				x < SIZE - 1 ? i + 1 : -1,
+				y > 0 ? i - SIZE : -1,
+				y < SIZE - 1 ? i + SIZE : -1,
+			]) {
+				if (j < 0 || region[j] !== -1 || isInk(j)) continue;
+				region[j] = id;
+				stack[top++] = j;
+			}
+		}
+		fill.push(edge ? null : COLOUR_BACK[votes.indexOf(Math.max(...votes))].rgb);
+	}
+	if (checker) chequer(region, fill, isInk, checker);
+	for (const [x, y, name] of regions) {
+		const id = region[y * SIZE + x];
+		const c = COLOUR_BACK.find((p) => p.name === name);
+		if (id < 0 || !c)
+			throw new Error(
+				`colour fix [${x}, ${y}, ${name}]: no area or no such colour`,
+			);
+		fill[id] = c.rgb;
+	}
+	const pixels = Buffer.alloc(3 * n);
+	const inkRgb = COLOUR_BACK.find((p) => p.name === "ink").rgb;
+	for (let i = 0; i < n; i++) {
+		const c = region[i] === -1 ? inkRgb : (fill[region[i]] ?? [255, 255, 255]);
+		pixels.set(c, 3 * i);
+	}
+	execFileSync(
+		magick,
+		["-size", `${SIZE}x${SIZE}`, "-depth", "8", "rgb:-", out],
+		{
+			input: pixels,
+		},
+	);
+}
+
+/**
+ * Recolours the small areas inside `box` that are in one of the colours
+ * `from` in two alternating `colours`: areas sharing a line get different
+ * ones. Which of the two each gets follows what most of
+ * them (by size) already have.
+ */
+function chequer(
+	region,
+	fill,
+	isInk,
+	{ box: [x0, y0, x1, y1], colours, from = colours },
+) {
+	const [a, b] = colours.map((name) =>
+		COLOUR_BACK.find((c) => c.name === name),
+	);
+	if (!a || !b) throw new Error(`checker colours ${colours}: no such colour`);
+	const inside = new Map();
+	const size = new Map();
+	for (let y = 0; y < SIZE; y++)
+		for (let x = 0; x < SIZE; x++) {
+			const id = region[y * SIZE + x];
+			if (id < 0) continue;
+			size.set(id, (size.get(id) ?? 0) + 1);
+			const within = x >= x0 && x <= x1 && y >= y0 && y <= y1;
+			inside.set(id, (inside.get(id) ?? true) && within);
+		}
+	// Only the pattern's own cells: small, and in one of the colours Gemini
+	// gave them (`from`, its two plus any it mixed up with them).
+	const was = from.map((name) => COLOUR_BACK.find((c) => c.name === name)?.rgb);
+	const cells = new Set(
+		[...inside]
+			.filter(([id, v]) => v && size.get(id) < 8000 && was.includes(fill[id]))
+			.map(([id]) => id),
+	);
+	// Areas across a line from each other, weighted by how long the line is:
+	// areas meeting only at a corner share a few pixels and don't count.
+	const touch = new Map();
+	const D = 7;
+	for (let y = y0 + D; y <= y1 - D; y++)
+		for (let x = x0 + D; x <= x1 - D; x++) {
+			const i = y * SIZE + x;
+			if (!isInk(i)) continue;
+			for (const [p, q] of [
+				[i - D, i + D],
+				[i - D * SIZE, i + D * SIZE],
+			]) {
+				const [r, s] = [region[p], region[q]];
+				if (r === s || !cells.has(r) || !cells.has(s)) continue;
+				const key = r < s ? `${r},${s}` : `${s},${r}`;
+				touch.set(key, (touch.get(key) ?? 0) + 1);
+			}
+		}
+	const next = new Map([...cells].map((id) => [id, []]));
+	for (const [key, n] of touch) {
+		if (n < 12) continue;
+		const [r, s] = key.split(",").map(Number);
+		next.get(r).push(s);
+		next.get(s).push(r);
+	}
+	const parity = new Map();
+	for (const start of cells) {
+		if (parity.has(start)) continue;
+		const group = [start];
+		parity.set(start, 0);
+		for (let k = 0; k < group.length; k++)
+			for (const n of next.get(group[k]))
+				if (!parity.has(n)) {
+					parity.set(n, 1 - parity.get(group[k]));
+					group.push(n);
+				}
+		if (group.length < 4) continue;
+		const same = (id, c) => fill[id] === c.rgb;
+		let keep = 0;
+		for (const id of group) {
+			const want = parity.get(id) === 0 ? a : b;
+			const other = want === a ? b : a;
+			if (same(id, want)) keep += size.get(id);
+			else if (same(id, other)) keep -= size.get(id);
+		}
+		for (const id of group) {
+			const first = parity.get(id) === 0;
+			fill[id] = (first === keep >= 0 ? a : b).rgb;
+		}
+	}
 }
 
 /** The front's two stars, wiped when a long name takes their room. */
