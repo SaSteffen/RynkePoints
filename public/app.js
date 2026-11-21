@@ -3259,7 +3259,7 @@ function organiserGraphs(signal) {
 			if (!input) continue;
 			if (label.dataset.team === "average") input.checked = kept.average;
 			else if (label.dataset.team === "total") input.checked = kept.total;
-			else input.checked = selected.has(Number(label.dataset.rider));
+			else input.checked = selected.has(label.dataset.rider);
 		}
 	}
 
@@ -3437,8 +3437,8 @@ function organiserGraphs(signal) {
 			const on = label.querySelector("input")?.checked ?? false;
 			if (label.dataset.team === "average") kept.average = on;
 			else if (label.dataset.team === "total") kept.total = on;
-			else if (on) selected.add(Number(label.dataset.rider));
-			else selected.delete(Number(label.dataset.rider));
+			else if (on) selected.add(label.dataset.rider);
+			else selected.delete(label.dataset.rider);
 			highlight = null;
 			redraw(null);
 		},
@@ -3452,20 +3452,18 @@ function organiserGraphs(signal) {
 		highlight = key;
 		restyle();
 	};
-	const lineKeyOf = (value) =>
-		value === "average" || value === "total" ? value : Number(value);
 	section.addEventListener(
 		"mouseover",
 		(event) => {
 			if (!(event.target instanceof Element)) return;
 			const entry = event.target.closest(".org-legend-entry");
 			if (entry) {
-				hoverLine(lineKeyOf(entry.dataset.line));
+				hoverLine(entry.dataset.line);
 				return;
 			}
 			const option = event.target.closest(".org-graphs-option");
 			if (!option) return;
-			const key = option.dataset.team ?? Number(option.dataset.rider);
+			const key = option.dataset.team ?? option.dataset.rider;
 			const on = option.querySelector("input")?.checked;
 			hoverLine(on ? key : null);
 		},
@@ -3527,7 +3525,7 @@ function organiserGraphs(signal) {
 				syncCharts();
 				redraw(null);
 			} else if (button.classList.contains("org-legend-entry")) {
-				const key = lineKeyOf(button.dataset.line);
+				const key = button.dataset.line;
 				highlight = highlight === key ? null : key;
 				restyle();
 			} else if (button.hasAttribute("data-picker-clear")) {
