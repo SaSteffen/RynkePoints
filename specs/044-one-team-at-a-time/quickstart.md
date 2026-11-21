@@ -5,8 +5,8 @@
 ## 1. Tests
 
 ```bash
-pnpm test -- test/integration/one-team.test.ts test/integration/withdrawal.test.ts \
-  test/gateway/held.test.ts test/gateway/let-go.test.ts
+pnpm exec vitest run test/integration/one-team.test.ts test/integration/let-go.test.ts \
+  test/integration/held.test.ts test/gateway/held.test.ts test/gateway/let-go.test.ts
 ```
 
 | Scenario | Expected |
@@ -20,8 +20,8 @@ pnpm test -- test/integration/one-team.test.ts test/integration/withdrawal.test.
 | Team endpoint `let-go` for a rider / a guest / nobody | row deleted / kept / nothing; `200` each time |
 | Gateway `let-go` with every team `200` / one failing | `200` / `503` |
 | Gateway `held` with one team answering `rider: true` | `rider: true`; answers without `rider` count as false |
-| Kept token for a person the team now holds | dropped, no revoke, no gateway request |
-| `/switch-team` | names no other team; the form posts `consent`, `next`, `switch=1` to `/connect` |
+| Kept token from the first pass, then a switch | dropped when the rider is stored, never revoked |
+| `/switch-team` | names no other team; the form posts `consent` and `switch=1` to `/connect` |
 | `/connect` with `switch=1` | authorize URL with `approval_prompt=auto`; switch flag in the state cookie |
 
 ## 2. Team data

@@ -93,7 +93,8 @@ src/http/held.ts                  # answer gains rider; POST /strava/let-go (R2,
 src/http/router.ts                # routes for /switch-team and /strava/let-go
 src/http/notice.ts                # one-team notice removed
 src/http/privacy.ts               # one paragraph, PRIVACY_UPDATED (R8)
-src/strava/withdraw.ts            # askOtherTeams (held + rider), letGoElsewhere, R5 drop
+src/strava/withdraw.ts            # askOtherTeams (held + rider), letGoElsewhere
+src/db/pending-revocations.ts     # forgetPendingRevocation (R5)
 src/strava/client.ts              # clubMembership without otherClubIds (R7)
 src/db/riders.ts                  # riderHold with rider; letGoRider (guest rows untouched)
 src/teams/{types,hamburg,europe}.ts  # otherClubIds removed

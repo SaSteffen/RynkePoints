@@ -58,7 +58,7 @@ ask the team question
 ├─ no answer ──────────────▶ withdraw, /notice/strava-busy
 ├─ rider: false ───────────▶ store and sign in, as today
 └─ rider: true
-   ├─ state without switch ─▶ withdraw, 303 /switch-team?next=<next>
+   ├─ state without switch ─▶ withdraw, 303 /switch-team
    └─ state with switch ────▶ let-go
                               ├─ 200 ──▶ store and sign in, as today
                               └─ else ─▶ withdraw, /notice/strava-busy
@@ -74,7 +74,7 @@ Public, no session, no rider data, like the notice pages. Names no other team.
   their rides, Rynke and badges there, and this team counts their season's rides anew under its
   rules.
 - **Switch to this team**: `<form method="post" action="/connect">` with hidden `consent` (the
-  current version), `next` (from the query, through `sectionNext`) and `switch=1`.
+  current version) and `switch=1`. No `next`: a new person came from the start page.
 - **Stay with my team**: a link to `/`.
 
 ## `POST /connect`
@@ -84,11 +84,10 @@ the switch flag into the OAuth state cookie. The consent check is the same as fo
 
 ## OAuth state cookie
 
-`<state>:<consentVersion>:<next>` becomes `<state>:<consentVersion>:<switch>:<next>`, `switch`
-being `0` or `1`. The reader also accepts the old form (no `switch`, `next` starting with `/`) as
-`switch = 0`, so cookies issued by the previous release in the last ten minutes keep working.
+`<state>:<consentVersion>:<next>` stays for a sign-in, and a switch writes
+`<state>:<consentVersion>:switch:<next>`. Cookies from the previous release read as no switch.
 
 ## Withdrawal (R5)
 
-`settleWithdrawal` drops a kept row without asking anyone when this team holds the person (a
-`riders` row exists, rider or guest).
+Storing a new rider at sign-in drops any kept row of theirs in `pending_revocations`
+(`forgetPendingRevocation`).

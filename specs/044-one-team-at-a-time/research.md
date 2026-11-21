@@ -50,8 +50,9 @@ team holds them, so the row is dropped and nothing is revoked) and redirects to 
 `/switch-team`. The page says what switching costs and offers two buttons:
 
 - **Stay with my team**: a link to the start page. Nothing else happens.
-- **Switch to this team**: a form posting to `/connect` with the current consent version, the
-  `next` the person came with, and `switch=1`. `/connect` sends them to Strava again, with
+- **Switch to this team**: a form posting to `/connect` with the current consent version and
+  `switch=1`. No `next`: a new person came from the start page, so there is no section to return
+  to, and the page keeps the language switcher's `next` as its only one. `/connect` sends them to Strava again, with
   `approval_prompt=auto` instead of `force`, and puts the switch flag into the signed OAuth state
   cookie.
 
@@ -106,10 +107,12 @@ settle would hear `none` from every other team and revoke: ending the grant the 
 The same can already happen without this feature: a person refused at a team, whose row stays
 pending, who later joins that team.
 
-**Decision**: `settleWithdrawal` first checks whether this team holds the person now. If it does,
-it drops the row without asking: the team controls the grant and withdraws it when it lets them go.
+**Decision**: storing a new rider at sign-in drops any kept token of theirs: the team controls the
+grant from then on and withdraws it when it lets them go.
 
-**Rationale**: one check in the one place every kept token passes through; it fixes both paths.
+**Rationale**: it fixes both paths at the one place a team starts holding someone. A check in
+`settleWithdrawal` instead ("this team holds them, so drop") would break every disconnect, which
+keeps the token *before* deleting the rider and settles it right away.
 
 ## R6. Order of a switch and what each failure leaves
 

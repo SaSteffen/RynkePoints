@@ -10,7 +10,7 @@ No migration. Nothing new is stored.
 | Team question answer | not stored | gains `rider: boolean` (R2) |
 | Let-go request | not stored | new; carries only the athlete ID (R4) |
 | Switch intent | signed OAuth state cookie, ten minutes | new `switch` part (contracts/one-team.md) |
-| Kept token | `pending_revocations` | dropped without asking when the team holds the person (R5) |
+| Kept token | `pending_revocations` | dropped when the team stores the person as a new rider (R5) |
 | Other teams' clubs | `TeamData.otherClubIds` | removed (R7) |
 
 ## A person across teams
