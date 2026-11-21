@@ -629,7 +629,7 @@ interface BadgesRead {
  */
 async function readBadgesPage(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	window: CountingWindow,
 ): Promise<BadgesRead> {
 	const riderBadges = riderBadgesStatements(db, athleteId, window);
@@ -709,7 +709,7 @@ async function badgesOf(
  */
 export function newBadgesStatements(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): D1PreparedStatement[] {
 	return [
 		listRiderBadgesStatement(db, athleteId),

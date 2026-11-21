@@ -28,7 +28,7 @@ beforeEach(async () => {
 	await seedRider(ctx, { athleteId: ATHLETE_B });
 });
 
-async function epochOf(athleteId: number) {
+async function epochOf(athleteId: string) {
 	return env.DB.prepare("SELECT session_epoch FROM riders WHERE athlete_id = ?")
 		.bind(athleteId)
 		.first<number>("session_epoch");
@@ -49,7 +49,7 @@ function signOutEverywhere(cookies: Record<string, string>, origin?: string) {
 }
 
 /** A cookie from before issues #314 and #316: the ID alone, signed without the team. */
-async function legacyCookie(athleteId: number) {
+async function legacyCookie(athleteId: string) {
 	const value = await signValue(
 		String(athleteId),
 		NOW + 100 * 86400,

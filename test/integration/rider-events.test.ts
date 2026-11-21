@@ -261,11 +261,11 @@ describe("Bin dabei and Doch nicht dabei (US2)", () => {
 
 	it("refuses a rider who must reconnect", async () => {
 		await seedRider(ctx, {
-			athleteId: 900_005,
+			athleteId: "900005",
 			status: "needs_reconnect",
 		});
 		const event = await insertEvent("team_training", "2026-10-10");
-		expect((await post(`/events/${event}/report`, 900_005)).status).toBe(403);
+		expect((await post(`/events/${event}/report`, "900005")).status).toBe(403);
 	});
 });
 

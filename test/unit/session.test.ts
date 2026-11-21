@@ -18,7 +18,7 @@ function withCookie(setCookie: string) {
 	return new Request("https://rynke.test/me", { headers: { Cookie: pair } });
 }
 
-const SESSION = { athleteId: 900001, epoch: 7 };
+const SESSION = { athleteId: "900001", epoch: 7 };
 /** The same key at another team (issue #316). */
 const otherTeam = { ...env, TEAM_ID: "europe" };
 
@@ -51,11 +51,19 @@ describe("session cookie", () => {
 	it("reads back the athlete ID, the epoch and the expiry", async () => {
 		const cookie = await createSessionCookie(SESSION, NOW, env);
 		expect(await readSessionCookie(withCookie(cookie), env, NOW + 10)).toEqual({
-			athleteId: 900001,
+			athleteId: "900001",
 			epoch: 7,
 			expiresAt: NOW + 15552000,
 			legacy: false,
 		});
+	});
+
+	it("reads back an athlete ID past 2^53 with every digit (feature 042)", async () => {
+		const large = { athleteId: "9223372036854775807", epoch: 3 };
+		const cookie = await createSessionCookie(large, NOW, env);
+		expect(await readSessionCookie(withCookie(cookie), env, NOW)).toMatchObject(
+			large,
+		);
 	});
 
 	it("rejects tampered, expired and missing sessions", async () => {
@@ -86,7 +94,7 @@ describe("session cookie", () => {
 	it("reads a cookie from before #314 and #316 as epoch 0", async () => {
 		const cookie = await legacyCookie("900001");
 		expect(await readSessionCookie(withCookie(cookie), env, NOW)).toEqual({
-			athleteId: 900001,
+			athleteId: "900001",
 			epoch: 0,
 			expiresAt: NOW + 600,
 			legacy: true,

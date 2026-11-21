@@ -1,4 +1,5 @@
 import type { SwimRecord } from "../strava/activity";
+import { idsJson } from "../strava/id";
 
 // A rider's swims (feature 013 part C, data-model.md `swims`, research R26).
 // Kept apart from `activities` and `runs`, so no Rynke, ride list, Team page
@@ -31,8 +32,8 @@ export function upsertSwimStatement(db: D1Database, r: SwimRecord) {
 /** Deletes the swim only if it belongs to `athleteId`. */
 export function deleteSwimStatement(
 	db: D1Database,
-	athleteId: number,
-	activityId: number,
+	athleteId: string,
+	activityId: string,
 ) {
 	return db
 		.prepare(
@@ -42,7 +43,7 @@ export function deleteSwimStatement(
 }
 
 /** Honours a narrowed scope: "Only You" swims go (001 FR-007). */
-export function deletePrivateSwimsStatement(db: D1Database, athleteId: number) {
+export function deletePrivateSwimsStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare("DELETE FROM swims WHERE athlete_id = ? AND is_private = 1")
 		.bind(athleteId);
@@ -50,24 +51,24 @@ export function deletePrivateSwimsStatement(db: D1Database, athleteId: number) {
 
 export function listSwimsOfRidersStatement(
 	db: D1Database,
-	athleteIds: number[],
+	athleteIds: string[],
 ) {
 	return db
 		.prepare(
-			`SELECT strava_activity_id, athlete_id, start_date, start_date_local,
+			`SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id, CAST(athlete_id AS TEXT) AS athlete_id, start_date, start_date_local,
 				distance_m, is_private, refreshed_at
 			FROM swims WHERE athlete_id IN (SELECT value FROM json_each(?1))
-			ORDER BY athlete_id, strava_activity_id`,
+			ORDER BY swims.athlete_id, swims.strava_activity_id`,
 		)
-		.bind(JSON.stringify(athleteIds));
+		.bind(idsJson(athleteIds));
 }
 
 /** `strava_activity_id, athlete_id` of those of `ids` stored as swims. */
-export function swimOwnersStatement(db: D1Database, ids: number[]) {
+export function swimOwnersStatement(db: D1Database, ids: string[]) {
 	return db
 		.prepare(
-			`SELECT strava_activity_id, athlete_id FROM swims
+			`SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id, CAST(athlete_id AS TEXT) AS athlete_id FROM swims
 			WHERE strava_activity_id IN (SELECT value FROM json_each(?))`,
 		)
-		.bind(JSON.stringify(ids));
+		.bind(idsJson(ids));
 }

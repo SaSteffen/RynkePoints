@@ -13,7 +13,7 @@ import {
 
 const START = "2027-01-01";
 const dateOf = (recipe: RideRecipe, seedDay: string) =>
-	recipeToActivity(recipe, seedDay, START, 0).start_date_local.slice(0, 10);
+	recipeToActivity(recipe, seedDay, START, "0").start_date_local.slice(0, 10);
 const dayOf = (seedDay: string, daysAgo: number) =>
 	dateOf(ride(daysAgo, "10:00", 40, 200, 24), seedDay);
 const onDate = (monthDay: string): RideRecipe => ({
@@ -61,7 +61,7 @@ describe("a sample ride on a set day of the season", () => {
 				onSolstice(6),
 				"2028-03-01",
 				"2027-09-01",
-				0,
+				"0",
 			).start_date_local.slice(0, 10),
 		).toBe("2028-06-20");
 	});

@@ -217,7 +217,7 @@ describe("scheduled: reconnect expiry (FR-020)", () => {
 		expect(await getRider(env.DB, ATHLETE_A)).toBeNull();
 		expect(await getRider(env.DB, ATHLETE_B)).not.toBeNull();
 		const { results } = await env.DB.prepare(
-			"SELECT DISTINCT athlete_id FROM activities",
+			"SELECT DISTINCT CAST(athlete_id AS TEXT) AS athlete_id FROM activities",
 		).all();
 		expect(results).toEqual([{ athlete_id: ATHLETE_B }]);
 	});

@@ -31,7 +31,7 @@ const { de } = CATALOGS;
 
 /** A 60 km ride with 450 m, meeting every rule but the window. */
 function ride(
-	id: number,
+	id: string,
 	date: string,
 	overrides: Partial<ActivityRecord> = {},
 ): ActivityRecord {
@@ -56,7 +56,7 @@ function withoutRides(page: string): string {
 		.replace(/<img class="coin-art coin coin-hero"[^>]*>/, "");
 }
 
-async function earned(athleteId: number): Promise<string[]> {
+async function earned(athleteId: string): Promise<string[]> {
 	const { results } = await env.DB.prepare(
 		"SELECT badge_id FROM rider_badges WHERE athlete_id = ? ORDER BY badge_id",
 	)
@@ -73,13 +73,13 @@ describe.runIf(window.windowStart > window.seasonStart)(
 			// One first name, so the two pages differ only by their rides.
 			await seedRider(ctx, { athleteId: ATHLETE_A, firstName: "Kim" });
 			await seedRider(ctx, { athleteId: ATHLETE_B, firstName: "Kim" });
-			await upsertActivity(env.DB, ride(1, "2026-09-15"));
-			await upsertActivity(env.DB, ride(2, "2026-11-15"));
-			await upsertActivity(env.DB, ride(3, "2026-12-24"));
+			await upsertActivity(env.DB, ride("1", "2026-09-15"));
+			await upsertActivity(env.DB, ride("2", "2026-11-15"));
+			await upsertActivity(env.DB, ride("3", "2026-12-24"));
 			// Too slow as well: a plain ride that doesn't count (FR-013).
 			await upsertActivity(
 				env.DB,
-				ride(4, "2026-12-25", {
+				ride("4", "2026-12-25", {
 					distance_m: 12000,
 					moving_time_s: 7200,
 					elapsed_time_s: 7200,
@@ -124,10 +124,10 @@ describe.runIf(window.windowStart > window.seasonStart)(
 
 		it("stores exactly the reasons the badge queries look for (research R4)", async () => {
 			const { results } = await env.DB.prepare(
-				"SELECT strava_activity_id, reasons FROM ride_results WHERE athlete_id = ? ORDER BY 1",
+				"SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id, reasons FROM ride_results WHERE athlete_id = ? ORDER BY 1",
 			)
 				.bind(ATHLETE_A)
-				.all<{ strava_activity_id: number; reasons: string }>();
+				.all<{ strava_activity_id: string; reasons: string }>();
 			expect(results.map((r) => r.reasons)).toEqual([
 				'["before_window"]',
 				'["before_window"]',

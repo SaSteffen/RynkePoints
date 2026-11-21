@@ -14,7 +14,7 @@ const ctx = makeCtx();
 // balance sees only the waiting state there, so no names either (015 US1).
 const OWN_PAGES = new Map([["/me/rides connected", ATHLETE_A]]);
 
-function names(athleteId: number): string[] {
+function names(athleteId: string): string[] {
 	return RIDE_NAMES[athleteId] ?? [];
 }
 

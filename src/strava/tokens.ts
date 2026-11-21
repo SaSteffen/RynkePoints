@@ -1,6 +1,7 @@
 import { clientId, clientSecret } from "../config";
 import { readRateLimitState } from "../db/rate-limit";
 import { getCredentials, saveCredentials } from "../db/riders";
+import { isStravaId, parseStravaJson } from "./id";
 import {
 	budgetDecision,
 	deferUntilNextWindow,
@@ -26,7 +27,7 @@ export interface TokenExchange {
 	accessToken: string;
 	refreshToken: string;
 	expiresAt: number;
-	athleteId: number;
+	athleteId: string;
 	firstName: string;
 	/** Accepted scopes, if Strava includes them in the token response. */
 	scope?: string;
@@ -104,10 +105,11 @@ export async function exchangeCode(
 	);
 	if (!(res instanceof Response)) return res;
 	if (res.ok) {
-		const body = (await res.json()) as TokenBody;
+		// The athlete's ID exactly (feature 042 FR-003).
+		const body = parseStravaJson(await res.text()) as TokenBody;
 		const tokens = tokensOf(body);
 		const { id, firstname } = body.athlete ?? {};
-		if (!tokens || typeof id !== "number" || typeof firstname !== "string") {
+		if (!tokens || !isStravaId(id) || typeof firstname !== "string") {
 			return transient(TOKEN_ENDPOINT, "malformed response");
 		}
 		return {
@@ -130,7 +132,7 @@ export async function exchangeCode(
 
 async function refresh(
 	ctx: StravaCtx,
-	athleteId: number,
+	athleteId: string,
 	refreshToken: string,
 	priority: Priority,
 ): Promise<StravaResult<string>> {
@@ -163,7 +165,7 @@ async function refresh(
  */
 export async function getAccessToken(
 	ctx: StravaCtx,
-	athleteId: number,
+	athleteId: string,
 	options: { force?: boolean; priority?: Priority } = {},
 ): Promise<StravaResult<string>> {
 	const creds = await getCredentials(ctx.env, athleteId);

@@ -25,13 +25,13 @@ beforeEach(async () => {
 	// Rider B: a virtual and an outdoor ride on one day, a non-counting one,
 	// and a correction of its own.
 	await seedRide(ATHLETE_B, {
-		id: 7_200_001,
+		id: "7200001",
 		start_date: "2026-09-10T07:00:00Z",
 		start_date_local: "2026-09-10T09:00:00Z",
 		result: { counts: true, distanceRynke: 3, elevationDm: 100 },
 	});
 	await seedRide(ATHLETE_B, {
-		id: 7_200_002,
+		id: "7200002",
 		start_date: "2026-09-10T17:00:00Z",
 		start_date_local: "2026-09-10T19:00:00Z",
 		result: {
@@ -42,7 +42,7 @@ beforeEach(async () => {
 		},
 	});
 	await seedRide(ATHLETE_B, {
-		id: 7_200_003,
+		id: "7200003",
 		start_date: "2026-09-11T07:00:00Z",
 		start_date_local: "2026-09-11T09:00:00Z",
 		result: { counts: false, reasons: ["too_slow"], distanceRynke: 0 },

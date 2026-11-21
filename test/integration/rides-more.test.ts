@@ -35,10 +35,10 @@ afterEach(() => {
 });
 
 /** The ids of the rides on a page or in a batch, in order. */
-function ids(html: string): number[] {
+function ids(html: string): string[] {
 	return [
 		...html.matchAll(/class="tap strava-activity" href="[^"]*\/(\d+)"/g),
-	].map((m) => Number(m[1]));
+	].map((m) => m[1] ?? "");
 }
 
 /** The list's `data-more`, `null` without one. */
@@ -47,8 +47,8 @@ function more(html: string): string | null {
 }
 
 /** `n` consecutive ids from `first`, the order `seedRides` lists them. */
-function range(first: number, n: number): number[] {
-	return Array.from({ length: n }, (_, i) => first + i);
+function range(first: number, n: number): string[] {
+	return Array.from({ length: n }, (_, i) => String(first + i));
 }
 
 async function batch(
@@ -105,20 +105,20 @@ describe("GET /me/rides/more reading through (018 US1)", () => {
 		const first = await firstMore();
 		// A new ride on top, the key's own ride and the next one deleted.
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			start_date: "2026-10-07T08:00:00Z",
 			result: { counts: true, distanceRynke: 4 },
 		});
 		await env.DB.batch([
-			deleteActivityStatement(env.DB, ATHLETE_A, 8_000_020),
-			deleteActivityStatement(env.DB, ATHLETE_A, 8_000_021),
+			deleteActivityStatement(env.DB, ATHLETE_A, "8000020"),
+			deleteActivityStatement(env.DB, ATHLETE_A, "8000021"),
 		]);
 		const html = await (await batch(first)).text();
 		expect(ids(html)).toEqual(range(8_000_022, 20));
 	});
 
 	it("orders rides of the same second by id", async () => {
-		for (const id of [9_000_001, 9_000_002, 9_000_003]) {
+		for (const id of ["9000001", "9000002", "9000003"]) {
 			await seedRide(ATHLETE_A, {
 				id,
 				start_date: "2026-09-01T08:00:00Z",
@@ -129,8 +129,27 @@ describe("GET /me/rides/more reading through (018 US1)", () => {
 			"/me/rides/more?after=2026-09-01T08%3A00%3A00Z~9000003",
 		);
 		const html = await res.text();
-		expect(ids(html)).toEqual([9_000_002, 9_000_001]);
+		expect(ids(html)).toEqual(["9000002", "9000001"]);
 		expect(more(html)).toBeNull();
+	});
+
+	it("orders and continues by IDs past 2^53 exactly (feature 042)", async () => {
+		for (const id of [
+			"9007199254740992",
+			"9007199254740993",
+			"9007199254740994",
+		]) {
+			await seedRide(ATHLETE_A, {
+				id,
+				start_date: "2026-09-01T08:00:00Z",
+				result: { counts: true },
+			});
+		}
+		const res = await batch(
+			"/me/rides/more?after=2026-09-01T08%3A00%3A00Z~9007199254740994",
+		);
+		const html = await res.text();
+		expect(ids(html)).toEqual(["9007199254740993", "9007199254740992"]);
 	});
 
 	it("R5: takes up to the limit asked for", async () => {

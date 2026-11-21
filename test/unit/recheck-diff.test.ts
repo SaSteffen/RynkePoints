@@ -18,11 +18,11 @@ import type {
 // from the list that start after its oldest entry, or any when the list is
 // shorter than a page and so holds every activity.
 
-const ATHLETE = 900001;
+const ATHLETE = "900001";
 const LISTED_AT = 2_000_000_000;
 const STORED_AT = 1_900_000_000;
 
-function ride(id: number, o: Partial<ActivityRecord> = {}): ActivityRecord {
+function ride(id: string, o: Partial<ActivityRecord> = {}): ActivityRecord {
 	return {
 		strava_activity_id: id,
 		athlete_id: ATHLETE,
@@ -44,7 +44,7 @@ function ride(id: number, o: Partial<ActivityRecord> = {}): ActivityRecord {
 	};
 }
 
-function run(id: number, o: Partial<RunRecord> = {}): RunRecord {
+function run(id: string, o: Partial<RunRecord> = {}): RunRecord {
 	return {
 		strava_activity_id: id,
 		athlete_id: ATHLETE,
@@ -57,7 +57,7 @@ function run(id: number, o: Partial<RunRecord> = {}): RunRecord {
 	};
 }
 
-const swim = (id: number, o: Partial<SwimRecord> = {}): SwimRecord =>
+const swim = (id: string, o: Partial<SwimRecord> = {}): SwimRecord =>
 	run(id, { distance_m: 1500, ...o });
 
 function listed(o: Partial<KeptActivities> = {}): KeptActivities {
@@ -69,7 +69,7 @@ function stored(
 	runs: RunRecord[] = [],
 	swims: SwimRecord[] = [],
 ): StoredActivities {
-	const byId = <T extends { strava_activity_id: number }>(rows: T[]) =>
+	const byId = <T extends { strava_activity_id: string }>(rows: T[]) =>
 		new Map(
 			rows.map((r) => [
 				r.strava_activity_id,
@@ -82,8 +82,8 @@ function stored(
 describe("differences", () => {
 	it("is empty for identical lists, whatever the refresh times", () => {
 		const result = differences(
-			listed({ records: [ride(1)], runs: [run(2)], swims: [swim(3)] }),
-			stored([ride(1)], [run(2)], [swim(3)]),
+			listed({ records: [ride("1")], runs: [run("2")], swims: [swim("3")] }),
+			stored([ride("1")], [run("2")], [swim("3")]),
 		);
 		expect(result).toEqual(listed());
 	});
@@ -102,19 +102,19 @@ describe("differences", () => {
 		["Strava's flag", { is_flagged: 1 }],
 		["name", { name: "Renamed" }],
 	])("takes a ride whose %s changed", (_label, change) => {
-		const changed = ride(1, change);
+		const changed = ride("1", change);
 		expect(
-			differences(listed({ records: [changed] }), stored([ride(1)])),
+			differences(listed({ records: [changed] }), stored([ride("1")])),
 		).toEqual(listed({ records: [changed] }));
 	});
 
 	it("takes a run or swim whose distance changed", () => {
-		const longer = run(2, { distance_m: 12000 });
-		const shorter = swim(3, { distance_m: 1000 });
+		const longer = run("2", { distance_m: 12000 });
+		const shorter = swim("3", { distance_m: 1000 });
 		expect(
 			differences(
 				listed({ runs: [longer], swims: [shorter] }),
-				stored([], [run(2)], [swim(3)]),
+				stored([], [run("2")], [swim("3")]),
 			),
 		).toEqual(listed({ runs: [longer], swims: [shorter] }));
 	});
@@ -122,23 +122,27 @@ describe("differences", () => {
 	it("takes an activity that isn't stored", () => {
 		expect(
 			differences(
-				listed({ records: [ride(1)], runs: [run(2)], swims: [swim(3)] }),
+				listed({ records: [ride("1")], runs: [run("2")], swims: [swim("3")] }),
 				stored(),
 			),
-		).toEqual(listed({ records: [ride(1)], runs: [run(2)], swims: [swim(3)] }));
+		).toEqual(
+			listed({ records: [ride("1")], runs: [run("2")], swims: [swim("3")] }),
+		);
 	});
 
 	it("takes an activity that moved between ride, run and swim", () => {
 		expect(
 			differences(
-				listed({ records: [ride(1)], runs: [run(2)], swims: [swim(3)] }),
-				stored([ride(3)], [run(1)], [swim(2)]),
+				listed({ records: [ride("1")], runs: [run("2")], swims: [swim("3")] }),
+				stored([ride("3")], [run("1")], [swim("2")]),
 			),
-		).toEqual(listed({ records: [ride(1)], runs: [run(2)], swims: [swim(3)] }));
+		).toEqual(
+			listed({ records: [ride("1")], runs: [run("2")], swims: [swim("3")] }),
+		);
 	});
 
 	it("keeps a stored figure the list lacks, and that alone is no difference", () => {
-		const lacking = ride(1, {
+		const lacking = ride("1", {
 			elapsed_time_s: null,
 			is_manual: null,
 			is_trainer: null,
@@ -146,21 +150,21 @@ describe("differences", () => {
 			name: null,
 		});
 		expect(
-			differences(listed({ records: [lacking] }), stored([ride(1)])),
+			differences(listed({ records: [lacking] }), stored([ride("1")])),
 		).toEqual(listed());
 	});
 
 	it("fills a stored figure the list lacks into a ride that changed", () => {
-		const changed = ride(1, { distance_m: 30000, elapsed_time_s: null });
+		const changed = ride("1", { distance_m: 30000, elapsed_time_s: null });
 		expect(
-			differences(listed({ records: [changed] }), stored([ride(1)])),
+			differences(listed({ records: [changed] }), stored([ride("1")])),
 		).toEqual(listed({ records: [{ ...changed, elapsed_time_s: 6000 }] }));
 	});
 
 	it("takes nothing for a stored activity missing from the list", () => {
 		const result = differences(
 			listed(),
-			stored([ride(1)], [run(2)], [swim(3)]),
+			stored([ride("1")], [run("2")], [swim("3")]),
 		);
 		expect(result).toEqual(listed());
 	});
@@ -176,12 +180,12 @@ describe("gone", () => {
 	it("names the stored rides, runs and swims the list lacks after its oldest entry", () => {
 		expect(
 			gone(
-				listed({ records: [ride(1)] }),
-				stored([ride(1), ride(4)], [run(2)], [swim(3)]),
+				listed({ records: [ride("1")] }),
+				stored([ride("1"), ride("4")], [run("2")], [swim("3")]),
 				OLDEST,
 				false,
 			),
-		).toEqual([4, 2, 3]);
+		).toEqual(["4", "2", "3"]);
 	});
 
 	it("leaves what starts at or before the oldest entry of a full list", () => {
@@ -189,8 +193,8 @@ describe("gone", () => {
 			gone(
 				listed(),
 				stored([
-					ride(1, on("01")),
-					ride(2, { start_date: "2026-09-30T07:30:00Z" }),
+					ride("1", on("01")),
+					ride("2", { start_date: "2026-09-30T07:30:00Z" }),
 				]),
 				OLDEST,
 				false,
@@ -201,23 +205,23 @@ describe("gone", () => {
 	it("judges every stored activity when the list is shorter than a page", () => {
 		expect(
 			gone(
-				listed({ records: [ride(1)] }),
+				listed({ records: [ride("1")] }),
 				stored([
-					ride(1),
-					ride(2, on("01")),
-					ride(3, { start_date: "2026-09-30T07:30:00Z" }),
+					ride("1"),
+					ride("2", on("01")),
+					ride("3", { start_date: "2026-09-30T07:30:00Z" }),
 				]),
 				OLDEST,
 				true,
 			),
-		).toEqual([2, 3]);
+		).toEqual(["2", "3"]);
 	});
 
 	it("keeps an activity listed as another kind", () => {
 		expect(
 			gone(
-				listed({ records: [ride(1)], runs: [run(2)], swims: [swim(3)] }),
-				stored([ride(3)], [run(1)], [swim(2)]),
+				listed({ records: [ride("1")], runs: [run("2")], swims: [swim("3")] }),
+				stored([ride("3")], [run("1")], [swim("2")]),
 				OLDEST,
 				true,
 			),
@@ -225,6 +229,6 @@ describe("gone", () => {
 	});
 
 	it("judges nothing for an empty list", () => {
-		expect(gone(listed(), stored([ride(1)]), undefined, true)).toEqual([]);
+		expect(gone(listed(), stored([ride("1")]), undefined, true)).toEqual([]);
 	});
 });

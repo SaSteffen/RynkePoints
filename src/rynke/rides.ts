@@ -1,3 +1,4 @@
+import { compareIds } from "../strava/id";
 // Training Rynke from rides (FR-004–FR-005g, FR-011, FR-013a): a pure,
 // deterministic evaluation of one rider's stored activities
 // (contracts/ride-evaluation.md). No I/O, clock or randomness. Arithmetic is
@@ -58,7 +59,7 @@ export type UnknownFigureCode = (typeof UNKNOWN_FIGURE_CODES)[number];
 
 /** One stored activity as the evaluation sees it (data-model.md "Input: Ride"). */
 export interface Ride {
-	activityId: number;
+	activityId: string;
 	sportType: string;
 	/** ISO UTC; start of the overlap interval (research R5). */
 	startUtc: string;
@@ -76,11 +77,11 @@ export interface Ride {
 }
 
 export interface RideResult {
-	activityId: number;
+	activityId: string;
 	counts: boolean;
 	reasons: ReasonCode[];
 	/** The larger counting ride this one overlaps; set only for `["overlap"]`. */
-	overlapsActivityId: number | null;
+	overlapsActivityId: string | null;
 	distanceRynke: number;
 	/**
 	 * Decimetres added to the elevation total; 0 when not counting, except for
@@ -137,10 +138,10 @@ export function evaluateRides(
 			(a, b) =>
 				b.ride.distanceM - a.ride.distanceM ||
 				b.elevationDm - a.elevationDm ||
-				a.ride.activityId - b.ride.activityId,
+				compareIds(a.ride.activityId, b.ride.activityId),
 		);
 	const counting: Checked[] = [];
-	const overlaps = new Map<number, number>();
+	const overlaps = new Map<string, string>();
 	for (const candidate of candidates) {
 		const larger = counting.find((c) => overlap(c.ride, candidate.ride));
 		if (larger) {
@@ -170,7 +171,7 @@ export function evaluateRides(
 				activityRefreshedAt: ride.refreshedAt,
 			};
 		})
-		.sort((a, b) => a.activityId - b.activityId);
+		.sort((a, b) => compareIds(a.activityId, b.activityId));
 
 	const countingResults = results.filter((r) => r.counts);
 	return {

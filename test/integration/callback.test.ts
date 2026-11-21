@@ -338,7 +338,7 @@ describe("GET /auth/callback success", () => {
 		});
 
 		const creds = await env.DB.prepare(
-			"SELECT * FROM strava_credentials WHERE athlete_id = ?",
+			"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM strava_credentials WHERE athlete_id = ?",
 		)
 			.bind(ATHLETE_A)
 			.first<Record<string, string>>();
@@ -422,7 +422,7 @@ describe("GET /auth/callback success", () => {
 describe("GET /auth/callback consent", () => {
 	async function consentRows() {
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id, version, accepted_at FROM consent_records",
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id, version, accepted_at FROM consent_records",
 		).all();
 		return results;
 	}
@@ -631,7 +631,7 @@ describe("GET /auth/callback responses", () => {
 });
 
 describe("GET /auth/callback for a blocked rider (025 FR-030, R7)", () => {
-	const block = (athleteId: number) =>
+	const block = (athleteId: string) =>
 		env.DB.prepare("INSERT INTO blocked_athletes (athlete_id) VALUES (?)")
 			.bind(athleteId)
 			.run();
@@ -644,7 +644,7 @@ describe("GET /auth/callback for a blocked rider (025 FR-030, R7)", () => {
 		expect(fake.callsTo("clubs")).toEqual([]);
 		await expectNoRows();
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id FROM blocked_athletes",
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM blocked_athletes",
 		).all();
 		expect(results).toEqual([{ athlete_id: ATHLETE_A }]);
 	});

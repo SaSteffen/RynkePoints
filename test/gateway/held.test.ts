@@ -34,13 +34,17 @@ const TOKENS: Record<string, string> = {
 };
 
 /** Each team answers from `answers`, by origin; a missing one fails. */
-function teamsAnswer(answers: Record<string, string | number>) {
+function teamsAnswer(
+	answers: Record<string, string | number>,
+	athleteId = "990001",
+) {
 	const asked: string[] = [];
 	vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
 		const request = new Request(input, init);
 		const url = new URL(request.url);
 		expect(url.pathname).toBe(`/strava/held/${TOKENS[url.origin]}`);
-		expect(await request.json()).toEqual({ athleteId: 990001 });
+		// A number with every digit, as before (feature 042 research R3).
+		expect(await request.text()).toBe(`{"athleteId":${athleteId}}`);
 		asked.push(url.origin);
 		const answer = answers[url.origin];
 		if (typeof answer === "number")
@@ -60,7 +64,7 @@ function ask(
 		new Request(`https://gateway.example.test/teams/${team}/held`, {
 			method: "POST",
 			headers: token ? { Authorization: `Bearer ${token}` } : {},
-			body: JSON.stringify(body),
+			body: typeof body === "string" ? body : JSON.stringify(body),
 		}),
 		env,
 	);
@@ -105,6 +109,25 @@ describe("POST /teams/<id>/held", () => {
 	])("refuses %s", async (_, team, token) => {
 		const asked = teamsAnswer({});
 		expect((await ask(team, token)).status).toBe(403);
+		expect(asked).toEqual([]);
+	});
+
+	it("asks about an athlete ID past 2^53 exactly (feature 042)", async () => {
+		const large = "9223372036854775807";
+		const asked = teamsAnswer(
+			{ [EUROPE]: "none", [NORDIC]: "connected" },
+			large,
+		);
+		const res = await ask("hamburg", HAMBURG_TOKEN, `{"athleteId":${large}}`);
+		expect(await res.json()).toEqual({ held: "connected" });
+		expect(asked.sort()).toEqual([EUROPE, NORDIC]);
+	});
+
+	it("refuses an athlete ID sent as text", async () => {
+		const asked = teamsAnswer({});
+		expect(
+			(await ask("hamburg", HAMBURG_TOKEN, { athleteId: "990001" })).status,
+		).toBe(400);
 		expect(asked).toEqual([]);
 	});
 

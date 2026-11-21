@@ -3,6 +3,7 @@ import {
 	OWN_SUMMARY_SINCE,
 	type VirtualDayEntry,
 } from "../rynke/summary";
+import { idsJson } from "../strava/id";
 import { SINCE_VERSION } from "../visibility";
 import { SEASON_RIDE } from "./badges";
 import { sharedRiderExists, sharedRiderIdsSince } from "./consents";
@@ -14,7 +15,7 @@ import { sharedRiderExists, sharedRiderIdsSince } from "./consents";
 
 /** One agreed rider's figures, from their row or added up. */
 export interface GraphRow {
-	athleteId: number;
+	athleteId: string;
 	days: DayEntry[];
 	virtualDays: VirtualDayEntry[];
 }
@@ -24,7 +25,7 @@ const DAILY_FIGURES = SINCE_VERSION.dailyFigures;
 /** One round trip's worth, for the batch with the open requests. */
 export function organiserGraphsStatement(db: D1Database) {
 	return db.prepare(
-		`SELECT r.athlete_id, s.days, s.virtual_days
+		`SELECT CAST(r.athlete_id AS TEXT) AS athlete_id, s.days, s.virtual_days
 		FROM riders r
 		LEFT JOIN rider_summaries s
 			ON s.athlete_id = r.athlete_id AND s.version >= ${OWN_SUMMARY_SINCE}
@@ -42,7 +43,7 @@ export async function toGraphRows(
 	result: D1Result,
 ): Promise<GraphRow[]> {
 	const rows = result.results as {
-		athlete_id: number;
+		athlete_id: string;
 		days: string | null;
 		virtual_days: string | null;
 	}[];
@@ -70,18 +71,20 @@ export async function toGraphRows(
 
 async function graphDaysAddedUp(
 	db: D1Database,
-	athleteIds: readonly number[],
-): Promise<Map<number, Omit<GraphRow, "athleteId">>> {
-	const ids = JSON.stringify(athleteIds);
+	athleteIds: readonly string[],
+): Promise<Map<string, Omit<GraphRow, "athleteId">>> {
+	const ids = idsJson(athleteIds);
 	const agreed = `SELECT athlete_id FROM riders
 		WHERE status = 'connected'
 			AND athlete_id IN (SELECT value FROM json_each(?1))
 			AND athlete_id IN (${sharedRiderIdsSince(DAILY_FIGURES)})`;
 	const [agreedRows, dayRows] = await db.batch([
-		db.prepare(agreed).bind(ids),
+		db
+			.prepare(`SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM (${agreed})`)
+			.bind(ids),
 		db
 			.prepare(
-				`SELECT l.athlete_id, substr(a.start_date_local, 1, 10) AS date,
+				`SELECT CAST(l.athlete_id AS TEXT) AS athlete_id, substr(a.start_date_local, 1, 10) AS date,
 					SUM(a.distance_m) AS distance_m,
 					SUM(r.distance_rynke) AS distance_rynke,
 					SUM(r.elevation_dm) AS elevation_dm,
@@ -97,14 +100,14 @@ async function graphDaysAddedUp(
 	if (!agreedRows || !dayRows) {
 		throw new Error("D1 batch returned too few results");
 	}
-	const figures = new Map<number, Omit<GraphRow, "athleteId">>(
-		(agreedRows.results as { athlete_id: number }[]).map((row) => [
+	const figures = new Map<string, Omit<GraphRow, "athleteId">>(
+		(agreedRows.results as { athlete_id: string }[]).map((row) => [
 			row.athlete_id,
 			{ days: [], virtualDays: [] },
 		]),
 	);
 	for (const row of dayRows.results as {
-		athlete_id: number;
+		athlete_id: string;
 		date: string;
 		distance_m: number;
 		distance_rynke: number;

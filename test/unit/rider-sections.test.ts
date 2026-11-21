@@ -34,7 +34,7 @@ const COUNTDOWN = {
 
 function line(overrides: Partial<RideLine> = {}): RideLine {
 	return {
-		activityId: 1,
+		activityId: "1",
 		name: null,
 		startDateLocal: "2026-10-06T08:00:00Z",
 		sportType: "Ride",
@@ -307,13 +307,13 @@ describe("renderRides link to Strava (008 FR-009, FR-011)", () => {
 		"does-not-count",
 	] as const) {
 		it(`puts the link after the figures for a ride that ${status}`, () => {
-			const out = table(line({ status, activityId: 8000001 }));
+			const out = table(line({ status, activityId: "8000001" }));
 			expect(out).toContain(`</dl>\n${link}`);
 		});
 	}
 
 	it("opens in the same tab (research R4)", () => {
-		const tag = table(line({ activityId: 8000001 })).match(
+		const tag = table(line({ activityId: "8000001" })).match(
 			/<a [^>]*strava-activity[^>]*>/,
 		)?.[0];
 		expect(tag).toBeDefined();
@@ -322,13 +322,13 @@ describe("renderRides link to Strava (008 FR-009, FR-011)", () => {
 	});
 
 	it("keeps the English link text on the German page", () => {
-		expect(table(line({ activityId: 8000001 }), de)).toContain(link);
+		expect(table(line({ activityId: "8000001" }), de)).toContain(link);
 	});
 });
 
 describe("renderRides ride name (008 FR-005, FR-010)", () => {
 	it("shows the name as escaped text before the link", () => {
-		const out = table(line({ name: "Loop <b> & 🚴", activityId: 8000001 }));
+		const out = table(line({ name: "Loop <b> & 🚴", activityId: "8000001" }));
 		expect(out).toContain(
 			'<p class="ride-strava"><span class="ride-name">Loop &lt;b&gt; &amp; 🚴</span> <a class="tap strava-activity"',
 		);
@@ -625,14 +625,14 @@ describe("renderNotice", () => {
 
 // The continuous list's markup (018 contracts/pages.md, research R6, R7).
 describe("renderRides lazy list (018 US1, US3)", () => {
-	const KEY = { startDate: "2026-09-16T08:00:00Z", activityId: 8_000_040 };
+	const KEY = { startDate: "2026-09-16T08:00:00Z", activityId: "8000040" };
 	const MORE = "/me/rides/more?after=2026-09-16T08%3A00%3A00Z~8000040";
 
 	function lazy(page: number, more = page < 3 ? KEY : null): string {
 		return renderRides(
 			de,
 			{
-				rows: [line({ activityId: 8_000_040 })],
+				rows: [line({ activityId: "8000040" })],
 				total: 45,
 				page,
 				more,
@@ -722,10 +722,10 @@ describe("renderRides lazy list (018 US1, US3)", () => {
 });
 
 describe("renderRideBatch (018 contracts/http-routes.md)", () => {
-	const KEY = { startDate: "2026-08-27T08:00:00Z", activityId: 8_000_040 };
+	const KEY = { startDate: "2026-08-27T08:00:00Z", activityId: "8000040" };
 
 	it("renders the cards of the page, with the next batch", () => {
-		const rows = [line({ activityId: 7 }), line({ activityId: 8 })];
+		const rows = [line({ activityId: "7" }), line({ activityId: "8" })];
 		const page = renderRides(
 			de,
 			{

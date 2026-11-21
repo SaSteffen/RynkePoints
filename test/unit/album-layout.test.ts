@@ -32,7 +32,7 @@ import { CATALOGS } from "../../src/i18n/catalogs";
 // A4 pages with mirrored margins, the event table's pages, and the sticker
 // pages' slots and stickers. Synthetic data only.
 
-const ATHLETE = 101;
+const ATHLETE = "101";
 const MM_PER_PX = 25.4 / 96;
 
 function event(i: number): AlbumEvent {
@@ -280,7 +280,7 @@ describe("pose", () => {
 		// In the mock-up's px (96 per inch), rounded as it rounds them.
 		const px = (mm: number) => Math.round(mm / MM_PER_PX) + 0;
 		const shown = (badgeId: string) => {
-			const p = pose(101, badgeId);
+			const p = pose("101", badgeId);
 			return [px(p.dxMm), px(p.dyMm), Math.round(p.rotateDeg * 10) / 10 + 0];
 		};
 		expect(shown("distance-1000")).toEqual([4, 9, 0]);
@@ -295,13 +295,17 @@ describe("pose", () => {
 	});
 
 	it("differs between riders and between neighbouring slots", () => {
-		expect(pose(101, "distance-100")).not.toEqual(pose(102, "distance-100"));
-		expect(pose(101, "distance-100")).not.toEqual(pose(101, "distance-500"));
+		expect(pose("101", "distance-100")).not.toEqual(
+			pose("102", "distance-100"),
+		);
+		expect(pose("101", "distance-100")).not.toEqual(
+			pose("101", "distance-500"),
+		);
 	});
 
 	it("stays within ±7° and 3.8 mm, y within ±2.5 mm, a miss in about a third", () => {
 		const poses = BADGES.flatMap((badge) =>
-			[101, 202, 303, 404].map((id) => pose(id, badge.id)),
+			["101", "202", "303", "404"].map((id) => pose(id, badge.id)),
 		);
 		let misses = 0;
 		for (const p of poses) {

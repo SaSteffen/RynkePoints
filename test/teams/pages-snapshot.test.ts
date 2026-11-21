@@ -30,14 +30,14 @@ import {
 const LANGS = ["de", "en"] as const;
 
 /** A rider who isn't an organiser, with team events and many rides. */
-const RIDER = 990007;
+const RIDER = "990007";
 /** An organiser. */
-const ORGANISER = 990011;
+const ORGANISER = "990011";
 /** A rider on the Tour de Paris days, for the album's events page. */
-const TOUR_RIDER = 990003;
+const TOUR_RIDER = "990003";
 const TODAY = "2026-10-06";
 
-function heldBack(): number {
+function heldBack(): string {
 	const rider = SAMPLE_RIDERS.find((r) => r.consentVersion !== undefined);
 	if (!rider) throw new Error("no sample rider is held back on consent");
 	return rider.athleteId;

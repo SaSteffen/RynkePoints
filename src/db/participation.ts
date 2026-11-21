@@ -1,5 +1,6 @@
 import { type CountingWindow, seasonEnd } from "../rynke/rules";
 import type { EventKind } from "../rynke/team-events";
+import { idsJson } from "../strava/id";
 import { LISTED_RIDER_IDS } from "./organiser";
 
 // Participation reports (feature 019 data-model.md, research R1, R7). A report
@@ -32,7 +33,7 @@ export interface OpenRequestRow {
 	kind: EventKind;
 	event_date: string;
 	name: string | null;
-	athlete_id: number;
+	athlete_id: string;
 	first_name: string;
 	reported_at: number;
 }
@@ -96,7 +97,7 @@ export function listOpenRequestsStatement(
 ) {
 	return bindWindow(
 		db.prepare(
-			`SELECT p.event_id, e.kind, e.event_date, e.name, p.athlete_id,
+			`SELECT p.event_id, e.kind, e.event_date, e.name, CAST(p.athlete_id AS TEXT) AS athlete_id,
 				r.first_name, p.reported_at
 			FROM participation_reports p
 			JOIN team_events e ON e.event_id = p.event_id
@@ -132,7 +133,7 @@ export function countIntentsStatement(
 export function listEventReportsStatement(db: D1Database, eventId: number) {
 	return db
 		.prepare(
-			`SELECT p.athlete_id, p.reported_at FROM participation_reports p
+			`SELECT CAST(p.athlete_id AS TEXT) AS athlete_id, p.reported_at FROM participation_reports p
 			WHERE p.event_id = ? AND ${COUNTED}
 			ORDER BY p.athlete_id`,
 		)
@@ -145,7 +146,7 @@ export function listEventReportsStatement(db: D1Database, eventId: number) {
  */
 export function listRiderEventsStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	w: CountingWindow,
 ) {
 	return db
@@ -163,7 +164,7 @@ export function listRiderEventsStatement(
 }
 
 /** Whether `athleteId` is a listed rider (004 FR-021): one row with `n` 0 or 1. */
-export function isListedStatement(db: D1Database, athleteId: number) {
+export function isListedStatement(db: D1Database, athleteId: string) {
 	return db.prepare(`SELECT ? IN (${LISTED_RIDER_IDS}) AS n`).bind(athleteId);
 }
 
@@ -171,7 +172,7 @@ export function isListedStatement(db: D1Database, athleteId: number) {
 export function attendedStatement(
 	db: D1Database,
 	eventId: number,
-	athleteId: number,
+	athleteId: string,
 ) {
 	return db
 		.prepare(
@@ -185,7 +186,7 @@ export function attendedStatement(
 export function insertReportStatement(
 	db: D1Database,
 	eventId: number,
-	athleteId: number,
+	athleteId: string,
 	at: number,
 ) {
 	return db
@@ -200,18 +201,18 @@ export function insertReportStatement(
 export function deleteReportsStatement(
 	db: D1Database,
 	eventId: number,
-	athleteIds: readonly number[],
+	athleteIds: readonly string[],
 ) {
 	return db
 		.prepare(
 			`DELETE FROM participation_reports
 			WHERE event_id = ?1 AND athlete_id IN (SELECT value FROM json_each(?2))`,
 		)
-		.bind(eventId, JSON.stringify(athleteIds));
+		.bind(eventId, idsJson(athleteIds));
 }
 
 /** `event_id` of every event `athleteId` attended (019 FR-036). */
-export function listAttendedEventsStatement(db: D1Database, athleteId: number) {
+export function listAttendedEventsStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare("SELECT event_id FROM attendances WHERE athlete_id = ?")
 		.bind(athleteId);

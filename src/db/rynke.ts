@@ -3,6 +3,7 @@ import type { CountingWindow } from "../rynke/rules";
 import { RIDER_SUMMARY_VERSION } from "../rynke/summary";
 import type { Balance } from "../rynke/tally";
 import type { TeamEventSum } from "../rynke/team-events";
+import { idJson, idsJson } from "../strava/id";
 
 // Stored ride results and balances (feature 003 data-model.md, research R10,
 // R13, R14). Writes are statements for `applyAndEvaluate`'s batch; the reads
@@ -18,11 +19,11 @@ export interface StoredBalance extends Balance {
 }
 
 export interface RideResultRow {
-	strava_activity_id: number;
-	athlete_id: number;
+	strava_activity_id: string;
+	athlete_id: string;
 	counts: 0 | 1;
 	reasons: string;
-	overlaps_activity_id: number | null;
+	overlaps_activity_id: string | null;
 	distance_rynke: number;
 	elevation_dm: number;
 	is_virtual: 0 | 1;
@@ -32,7 +33,7 @@ export interface RideResultRow {
 }
 
 export interface BalanceRow {
-	athlete_id: number;
+	athlete_id: string;
 	distance_rynke: number;
 	elevation_dm: number;
 	elevation_rynke: number;
@@ -86,45 +87,51 @@ export function toStoredBalance(row: BalanceRow): StoredBalance {
 	};
 }
 
-export function readRideResultsStatement(db: D1Database, athleteId: number) {
+export function readRideResultsStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare(
-			`SELECT * FROM ride_results WHERE athlete_id = ?
-			ORDER BY strava_activity_id`,
+			`SELECT *, CAST(strava_activity_id AS TEXT) AS strava_activity_id, CAST(athlete_id AS TEXT) AS athlete_id,
+				CAST(overlaps_activity_id AS TEXT) AS overlaps_activity_id
+			FROM ride_results WHERE athlete_id = ?
+			ORDER BY ride_results.strava_activity_id`,
 		)
 		.bind(athleteId);
 }
 
-export function readBalanceStatement(db: D1Database, athleteId: number) {
+export function readBalanceStatement(db: D1Database, athleteId: string) {
 	return db
-		.prepare("SELECT * FROM rynke_balances WHERE athlete_id = ?")
+		.prepare(
+			"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM rynke_balances WHERE athlete_id = ?",
+		)
 		.bind(athleteId);
 }
 
 /** The ride results of every rider in `athleteIds`, for one batch (R21). */
 export function readRideResultsOfRidersStatement(
 	db: D1Database,
-	athleteIds: number[],
+	athleteIds: string[],
 ) {
 	return db
 		.prepare(
-			`SELECT * FROM ride_results
+			`SELECT *, CAST(strava_activity_id AS TEXT) AS strava_activity_id, CAST(athlete_id AS TEXT) AS athlete_id,
+				CAST(overlaps_activity_id AS TEXT) AS overlaps_activity_id
+			FROM ride_results
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))
-			ORDER BY athlete_id, strava_activity_id`,
+			ORDER BY ride_results.athlete_id, ride_results.strava_activity_id`,
 		)
-		.bind(JSON.stringify(athleteIds));
+		.bind(idsJson(athleteIds));
 }
 
 export function readBalancesOfRidersStatement(
 	db: D1Database,
-	athleteIds: number[],
+	athleteIds: string[],
 ) {
 	return db
 		.prepare(
-			`SELECT * FROM rynke_balances
+			`SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM rynke_balances
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))`,
 		)
-		.bind(JSON.stringify(athleteIds));
+		.bind(idsJson(athleteIds));
 }
 
 /** Maps the results of the two read statements above. */
@@ -145,14 +152,15 @@ export function storedRynke(
  */
 export function upsertRideResultsStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	results: StoredRideResult[],
 ) {
 	const rows = results.map((r) => ({
-		id: r.activityId,
+		id: idJson(r.activityId),
 		counts: r.counts ? 1 : 0,
 		reasons: r.reasons,
-		overlaps: r.overlapsActivityId,
+		overlaps:
+			r.overlapsActivityId === null ? null : idJson(r.overlapsActivityId),
 		distance: r.distanceRynke,
 		elevation: r.elevationDm,
 		virtual: r.isVirtual ? 1 : 0,
@@ -186,20 +194,20 @@ export function upsertRideResultsStatement(
 
 export function deleteRideResultsStatement(
 	db: D1Database,
-	athleteId: number,
-	activityIds: number[],
+	athleteId: string,
+	activityIds: string[],
 ) {
 	return db
 		.prepare(
 			`DELETE FROM ride_results WHERE athlete_id = ?2
 			AND strava_activity_id IN (SELECT value FROM json_each(?1))`,
 		)
-		.bind(JSON.stringify(activityIds), athleteId);
+		.bind(idsJson(activityIds), athleteId);
 }
 
 export function upsertBalanceStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	b: Balance,
 	now: number,
 ) {
@@ -246,7 +254,7 @@ export function upsertBalanceStatement(
  */
 export async function readRynke(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<{ balance: StoredBalance | null; results: StoredRideResult[] }> {
 	const [results, balance] = await db.batch([
 		readRideResultsStatement(db, athleteId),
@@ -276,7 +284,7 @@ export async function listRidersNeedingEvaluation(
 	rulesVersion: number,
 	window: CountingWindow,
 	badgesVersion: number,
-): Promise<number[]> {
+): Promise<string[]> {
 	const attended = `SELECT e.kind, count(*) FROM attendances a
 		JOIN team_events e ON e.event_id = a.event_id
 		WHERE a.athlete_id = r.athlete_id AND e.kind <> 'tour_de_paris'
@@ -292,7 +300,7 @@ export async function listRidersNeedingEvaluation(
 		WHERE s.athlete_id = r.athlete_id`;
 	const { results } = await db
 		.prepare(
-			`SELECT athlete_id FROM riders r WHERE status = 'connected' AND (
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders r WHERE status = 'connected' AND (
 				NOT EXISTS (SELECT 1 FROM rynke_balances b
 					WHERE b.athlete_id = r.athlete_id AND b.rules_version = ?1)
 				OR EXISTS (SELECT 1 FROM ride_results x
@@ -309,7 +317,7 @@ export async function listRidersNeedingEvaluation(
 				OR EXISTS (${attendedIds} EXCEPT ${summaryIds})
 				OR EXISTS (${summaryIds} EXCEPT ${attendedIds})
 			)
-			ORDER BY athlete_id`,
+			ORDER BY r.athlete_id`,
 		)
 		.bind(
 			rulesVersion,
@@ -318,14 +326,14 @@ export async function listRidersNeedingEvaluation(
 			badgesVersion,
 			RIDER_SUMMARY_VERSION,
 		)
-		.all<{ athlete_id: number }>();
+		.all<{ athlete_id: string }>();
 	return results.map((r) => r.athlete_id);
 }
 
 /** The rider's last rise (issue #45); replaces the one before. */
 export function upsertRiseStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	rise: { training: number; team: number },
 	now: number,
 ) {
@@ -339,7 +347,7 @@ export function upsertRiseStatement(
 		.bind(athleteId, rise.training, rise.team, now);
 }
 
-export function readRiseStatement(db: D1Database, athleteId: number) {
+export function readRiseStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare(
 			"SELECT training_rynke, team_rynke, risen_at FROM rynke_rises WHERE athlete_id = ?",

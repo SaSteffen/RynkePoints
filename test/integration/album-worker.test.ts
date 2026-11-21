@@ -9,7 +9,7 @@ import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
 // contracts/album-worker.md). Synthetic riders only.
 
 const ctx = makeCtx();
-const NOT_LISTED = 900004;
+const NOT_LISTED = "900004";
 const FILES: AlbumFiles = {
 	fonts: { "Nunito-Regular.woff2": new Uint8Array([1, 2, 3]).buffer },
 };

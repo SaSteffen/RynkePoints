@@ -5,6 +5,7 @@ import { attendanceSection } from "../../src/http/organiser/attendance";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 import { handleFetch } from "../../src/index";
+import { compareIds } from "../../src/strava/id";
 import {
 	makeCtx,
 	ORIGIN,
@@ -24,12 +25,12 @@ import { attendRaw, insertEvent, reportRaw } from "../support/rynke";
 const ctx = makeCtx();
 const { de } = CATALOGS;
 const ORGANISER = ATHLETE_C;
-const OTHER_ORGANISER = 900004;
+const OTHER_ORGANISER = "900004";
 
 let eventId: number;
 
 /** `form` as repeated fields: `attend` ids and `shown` `id:0|1` pairs. */
-function attendanceForm(attend: number[], shown: [number, 0 | 1][]): FormData {
+function attendanceForm(attend: string[], shown: [string, 0 | 1][]): FormData {
 	const form = new FormData();
 	for (const id of attend) form.append("attend", String(id));
 	for (const [id, state] of shown) form.append("shown", `${id}:${state}`);
@@ -56,8 +57,8 @@ async function postForm(
 }
 
 function save(
-	attend: number[],
-	shown: [number, 0 | 1][],
+	attend: string[],
+	shown: [string, 0 | 1][],
 	athleteId = ORGANISER,
 	id = eventId,
 ): Promise<Response> {
@@ -76,22 +77,22 @@ async function eventPage(id = eventId): Promise<string> {
 }
 
 interface AttendanceRow {
-	athlete_id: number;
-	changed_by: number | null;
+	athlete_id: string;
+	changed_by: string | null;
 	changed_at: number | null;
 }
 
 async function attendances(id = eventId): Promise<AttendanceRow[]> {
 	const { results } = await env.DB.prepare(
-		`SELECT athlete_id, changed_by, changed_at FROM attendances
-		WHERE event_id = ? ORDER BY athlete_id`,
+		`SELECT CAST(athlete_id AS TEXT) AS athlete_id, CAST(changed_by AS TEXT) AS changed_by, changed_at FROM attendances
+		WHERE event_id = ? ORDER BY attendances.athlete_id`,
 	)
 		.bind(id)
 		.all<AttendanceRow>();
 	return results;
 }
 
-async function teamRynke(athleteId: number): Promise<number> {
+async function teamRynke(athleteId: string): Promise<number> {
 	return (
 		(await env.DB.prepare(
 			"SELECT team_rynke FROM rynke_balances WHERE athlete_id = ?",
@@ -109,7 +110,7 @@ function expectRedirect(res: Response, location: string): void {
 /** Whether the page has the rider's checkbox, ticked or not. */
 function checkbox(
 	html: string,
-	athleteId: number,
+	athleteId: string,
 ): "ticked" | "unticked" | null {
 	const match = html.match(
 		new RegExp(
@@ -120,7 +121,7 @@ function checkbox(
 	return match[1] ? "ticked" : "unticked";
 }
 
-const profileLink = (athleteId: number) =>
+const profileLink = (athleteId: string) =>
 	`href="https://www.strava.com/athletes/${athleteId}"`;
 
 beforeEach(async () => {
@@ -219,19 +220,19 @@ describe("POST /organiser/events/{id}/attendance", () => {
 	});
 
 	it.each([
-		["a ticked id", [ATHLETE_A, 123456], [[ATHLETE_A, 0]]],
+		["a ticked id", [ATHLETE_A, "123456"], [[ATHLETE_A, 0]]],
 		[
 			"a shown id",
 			[ATHLETE_A],
 			[
 				[ATHLETE_A, 0],
-				[123456, 1],
+				["123456", 1],
 			],
 		],
-	] as [string, number[], [number, 0 | 1][]][])(
+	] as [string, string[], [string, 0 | 1][]][])(
 		"refuses %s that isn't listed, nothing written",
 		async (_name, attend, shown) => {
-			await seedRider(ctx, { athleteId: 123456, consentVersion: null });
+			await seedRider(ctx, { athleteId: "123456", consentVersion: null });
 			const res = await save(attend, shown);
 			expectRedirect(
 				res,
@@ -314,13 +315,13 @@ describe("the attendance checklist", () => {
 
 // Feature 019 US5 (FR-040–FR-044, research R5): reports as grey boxes.
 describe("tri-state boxes", () => {
-	const NORA = 900_005;
-	const EMIL = 900_006;
+	const NORA = "900005";
+	const EMIL = "900006";
 
 	/** POSTs `shown` ids and `decide-{id}` values as one form. */
 	function decideForm(
-		decisions: [number, "open" | "yes" | "no"][],
-		shown: [number, 0 | 1][] = [],
+		decisions: [string, "open" | "yes" | "no"][],
+		shown: [string, 0 | 1][] = [],
 	): FormData {
 		const form = attendanceForm([], shown);
 		for (const [id, value] of decisions) {
@@ -330,12 +331,12 @@ describe("tri-state boxes", () => {
 		return form;
 	}
 
-	async function reported(id = eventId): Promise<number[]> {
+	async function reported(id = eventId): Promise<string[]> {
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id FROM participation_reports WHERE event_id = ? ORDER BY athlete_id",
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM participation_reports WHERE event_id = ? ORDER BY participation_reports.athlete_id",
 		)
 			.bind(id)
-			.all<{ athlete_id: number }>();
+			.all<{ athlete_id: string }>();
 		return results.map((r) => r.athlete_id);
 	}
 
@@ -422,9 +423,7 @@ describe("tri-state boxes", () => {
 		form.append("attend", String(ATHLETE_B));
 		await postForm(form);
 		expect((await attendances()).map((a) => a.athlete_id)).toEqual([ATHLETE_B]);
-		expect(await reported()).toEqual(
-			[ATHLETE_A, NORA, EMIL].sort((a, b) => a - b),
-		);
+		expect(await reported()).toEqual([ATHLETE_A, NORA, EMIL].sort(compareIds));
 	});
 
 	it("shows an upcoming event's intents as locked grey boxes (FR-043)", async () => {

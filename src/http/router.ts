@@ -91,13 +91,14 @@ const ORGANISER_EVENT =
 const EVENT_REPORT = /^\/events\/(\d{1,15})\/report(\/delete)?$/;
 
 /** `/organiser/riders/{athleteId}` and its `/corrections`. */
-const ORGANISER_RIDER = /^\/organiser\/riders\/(\d{1,15})(\/corrections)?$/;
+const ORGANISER_RIDER =
+	/^\/organiser\/riders\/([1-9]\d{0,18})(\/corrections)?$/;
 
 /** `/organiser/corrections/{id}/delete`. */
 const ORGANISER_CORRECTION = /^\/organiser\/corrections\/(\d{1,15})\/delete$/;
 
 /** `/admin/riders/{athleteId}/remove` (feature 025). */
-const ADMIN_REMOVE = /^\/admin\/riders\/(\d{1,15})\/remove$/;
+const ADMIN_REMOVE = /^\/admin\/riders\/([1-9]\d{0,18})\/remove$/;
 
 /**
  * What belongs to events: the riders' Events page and reports, the organisers'
@@ -208,7 +209,7 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		}
 		const removal = path.match(ADMIN_REMOVE);
 		if (removal) {
-			return handleRemoveRider(request, ctx, i18n, Number(removal[1]));
+			return handleRemoveRider(request, ctx, i18n, removal[1] as string);
 		}
 		const event = path.match(ORGANISER_EVENT);
 		if (event) {
@@ -233,7 +234,7 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		}
 		const rider = path.match(ORGANISER_RIDER);
 		if (rider?.[2]) {
-			return handleAddCorrection(request, ctx, i18n, Number(rider[1]));
+			return handleAddCorrection(request, ctx, i18n, rider[1] as string);
 		}
 		const correction = path.match(ORGANISER_CORRECTION);
 		if (correction) {
@@ -292,7 +293,7 @@ async function page(
 	}
 	const removal = path.match(ADMIN_REMOVE);
 	if (removal) {
-		return handleRemoveConfirm(request, ctx, i18n, Number(removal[1]));
+		return handleRemoveConfirm(request, ctx, i18n, removal[1] as string);
 	}
 	const event = path.match(ORGANISER_EVENT);
 	if (event && !event[2]) {
@@ -300,7 +301,7 @@ async function page(
 	}
 	const rider = path.match(ORGANISER_RIDER);
 	if (rider && !rider[2]) {
-		return handleOrganiserRider(request, ctx, i18n, Number(rider[1]));
+		return handleOrganiserRider(request, ctx, i18n, rider[1] as string);
 	}
 	if (path.startsWith("/notice/")) {
 		return handleNotice(path.slice("/notice/".length), ctx, i18n);

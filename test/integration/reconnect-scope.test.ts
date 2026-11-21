@@ -24,10 +24,10 @@ beforeEach(async () => {
 
 afterEach(() => fake.restore());
 
-const PRIVATE_ID = 7_100_001;
-const PUBLIC_ID = 7_100_002;
+const PRIVATE_ID = "7100001";
+const PUBLIC_ID = "7100002";
 
-async function storeActivity(id: number, isPrivate: boolean) {
+async function storeActivity(id: string, isPrivate: boolean) {
 	const record = toActivityRecord(
 		makeStravaActivity({ id, private: isPrivate }),
 		ATHLETE_A,
@@ -37,10 +37,10 @@ async function storeActivity(id: number, isPrivate: boolean) {
 	await upsertActivity(env.DB, record);
 }
 
-async function storedIds(): Promise<number[]> {
+async function storedIds(): Promise<string[]> {
 	const { results } = await env.DB.prepare(
-		"SELECT strava_activity_id FROM activities ORDER BY strava_activity_id",
-	).all<{ strava_activity_id: number }>();
+		"SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id FROM activities ORDER BY activities.strava_activity_id",
+	).all<{ strava_activity_id: string }>();
 	return results.map((r) => r.strava_activity_id);
 }
 

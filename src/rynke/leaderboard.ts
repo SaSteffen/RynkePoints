@@ -1,3 +1,4 @@
+import { compareIds } from "../strava/id";
 // Places, ties, the neighbourhood and the team totals of the Team page
 // (feature 016 research R6, data-model.md `LeaderboardRow`, `Viewer`,
 // `Neighbourhood`, `TeamTotals`). Pure. The
@@ -10,7 +11,7 @@ export type RynkeKind = "training" | "team";
 
 /** A listed rider as the leaderboard needs them; extra fields are ignored. */
 export interface LeaderboardRider {
-	athleteId: number;
+	athleteId: string;
 	/** `null` without a stored balance: every figure counts as 0. */
 	balance: { trainingRynke: number; teamRynke: number } | null;
 	weeks: readonly WeekPoint[];
@@ -77,7 +78,7 @@ const SHORT_LIST = AROUND * 2 + 1;
  */
 export function leaderboardRows(
 	riders: readonly LeaderboardRider[],
-	viewerId: number,
+	viewerId: string,
 	kind: RynkeKind,
 ): { rows: LeaderboardRow[]; viewer: Viewer | null } {
 	const otherKind: RynkeKind = kind === "training" ? "team" : "training";
@@ -88,7 +89,10 @@ export function leaderboardRows(
 		weeks: rider.weeks.map((week) => week[kind]),
 	}));
 	totals.sort(
-		(a, b) => b[kind] - a[kind] || b[otherKind] - a[otherKind] || a.id - b.id,
+		(a, b) =>
+			b[kind] - a[kind] ||
+			b[otherKind] - a[otherKind] ||
+			compareIds(a.id, b.id),
 	);
 	const rows = totals.map((rider) => ({
 		you: rider.id === viewerId,

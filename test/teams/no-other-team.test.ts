@@ -24,7 +24,7 @@ import { RIDER_PAGES, seedPageRiders } from "../support/pages";
 
 const team = teamFor(env);
 const others = TEAMS.filter((t) => t.id !== team.id);
-const ADMIN = 900009;
+const ADMIN = "900009";
 
 let ctx: TestCtx;
 
@@ -69,12 +69,12 @@ const SERVICE_WORKER = import.meta.glob("../../public/sw.j[s]", {
 	eager: true,
 })["../../public/sw.js"];
 
-async function fetchAs(path: string, athleteId?: number): Promise<Response> {
+async function fetchAs(path: string, athleteId?: string): Promise<Response> {
 	const cookies = athleteId ? await sessionCookie(ctx, athleteId) : {};
 	return handleFetch(request(path, { cookies }), ctx);
 }
 
-const EXTRA: { name: string; path: string; as?: number }[] = [
+const EXTRA: { name: string; path: string; as?: string }[] = [
 	{ name: "/me/badges", path: "/me/badges", as: ATHLETE_A },
 	{ name: "/me tour example", path: "/me?tour=rider&step=4", as: ATHLETE_A },
 	{

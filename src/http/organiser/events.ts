@@ -180,7 +180,7 @@ interface EventsRead {
 
 async function readEvents(
 	ctx: Ctx,
-	organiser: number,
+	organiser: string,
 	day: string,
 ): Promise<EventsRead> {
 	const db = ctx.env.DB;

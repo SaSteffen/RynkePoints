@@ -31,8 +31,8 @@ import { CURRENT_RULES } from "../support/team-rules";
 // Deleting activities or riders takes their ride results with them, and the
 // balance follows in the same batch (FR-015, research R11).
 
-const SHARED = 7_600_001;
-const PRIVATE = 7_600_002;
+const SHARED = "7600001";
+const PRIVATE = "7600002";
 
 let fake: FakeStrava;
 let ctx: TestCtx;
@@ -60,7 +60,7 @@ async function seedEvaluated(athleteId = ATHLETE_A) {
 	);
 	await upsertActivity(
 		env.DB,
-		activityRecord(athleteId === ATHLETE_A ? PRIVATE : PRIVATE + 10, {
+		activityRecord(athleteId === ATHLETE_A ? PRIVATE : `${PRIVATE}0`, {
 			athlete_id: athleteId,
 			start_date: "2026-05-02T08:00:00Z",
 			distance_m: 50000,

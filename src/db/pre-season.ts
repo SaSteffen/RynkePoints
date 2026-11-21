@@ -8,16 +8,17 @@ const TABLES = ["activities", "runs", "swims"] as const;
 export async function listPreSeasonRiders(
 	db: D1Database,
 	seasonStartDate: string,
-): Promise<number[]> {
+): Promise<string[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT athlete_id FROM activities WHERE substr(start_date_local, 1, 10) < ?1
-			UNION SELECT athlete_id FROM runs WHERE substr(start_date_local, 1, 10) < ?1
-			UNION SELECT athlete_id FROM swims WHERE substr(start_date_local, 1, 10) < ?1
-			ORDER BY athlete_id`,
+			`SELECT CAST(id AS TEXT) AS athlete_id FROM (
+				SELECT athlete_id AS id FROM activities WHERE substr(start_date_local, 1, 10) < ?1
+				UNION SELECT athlete_id FROM runs WHERE substr(start_date_local, 1, 10) < ?1
+				UNION SELECT athlete_id FROM swims WHERE substr(start_date_local, 1, 10) < ?1)
+			ORDER BY id`,
 		)
 		.bind(seasonStartDate)
-		.all<{ athlete_id: number }>();
+		.all<{ athlete_id: string }>();
 	return results.map((r) => r.athlete_id);
 }
 

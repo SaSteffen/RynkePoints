@@ -12,11 +12,11 @@ import type { WeekPoint } from "../../src/rynke/weeks";
 // data-model.md `LeaderboardRow`, `Viewer`, `Neighbourhood`). Synthetic riders
 // only.
 
-const VIEWER = 900_100;
+const VIEWER = "900100";
 
 /** A listed rider with these totals, a first name and two week points. */
 function rider(
-	athleteId: number,
+	athleteId: string,
 	training: number | null,
 	team = 0,
 ): LeaderboardRider & { firstName: string } {
@@ -39,7 +39,7 @@ function rider(
 /** `count` riders with Training count, count − 1, …, 1; the viewer at `place`. */
 function team(count: number, place: number) {
 	return Array.from({ length: count }, (_, i) =>
-		rider(i + 1 === place ? VIEWER : 900_000 + i, count - i),
+		rider(i + 1 === place ? VIEWER : String(900_000 + i), count - i),
 	);
 }
 
@@ -48,9 +48,9 @@ const places = (rows: readonly LeaderboardRow[]) => rows.map((r) => r.place);
 describe("leaderboardRows", () => {
 	it("orders by the picked kind, then the other kind, then athlete ID", () => {
 		const riders = [
-			rider(900_003, 10, 1),
-			rider(900_001, 10, 1),
-			rider(900_002, 10, 5),
+			rider("900003", 10, 1),
+			rider("900001", 10, 1),
+			rider("900002", 10, 5),
 			rider(VIEWER, 20, 0),
 		];
 		const { rows } = leaderboardRows(riders, VIEWER, "training");
@@ -63,7 +63,7 @@ describe("leaderboardRows", () => {
 	});
 
 	it("breaks a full tie by athlete ID", () => {
-		const riders = [rider(VIEWER, 10, 1), rider(900_001, 10, 1)];
+		const riders = [rider(VIEWER, 10, 1), rider("900001", 10, 1)];
 		const { rows } = leaderboardRows(riders, VIEWER, "training");
 		expect(rows.map((r) => r.you)).toEqual([false, true]);
 		expect(rows.map((r) => [r.place, r.joint])).toEqual([
@@ -73,7 +73,7 @@ describe("leaderboardRows", () => {
 	});
 
 	it("reorders by Team for the Team kind", () => {
-		const riders = [rider(900_001, 30, 2), rider(VIEWER, 10, 7)];
+		const riders = [rider("900001", 30, 2), rider(VIEWER, 10, 7)];
 		const { rows, viewer } = leaderboardRows(riders, VIEWER, "team");
 		expect(rows.map((r) => [r.you, r.total, r.other])).toEqual([
 			[true, 7, 10],
@@ -93,10 +93,10 @@ describe("leaderboardRows", () => {
 
 	it("ranks equal totals on a shared place and skips the next (1, 2, 2, 4)", () => {
 		const riders = [
-			rider(900_001, 40),
+			rider("900001", 40),
 			rider(VIEWER, 30),
-			rider(900_002, 30),
-			rider(900_003, 10),
+			rider("900002", 30),
+			rider("900003", 10),
 		];
 		const { rows, viewer } = leaderboardRows(riders, VIEWER, "training");
 		expect(places(rows)).toEqual([1, 2, 2, 4]);
@@ -112,9 +112,9 @@ describe("leaderboardRows", () => {
 
 	it("needs the smallest total above the viewer's, plus 1, to pass", () => {
 		const riders = [
-			rider(900_001, 50),
-			rider(900_002, 42),
-			rider(900_003, 42),
+			rider("900001", 50),
+			rider("900002", 42),
+			rider("900003", 42),
 			rider(VIEWER, 30),
 		];
 		const { viewer } = leaderboardRows(riders, VIEWER, "training");
@@ -123,7 +123,7 @@ describe("leaderboardRows", () => {
 
 	it("gives 1st place the lead instead of a gap, shared or not", () => {
 		const alone = leaderboardRows(
-			[rider(VIEWER, 50), rider(900_001, 40)],
+			[rider(VIEWER, 50), rider("900001", 40)],
 			VIEWER,
 			"training",
 		);
@@ -135,7 +135,7 @@ describe("leaderboardRows", () => {
 			lead: true,
 		});
 		const shared = leaderboardRows(
-			[rider(VIEWER, 50), rider(900_001, 50)],
+			[rider(VIEWER, 50), rider("900001", 50)],
 			VIEWER,
 			"training",
 		);
@@ -143,7 +143,7 @@ describe("leaderboardRows", () => {
 	});
 
 	it("counts a listed rider without a balance with 0 in both kinds", () => {
-		const riders = [rider(900_001, null), rider(VIEWER, 3, 1)];
+		const riders = [rider("900001", null), rider(VIEWER, 3, 1)];
 		const { rows, viewer } = leaderboardRows(riders, VIEWER, "training");
 		expect(rows.map((r) => [r.you, r.place, r.total, r.other])).toEqual([
 			[true, 1, 3, 1],

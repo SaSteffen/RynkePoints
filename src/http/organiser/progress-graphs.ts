@@ -5,6 +5,7 @@ import type { RiderStatus } from "../../rynke/pace";
 import type { CountingWindow } from "../../rynke/rules";
 import type { RideEntry } from "../../rynke/summary";
 import { dayNumber, lastDay as lastDayOf } from "../../rynke/weeks";
+import { compareIds } from "../../strava/id";
 import { html, SafeHtml } from "../html";
 import { monthsBefore } from "../progress-view";
 
@@ -16,7 +17,7 @@ import { monthsBefore } from "../progress-view";
 
 /** What the view needs of a listed rider, from the overview's. */
 export interface GraphRider {
-	athleteId: number;
+	athleteId: string;
 	firstName: string;
 	status: RiderStatus;
 	profileLink: string | null;
@@ -43,7 +44,7 @@ export interface OrganiserGraphs {
 	agreedCount: number;
 	group: string | null;
 	riders: {
-		id: number;
+		id: string;
 		name: string;
 		status: RiderStatus;
 		requests: boolean;
@@ -70,7 +71,7 @@ export interface OrganiserGraphs {
 export function organiserGraphsView(input: {
 	rows: readonly GraphRow[];
 	riders: readonly GraphRider[];
-	requests: ReadonlyMap<number, readonly unknown[]>;
+	requests: ReadonlyMap<string, readonly unknown[]>;
 	window: Pick<CountingWindow, "seasonStart" | "windowStart" | "deadline">;
 	today: string;
 	group: string | null;
@@ -78,7 +79,7 @@ export function organiserGraphsView(input: {
 	 * The counting and pre-window rides of riders whose consent shares sessions by name
 	 * (feature 032); null with `RIDE_FIGURES` off.
 	 */
-	rides?: ReadonlyMap<number, readonly RideEntry[]> | null;
+	rides?: ReadonlyMap<string, readonly RideEntry[]> | null;
 }): OrganiserGraphs {
 	const { rows, riders, requests, window, today, group } = input;
 	const rides = input.rides ?? null;
@@ -95,7 +96,7 @@ export function organiserGraphsView(input: {
 		sessions: zeros(),
 	};
 	const byRider = new Map(rows.map((row) => [row.athleteId, row]));
-	const hasRequests = (id: number) => (requests.get(id)?.length ?? 0) > 0;
+	const hasRequests = (id: string) => (requests.get(id)?.length ?? 0) > 0;
 	const indexOf = (date: string): number | null => {
 		if (date < firstDay || date > window.deadline) return null;
 		return Math.min(dayNumber(date) - start, lastIndex);
@@ -179,7 +180,10 @@ export function organiserGraphsView(input: {
 }
 
 function byName(a: GraphRider, b: GraphRider): number {
-	return a.firstName.localeCompare(b.firstName) || a.athleteId - b.athleteId;
+	return (
+		a.firstName.localeCompare(b.firstName) ||
+		compareIds(a.athleteId, b.athleteId)
+	);
 }
 
 /** An empty placeholder the script fills. */

@@ -32,7 +32,7 @@ describe("readOnly", () => {
 		["PRAGMA foreign_keys = OFF", "PRAGMA"],
 		["-- harmless\nDELETE FROM riders", "DELETE"],
 		[
-			"WITH gone AS (SELECT athlete_id FROM riders) DELETE FROM riders WHERE athlete_id IN gone",
+			"WITH gone AS (SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders) DELETE FROM riders WHERE athlete_id IN gone",
 			"DELETE",
 		],
 		["SELECT 1; DELETE FROM riders", "DELETE"],

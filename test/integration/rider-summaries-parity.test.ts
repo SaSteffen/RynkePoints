@@ -20,17 +20,17 @@ import { CURRENT_RULES } from "../support/team-rules";
 
 const ctx = makeCtx();
 const window = countingWindow(env);
-const NEEDS_RECONNECT = 900_004;
-const NO_CONSENT = 900_005;
-const NOTHING_STORED = 900_006;
+const NEEDS_RECONNECT = "900004";
+const NO_CONSENT = "900005";
+const NOTHING_STORED = "900006";
 const RIDERS = [ATHLETE_A, ATHLETE_B, ATHLETE_C];
 const TOLERANCE_M = 0.000001;
 
 let nextId = 5_000_000;
 
-function run(athleteId: number, date: string, distance: number): RunRecord {
+function run(athleteId: string, date: string, distance: number): RunRecord {
 	return {
-		strava_activity_id: ++nextId,
+		strava_activity_id: String(++nextId),
 		athlete_id: athleteId,
 		start_date: `${date}T06:00:00Z`,
 		start_date_local: `${date}T07:30:00Z`,
@@ -41,12 +41,12 @@ function run(athleteId: number, date: string, distance: number): RunRecord {
 }
 
 /** Decimal distances that don't add up exactly in binary. */
-async function seedSeason(athleteId: number, seed: number): Promise<void> {
+async function seedSeason(athleteId: string, seed: number): Promise<void> {
 	const records = [];
 	for (let day = 1; day <= 40; day++) {
 		const date = new Date(Date.UTC(2026, 3, day)).toISOString().slice(0, 10);
 		records.push(
-			activityRecord(++nextId, {
+			activityRecord(String(++nextId), {
 				athlete_id: athleteId,
 				start_date: `${date}T06:00:00Z`,
 				start_date_local: `${date}T08:15:00Z`,
@@ -59,7 +59,7 @@ async function seedSeason(athleteId: number, seed: number): Promise<void> {
 		if (day % 3 === 0) {
 			// A second ride on that day.
 			records.push(
-				activityRecord(++nextId, {
+				activityRecord(String(++nextId), {
 					athlete_id: athleteId,
 					start_date: `${date}T14:00:00Z`,
 					start_date_local: `${date}T16:15:00Z`,
@@ -73,7 +73,7 @@ async function seedSeason(athleteId: number, seed: number): Promise<void> {
 		if (day % 10 === 0) {
 			// Too slow to count.
 			records.push(
-				activityRecord(++nextId, {
+				activityRecord(String(++nextId), {
 					athlete_id: athleteId,
 					start_date: `${date}T18:00:00Z`,
 					start_date_local: `${date}T20:15:00Z`,
@@ -99,7 +99,7 @@ async function seedSeason(athleteId: number, seed: number): Promise<void> {
 	});
 }
 
-async function deleteRows(athleteIds: number[] = []): Promise<void> {
+async function deleteRows(athleteIds: string[] = []): Promise<void> {
 	await env.DB.prepare(
 		athleteIds.length > 0
 			? "DELETE FROM rider_summaries WHERE athlete_id IN (SELECT value FROM json_each(?))"
@@ -383,7 +383,7 @@ describe("the rider's own Badges figures from their row (organiser graphs)", () 
 		overrides: Record<string, unknown> = {},
 	) => {
 		const time = Math.round((distance / 25000) * 3600);
-		return activityRecord(++nextId, {
+		return activityRecord(String(++nextId), {
 			athlete_id: ATHLETE_A,
 			start_date: `${date}T06:00:00Z`,
 			start_date_local: `${date}T08:15:00Z`,

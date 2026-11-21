@@ -1,5 +1,6 @@
 import { readRateLimitState } from "../db/rate-limit";
 import type { StravaActivity } from "./activity";
+import { isStravaId, parseStravaJson } from "./id";
 import {
 	budgetDecision,
 	deferUntilNextWindow,
@@ -20,7 +21,7 @@ import { getAccessToken } from "./tokens";
 export type { StravaResult } from "./result";
 
 /** A stored rider (refreshed as needed) or a just-issued access token. */
-export type StravaAuth = { athleteId: number } | { accessToken: string };
+export type StravaAuth = { athleteId: string } | { accessToken: string };
 
 /** Entries per list request; a shorter answer is the list's last page. */
 export const PER_PAGE = 200;
@@ -36,6 +37,8 @@ async function apiGet<T>(
 	endpoint: string,
 	path: string,
 	priority: Priority = "background",
+	read: (res: Response) => Promise<T | null> = (res) =>
+		res.json() as Promise<T>,
 ): Promise<StravaResult<T>> {
 	const budget = budgetDecision(
 		await readRateLimitState(ctx.env.DB),
@@ -68,7 +71,12 @@ async function apiGet<T>(
 	}
 	if (!(res instanceof Response)) return res;
 
-	if (res.ok) return { kind: "ok", value: (await res.json()) as T };
+	if (res.ok) {
+		const value = await read(res);
+		return value === null
+			? transient(endpoint, "malformed response")
+			: { kind: "ok", value };
+	}
 	switch (res.status) {
 		case 401:
 			// Still refused after a fresh token: the rider must reconnect.
@@ -145,16 +153,35 @@ export async function clubMembership(
 	return transient("GET /athlete/clubs", "too many pages");
 }
 
+/**
+ * An activity answer with its IDs exact (feature 042 research R1, R2), or
+ * null if an activity's ID isn't one.
+ */
+async function readActivities(res: Response): Promise<StravaActivity[] | null> {
+	const list = parseStravaJson(await res.text());
+	return Array.isArray(list) &&
+		list.every((a: StravaActivity | null) => isStravaId(a?.id))
+		? (list as StravaActivity[])
+		: null;
+}
+
+async function readActivity(res: Response): Promise<StravaActivity | null> {
+	const activity = parseStravaJson(await res.text()) as StravaActivity | null;
+	return isStravaId(activity?.id) ? activity : null;
+}
+
 export function getActivity(
 	ctx: StravaCtx,
 	auth: StravaAuth,
-	activityId: number,
+	activityId: string,
 ): Promise<StravaResult<StravaActivity>> {
 	return apiGet(
 		ctx,
 		auth,
 		"GET /activities/{id}",
 		`/api/v3/activities/${activityId}`,
+		"background",
+		readActivity,
 	);
 }
 
@@ -172,6 +199,8 @@ export function listNewestActivities(
 		auth,
 		"GET /athlete/activities",
 		`/api/v3/athlete/activities?page=1&per_page=${PER_PAGE}`,
+		"background",
+		readActivities,
 	);
 }
 
@@ -185,5 +214,7 @@ export function listAthleteActivities(
 		auth,
 		"GET /athlete/activities",
 		`/api/v3/athlete/activities?after=${after}&page=${page}&per_page=${PER_PAGE}`,
+		"background",
+		readActivities,
 	);
 }

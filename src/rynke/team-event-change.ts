@@ -1,3 +1,4 @@
+import { compareIds } from "../strava/id";
 // Team events and attendance as organisers change them (feature 014), and
 // the re-evaluation of every rider a change touches, in one batch (research
 // R21). The evaluation itself is `reevaluate.ts`'s.
@@ -50,21 +51,21 @@ export interface TeamEventInput {
 
 /** `by` is the organiser making the change (feature 014 FR-040). */
 export type TeamEventChange =
-	| { kind: "create-event"; event: TeamEventInput; by?: number }
+	| { kind: "create-event"; event: TeamEventInput; by?: string }
 	| {
 			kind: "update-event";
 			eventId: number;
 			event: TeamEventInput;
-			by?: number;
+			by?: string;
 	  }
 	| { kind: "delete-event"; eventId: number }
 	| {
 			kind: "add-attendance";
 			eventId: number;
-			athleteIds: number[];
-			by?: number;
+			athleteIds: string[];
+			by?: string;
 	  }
-	| { kind: "remove-attendance"; eventId: number; athleteIds: number[] };
+	| { kind: "remove-attendance"; eventId: number; athleteIds: string[] };
 
 /** The refusal codes of contracts/ride-evaluation.md; nothing was written. */
 export class TeamEventRefused extends Error {
@@ -84,10 +85,10 @@ export class TeamEventRefused extends Error {
 
 export interface TeamEventResult {
 	eventId: number | null;
-	affected: number[];
-	rose: number[];
+	affected: string[];
+	rose: string[];
 	/** The affected riders with a new personal badge (feature 013 R17). */
-	earned: number[];
+	earned: string[];
 }
 
 /**
@@ -184,10 +185,10 @@ async function storeEventChange(
 	const stored = (eventRows.results as TeamEventRow[])[0];
 	if (!stored) throw new TeamEventRefused("event_missing");
 	const attendees = new Set(
-		(attendeeRows.results as { athlete_id: number }[]).map((r) => r.athlete_id),
+		(attendeeRows.results as { athlete_id: string }[]).map((r) => r.athlete_id),
 	);
 
-	let affected: number[];
+	let affected: string[];
 	let statement: D1PreparedStatement | null;
 	/** The rider's attendance with the change applied. */
 	let edit: (attendance: Attendance[]) => Attendance[];
@@ -232,7 +233,7 @@ async function storeEventChange(
 			const statuses = new Map(
 				(
 					(statusRows?.results ?? []) as {
-						athlete_id: number;
+						athlete_id: string;
 						status: string;
 					}[]
 				).map((r) => [r.athlete_id, r.status]),
@@ -279,15 +280,15 @@ async function storeEventChange(
 	// at one (feature 021 FR-012).
 	const direct = new Set(affected);
 	if (editTour) {
-		const others = (tourRiderRows.results as { athlete_id: number }[]).map(
+		const others = (tourRiderRows.results as { athlete_id: string }[]).map(
 			(r) => r.athlete_id,
 		);
 		affected = [...new Set([...affected, ...others])];
 	}
-	affected.sort((a, b) => a - b);
-	let risen: number[] = [];
-	let earned: number[] = [];
-	let riders = new Map<number, RiderState>();
+	affected.sort(compareIds);
+	let risen: string[] = [];
+	let earned: string[] = [];
+	let riders = new Map<string, RiderState>();
 	if (affected.length > 0) {
 		({ riders } = await readRiders(db, affected, []));
 		const result = reevaluateAll(
@@ -317,17 +318,17 @@ async function storeEventChange(
  */
 function reevaluateAll(
 	db: D1Database,
-	athleteIds: readonly number[],
-	riders: Map<number, RiderState>,
+	athleteIds: readonly string[],
+	riders: Map<string, RiderState>,
 	rules: RynkeRules,
 	window: CountingWindow,
 	now: number,
 	news: BadgeNewsSwitch,
-	edit: (state: RiderState, athleteId: number) => void,
-): { writes: D1PreparedStatement[]; risen: number[]; earned: number[] } {
+	edit: (state: RiderState, athleteId: string) => void,
+): { writes: D1PreparedStatement[]; risen: string[]; earned: string[] } {
 	const writes: D1PreparedStatement[] = [];
-	const risen: number[] = [];
-	const earned: number[] = [];
+	const risen: string[] = [];
+	const earned: string[] = [];
 	for (const athleteId of athleteIds) {
 		const result = reevaluate(
 			db,
@@ -350,12 +351,12 @@ function reevaluateAll(
 async function tourRiders(
 	db: D1Database,
 	window: CountingWindow,
-): Promise<number[]> {
+): Promise<string[]> {
 	const { results } = await listTourRidersStatement(
 		db,
 		window.seasonStart,
 	).all<{
-		athlete_id: number;
+		athlete_id: string;
 	}>();
 	return results.map((r) => r.athlete_id);
 }
@@ -397,9 +398,7 @@ export async function teamEventChange(
 	const team = await teamBadgeNews(ctx, result.earned);
 	await notifyRiders(
 		ctx,
-		[...new Set([...result.rose, ...result.earned, ...team])].sort(
-			(a, b) => a - b,
-		),
+		[...new Set([...result.rose, ...result.earned, ...team])].sort(compareIds),
 	);
 	return result;
 }

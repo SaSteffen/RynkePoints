@@ -86,7 +86,7 @@ export function withGateway(ctx: TestCtx): TestCtx {
 }
 
 export interface SeedRiderOptions {
-	athleteId?: number;
+	athleteId?: string;
 	firstName?: string;
 	status?: "connected" | "needs_reconnect";
 	reconnectRequestedAt?: number | null;
@@ -120,7 +120,7 @@ export interface SeedRiderOptions {
 }
 
 /** Puts an ID on the team's guest list, as the maintainer would (feature 041). */
-export async function listGuest(ctx: Ctx, athleteId: number): Promise<void> {
+export async function listGuest(ctx: Ctx, athleteId: string): Promise<void> {
 	await ctx.env.DB.prepare(
 		"INSERT OR IGNORE INTO guests (athlete_id) VALUES (?)",
 	)
@@ -350,7 +350,7 @@ export function stableHeaders(res: Response): [string, string][] {
  */
 export async function sessionCookie(
 	ctx: Ctx,
-	athleteId: number,
+	athleteId: string,
 	epoch?: number,
 ): Promise<Record<string, string>> {
 	const stored = await ctx.env.DB.prepare(

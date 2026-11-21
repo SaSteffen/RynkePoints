@@ -130,7 +130,7 @@ export function seededRandom(seed: string): () => number {
  * edge shows on one side. From the rider and the badge only (FR-026), by the
  * mock-up's sequence (`seededRandom`).
  */
-export function pose(athleteId: number, badgeId: string): StickerPose {
+export function pose(athleteId: string, badgeId: string): StickerPose {
 	const rnd = seededRandom(`${athleteId}:${badgeId}`);
 	const miss = rnd() < 0.35;
 	const angle = rnd() * Math.PI * 2;

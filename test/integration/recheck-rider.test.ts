@@ -40,7 +40,7 @@ let fake: FakeStrava;
 let ctx: TestCtx;
 
 /** A ride that doesn't count: the recording kept running for a long stop. */
-function pausedRide(id: number): StravaActivityFixture {
+function pausedRide(id: string): StravaActivityFixture {
 	return makeStravaActivity({
 		id,
 		start_date: "2026-10-05T07:30:00Z",
@@ -64,7 +64,7 @@ async function stored(...activities: StravaActivityFixture[]): Promise<void> {
 }
 
 /** Changes an activity on Strava without an event, as a crop does. */
-function edit(id: number, change: Partial<StravaActivityFixture>): void {
+function edit(id: string, change: Partial<StravaActivityFixture>): void {
 	const activity = fake.activities.get(id);
 	if (!activity) throw new Error(`no activity ${id}`);
 	fake.activities.set(id, { ...activity, ...change });
@@ -100,7 +100,7 @@ async function count(sql: string): Promise<number> {
 	return (await env.DB.prepare(sql).first<number>("n")) ?? 0;
 }
 
-async function result(id: number) {
+async function result(id: string) {
 	return env.DB.prepare(
 		"SELECT counts, reasons FROM ride_results WHERE strava_activity_id = ?",
 	)
@@ -133,7 +133,7 @@ describe("a check that is made", () => {
 	// The request's usage headers update the app's one rate-limit row, as for
 	// every Strava read; nothing of the rider is written (FR-007).
 	it("makes exactly one request and writes nothing when nothing changed", async () => {
-		await stored(makeStravaActivity({ id: 1 }), pausedRide(2));
+		await stored(makeStravaActivity({ id: "1" }), pausedRide("2"));
 		const { ctx: counted, counter } = countRows(ctx);
 		const rider = await getRider(env.DB, ATHLETE_A);
 		if (!rider) throw new Error("no rider");
@@ -153,17 +153,17 @@ describe("a check that is made", () => {
 	});
 
 	it("takes over a crop: the ride counts, with Rynke and a notification (US1 scenarios 1, 5)", async () => {
-		await stored(pausedRide(2));
-		expect(await result(2)).toMatchObject({ counts: 0 });
+		await stored(pausedRide("2"));
+		expect(await result("2")).toMatchObject({ counts: 0 });
 		const before = await training();
 		const subscription = await seedSubscription(ATHLETE_A, pushEndpoint(1));
-		edit(2, { elapsed_time: 6000, distance: 40000 });
+		edit("2", { elapsed_time: 6000, distance: 40000 });
 
 		const queue = await process();
 
 		expect(queue.explicitAcks).toEqual(["m1"]);
 		expect(fake.callsTo("activities")).toHaveLength(1);
-		expect(await result(2)).toMatchObject({ counts: 1 });
+		expect(await result("2")).toMatchObject({ counts: 1 });
 		expect(
 			await env.DB.prepare(
 				"SELECT distance_m, elapsed_time_s FROM activities WHERE strava_activity_id = 2",
@@ -179,18 +179,18 @@ describe("a check that is made", () => {
 	});
 
 	it("evaluates a ride again when it no longer counts (US1 scenario 2)", async () => {
-		await stored(makeStravaActivity({ id: 3 }));
-		expect(await result(3)).toMatchObject({ counts: 1 });
-		edit(3, { elapsed_time: 20000 });
+		await stored(makeStravaActivity({ id: "3" }));
+		expect(await result("3")).toMatchObject({ counts: 1 });
+		edit("3", { elapsed_time: 20000 });
 		await process();
-		expect(await result(3)).toMatchObject({ counts: 0 });
-		expect(JSON.parse((await result(3))?.reasons ?? "[]")).toContain("pause");
+		expect(await result("3")).toMatchObject({ counts: 0 });
+		expect(JSON.parse((await result("3"))?.reasons ?? "[]")).toContain("pause");
 	});
 
 	it("stores and evaluates a lost activity of this season (US1 scenario 4)", async () => {
-		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: 4 }));
+		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: "4" }));
 		await process();
-		expect(await result(4)).toMatchObject({ counts: 1 });
+		expect(await result("4")).toMatchObject({ counts: 1 });
 	});
 
 	it("ignores what the import ignores: before the season, unkept sport types, private without the grant", async () => {
@@ -202,16 +202,16 @@ describe("a check that is made", () => {
 		fake.addActivity(
 			ATHLETE_A,
 			makeStravaActivity({
-				id: 5,
+				id: "5",
 				start_date: "2025-12-20T07:30:00Z",
 				start_date_local: "2025-12-20T09:30:00Z",
 			}),
 		);
 		fake.addActivity(
 			ATHLETE_A,
-			makeStravaActivity({ id: 6, sport_type: "Walk", type: "Walk" }),
+			makeStravaActivity({ id: "6", sport_type: "Walk", type: "Walk" }),
 		);
-		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: 7, private: true }));
+		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: "7", private: true }));
 		await process();
 		expect(await count("SELECT COUNT(*) AS n FROM activities")).toBe(0);
 		expect(await count("SELECT COUNT(*) AS n FROM runs")).toBe(0);
@@ -225,21 +225,21 @@ describe("a check that is made", () => {
 			.run();
 		const on = (day: number) =>
 			makeStravaActivity({
-				id: day,
+				id: String(day),
 				start_date: `2026-10-0${day}T07:30:00Z`,
 				start_date_local: `2026-10-0${day}T09:30:00Z`,
 			});
 		await stored(on(3), on(4), on(5));
 		const before = await training();
-		fake.activities.delete(4);
-		edit(5, { private: true, visibility: "only_me" });
+		fake.activities.delete("4");
+		edit("5", { private: true, visibility: "only_me" });
 		await process();
 		expect(
 			await count(
 				"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id IN (4, 5)",
 			),
 		).toBe(0);
-		expect(await result(3)).toMatchObject({ counts: 1 });
+		expect(await result("3")).toMatchObject({ counts: 1 });
 		expect(await training()).toBeLessThan(before);
 		expect(fake.callsTo("activities")).toHaveLength(1);
 	});
@@ -247,15 +247,15 @@ describe("a check that is made", () => {
 	it("leaves a stored activity older than the oldest listed alone: the list stops at 200", async () => {
 		await stored(
 			makeStravaActivity({
-				id: 8,
+				id: "8",
 				start_date: "2026-10-01T07:30:00Z",
 				start_date_local: "2026-10-01T09:30:00Z",
 			}),
 		);
 		for (let id = 100; id < 300; id++) {
-			fake.addActivity(ATHLETE_A, makeStravaActivity({ id }));
+			fake.addActivity(ATHLETE_A, makeStravaActivity({ id: String(id) }));
 		}
-		fake.activities.delete(8);
+		fake.activities.delete("8");
 		await process();
 		expect(
 			await count(
@@ -267,29 +267,29 @@ describe("a check that is made", () => {
 	it("removes an older one too when the list is shorter than 200: it holds every activity", async () => {
 		await stored(
 			makeStravaActivity({
-				id: 8,
+				id: "8",
 				start_date: "2026-10-01T07:30:00Z",
 				start_date_local: "2026-10-01T09:30:00Z",
 			}),
-			makeStravaActivity({ id: 9 }),
+			makeStravaActivity({ id: "9" }),
 		);
-		fake.activities.delete(8);
+		fake.activities.delete("8");
 		await process();
 		expect(
 			await count(
 				"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id IN (8, 9)",
 			),
 		).toBe(1);
-		expect(await result(9)).toMatchObject({ counts: 1 });
+		expect(await result("9")).toMatchObject({ counts: 1 });
 	});
 
 	it("keeps an activity stored while the list was fetched", async () => {
 		await stored(
-			makeStravaActivity({ id: 3, start_date: "2026-10-03T07:30:00Z" }),
+			makeStravaActivity({ id: "3", start_date: "2026-10-03T07:30:00Z" }),
 		);
 		// Uploaded after Strava answered, stored by the drain before the check
 		// reads what is stored: newer than the oldest listed, but not listed.
-		const late = makeStravaActivity({ id: 5 });
+		const late = makeStravaActivity({ id: "5" });
 		const spy = vi.mocked(globalThis.fetch);
 		const strava = spy.getMockImplementation();
 		if (!strava) throw new Error("no fake Strava");
@@ -317,8 +317,8 @@ describe("a check that is made", () => {
 	});
 
 	it("removes nothing when the list is empty", async () => {
-		await stored(makeStravaActivity({ id: 8 }));
-		fake.activities.delete(8);
+		await stored(makeStravaActivity({ id: "8" }));
+		fake.activities.delete("8");
 		await process();
 		expect(
 			await count(
@@ -328,8 +328,8 @@ describe("a check that is made", () => {
 	});
 
 	it("converges when the same message comes twice: no Rynke twice", async () => {
-		await stored(pausedRide(2));
-		edit(2, { elapsed_time: 6000 });
+		await stored(pausedRide("2"));
+		edit("2", { elapsed_time: 6000 });
 		await process();
 		const once = await training();
 		const rises = await count("SELECT COUNT(*) AS n FROM rynke_rises");
@@ -344,11 +344,11 @@ describe("a check that fails", () => {
 	it("trusts no list that isn't newest first (FR-026)", async () => {
 		fake.addActivity(
 			ATHLETE_A,
-			makeStravaActivity({ id: 9, start_date: "2026-10-01T07:00:00Z" }),
+			makeStravaActivity({ id: "9", start_date: "2026-10-01T07:00:00Z" }),
 		);
 		fake.addActivity(
 			ATHLETE_A,
-			makeStravaActivity({ id: 10, start_date: "2026-10-03T07:00:00Z" }),
+			makeStravaActivity({ id: "10", start_date: "2026-10-03T07:00:00Z" }),
 		);
 		fake.newestFirst = false;
 		const queue = await process();
@@ -362,11 +362,11 @@ describe("a check that fails", () => {
 		fake.newestFirst = false;
 		fake.addActivity(
 			ATHLETE_A,
-			makeStravaActivity({ id: 9, start_date: "2026-10-01T07:00:00Z" }),
+			makeStravaActivity({ id: "9", start_date: "2026-10-01T07:00:00Z" }),
 		);
 		fake.addActivity(
 			ATHLETE_A,
-			makeStravaActivity({ id: 10, start_date: "2026-10-03T07:00:00Z" }),
+			makeStravaActivity({ id: "10", start_date: "2026-10-03T07:00:00Z" }),
 		);
 		await setStamp(NOW);
 		await process();

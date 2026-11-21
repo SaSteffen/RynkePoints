@@ -43,17 +43,17 @@ function apply(
 
 /** Three rides of 2026-05: one counting, one paused too long, one overlapping. */
 async function seedThree() {
-	await upsertActivity(db, activityRecord(1, { distance_m: 79000 }));
+	await upsertActivity(db, activityRecord("1", { distance_m: 79000 }));
 	await upsertActivity(
 		db,
-		activityRecord(2, {
+		activityRecord("2", {
 			start_date: "2026-05-02T08:00:00Z",
 			moving_time_s: 4 * 3600,
 			elapsed_time_s: 11 * 3600,
 			distance_m: 100000,
 		}),
 	);
-	await upsertActivity(db, activityRecord(3, { distance_m: 78000 }));
+	await upsertActivity(db, activityRecord("3", { distance_m: 78000 }));
 }
 
 beforeEach(async () => {
@@ -87,7 +87,7 @@ describe("applyAndEvaluate", () => {
 			["pause"],
 			["overlap"],
 		]);
-		expect(stored.results[2]?.overlapsActivityId).toBe(1);
+		expect(stored.results[2]?.overlapsActivityId).toBe("1");
 	});
 
 	it("SC-002: a second full evaluation writes nothing", async () => {
@@ -109,7 +109,7 @@ describe("applyAndEvaluate", () => {
 			{
 				kind: "upsert",
 				records: [
-					activityRecord(4, {
+					activityRecord("4", {
 						start_date: "2026-05-03T08:00:00Z",
 						distance_m: 20000,
 						elevation_gain_m: 0,
@@ -123,7 +123,7 @@ describe("applyAndEvaluate", () => {
 		const after = await resultRows();
 		expect(after.slice(0, 3)).toEqual(before);
 		expect(after[3]).toMatchObject({
-			strava_activity_id: 4,
+			strava_activity_id: "4",
 			counts: 1,
 			distance_rynke: 2,
 			activity_refreshed_at: NOW + 60,
@@ -143,7 +143,7 @@ describe("applyAndEvaluate", () => {
 			{
 				kind: "upsert",
 				records: [
-					activityRecord(5, {
+					activityRecord("5", {
 						start_date: "2026-05-04T08:00:00Z",
 						elapsed_time_s: 24 * 3600,
 					}),
@@ -157,7 +157,7 @@ describe("applyAndEvaluate", () => {
 	});
 
 	it("never takes over another rider's activity", async () => {
-		await upsertActivity(db, activityRecord(1, { athlete_id: ATHLETE_B }));
+		await upsertActivity(db, activityRecord("1", { athlete_id: ATHLETE_B }));
 		await apply({ kind: "none" }, NOW, CURRENT_RULES, ATHLETE_B);
 		const before = {
 			a: await snapshot(ATHLETE_A),
@@ -166,14 +166,14 @@ describe("applyAndEvaluate", () => {
 
 		await apply({
 			kind: "upsert",
-			records: [activityRecord(1, { distance_m: 200000 })],
+			records: [activityRecord("1", { distance_m: 200000 })],
 		});
 
 		expect(await snapshot(ATHLETE_B)).toEqual(before.b);
 		expect((await snapshot(ATHLETE_A)).results).toEqual([]);
 		const owner = await db
 			.prepare(
-				"SELECT athlete_id, distance_m FROM activities WHERE strava_activity_id = 1",
+				"SELECT CAST(athlete_id AS TEXT) AS athlete_id, distance_m FROM activities WHERE strava_activity_id = 1",
 			)
 			.first();
 		expect(owner).toEqual({ athlete_id: ATHLETE_B, distance_m: 40000 });
@@ -183,10 +183,10 @@ describe("applyAndEvaluate", () => {
 		await seedThree();
 		await apply({ kind: "none" });
 
-		await apply({ kind: "delete", activityIds: [1] }, NOW + 60);
+		await apply({ kind: "delete", activityIds: ["1"] }, NOW + 60);
 
 		const stored = await readRynke(db, ATHLETE_A);
-		expect(stored.results.map((r) => r.activityId)).toEqual([2, 3]);
+		expect(stored.results.map((r) => r.activityId)).toEqual(["2", "3"]);
 		// The phone recording no longer overlaps anything and counts now.
 		expect(stored.results[1]).toMatchObject({ counts: true, reasons: [] });
 		expect(stored.balance).toMatchObject({ distanceRynke: 7 });
@@ -199,18 +199,18 @@ describe("applyAndEvaluate", () => {
 		await apply({ kind: "none" });
 		const before = await snapshot();
 
-		await apply({ kind: "delete", activityIds: [999] }, NOW + 60);
+		await apply({ kind: "delete", activityIds: ["999"] }, NOW + 60);
 
 		expect(await snapshot()).toEqual(before);
 		expect((await tableCounts()).activities).toBe(3);
 	});
 
 	it("deleting another rider's activity changes nothing", async () => {
-		await upsertActivity(db, activityRecord(1, { athlete_id: ATHLETE_B }));
+		await upsertActivity(db, activityRecord("1", { athlete_id: ATHLETE_B }));
 		await apply({ kind: "none" }, NOW, CURRENT_RULES, ATHLETE_B);
 		const before = await snapshot(ATHLETE_B);
 
-		await apply({ kind: "delete", activityIds: [1] });
+		await apply({ kind: "delete", activityIds: ["1"] });
 
 		expect(await snapshot(ATHLETE_B)).toEqual(before);
 		expect((await tableCounts()).activities).toBe(1);
@@ -233,7 +233,7 @@ describe("applyAndEvaluate", () => {
 	it("removes private activities and their results", async () => {
 		await upsertActivity(
 			db,
-			activityRecord(1, {
+			activityRecord("1", {
 				distance_m: 100000,
 				moving_time_s: 4 * 3600,
 				elapsed_time_s: 4 * 3600,
@@ -241,7 +241,7 @@ describe("applyAndEvaluate", () => {
 		);
 		await upsertActivity(
 			db,
-			activityRecord(2, {
+			activityRecord("2", {
 				start_date: "2026-05-02T08:00:00Z",
 				distance_m: 50000,
 				is_private: 1,
@@ -255,14 +255,14 @@ describe("applyAndEvaluate", () => {
 		await apply({ kind: "delete-private" }, NOW + 60);
 
 		const stored = await readRynke(db, ATHLETE_A);
-		expect(stored.results.map((r) => r.activityId)).toEqual([1]);
+		expect(stored.results.map((r) => r.activityId)).toEqual(["1"]);
 		expect(stored.balance).toMatchObject({ distanceRynke: 10 });
 		expect((await tableCounts()).activities).toBe(1);
 	});
 
 	it("evaluates a season of 300 rides", async () => {
 		const records = Array.from({ length: 300 }, (_, i) =>
-			activityRecord(10_000 + i, {
+			activityRecord(String(10000 + i), {
 				start_date: new Date(
 					Date.UTC(2026, 0, 2) + i * 12 * 3600 * 1000,
 				).toISOString(),
@@ -337,7 +337,7 @@ describe("applyAndEvaluate with attendance (Story 3)", () => {
 
 	it("keeps the event Rynke when a new ride arrives", async () => {
 		await twoTrainings();
-		await apply({ kind: "upsert", records: [activityRecord(1)] });
+		await apply({ kind: "upsert", records: [activityRecord("1")] });
 
 		expect(await readRynke(db, ATHLETE_A)).toMatchObject({
 			balance: { teamRynke: 2, trainingRynke: 4 + 10 },
@@ -381,12 +381,12 @@ describe("applyAndEvaluate with attendance (Story 3)", () => {
 	});
 
 	it("leaves another attendee of the same event alone", async () => {
-		await upsertActivity(db, activityRecord(2, { athlete_id: ATHLETE_B }));
+		await upsertActivity(db, activityRecord("2", { athlete_id: ATHLETE_B }));
 		await twoTrainings([ATHLETE_A, ATHLETE_B]);
 		await apply({ kind: "none" }, NOW, CURRENT_RULES, ATHLETE_B);
 		const other = await snapshot(ATHLETE_B);
 
-		await apply({ kind: "upsert", records: [activityRecord(1)] });
+		await apply({ kind: "upsert", records: [activityRecord("1")] });
 
 		expect(await snapshot(ATHLETE_B)).toEqual(other);
 		await expectConsistent(ATHLETE_B);
@@ -436,7 +436,7 @@ describe("a change stored while another was evaluated (review L-18)", () => {
 		const result = await applyAndEvaluate(
 			racing(2, correction),
 			ATHLETE_A,
-			{ kind: "upsert", records: [activityRecord(1)] },
+			{ kind: "upsert", records: [activityRecord("1")] },
 			CURRENT_RULES,
 			countingWindow(env),
 			NOW,
@@ -453,7 +453,7 @@ describe("a change stored while another was evaluated (review L-18)", () => {
 			applyAndEvaluate(
 				db,
 				ATHLETE_A,
-				{ kind: "upsert", records: [activityRecord(1)] },
+				{ kind: "upsert", records: [activityRecord("1")] },
 				CURRENT_RULES,
 				countingWindow(env),
 				NOW,

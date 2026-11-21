@@ -25,11 +25,11 @@ import { activityRecord, insertEvent, reportRaw } from "../support/rynke";
 const ctx = makeCtx();
 const { de } = CATALOGS;
 
-const ORGANISER = { id: 920_001, name: "Olga" };
-const QUALIFIED = { id: 920_002, name: "Paula" };
-const JONAS_ON_TRACK = { id: 920_003, name: "Jonas" };
-const JONAS_BEHIND = { id: 920_004, name: "Jonas" };
-const UNCONSENTED = { id: 920_005, name: "Ermentrude" };
+const ORGANISER = { id: "920001", name: "Olga" };
+const QUALIFIED = { id: "920002", name: "Paula" };
+const JONAS_ON_TRACK = { id: "920003", name: "Jonas" };
+const JONAS_BEHIND = { id: "920004", name: "Jonas" };
+const UNCONSENTED = { id: "920005", name: "Ermentrude" };
 const NOT_ORGANISER = QUALIFIED;
 
 /** A catalog text with its placeholders filled in, escaped like the page. */
@@ -54,9 +54,9 @@ const cardsOf = (page: string) =>
 	).filter((row) => !row.slice(0, row.indexOf(">")).endsWith(" hidden"));
 const tableOf = (page: string) =>
 	sectionOf(page, '<table class="rider-table">', "</table>");
-const cardOf = (page: string, id: number) =>
+const cardOf = (page: string, id: string) =>
 	cardsOf(page).find((card) => card.includes(`/organiser/riders/${id}"`)) ?? "";
-const rowOf = (page: string, id: number) =>
+const rowOf = (page: string, id: string) =>
 	tableOf(page)
 		.match(/<tr class="status-[\s\S]*?<\/tr>/g)
 		?.find((row) => row.includes(`/organiser/riders/${id}"`)) ?? "";
@@ -386,7 +386,7 @@ describe("GET /organiser/riders with open requests", () => {
 	it("puts them first when everyone is shown", async () => {
 		const { html } = await overview("/organiser/riders?group=all");
 		const ids = [...tableOf(html).matchAll(/\/organiser\/riders\/(\d+)"/g)].map(
-			(m) => Number(m[1]),
+			(m) => m[1],
 		);
 		expect(ids.slice(0, 2).sort()).toEqual(
 			[QUALIFIED.id, JONAS_BEHIND.id].sort(),
@@ -447,12 +447,12 @@ describe("GET /organiser/riders, the graphs (feature 029)", () => {
 			.replace("</script>", "");
 		return JSON.parse(json) as {
 			agreedCount: number;
-			riders: { id: number; name: string; days: number[][] }[];
+			riders: { id: string; name: string; days: number[][] }[];
 			notAgreed: { name: string }[];
 			teamSum: { outdoorM: number[] };
 		};
 	};
-	const ride = (id: number, athleteId: number, overrides = {}) =>
+	const ride = (id: string, athleteId: string, overrides = {}) =>
 		activityRecord(id, {
 			athlete_id: athleteId,
 			name: "Morning loop Synthetic",
@@ -460,14 +460,14 @@ describe("GET /organiser/riders, the graphs (feature 029)", () => {
 			start_date_local: "2026-05-02T09:30:00Z",
 			...overrides,
 		});
-	const agree = (id: number, version: number) =>
+	const agree = (id: string, version: number) =>
 		env.DB.prepare(
 			"INSERT OR REPLACE INTO consent_records (athlete_id, version, accepted_at) VALUES (?, ?, 1)",
 		)
 			.bind(id, version)
 			.run();
 	/** A rider who hasn't been asked about daily figures yet. */
-	const onlyVersion2 = async (id: number) => {
+	const onlyVersion2 = async (id: string) => {
 		await env.DB.prepare("DELETE FROM consent_records WHERE athlete_id = ?")
 			.bind(id)
 			.run();
@@ -489,7 +489,7 @@ describe("GET /organiser/riders, the graphs (feature 029)", () => {
 	it("gives the section an organiser, with who agreed and who hasn't", async () => {
 		await evaluateChange(ctx, QUALIFIED.id, {
 			kind: "upsert",
-			records: [ride(7_000_001, QUALIFIED.id)],
+			records: [ride("7000001", QUALIFIED.id)],
 		});
 		await onlyVersion2(JONAS_BEHIND.id);
 		const { html } = await overview();
@@ -509,7 +509,7 @@ describe("GET /organiser/riders, the graphs (feature 029)", () => {
 	it("keeps a not yet agreed rider's rides out of the team's sums, until they agree", async () => {
 		await evaluateChange(ctx, JONAS_BEHIND.id, {
 			kind: "upsert",
-			records: [ride(7_000_002, JONAS_BEHIND.id)],
+			records: [ride("7000002", JONAS_BEHIND.id)],
 		});
 		await onlyVersion2(JONAS_BEHIND.id);
 		const sum = (page: string) =>
@@ -524,7 +524,7 @@ describe("GET /organiser/riders, the graphs (feature 029)", () => {
 	it("removes a rider who leaves from every line", async () => {
 		await evaluateChange(ctx, QUALIFIED.id, {
 			kind: "upsert",
-			records: [ride(7_000_003, QUALIFIED.id)],
+			records: [ride("7000003", QUALIFIED.id)],
 		});
 		await deleteRider(env.DB, QUALIFIED.id);
 		const data = dataOf((await overview()).html);
@@ -536,8 +536,8 @@ describe("GET /organiser/riders, the graphs (feature 029)", () => {
 		await evaluateChange(ctx, QUALIFIED.id, {
 			kind: "upsert",
 			records: [
-				ride(7_000_004, QUALIFIED.id),
-				ride(7_000_005, QUALIFIED.id, {
+				ride("7000004", QUALIFIED.id),
+				ride("7000005", QUALIFIED.id, {
 					sport_type: "VirtualRide",
 					start_date: "2026-05-02T15:00:00Z",
 					start_date_local: "2026-05-02T17:00:00Z",
@@ -560,7 +560,7 @@ describe("GET /organiser/riders, the graphs (feature 029)", () => {
 	it("names no ride, ride ID or start time anywhere (FR-003)", async () => {
 		await evaluateChange(ctx, QUALIFIED.id, {
 			kind: "upsert",
-			records: [ride(7_000_006, QUALIFIED.id)],
+			records: [ride("7000006", QUALIFIED.id)],
 		});
 		const { html } = await overview();
 		const section = sectionOf(
@@ -708,14 +708,14 @@ describe("GET /organiser/riders, sessions (ride stats ranking US2)", () => {
 			.slice(opening.length)
 			.replace("</script>", "");
 		return JSON.parse(json) as {
-			riders: { id: number; days: number[][] }[];
+			riders: { id: string; days: number[][] }[];
 			teamSum: { sessions: number[] };
 			sessions: boolean;
 		};
 	};
 	const ride = (
-		id: number,
-		athleteId: number,
+		id: string,
+		athleteId: string,
 		day: string,
 		km: number,
 		hour = 7,
@@ -728,7 +728,7 @@ describe("GET /organiser/riders, sessions (ride stats ranking US2)", () => {
 			moving_time_s: Math.round(km * 150),
 			elapsed_time_s: Math.round(km * 150),
 		});
-	const toVersion2 = (id: number) =>
+	const toVersion2 = (id: string) =>
 		env.DB.prepare(
 			"UPDATE consent_records SET version = 2 WHERE athlete_id = ?",
 		)
@@ -740,15 +740,15 @@ describe("GET /organiser/riders, sessions (ride stats ranking US2)", () => {
 		await evaluateChange(ctx, QUALIFIED.id, {
 			kind: "upsert",
 			records: [
-				ride(7_100_001, QUALIFIED.id, "2026-05-02", 40),
-				ride(7_100_002, QUALIFIED.id, "2026-05-02", 20, 15),
-				ride(7_100_003, QUALIFIED.id, "2026-05-09", 60),
+				ride("7100001", QUALIFIED.id, "2026-05-02", 40),
+				ride("7100002", QUALIFIED.id, "2026-05-02", 20, 15),
+				ride("7100003", QUALIFIED.id, "2026-05-09", 60),
 			],
 		});
 		// Jonas, behind, on version 2: in the table, in no figure.
 		await evaluateChange(ctx, JONAS_BEHIND.id, {
 			kind: "upsert",
-			records: [ride(7_100_004, JONAS_BEHIND.id, "2026-05-02", 30)],
+			records: [ride("7100004", JONAS_BEHIND.id, "2026-05-02", 30)],
 		});
 		await toVersion2(JONAS_BEHIND.id);
 	});

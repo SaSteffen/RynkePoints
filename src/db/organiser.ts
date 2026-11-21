@@ -6,7 +6,7 @@ import { consentedRiderIdsSince, sharedRiderExists } from "./consents";
 // includes the organiser themselves.
 
 export interface ListedRiderRow {
-	athlete_id: number;
+	athlete_id: string;
 	first_name: string;
 }
 
@@ -36,9 +36,9 @@ export function listedRiderFilter(alias: string): string {
 /** `ListedRiderRow`s ordered by first name. */
 export function listListedRidersStatement(db: D1Database) {
 	return db.prepare(
-		`SELECT athlete_id, first_name FROM riders
+		`SELECT CAST(athlete_id AS TEXT) AS athlete_id, first_name FROM riders
 		WHERE athlete_id IN (${LISTED_RIDER_IDS})
-		ORDER BY first_name COLLATE NOCASE, athlete_id`,
+		ORDER BY first_name COLLATE NOCASE, riders.athlete_id`,
 	);
 }
 

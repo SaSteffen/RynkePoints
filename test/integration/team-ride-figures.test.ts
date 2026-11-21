@@ -14,27 +14,27 @@ import { activityRecord } from "../support/rynke";
 const ctx = makeCtx();
 const { de } = CATALOGS;
 
-const R1 = { id: 920_001, name: "Ottilie" };
-const R2 = { id: 920_002, name: "Waltraud" };
-const VIEWER = { id: 920_003, name: "Kunigunde" };
-const ORGANISER = { id: 920_004, name: "Hildegard" };
+const R1 = { id: "920001", name: "Ottilie" };
+const R2 = { id: "920002", name: "Waltraud" };
+const VIEWER = { id: "920003", name: "Kunigunde" };
+const ORGANISER = { id: "920004", name: "Hildegard" };
 /** On consent version 2: listed, but in no ride figure (FR-020). */
-const ON_TWO = { id: 920_005, name: "Brunhilde" };
-const UNCONSENTED = { id: 920_006, name: "Gertrude" };
+const ON_TWO = { id: "920005", name: "Brunhilde" };
+const UNCONSENTED = { id: "920006", name: "Gertrude" };
 const ALL = [R1, R2, VIEWER, ORGANISER, ON_TWO, UNCONSENTED];
 
 let nextId = 1;
 
 /** A counting ride of `km` and `m` elevation, started at 09:00 on `date`. */
 async function ride(
-	athleteId: number,
+	athleteId: string,
 	date: string,
 	km: number,
 	m: number,
 	counts = true,
 ) {
 	await seedRide(athleteId, {
-		id: nextId++,
+		id: String(nextId++),
 		start_date: `${date}T07:00:00Z`,
 		start_date_local: `${date}T09:00:00Z`,
 		distance_m: km * 1000,
@@ -277,14 +277,14 @@ describe("GET /team by a ride figure (US1)", () => {
 		const added = await page("/team?by=km&period=week");
 		for (const rider of [R1, R2, VIEWER, ORGANISER]) {
 			const { results } = await env.DB.prepare(
-				"SELECT * FROM activities WHERE athlete_id = ?",
+				"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id, CAST(strava_activity_id AS TEXT) AS strava_activity_id FROM activities WHERE athlete_id = ?",
 			)
 				.bind(rider.id)
 				.all();
 			await evaluateChange(ctx, rider.id, {
 				kind: "upsert",
 				records: results.map((row) =>
-					activityRecord(row.strava_activity_id as number, {
+					activityRecord(row.strava_activity_id as string, {
 						...(row as object),
 					}),
 				),

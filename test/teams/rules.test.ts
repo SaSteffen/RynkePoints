@@ -43,7 +43,7 @@ function otherTeam(base: TeamData, distanceStepKm: number): TeamData {
 async function seedRide(): Promise<void> {
 	await upsertActivity(
 		env.DB,
-		activityRecord(1, {
+		activityRecord("1", {
 			start_date: `${env.QUALIFICATION_START_DATE}T08:00:00Z`,
 			start_date_local: `${env.QUALIFICATION_START_DATE}T08:00:00Z`,
 			distance_m: 79000,
@@ -192,7 +192,7 @@ describe.runIf(team.id === "hamburg")("hamburg's window (040 US1)", () => {
 			day += 86_400_000, id++
 		) {
 			const start = new Date(day).toISOString().replace(".000Z", "Z");
-			rides.push(makeRide({ id, km: 40, movingH: 1.6, start }));
+			rides.push(makeRide({ id: String(id), km: 40, movingH: 1.6, start }));
 		}
 		const { results } = evaluateRides(rides, rules, window);
 		expect(results).toHaveLength(365);

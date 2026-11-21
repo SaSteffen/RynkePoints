@@ -16,8 +16,8 @@ const VALUE = {
 	decision: "confirm" as const,
 	eventId: 12,
 	reports: [
-		{ athleteId: 900001, reportedAt: NOW - 50 },
-		{ athleteId: 900002, reportedAt: NOW - 20 },
+		{ athleteId: "900001", reportedAt: NOW - 50 },
+		{ athleteId: "900002", reportedAt: NOW - 20 },
 	],
 };
 
@@ -31,7 +31,7 @@ describe("undo token", () => {
 		const deny = {
 			decision: "deny" as const,
 			eventId: 3,
-			reports: [{ athleteId: 900003, reportedAt: NOW }],
+			reports: [{ athleteId: "900003", reportedAt: NOW }],
 		};
 		const token = await undoToken(deny, NOW, ENV);
 		expect(await readUndoToken(token, NOW, ENV)).toEqual(deny);

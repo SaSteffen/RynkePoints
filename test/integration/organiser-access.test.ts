@@ -67,13 +67,13 @@ const at = (path: string) =>
 /** Every stored event, attendance and correction, to show nothing changed. */
 async function stored(): Promise<unknown[]> {
 	const events = await env.DB.prepare(
-		"SELECT * FROM team_events ORDER BY event_id",
+		"SELECT *, CAST(changed_by AS TEXT) AS changed_by FROM team_events ORDER BY event_id",
 	).all();
 	const attendances = await env.DB.prepare(
-		"SELECT * FROM attendances ORDER BY event_id, athlete_id",
+		"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id, CAST(changed_by AS TEXT) AS changed_by FROM attendances ORDER BY event_id, athlete_id",
 	).all();
 	const corrections = await env.DB.prepare(
-		"SELECT * FROM corrections ORDER BY correction_id",
+		"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id, CAST(changed_by AS TEXT) AS changed_by FROM corrections ORDER BY correction_id",
 	).all();
 	return [events.results, attendances.results, corrections.results];
 }
@@ -81,7 +81,7 @@ async function stored(): Promise<unknown[]> {
 async function post(
 	path: string,
 	form: Record<string, string>,
-	athleteId: number | null,
+	athleteId: string | null,
 	origin?: string,
 ): Promise<Response> {
 	return handleFetch(
@@ -94,7 +94,7 @@ async function post(
 	);
 }
 
-async function get(path: string, athleteId: number | null): Promise<Response> {
+async function get(path: string, athleteId: string | null): Promise<Response> {
 	return handleFetch(
 		request(at(path), {
 			cookies: athleteId ? await sessionCookie(ctx, athleteId) : undefined,

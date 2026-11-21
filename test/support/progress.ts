@@ -89,7 +89,7 @@ export const EXAMPLE_BALANCE: Balance = {
 
 /** A correction written with plain SQL, as an organiser's form stores it. */
 export async function insertCorrection(
-	athleteId: number,
+	athleteId: string,
 	correction: { date: string; training: number; team: number; reason: string },
 ): Promise<void> {
 	await env.DB.prepare(
@@ -115,12 +115,12 @@ export async function insertCorrection(
  * hold the same rides.
  */
 export async function seedExampleRider(
-	athleteId: number,
+	athleteId: string,
 	firstRideId = 7_100_001,
 ): Promise<void> {
 	for (const [i, ride] of RIDES.entries()) {
 		await seedRide(athleteId, {
-			id: firstRideId + i,
+			id: String(firstRideId + i),
 			start_date: `${ride.date}T07:00:00Z`,
 			start_date_local: `${ride.date}T09:00:00Z`,
 			distance_m: ride.km * 1000,

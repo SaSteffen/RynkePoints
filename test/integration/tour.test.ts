@@ -241,7 +241,7 @@ describe("the example rider (feature 020)", () => {
 			trainingMissing: 173,
 		});
 		await seedRide(ATHLETE_A, {
-			id: 424242,
+			id: "424242",
 			result: { counts: true, distanceRynke: 7 },
 		});
 	}

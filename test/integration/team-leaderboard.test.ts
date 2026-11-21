@@ -31,30 +31,30 @@ const { de, en } = CATALOGS;
 
 /** Listed riders with a balance, by Training: the viewer is 6th of 14. */
 const LISTED = [
-	{ id: 910_001, name: "Ottilie", training: 300, team: 20 },
-	{ id: 910_002, name: "Waltraud", training: 280, team: 19 },
-	{ id: 910_003, name: "Kunigunde", training: 250, team: 18 },
-	{ id: 910_004, name: "Hildegard", training: 200, team: 17 },
-	{ id: 910_005, name: "Brunhilde", training: 150, team: 16 },
-	{ id: 910_006, name: "Gertrude", training: 120, team: 25 },
-	{ id: 910_007, name: "Adelheid", training: 100, team: 15 },
-	{ id: 910_008, name: "Mechthild", training: 90, team: 14 },
-	{ id: 910_009, name: "Irmgard", training: 80, team: 13 },
-	{ id: 910_010, name: "Roswitha", training: 70, team: 12 },
-	{ id: 910_011, name: "Walburga", training: 60, team: 11 },
-	{ id: 910_012, name: "Edeltraud", training: 50, team: 10 },
-	{ id: 910_013, name: "Hannelore", training: 40, team: 9 },
+	{ id: "910001", name: "Ottilie", training: 300, team: 20 },
+	{ id: "910002", name: "Waltraud", training: 280, team: 19 },
+	{ id: "910003", name: "Kunigunde", training: 250, team: 18 },
+	{ id: "910004", name: "Hildegard", training: 200, team: 17 },
+	{ id: "910005", name: "Brunhilde", training: 150, team: 16 },
+	{ id: "910006", name: "Gertrude", training: 120, team: 25 },
+	{ id: "910007", name: "Adelheid", training: 100, team: 15 },
+	{ id: "910008", name: "Mechthild", training: 90, team: 14 },
+	{ id: "910009", name: "Irmgard", training: 80, team: 13 },
+	{ id: "910010", name: "Roswitha", training: 70, team: 12 },
+	{ id: "910011", name: "Walburga", training: 60, team: 11 },
+	{ id: "910012", name: "Edeltraud", training: 50, team: 10 },
+	{ id: "910013", name: "Hannelore", training: 40, team: 9 },
 ];
-const VIEWER = 910_006;
-const FIRST = 910_001;
-const ORGANISER = 910_004;
-const WITHOUT_BALANCE = { id: 910_014, name: "Rotraut" };
-const UNCONSENTED = { id: 910_015, name: "Ermentrude" };
+const VIEWER = "910006";
+const FIRST = "910001";
+const ORGANISER = "910004";
+const WITHOUT_BALANCE = { id: "910014", name: "Rotraut" };
+const UNCONSENTED = { id: "910015", name: "Ermentrude" };
 
 /** Two riders far ahead in Training, seeded only where the breakaway is tested. */
 const BREAKAWAY = [
-	{ id: 910_016, name: "Wiltrud", training: 900 },
-	{ id: 910_017, name: "Gerlinde", training: 1200 },
+	{ id: "910016", name: "Wiltrud", training: 900 },
+	{ id: "910017", name: "Gerlinde", training: 1200 },
 ];
 
 const OTHERS = [...LISTED, WITHOUT_BALANCE, UNCONSENTED].filter(
@@ -295,14 +295,14 @@ describe("GET /team, the team's progress (US2)", () => {
 	// the stored balances (Training 1790, Team 199). The unconsented rider's ride
 	// counts nowhere.
 	beforeEach(async () => {
-		const ride = (id: number, start: string, distanceRynke: number) => ({
+		const ride = (id: string, start: string, distanceRynke: number) => ({
 			id,
 			start_date: `${start}T08:00:00Z`,
 			result: { counts: true, distanceRynke, elevationDm: 0 },
 		});
-		await seedRide(VIEWER, ride(8_400_001, "2026-09-22", 10));
-		await seedRide(FIRST, ride(8_400_002, "2026-09-30", 5));
-		await seedRide(UNCONSENTED.id, ride(8_400_003, "2026-09-30", 50));
+		await seedRide(VIEWER, ride("8400001", "2026-09-22", 10));
+		await seedRide(FIRST, ride("8400002", "2026-09-30", 5));
+		await seedRide(UNCONSENTED.id, ride("8400003", "2026-09-30", 50));
 	});
 
 	it("gives the Training team total and this week's gain (US2 #1)", async () => {

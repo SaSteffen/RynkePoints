@@ -52,7 +52,7 @@ const RIDER_ROW: Record<RiderData, boolean> = {
 
 const ALL_DATA = Object.keys(ORGANISER_ROW) as RiderData[];
 
-function rider(athleteId: number, organiser: boolean): Rider {
+function rider(athleteId: string, organiser: boolean): Rider {
 	return {
 		athleteId,
 		firstName: `Synthetic ${athleteId}`,
@@ -77,7 +77,7 @@ function rider(athleteId: number, organiser: boolean): Rider {
 	};
 }
 
-function riderViewer(athleteId: number, organiser: boolean): Viewer {
+function riderViewer(athleteId: string, organiser: boolean): Viewer {
 	return {
 		kind: "rider",
 		rider: rider(athleteId, organiser),
@@ -200,28 +200,28 @@ describe("maySee", () => {
 
 describe("audienceOf", () => {
 	it("names a visitor a visitor", () => {
-		expect(audienceOf({ kind: "visitor" }, 900001)).toBe("visitor");
+		expect(audienceOf({ kind: "visitor" }, "900001")).toBe("visitor");
 	});
 
 	it("names the rider themselves self, organiser or not", () => {
-		expect(audienceOf(riderViewer(900001, false), 900001)).toBe("self");
-		expect(audienceOf(riderViewer(900001, true), 900001)).toBe("self");
+		expect(audienceOf(riderViewer("900001", false), "900001")).toBe("self");
+		expect(audienceOf(riderViewer("900001", true), "900001")).toBe("self");
 	});
 
 	it("names another viewer from their own flag", () => {
-		expect(audienceOf(riderViewer(900001, true), 900002)).toBe("organiser");
-		expect(audienceOf(riderViewer(900001, false), 900002)).toBe("rider");
+		expect(audienceOf(riderViewer("900001", true), "900002")).toBe("organiser");
+		expect(audienceOf(riderViewer("900001", false), "900002")).toBe("rider");
 	});
 });
 
 describe("a synthetic team (SC-002)", () => {
 	// Two organisers, three riders, one of them (900005) without consent.
 	const team = [
-		{ athleteId: 900001, organiser: true, consentVersion: 3 },
-		{ athleteId: 900002, organiser: true, consentVersion: 3 },
-		{ athleteId: 900003, organiser: false, consentVersion: 3 },
-		{ athleteId: 900004, organiser: false, consentVersion: 3 },
-		{ athleteId: 900005, organiser: false, consentVersion: null },
+		{ athleteId: "900001", organiser: true, consentVersion: 3 },
+		{ athleteId: "900002", organiser: true, consentVersion: 3 },
+		{ athleteId: "900003", organiser: false, consentVersion: 3 },
+		{ athleteId: "900004", organiser: false, consentVersion: 3 },
+		{ athleteId: "900005", organiser: false, consentVersion: null },
 	];
 
 	function expected(
@@ -265,8 +265,8 @@ describe("a synthetic team (SC-002)", () => {
 			if (!viewer) throw new Error("team too small");
 			const v = riderViewer(viewer.athleteId, viewer.organiser);
 			for (const data of ALL_DATA) {
-				expect(maySee(audienceOf(v, 900002), data, 1), data).toBe(
-					maySee(audienceOf(v, 900003), data, 1),
+				expect(maySee(audienceOf(v, "900002"), data, 1), data).toBe(
+					maySee(audienceOf(v, "900003"), data, 1),
 				);
 			}
 		}

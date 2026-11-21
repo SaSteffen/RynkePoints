@@ -6,6 +6,7 @@ import {
 } from "../crypto/sign";
 import type { Ctx } from "../ctx";
 import { isSessionCurrent } from "../db/riders";
+import { isStravaId } from "../strava/id";
 import { getCookie } from "./cookies";
 
 // Signed session and OAuth state cookies, plus the Origin check for POSTs
@@ -72,7 +73,7 @@ async function readSigned(
 
 /** A rider and a session epoch, signed in only while it is theirs (#314). */
 export interface Session {
-	athleteId: number;
+	athleteId: string;
 	epoch: number;
 }
 
@@ -110,9 +111,9 @@ export async function readSessionCookie(
 ): Promise<SessionCookie | null> {
 	const signed = await readSigned(request, SESSION_COOKIE, env, now);
 	const parts = signed?.value.match(/^(\d+):(\d+)$/);
-	if (signed && parts) {
+	if (signed && parts && isStravaId(parts[1])) {
 		return {
-			athleteId: Number(parts[1]),
+			athleteId: parts[1],
 			epoch: Number(parts[2]),
 			expiresAt: signed.expiresAt,
 			legacy: false,
@@ -141,9 +142,9 @@ async function readLegacySessionCookie(
 				SESSION_COOKIE,
 			)
 		: null;
-	return signed && /^\d+$/.test(signed.value)
+	return signed && isStravaId(signed.value)
 		? {
-				athleteId: Number(signed.value),
+				athleteId: signed.value,
 				epoch: 0,
 				expiresAt: signed.expiresAt,
 				legacy: true,
@@ -160,7 +161,7 @@ export async function readSession(
 	request: Request,
 	env: Keys & Pick<Env, "DB">,
 	now: number,
-): Promise<number | null> {
+): Promise<string | null> {
 	const session = await readSessionCookie(request, env, now);
 	if (!session) return null;
 	return (await isSessionCurrent(env.DB, session.athleteId, session.epoch))

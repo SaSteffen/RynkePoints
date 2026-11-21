@@ -2,7 +2,8 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { handleFetch } from "../../src/index";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
-import { ATHLETE_A } from "../support/fixtures";
+import { ATHLETE_A, LARGE_ATHLETE } from "../support/fixtures";
+import { stravaJson } from "../support/strava-json";
 
 // Feature 041 research R14, contracts/withdrawal.md: the gateway asks, for
 // another team about to withdraw a grant, whether this team holds the person.
@@ -13,7 +14,8 @@ function ask(token: string, body: unknown = { athleteId: ATHLETE_A }) {
 	return handleFetch(
 		new Request(`https://rynke.test/strava/held/${token}`, {
 			method: "POST",
-			body: JSON.stringify(body),
+			// The athlete ID a JSON number with every digit (feature 042 R3).
+			body: typeof body === "string" ? body : stravaJson(body),
 		}),
 		ctx,
 	);
@@ -31,6 +33,22 @@ describe("POST /strava/held/<token>", () => {
 	it("answers connected for a connected rider", async () => {
 		await seedRider(ctx);
 		expect(await (await ask(TOKEN)).json()).toEqual({ held: "connected" });
+	});
+
+	it("answers for an athlete ID past 2^53 exactly (feature 042)", async () => {
+		await seedRider(ctx, { athleteId: LARGE_ATHLETE });
+		expect(
+			await (await ask(TOKEN, { athleteId: LARGE_ATHLETE })).json(),
+		).toEqual({ held: "connected" });
+		// One past it differs only beyond 2^53: nobody here.
+		expect(
+			await (await ask(TOKEN, '{"athleteId":9223372036854775806}')).json(),
+		).toEqual({ held: "none" });
+	});
+
+	it("refuses an athlete ID sent as text", async () => {
+		const res = await ask(TOKEN, JSON.stringify({ athleteId: ATHLETE_A }));
+		expect(res.status).toBe(400);
 	});
 
 	it("answers connected for a guest alike", async () => {
