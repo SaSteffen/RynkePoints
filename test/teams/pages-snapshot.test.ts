@@ -4,6 +4,7 @@ import { readOnly } from "../../album/guard";
 import { loadAlbum } from "../../album/load";
 import { renderAlbum } from "../../album/render";
 import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples.hamburg";
+import { APP_VERSION } from "../../src/changelog";
 import { TEAMS } from "../../src/teams";
 import { NOW } from "../support/fixtures";
 import PINNED_VARS from "../support/pinned.json";
@@ -42,6 +43,11 @@ function heldBack(): number {
 	return rider.athleteId;
 }
 
+/** The page's text, without the app's version that every release raises. */
+async function pinnedText(markup: string): Promise<string> {
+	return (await pageText(markup)).replaceAll(APP_VERSION, "x.y.z");
+}
+
 async function pinPage(
 	path: string,
 	lang: string,
@@ -49,7 +55,7 @@ async function pinPage(
 ): Promise<void> {
 	const { status, markup } = await getPage(path, lang, cookie);
 	expect
-		.soft(`${status}\n${await pageText(markup)}\n`)
+		.soft(`${status}\n${await pinnedText(markup)}\n`)
 		.toMatchSnapshot(`${path} ${lang}`);
 }
 
@@ -72,7 +78,7 @@ async function pinTour(
 		if (step > 30) throw new Error(`the ${name} tour doesn't end`);
 		const { status, markup } = await getPage(path, lang, cookie);
 		expect
-			.soft(`${status}\n${await pageText(markup)}\n`)
+			.soft(`${status}\n${await pinnedText(markup)}\n`)
 			.toMatchSnapshot(`${name} tour step ${step} ${path} ${lang}`);
 		expect(markup).toContain('<aside class="tour"');
 		path = nextStep(markup);
