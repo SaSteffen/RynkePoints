@@ -22,9 +22,30 @@ concurrency:
 
 # The seven check jobs (here and in pr-policy.yml) are the required-check contexts in
 # .github/rulesets/*.json. Renaming one means updating both ruleset files in the same
-# change. already-checked, playwright-image, deploy-gate, deploy and deploy-gateway
-# are not contexts and must never be added to them.
+# change. already-checked, scope, playwright-image, deploy-gate, deploy and
+# deploy-gateway are not contexts and must never be added to them.
 jobs:
+  # On a pull request (scripts/test-scope.mjs): tests=none when it only changes
+  # paths no test reads, then test and e2e are skipped, which their required
+  # checks accept; tests=changelog for a version pull request, then test runs only
+  # the changelog's and Settings' tests and e2e is skipped. Skipped on pushes and
+  # dispatches, where the tests always run.
+  scope:
+    name: scope
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      tests: ${{ steps.decide.outputs.tests }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The merge commit and the base's tip, for the pull request's changes.
+          fetch-depth: 2
+          persist-credentials: false
+      - id: decide
+        run: node scripts/test-scope.mjs
+
   # On a push to main: checked=true when the merge commit has exactly the content of
   # the merged branch's head and the latest lint, typecheck, test and e2e on that head
   # passed, the results the main ruleset accepted for the merge (spec FR-012). Then
@@ -99,10 +120,12 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm typecheck
 
+  # Skipped when scope found nothing the tests read; when scope was skipped or
+  # failed, everything runs.
   test:
     name: test
-    needs: already-checked
-    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' }}
+    needs: [already-checked, scope]
+    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' && needs.scope.outputs.tests != 'none' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -110,7 +133,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
-      - run: pnpm test
+      - if: needs.scope.outputs.tests == 'changelog'
+        run: pnpm exec vitest run test/integration/changelog.test.ts test/integration/settings.test.ts
+      - if: needs.scope.outputs.tests != 'changelog'
+        run: pnpm test
 
   # The Playwright image matching the locked @playwright/test, for e2e's container.
   playwright-image:
@@ -143,8 +169,8 @@ jobs:
   # everything on develop each night.
   e2e:
     name: e2e
-    needs: [already-checked, playwright-image]
-    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' && needs.playwright-image.result == 'success' }}
+    needs: [already-checked, scope, playwright-image]
+    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' && needs.scope.outputs.tests != 'none' && needs.scope.outputs.tests != 'changelog' && needs.playwright-image.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:

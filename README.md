@@ -370,6 +370,14 @@ and `e2e` when the merged commit has the same content as the pull request they
 passed on.
 Merges into `develop` don't re-run them at all.
 
+On any pull request, the job `scope` skips `test` and `e2e` when every changed
+path is one no test reads: `docs/`, `specs/`, `.specify/`, `.claude/`, `content/`,
+Markdown files at the top level but `CHANGELOG.md`, `LICENSE`, and `.github/` except `ci.yml` and the
+setup action (`scripts/test-scope.mjs`). A skipped job passes its required check.
+`scope` isn't a required check either.
+A version pull request, which changes only the version in `package.json` and
+`CHANGELOG.md`, runs just the changelog's and Settings' tests and no `e2e`.
+
 On a pull request into `develop`, `e2e` runs Chromium and Europe in full, but
 Firefox and WebKit only for the tests tagged `@cross-browser` and the e2e files the
 pull request adds or changes (`scripts/e2e-scope.mjs`). A change to
@@ -403,6 +411,18 @@ with `develop`; use **Update branch** if it isn't. The protection lives in
 source of truth.
 
 ### Releasing
+
+Every release has a new [semver](https://semver.org/) version. Settings shows it
+and links to the changelog at `/changelog`. Before a release, open a pull request
+into `develop` that raises `version` in `package.json` and adds the release at
+the top of [CHANGELOG.md](CHANGELOG.md), in English, without naming a team. The Conventional
+Commits since the last release say how far to go: a breaking change (`feat!: …`)
+raises the major number, a `feat` the minor number, anything else the patch number.
+A hotfix raises the patch number on its own branch. **Release PR** stops when
+`develop` still has `main`'s version, warns when the bump is smaller than the
+pull requests call for, and puts both versions in the description. In Claude
+Code, the `release` skill does both steps: it opens the version pull request, and
+once that is merged, it starts **Release PR**.
 
 ```bash
 gh pr create --base main --head develop --title "chore: release"

@@ -417,6 +417,11 @@ export const lt: Catalog = {
 	"settings.tour": "Apžvalgos",
 	"settings.tour.rider": "Rodyti apžvalgą dar kartą",
 	"settings.tour.organiser": "Rodyti Orga apžvalgą dar kartą",
+	"settings.about": "Apie programėlę",
+	"changelog.version": "Versija {version}",
+	"changelog.title": "Kas naujo",
+	"changelog.intro":
+		"Kas pasikeitė kiekvienoje versijoje. Įrašai yra anglų kalba.",
 	"rynke.ride.why": "Kodėl?",
 	"notifications.switch": "Pranešimai šiame įrenginyje",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",

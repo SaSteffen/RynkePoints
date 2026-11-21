@@ -434,6 +434,11 @@ export const fr: Catalog = {
 	"settings.tour": "Visites guidées",
 	"settings.tour.rider": "Revoir la visite",
 	"settings.tour.organiser": "Revoir la visite Orga",
+	"settings.about": "À propos de l'application",
+	"changelog.version": "Version {version}",
+	"changelog.title": "Nouveautés",
+	"changelog.intro":
+		"Ce qui a changé dans chaque version. Les entrées sont en anglais.",
 	"rynke.ride.why": "Pourquoi\u00a0?",
 	"notifications.switch": "Notifications sur cet appareil",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",

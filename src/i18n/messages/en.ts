@@ -416,6 +416,11 @@ export const en: Catalog = {
 	"settings.tour": "Tours",
 	"settings.tour.rider": "Show the tour again",
 	"settings.tour.organiser": "Show the Orga tour again",
+	"settings.about": "About the app",
+	"changelog.version": "Version {version}",
+	"changelog.title": "What's new",
+	"changelog.intro":
+		"What changed with each version. The entries are in English.",
 	"rynke.ride.why": "Why?",
 	"notifications.switch": "Notifications on this device",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",

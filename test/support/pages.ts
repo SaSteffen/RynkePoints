@@ -152,6 +152,12 @@ export const RIDER_PAGES: RiderPage[] = [
 	{ name: "/ signed out", next: "/", status: 200, fetch: get("/") },
 	{ name: "/privacy", next: "/privacy", status: 200, fetch: get("/privacy") },
 	{
+		name: "/changelog",
+		next: "/changelog",
+		status: 200,
+		fetch: get("/changelog"),
+	},
+	{
 		name: "/me connected",
 		next: null,
 		status: 200,

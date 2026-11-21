@@ -439,6 +439,11 @@ export const de = {
 	"settings.tour": "Rundgang",
 	"settings.tour.rider": "Rundgang noch mal zeigen",
 	"settings.tour.organiser": "Orga-Rundgang noch mal zeigen",
+	"settings.about": "Über die App",
+	"changelog.version": "Version\u00a0{version}",
+	"changelog.title": "Was ist neu",
+	"changelog.intro":
+		"Was sich mit jeder Version geändert hat. Die Einträge sind auf Englisch.",
 	"rynke.ride.why": "Warum?",
 	"notifications.switch": "Benachrichtigungen auf diesem Gerät",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",

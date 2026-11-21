@@ -66,10 +66,13 @@ and commit messages must follow
   (commits and PR title) as the local hooks. On PRs into `develop`, `e2e` runs Firefox
   and WebKit only for `@cross-browser` tests and changed e2e files
   (`scripts/e2e-scope.mjs`); PRs into `main` and the nightly `e2e-nightly.yml` run
-  everything.
+  everything. A PR that only changes paths no test reads (docs, specs, skills,
+  GitHub settings; `scripts/test-scope.mjs`) skips `test` and `e2e`, and a version
+  PR runs only the changelog's and Settings' tests; a test that
+  starts reading such a path must take it out of that list.
 - The seven check jobs' names are the required-check contexts. Renaming one means
   updating both `.github/rulesets/*.json` files in the same change.
-  `already-checked`, `playwright-image`, `deploy-gate`, `deploy`, `deploy-gateway`,
+  `already-checked`, `scope`, `playwright-image`, `deploy-gate`, `deploy`, `deploy-gateway`,
   `release-pr`, the `e2e-nightly.yml` jobs (`changed`, `nightly (…)`) and the sandbox
   jobs (`resolve`, `sandbox (…)`, `reseed (…)`, `sandbox-pr`) are not contexts and must never be
   added to them.
@@ -113,7 +116,11 @@ and commit messages must follow
   names, badge hints): it follows the team, not the rider's language, German for
   Hamburg and the common English set for every other team, and isn't translated
   (feature 026 FR-025, feature 034 FR-014). Seasonal quote monkeys are team data
-  (`holidays` in `src/teams/<id>.ts`).
+  (`holidays` in `src/teams/<id>.ts`). The changelog's entries (`CHANGELOG.md`)
+  are English only too, and shared by every team.
+- Every release raises the semver version in `package.json` and adds its entry at the
+  top of `CHANGELOG.md`, in a pull request into `develop` before **Release PR**
+  (README "Releasing", the `release` skill); a test keeps the two equal.
 - No page, image or text of a team shows another team's name, place or art
   (feature 026 FR-023, `test/teams/no-other-team.test.ts`), and no rider's data
   crosses teams.

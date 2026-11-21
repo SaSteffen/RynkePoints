@@ -414,6 +414,11 @@ export const nb: Catalog = {
 	"settings.tour": "Omvisninger",
 	"settings.tour.rider": "Vis omvisningen igjen",
 	"settings.tour.organiser": "Vis Orga-omvisningen igjen",
+	"settings.about": "Om appen",
+	"changelog.version": "Versjon {version}",
+	"changelog.title": "Nyheter",
+	"changelog.intro":
+		"Hva som er endret i hver versjon. Punktene er på engelsk.",
 	"rynke.ride.why": "Hvorfor?",
 	"notifications.switch": "Varsler på denne enheten",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",
