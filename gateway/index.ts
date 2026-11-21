@@ -69,6 +69,10 @@ export async function gatewayFetch(
 		if (held?.[1] && request.method === "POST") {
 			return await askTeams(request, held[1], env);
 		}
+		const letGo = /^\/teams\/([^/]+)\/let-go$/.exec(url.pathname);
+		if (letGo?.[1] && request.method === "POST") {
+			return await letGoTeams(request, letGo[1], env);
+		}
 		const back = /^\/auth\/return\/([^/]+)$/.exec(url.pathname);
 		if (back?.[1] && request.method === "GET") {
 			return returnToTeam(url, back[1], env);
@@ -180,19 +184,22 @@ function returnToTeam(url: URL, teamId: string, env: GatewayEnv): Response {
 const HOLDS = ["none", "reconnect", "connected"] as const;
 type Hold = (typeof HOLDS)[number];
 
+/** One team's answer to the team question (feature 044 R2). */
+interface HeldAnswer {
+	held: Hold;
+	/** Held as a rider, not a guest; an answer without it counts as false. */
+	rider: boolean;
+}
+
 /**
- * `POST /teams/<teamId>/held`: a team about to withdraw a person's grant asks
- * whether any other team holds them (feature 041 research R14,
- * contracts/withdrawal.md). The answer is the strongest of the other teams'
- * (`connected` over `reconnect` over `none`); it never says which team. No
- * answer from any of them is a 503: the asking team keeps the token and asks
- * again. Logs a status per asked team, never the athlete.
+ * The athlete a team asks about, once its bearer token is the one the gateway
+ * holds for it; otherwise the refusal to answer with.
  */
-async function askTeams(
+async function askingTeam(
 	request: Request,
 	teamId: string,
 	env: GatewayEnv,
-): Promise<Response> {
+): Promise<{ teams: GatewayTeam[]; athleteId: string } | Response> {
 	const teams = parseTeams(env.TEAMS);
 	const token = env[webhookTokenName(teamId) as `TEAM_WEBHOOK_TOKEN_${string}`];
 	const bearer = /^Bearer (.+)$/.exec(
@@ -218,26 +225,81 @@ async function askTeams(
 		athleteId = undefined;
 	}
 	if (!isStravaId(athleteId)) return text("Bad Request", 400);
-	const answers = await Promise.all(
-		teams.filter((t) => t.id !== teamId).map((t) => askTeam(t, athleteId, env)),
-	);
-	if (answers.includes(null)) return text("Service Unavailable", 503);
-	const held = answers.reduce<Hold>(
-		(strongest, answer) =>
-			HOLDS.indexOf(answer as Hold) > HOLDS.indexOf(strongest)
-				? (answer as Hold)
-				: strongest,
-		"none",
-	);
-	return Response.json({ held });
+	return { teams: teams.filter((t) => t.id !== teamId), athleteId };
 }
 
-/** One team's answer, `null` if it gave none. */
-async function askTeam(
+/**
+ * `POST /teams/<teamId>/held`: a team asks whether any other team holds a
+ * person (feature 041 research R14, contracts/withdrawal.md), and whether as a
+ * rider (feature 044 R2, contracts/one-team.md). The answer is the strongest
+ * of the other teams' (`connected` over `reconnect` over `none`), `rider` if
+ * any said so; it never says which team. No answer from any of them is a 503:
+ * the asking team keeps the token and asks again. Logs a status per asked
+ * team, never the athlete.
+ */
+async function askTeams(
+	request: Request,
+	teamId: string,
+	env: GatewayEnv,
+): Promise<Response> {
+	const asking = await askingTeam(request, teamId, env);
+	if (asking instanceof Response) return asking;
+	const answers = await Promise.all(
+		asking.teams.map((t) =>
+			askTeam(t, "held", asking.athleteId, env, readHeld),
+		),
+	);
+	if (answers.includes(null)) return text("Service Unavailable", 503);
+	const held = (answers as HeldAnswer[]).reduce<HeldAnswer>(
+		(strongest, answer) => ({
+			held:
+				HOLDS.indexOf(answer.held) > HOLDS.indexOf(strongest.held)
+					? answer.held
+					: strongest.held,
+			rider: strongest.rider || answer.rider,
+		}),
+		{ held: "none", rider: false },
+	);
+	return Response.json(held);
+}
+
+function readHeld(body: unknown): HeldAnswer | null {
+	const { held, rider } = (body ?? {}) as { held?: unknown; rider?: unknown };
+	if (!HOLDS.includes(held as Hold)) return null;
+	return { held: held as Hold, rider: rider === true };
+}
+
+/**
+ * `POST /teams/<teamId>/let-go`: a person who rides for another team chose to
+ * switch to the asking one (feature 044 R4, contracts/one-team.md). Every
+ * other team lets them go as a rider; 200 only once all of them confirmed.
+ */
+async function letGoTeams(
+	request: Request,
+	teamId: string,
+	env: GatewayEnv,
+): Promise<Response> {
+	const asking = await askingTeam(request, teamId, env);
+	if (asking instanceof Response) return asking;
+	const answers = await Promise.all(
+		asking.teams.map((t) =>
+			askTeam(t, "let-go", asking.athleteId, env, (body) =>
+				(body as { letGo?: unknown } | null)?.letGo === true ? true : null,
+			),
+		),
+	);
+	if (answers.includes(null)) return text("Service Unavailable", 503);
+	return Response.json({ letGo: true });
+}
+
+/** One team's answer at `/strava/<what>/<token>`, `null` if it gave none. */
+async function askTeam<T>(
 	team: GatewayTeam,
+	what: "held" | "let-go",
 	athleteId: string,
 	env: GatewayEnv,
-): Promise<Hold | null> {
+	read: (body: unknown) => T | null,
+): Promise<T | null> {
 	const token =
 		env[webhookTokenName(team.id) as `TEAM_WEBHOOK_TOKEN_${string}`];
 	const service = env[serviceBindingName(team.id) as `TEAM_SERVICE_${string}`];
@@ -246,7 +308,7 @@ async function askTeam(
 		if (!token) throw new Error("no webhook token");
 		// The token goes into the path unencoded, as for the forward.
 		const res = await (service ? service.fetch.bind(service) : fetch)(
-			new URL(`/strava/held/${token}`, team.origin),
+			new URL(`/strava/${what}/${token}`, team.origin),
 			{
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -257,15 +319,15 @@ async function askTeam(
 		);
 		status = String(res.status);
 		if (res.ok) {
-			const answer = ((await res.json()) as { held?: unknown }).held;
-			console.log(`held team=${team.id} status=${status}`);
-			return HOLDS.includes(answer as Hold) ? (answer as Hold) : null;
+			const answer = read(await res.json());
+			console.log(`${what} team=${team.id} status=${status}`);
+			return answer;
 		}
 		await res.body?.cancel();
 	} catch (err) {
 		status = err instanceof Error ? err.name : "error";
 	}
-	console.log(`held team=${team.id} status=${status}`);
+	console.log(`${what} team=${team.id} status=${status}`);
 	return null;
 }
 

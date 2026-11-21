@@ -918,6 +918,8 @@ export const da: Catalog = {
 		"Notifikationer er frivillige og gælder pr. enhed. Kun den adresse, din enheds eller browsers push-tjeneste giver den, gemmes. Selve notifikationen er tom: det, den viser, henter din enhed direkte fra RynkePoints. Adressen slettes, når du slår notifikationer fra, logger ud på den enhed eller stopper.",
 	"privacy.technical.logs":
 		"Serverlogs indeholder kun id'er som atlet- og aktivitets-ID og fejltypen, aldrig adgangsnøgler eller aktivitetsdata. RynkePoints gemmer ikke IP-adresser.",
+	"privacy.technical.oneTeam":
+		"På RynkePoints kører du for ét hold ad gangen. Når du forbinder dig, spørger et hold derfor de andre hold, om du allerede kører for et af dem. Det får kun ja eller nej at vide, aldrig hvilket hold, og gemmer ikke svaret. Skifter du hold, sletter det hold, du forlader, alt om dig.",
 	"privacy.visibility.heading": "Hvem ser hvad",
 	"privacy.visibility.you":
 		"Du ser dine egne aktiviteter med deres titler, dine Rynke og dine badges. Ingen andre ser titlerne.",
@@ -1226,10 +1228,13 @@ export const da: Catalog = {
 	"notice.blocked.title": "Du kan ikke være med på dette hold",
 	"notice.blocked.body":
 		"En administrator har fjernet dig fra dette hold. Vi beholder kun dit Strava-ID, så du ikke kan forbinde igen.",
-	"notice.oneTeam.title": "Du er også med i et andet holds klub",
-	"notice.oneTeam.body":
-		"På RynkePoints kan du være med på ét hold ad gangen. Strava giver appen én forbindelse pr. person, så forbinder du dig til et andet hold, ophører forbindelsen til det første. Du er nu forbundet her.",
-	"notice.carryOn": "Fortsæt",
+	"switchTeam.title": "Du kører allerede for et andet hold",
+	"switchTeam.body":
+		"På RynkePoints kører du for ét hold ad gangen, og du kører allerede for et andet hold her. Intet om dig er gemt på dette hold endnu.",
+	"switchTeam.cost":
+		"Skifter du til dette hold, sletter det andet hold dine ture, Rynke og badges dér. Dette hold tæller sæsonens ture forfra efter sine egne regler.",
+	"switchTeam.switch": "Skift til dette hold",
+	"switchTeam.stay": "Bliv på mit hold",
 	"organiser.graphs.heading": "Fremskridt",
 	"organiser.graphs.title.outdoor": "Udendørs kilometer (km)",
 	"organiser.graphs.title.virtual": "Virtuelle kilometer (km)",

@@ -926,6 +926,8 @@ export const fi: Catalog = {
 		"Ilmoitukset ovat vapaaehtoisia ja laitekohtaisia. Vain osoite, jonka laitteesi tai selaimesi push-palvelu antaa, tallennetaan. Itse ilmoitus on tyhjä: sen sisällön laitteesi hakee suoraan RynkePointsista. Osoite poistetaan, kun poistat ilmoitukset käytöstä, kirjaudut ulos kyseisellä laitteella tai lopetat.",
 	"privacy.technical.logs":
 		"Palvelinlokeissa on vain tunnisteita, kuten urheilija- ja suoritustunnuksia ja virheen tyyppi, ei koskaan pääsyavaimia tai suoritustietoja. RynkePoints ei tallenna IP-osoitteita.",
+	"privacy.technical.oneTeam":
+		"RynkePointsissa ajat yhdessä tiimissä kerrallaan. Kun yhdistät, tiimi kysyy siksi muilta tiimeiltä, ajatko jo jossakin niistä. Se saa tietää vain kyllä tai ei, ei koskaan mikä tiimi, eikä tallenna vastausta. Jos vaihdat tiimiä, tiimi, josta lähdet, poistaa kaiken sinusta.",
 	"privacy.visibility.heading": "Kuka näkee mitä",
 	"privacy.visibility.you":
 		"Näet omat suorituksesi otsikkoineen, Rynkesi ja merkkisi. Kukaan muu ei näe otsikoita.",
@@ -1233,10 +1235,13 @@ export const fi: Catalog = {
 	"notice.blocked.title": "Et voi osallistua tässä tiimissä",
 	"notice.blocked.body":
 		"Ylläpitäjä on poistanut sinut tästä tiimistä. Säilytämme vain Strava-tunnuksesi, jotta et voi yhdistää uudelleen.",
-	"notice.oneTeam.title": "Olet myös toisen tiimin klubissa",
-	"notice.oneTeam.body":
-		"RynkePointsissa voit olla mukana yhdessä tiimissä kerrallaan. Strava antaa sovellukselle yhden yhteyden henkilöä kohden, joten jos yhdistät toiseen tiimiin, yhteys ensimmäiseen päättyy. Olet nyt yhdistetty tänne.",
-	"notice.carryOn": "Jatka",
+	"switchTeam.title": "Ajat jo toisessa tiimissä",
+	"switchTeam.body":
+		"RynkePointsissa ajat yhdessä tiimissä kerrallaan, ja ajat jo toisessa tiimissä täällä. Tähän tiimiin ei ole vielä tallennettu sinusta mitään.",
+	"switchTeam.cost":
+		"Jos vaihdat tähän tiimiin, toinen tiimi poistaa siellä ajosi, Rynket ja merkkisi. Tämä tiimi laskee kauden ajosi uudelleen omien sääntöjensä mukaan.",
+	"switchTeam.switch": "Vaihda tähän tiimiin",
+	"switchTeam.stay": "Pysy omassa tiimissäni",
 	"organiser.graphs.heading": "Edistyminen",
 	"organiser.graphs.title.outdoor": "Ulkokilometrit (km)",
 	"organiser.graphs.title.virtual": "Virtuaalikilometrit (km)",

@@ -156,40 +156,6 @@ describe(`${team.id}'s data checks (US3 scenario 4)`, () => {
 		});
 	});
 
-	// Each team's `otherClubIds` names every other team's club, for the
-	// one-team-at-a-time notice (feature 039 contracts/team-data.md › Clubs).
-	describe("other teams' clubs", () => {
-		const others = TEAMS.filter((t) => t.id !== team.id);
-
-		function clubLines(changed: Partial<TeamData>, copy = wrangler): string[] {
-			return teamProblems(withTeam(changed), copy, options).filter((line) =>
-				line.startsWith(`team ${team.id}: otherClubIds: `),
-			);
-		}
-
-		it("names another team's club that is missing", () => {
-			// Every registered team has its club now.
-			const expected = others.map(
-				(other) =>
-					`team ${team.id}: otherClubIds: ${wrangler.env[other.id]?.vars.STRAVA_CLUB_ID} of ${other.id} missing`,
-			);
-			expect(clubLines({ ...team, otherClubIds: [] })).toEqual(expected);
-		});
-
-		it("doesn't ask for a club that is still 0", () => {
-			const copy = structuredClone(wrangler);
-			for (const other of others) {
-				const block = copy.env[other.id];
-				if (block) block.vars.STRAVA_CLUB_ID = "0";
-			}
-			expect(clubLines({ ...team, otherClubIds: [] }, copy)).toEqual([]);
-		});
-
-		it("passes the registered clubs", () => {
-			expect(clubLines(team)).toEqual([]);
-		});
-	});
-
 	it.each([
 		"BADGES",
 		"PHRASES",

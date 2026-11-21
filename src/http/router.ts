@@ -17,7 +17,7 @@ import { handleChangelog } from "./changelog";
 import { handleConsent } from "./consent-gate";
 import { notFound } from "./errors";
 import { handleFetching } from "./fetching";
-import { handleHeld } from "./held";
+import { handleHeld, handleLetGo } from "./held";
 import { handleLanding } from "./landing";
 import { handleLang } from "./lang";
 import {
@@ -63,6 +63,7 @@ import { handleSettings } from "./sections/settings";
 import { handleTeam } from "./sections/team";
 import { renewSession } from "./session";
 import { handleStylesheet, isStylesheet } from "./stylesheet";
+import { handleSwitchTeam } from "./switch-team";
 import { handleTour } from "./tour";
 import { handleWebhook } from "./webhook";
 
@@ -79,6 +80,7 @@ import { handleWebhook } from "./webhook";
 const WEBHOOK_PREFIX = "/strava/webhook/";
 /** The gateway asks whether this team holds a person (feature 041 R14). */
 const HELD_PREFIX = "/strava/held/";
+const LET_GO_PREFIX = "/strava/let-go/";
 
 /**
  * `/organiser/events/{id}`, its `/delete` and its `/attendance`; `id` is a
@@ -130,6 +132,9 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	}
 	if (path.startsWith(HELD_PREFIX)) {
 		return handleHeld(request, path.slice(HELD_PREFIX.length), ctx);
+	}
+	if (path.startsWith(LET_GO_PREFIX)) {
+		return handleLetGo(request, path.slice(LET_GO_PREFIX.length), ctx);
 	}
 
 	// `?lang=` shows this one page in that language without picking it, for
@@ -255,6 +260,8 @@ async function page(
 			return handleLanding(request, ctx, i18n);
 		case "/privacy":
 			return handlePrivacy(ctx, i18n);
+		case "/switch-team":
+			return handleSwitchTeam(ctx, i18n);
 		case "/changelog":
 			return handleChangelog(ctx, i18n);
 		case "/connect":

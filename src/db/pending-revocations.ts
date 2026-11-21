@@ -88,3 +88,19 @@ export async function dropPendingRevocation(
 		.bind(row.athleteId, row.refreshTokenEnc)
 		.run();
 }
+
+/**
+ * Forgets a kept token of a person this team now holds as a rider or guest
+ * (feature 044 R5): the team controls the grant from now on and withdraws it
+ * when it lets them go. Settling the kept one later would revoke the grant
+ * the team now uses.
+ */
+export async function forgetPendingRevocation(
+	db: D1Database,
+	athleteId: string,
+): Promise<void> {
+	await db
+		.prepare("DELETE FROM pending_revocations WHERE athlete_id = ?")
+		.bind(athleteId)
+		.run();
+}

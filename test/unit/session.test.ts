@@ -148,6 +148,7 @@ describe("OAuth state cookie", () => {
 			state: "abc123",
 			consentVersion: 1,
 			next: "/me",
+			switchTeam: false,
 		});
 		expect(await readOAuthState(withCookie(cookie), env, NOW + 601)).toBeNull();
 	});
@@ -167,6 +168,7 @@ describe("OAuth state cookie", () => {
 			state: "abc",
 			consentVersion: 1,
 			next: "/me/settings",
+			switchTeam: false,
 		});
 	});
 
@@ -176,6 +178,7 @@ describe("OAuth state cookie", () => {
 			state: "abc",
 			consentVersion: 1,
 			next: "/",
+			switchTeam: false,
 		});
 	});
 
@@ -185,7 +188,31 @@ describe("OAuth state cookie", () => {
 			state: "abc",
 			consentVersion: 0,
 			next: "/me",
+			switchTeam: false,
 		});
+	});
+
+	// Feature 044 R3: a switch is marked between the version and next.
+	it("carries a switch, and reads an old value without one as none", async () => {
+		const cookie = await createOAuthStateCookie(
+			"abc",
+			1,
+			"/me/badges",
+			NOW,
+			env,
+			true,
+		);
+		expect(cookie).toMatch(/^rp_oauth_state=abc:1:switch:\/me\/badges\./);
+		expect(await readOAuthState(withCookie(cookie), env, NOW)).toEqual({
+			state: "abc",
+			consentVersion: 1,
+			next: "/me/badges",
+			switchTeam: true,
+		});
+		const old = await rawStateCookie("abc:1:/me/badges");
+		expect((await readOAuthState(withCookie(old), env, NOW))?.switchTeam).toBe(
+			false,
+		);
 	});
 
 	it.each(["abc", "abc:x", "abc:", "abc:-1", "abc:x:/me"])(

@@ -367,12 +367,16 @@ export async function sessionCookie(
 	);
 }
 
-/** A valid signed `rp_oauth_state` cookie carrying `state`, a consent version and `next`. */
+/**
+ * A valid signed `rp_oauth_state` cookie carrying `state`, a consent version,
+ * `next` and whether the person chose to switch here (feature 044).
+ */
 export async function oauthStateCookie(
 	ctx: Ctx,
 	state: string,
 	consentVersion = CONSENT_VERSION,
 	next = "/me",
+	switchTeam = false,
 ): Promise<Record<string, string>> {
 	return cookiePair(
 		await createOAuthStateCookie(
@@ -381,6 +385,7 @@ export async function oauthStateCookie(
 			next,
 			ctx.now(),
 			ctx.env,
+			switchTeam,
 		),
 	);
 }

@@ -33,9 +33,12 @@ const TOKENS: Record<string, string> = {
 	[NORDIC]: NORDIC_TOKEN,
 };
 
-/** Each team answers from `answers`, by origin; a missing one fails. */
+/**
+ * Each team answers from `answers`, by origin; a missing one fails. A string
+ * is `held` alone, an object the whole answer (feature 044 R2).
+ */
 function teamsAnswer(
-	answers: Record<string, string | number>,
+	answers: Record<string, string | number | object>,
 	athleteId = "990001",
 ) {
 	const asked: string[] = [];
@@ -50,7 +53,9 @@ function teamsAnswer(
 		if (typeof answer === "number")
 			return new Response("no", { status: answer });
 		if (answer === undefined) throw new TypeError("unreachable");
-		return Response.json({ held: answer });
+		return Response.json(
+			typeof answer === "object" ? answer : { held: answer },
+		);
 	});
 	return asked;
 }
@@ -77,7 +82,7 @@ describe("POST /teams/<id>/held", () => {
 		const asked = teamsAnswer({ [EUROPE]: "none", [NORDIC]: "none" });
 		const res = await ask();
 		expect(res.status).toBe(200);
-		expect(await res.json()).toEqual({ held: "none" });
+		expect(await res.json()).toEqual({ held: "none", rider: false });
 		expect(asked.sort()).toEqual([EUROPE, NORDIC]);
 	});
 
@@ -87,7 +92,30 @@ describe("POST /teams/<id>/held", () => {
 		["none", "connected", "connected"],
 	])("answers the strongest of %s and %s: %s", async (a, b, held) => {
 		teamsAnswer({ [EUROPE]: a, [NORDIC]: b });
-		expect(await (await ask()).json()).toEqual({ held });
+		expect(await (await ask()).json()).toEqual({ held, rider: false });
+	});
+
+	// Feature 044 R2: whether another team holds them as a rider, not a guest.
+	it("answers rider when any other team holds them as a rider", async () => {
+		teamsAnswer({
+			[EUROPE]: { held: "connected", rider: false },
+			[NORDIC]: { held: "reconnect", rider: true },
+		});
+		expect(await (await ask()).json()).toEqual({
+			held: "connected",
+			rider: true,
+		});
+	});
+
+	it.each([
+		["without rider", { held: "connected" }],
+		["with a rider that isn't a boolean", { held: "connected", rider: "yes" }],
+	])("counts an answer %s as no rider", async (_, answer) => {
+		teamsAnswer({ [EUROPE]: answer, [NORDIC]: "none" });
+		expect(await (await ask()).json()).toEqual({
+			held: "connected",
+			rider: false,
+		});
 	});
 
 	it.each([
@@ -119,7 +147,7 @@ describe("POST /teams/<id>/held", () => {
 			large,
 		);
 		const res = await ask("hamburg", HAMBURG_TOKEN, `{"athleteId":${large}}`);
-		expect(await res.json()).toEqual({ held: "connected" });
+		expect(await res.json()).toEqual({ held: "connected", rider: false });
 		expect(asked.sort()).toEqual([EUROPE, NORDIC]);
 	});
 
@@ -149,7 +177,7 @@ describe("POST /teams/<id>/held", () => {
 			}),
 			{ ...env, TEAMS: JSON.stringify([{ id: "hamburg", origin: HAMBURG }]) },
 		);
-		expect(await res.json()).toEqual({ held: "none" });
+		expect(await res.json()).toEqual({ held: "none", rider: false });
 		expect(asked).toEqual([]);
 	});
 });

@@ -614,11 +614,30 @@ export async function saveCredentials(
 export async function riderHold(
 	db: D1Database,
 	athleteId: string,
-): Promise<"connected" | "reconnect" | "none"> {
+): Promise<{ held: "connected" | "reconnect" | "none"; rider: boolean }> {
 	const row = await db
-		.prepare("SELECT status FROM riders WHERE athlete_id = ?")
+		.prepare("SELECT status, guest FROM riders WHERE athlete_id = ?")
 		.bind(athleteId)
-		.first<{ status: RiderStatus }>();
-	if (!row) return "none";
-	return row.status === "connected" ? "connected" : "reconnect";
+		.first<{ status: RiderStatus; guest: number }>();
+	if (!row) return { held: "none", rider: false };
+	return {
+		held: row.status === "connected" ? "connected" : "reconnect",
+		// Held as a rider, not a guest (feature 044 R2).
+		rider: row.guest === 0,
+	};
+}
+
+/**
+ * Lets a rider go for a switch to another team (feature 044 R4): the row and
+ * everything that cascades from it, never a guest's. No block, no withdrawal:
+ * the team they switch to holds the grant.
+ */
+export async function letGoRider(
+	db: D1Database,
+	athleteId: string,
+): Promise<void> {
+	await db
+		.prepare("DELETE FROM riders WHERE athlete_id = ? AND guest = 0")
+		.bind(athleteId)
+		.run();
 }
