@@ -1253,7 +1253,7 @@ describe("GET /me/rides paging (US5)", () => {
 });
 
 /**
- * The text of the Overview's notice and of the rules group in Settings, where
+ * The text of the Overview's notice and of the rules row in Settings, where
  * they moved (issue #92); the notice is `null` when absent.
  */
 async function rulesAndNotice(athleteId = ATHLETE_A, acceptLanguage?: string) {
@@ -1262,10 +1262,12 @@ async function rulesAndNotice(athleteId = ATHLETE_A, acceptLanguage?: string) {
 		await riderPage(ctx, athleteId, "/me/settings", acceptLanguage)
 	).html;
 	const notice = section(html, 'class="notice" role="status"');
-	const rules = section(settings, 'id="settings-rules"');
+	const rules =
+		settings.match(/<li id="settings-rules">([\s\S]*?)<\/li>/)?.[1] ?? null;
 	return {
 		html,
 		settings,
+		rulesRow: rules,
 		notice: notice === null ? null : text(notice),
 		rules: rules === null ? null : text(rules),
 	};
@@ -1280,16 +1282,14 @@ const UPDATING = "Seit dem 09.10.2026 gelten neue Regeln.";
 describe("GET /me rules and notices (US6)", () => {
 	it("S6-1: names the rules version, the window and the handout", async () => {
 		await seedBalance(ATHLETE_A);
-		const { html, settings, notice, rules } = await rulesAndNotice();
+		const { html, rulesRow, notice, rules } = await rulesAndNotice();
 		expect(rules).toContain(
 			`Regel-Version ${VERSION}, gültig seit dem 09.10.2026.`,
 		);
 		expect(rules).toContain(
 			"Es zählt alles vom 01.01.2026 bis zum 30.06.2027.",
 		);
-		const link = section(settings, 'id="settings-rules"')?.match(
-			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
-		);
+		const link = rulesRow?.match(/<a class="tap" href="([^"]*)">([^<]*)<\/a>/);
 		expect(link?.[1]).toBe(artUrl(hamburg.rulesHandout.path));
 		expect(link?.[2]).toBe("Die Regeln als PDF");
 		expect(notice).toBeNull();

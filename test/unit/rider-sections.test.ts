@@ -139,7 +139,7 @@ describe("renderRules minimum ride length (feature 039)", () => {
 		for (const i18n of [en, de]) {
 			const html = renderRules(i18n, rules, hamburg.rulesHandout).toString();
 			expect(html).not.toContain("25 km");
-			expect(html.match(/<p>/g)).toHaveLength(3);
+			expect(html.match(/<p>/g)).toHaveLength(2);
 		}
 	});
 
