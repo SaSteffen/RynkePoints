@@ -18,12 +18,13 @@ import {
 	toRider,
 } from "../db/riders";
 import { redirect } from "./redirect";
-import { readSession } from "./session";
+import { readSessionCookie } from "./session";
 
 // Who is asking (feature 004 contracts/viewer-and-visibility.md). The role
 // lives only in `riders.organiser` and is read afresh on every request, never
 // put in a cookie or kept between requests (FR-003, research R4). The rider
 // and their current consent come in one batch, one round trip (issue #184).
+// The same read decides whether the session is still signed in (issue #314).
 
 export type Viewer =
 	| { kind: "visitor" }
@@ -38,8 +39,9 @@ export type Viewer =
 
 /** Who is asking, decided afresh on every request (FR-003). */
 export async function readViewer(request: Request, ctx: Ctx): Promise<Viewer> {
-	const athleteId = await readSession(request, ctx.env, ctx.now());
-	if (athleteId === null) return { kind: "visitor" };
+	const session = await readSessionCookie(request, ctx.env, ctx.now());
+	if (!session) return { kind: "visitor" };
+	const { athleteId } = session;
 	const db = ctx.env.DB;
 	// A request's first read, so a database that had to wake shows here.
 	const started = Date.now();
@@ -52,7 +54,8 @@ export async function readViewer(request: Request, ctx: Ctx): Promise<Viewer> {
 		throw new Error("D1 batch returned too few results");
 	}
 	const row = (riders.results as RiderRow[])[0];
-	if (!row) return { kind: "visitor" };
+	// Signed out everywhere, or a cookie from before a disconnect (#314).
+	if (!row || row.session_epoch !== session.epoch) return { kind: "visitor" };
 	// A guest the maintainer took off the list is a visitor from their next
 	// request; the daily run deletes their data (feature 041 FR-004, R4).
 	const rider = toRider(row);

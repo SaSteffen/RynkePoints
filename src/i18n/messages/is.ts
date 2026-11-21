@@ -407,6 +407,7 @@ export const is: Catalog = {
 	"settings.app": "App",
 	"settings.strava": "Strava-tenging",
 	"settings.account": "Aðgangur",
+	"settings.logoutEverywhere": "Skrá út alls staðar",
 	"settings.shows": "Hreyfimyndir",
 	"settings.shows.on":
 		"Hreyfimyndir þegar skipt er milli hluta í Konfetti og Disco",

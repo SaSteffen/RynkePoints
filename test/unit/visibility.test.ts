@@ -73,6 +73,7 @@ function rider(athleteId: number, organiser: boolean): Rider {
 		recheckedAt: null,
 		guest: false,
 		onGuestList: false,
+		sessionEpoch: 0,
 	};
 }
 

@@ -76,6 +76,16 @@ export async function deleteSubscription(
 		.run();
 }
 
+/** Every device of the rider. */
+export function deleteSubscriptionsStatement(
+	db: D1Database,
+	athleteId: number,
+) {
+	return db
+		.prepare("DELETE FROM push_subscriptions WHERE athlete_id = ?")
+		.bind(athleteId);
+}
+
 export async function deleteSubscriptionById(
 	db: D1Database,
 	subscriptionId: number,

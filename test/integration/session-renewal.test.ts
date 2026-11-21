@@ -24,10 +24,19 @@ const ctx = makeCtx();
 
 /** A session cookie issued `age` seconds before NOW. */
 async function issuedAgo(age: number) {
-	return cookiePair(await createSessionCookie(ATHLETE_A, NOW - age, ctx.env));
+	return cookiePair(
+		await createSessionCookie(
+			{ athleteId: ATHLETE_A, epoch: 0 },
+			NOW - age,
+			ctx.env,
+		),
+	);
 }
 
-/** A session signed to expire at `expiresAt`, like one from older code. */
+/**
+ * A session signed to expire at `expiresAt`, like one from before issues #314
+ * and #316: the ID alone, signed without the team.
+ */
 async function expiringAt(expiresAt: number) {
 	const value = await signValue(
 		String(ATHLETE_A),
@@ -56,7 +65,13 @@ describe("session renewal", () => {
 		expect(res.status).toBe(200);
 		const [renewed, ...rest] = sessionSetCookies(res);
 		expect(rest).toEqual([]);
-		expect(renewed).toBe(await createSessionCookie(ATHLETE_A, NOW, ctx.env));
+		expect(renewed).toBe(
+			await createSessionCookie(
+				{ athleteId: ATHLETE_A, epoch: 0 },
+				NOW,
+				ctx.env,
+			),
+		);
 		expect(renewed).toContain("Max-Age=15552000");
 		const next = request("/me", { cookies: cookiePair(renewed ?? "") });
 		expect(await readSession(next, ctx.env, NOW + 179 * DAY)).toBe(ATHLETE_A);
@@ -85,6 +100,37 @@ describe("session renewal", () => {
 			ctx,
 		);
 		expect(sessionSetCookies(res)).toHaveLength(1);
+	});
+
+	it("reissues a fresh cookie from before #314 and #316 in the new form", async () => {
+		const res = await handleFetch(
+			request("/me", { cookies: await expiringAt(NOW + 179 * DAY) }),
+			ctx,
+		);
+		expect(res.status).toBe(200);
+		expect(sessionSetCookies(res)).toEqual([
+			await createSessionCookie(
+				{ athleteId: ATHLETE_A, epoch: 0 },
+				NOW,
+				ctx.env,
+			),
+		]);
+	});
+
+	it("keeps the epoch, so a renewed ended session stays ended", async () => {
+		const ended = { athleteId: ATHLETE_A, epoch: 3 };
+		const res = await handleFetch(
+			request("/me", {
+				cookies: cookiePair(
+					await createSessionCookie(ended, NOW - 10 * DAY, ctx.env),
+				),
+			}),
+			ctx,
+		);
+		expect(res.headers.get("Location")).toBe("/");
+		expect(sessionSetCookies(res)).toEqual([
+			await createSessionCookie(ended, NOW, ctx.env),
+		]);
 	});
 
 	it("renews on GET / for a signed-in rider, who is sent home", async () => {

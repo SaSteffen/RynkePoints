@@ -406,6 +406,7 @@ export const sv: Catalog = {
 	"settings.app": "App",
 	"settings.strava": "Strava-anslutning",
 	"settings.account": "Konto",
+	"settings.logoutEverywhere": "Logga ut överallt",
 	"settings.shows": "Animationer",
 	"settings.shows.on":
 		"Animationer vid byte mellan avsnitt i Konfetti och Disco",

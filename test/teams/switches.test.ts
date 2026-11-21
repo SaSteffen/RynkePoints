@@ -107,7 +107,9 @@ describe("BADGES", () => {
 		expect(await teamBadgeNews(off, [ATHLETE_A])).toEqual([]);
 		expect(await count("team_badge_notices")).toBe(0);
 		// The app opens on the badges page only while they are on.
-		expect(await homeOf(off, ATHLETE_A)).not.toBe("/me/badges");
+		expect(await homeOf(off, { athleteId: ATHLETE_A, epoch: 0 })).not.toBe(
+			"/me/badges",
+		);
 	});
 
 	it("on: the same rides are badge news", async () => {

@@ -108,6 +108,7 @@ ${group(
 	"settings-account",
 	i18n.t("settings.account"),
 	html`<form method="post" action="/logout"><input type="hidden" name="push_endpoint" value=""><button class="button-outlined">${i18n.t("layout.logout")}</button></form>
+<form method="post" action="/logout/everywhere"><button class="button-outlined">${i18n.t("settings.logoutEverywhere")}</button></form>
 <p><a class="danger" href="/me/disconnect">${i18n.t("me.disconnect.button")}</a></p>`,
 )}</div>`;
 		},

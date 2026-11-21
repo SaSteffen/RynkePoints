@@ -407,6 +407,7 @@ export const fi: Catalog = {
 	"settings.app": "Sovellus",
 	"settings.strava": "Strava-yhteys",
 	"settings.account": "Tili",
+	"settings.logoutEverywhere": "Kirjaudu ulos kaikkialla",
 	"settings.shows": "Animaatiot",
 	"settings.shows.on": "Animaatiot osioiden vaihdossa Konfetissa ja Discossa",
 	"settings.tour": "Esittelyt",

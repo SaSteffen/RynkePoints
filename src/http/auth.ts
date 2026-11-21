@@ -125,8 +125,8 @@ export async function handleReconnect(
 	request: Request,
 	ctx: Ctx,
 ): Promise<Response> {
-	const athleteId = await readSession(request, ctx.env, ctx.now());
-	if (athleteId === null || !(await getRider(ctx.env.DB, athleteId))) {
+	// Null too for a rider who is gone (research R9).
+	if ((await readSession(request, ctx.env, ctx.now())) === null) {
 		return redirect("/", 302);
 	}
 	// Settings asks to come back to it (feature 011 research R9).
@@ -287,12 +287,17 @@ export async function handleCallback(
 		});
 	}
 
-	const session = await createSessionCookie(token.athleteId, now, ctx.env);
+	// A new rider's epoch is the time `insertRider` stored (issue #314).
+	const signedIn = {
+		athleteId: token.athleteId,
+		epoch: existing ? existing.sessionEpoch : now,
+	};
+	const session = await createSessionCookie(signedIn, now, ctx.env);
 	// A new rider in another team's club too learns that one team at a time
 	// works, before they connect to the other (FR-012).
 	if (!existing && membership?.kind === "ok" && membership.value.other) {
 		return notice("one-team", [session]);
 	}
-	const next = await arrival(sectionNext(expected.next), ctx, token.athleteId);
+	const next = await arrival(sectionNext(expected.next), ctx, signedIn);
 	return redirect(next, 302, [clearOAuthStateCookie(), session]);
 }

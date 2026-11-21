@@ -3,7 +3,7 @@ import {
 	deleteSubscription,
 	MAX_ENDPOINT_LENGTH,
 } from "../db/push-subscriptions";
-import { deleteRider } from "../db/riders";
+import { deleteRider, endSessions } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { withdrawStoredGrant } from "../strava/withdraw";
 import { forbidden } from "./errors";
@@ -13,8 +13,9 @@ import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 import { readViewer, requireRider } from "./viewer";
 
 // Leaving and signing out (contracts/http-routes.md): disconnecting with
-// deletion (FR-023) and its confirmation page, and signing out. The rider's
-// own pages are the sections under `sections/` (feature 011).
+// deletion (FR-023) and its confirmation page, signing out, and signing out
+// everywhere (issue #314). The rider's own pages are the sections under
+// `sections/` (feature 011).
 
 export async function handleDisconnectPage(
 	request: Request,
@@ -86,6 +87,23 @@ export async function handleLogout(
 		if (athleteId !== null) {
 			await deleteSubscription(ctx.env.DB, endpoint, athleteId);
 		}
+	}
+	return redirect("/", 302, [clearSessionCookie()]);
+}
+
+/**
+ * Signs out on every device, this one too, by raising the rider's session
+ * epoch; every device's notifications end with it (issue #314).
+ */
+export async function handleLogoutEverywhere(
+	request: Request,
+	ctx: Ctx,
+	i18n: I18n,
+): Promise<Response> {
+	if (!isSameOrigin(request)) return forbidden(ctx, i18n, "/me/settings");
+	const viewer = await readViewer(request, ctx);
+	if (viewer.kind === "rider") {
+		await endSessions(ctx.env.DB, viewer.rider.athleteId, ctx.now());
 	}
 	return redirect("/", 302, [clearSessionCookie()]);
 }

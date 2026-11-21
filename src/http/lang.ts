@@ -4,7 +4,7 @@ import { LANG_COOKIE } from "../i18n/resolve";
 import { forbidden } from "./errors";
 import { isNoticeId } from "./notice";
 import { home } from "./redirect";
-import { isSameOrigin } from "./session";
+import { isSameOrigin, type Session } from "./session";
 
 // The language switcher's target (contracts/http-routes.md, research R18).
 // The picked language lives only in the rp_lang cookie; nothing touches D1.
@@ -47,9 +47,9 @@ export function sectionNext(next: unknown): string {
 export async function arrival(
 	next: string,
 	ctx: Ctx,
-	athleteId: number,
+	session: Session,
 ): Promise<string> {
-	return next === "/" ? home(ctx, athleteId) : next;
+	return next === "/" ? home(ctx, session) : next;
 }
 
 export async function handleLang(
