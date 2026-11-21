@@ -51,7 +51,7 @@ export interface TeamEventSum {
  * function; nothing of it reaches the page (FR-016a).
  */
 export interface TeamActivity {
-	athleteId: number;
+	athleteId: string;
 	/** Local start date, `YYYY-MM-DD`. */
 	date: string;
 	/** Local start hour, 0 to 23. */
@@ -68,7 +68,7 @@ export interface TeamBadgeSums {
 	/** For the team surprises; absent: none (part E). */
 	active?: readonly TeamActivity[];
 	/** Each listed rider's connection date, `YYYY-MM-DD`, by rider id. */
-	connectedOn?: ReadonlyMap<number, string>;
+	connectedOn?: ReadonlyMap<string, string>;
 }
 
 type Series = { date: string; value: number }[];
@@ -157,7 +157,7 @@ function teamSurprises(
 	sums: TeamBadgeSums,
 	window: CountingWindow,
 ): EarnedBadge[] {
-	const riders = new Map<string, Set<number>>();
+	const riders = new Map<string, Set<string>>();
 	const hours = new Map<string, Set<number>>();
 	for (const a of sums.active ?? []) {
 		if (!inBadgeSeason(a.date, window)) continue;
@@ -214,11 +214,11 @@ function teamSurprises(
 function festiveTeam(
 	sums: TeamBadgeSums,
 	window: CountingWindow,
-	connected: readonly (readonly [number, string])[],
+	connected: readonly (readonly [string, string])[],
 ): string | undefined {
 	const festive = (date: string) =>
 		date.slice(5) >= FESTIVE_FROM && date.slice(5) <= FESTIVE_TO;
-	const firstRide = new Map<number, string>();
+	const firstRide = new Map<string, string>();
 	for (const a of sums.active ?? []) {
 		if (!a.ride || !festive(a.date) || !inBadgeSeason(a.date, window)) {
 			continue;

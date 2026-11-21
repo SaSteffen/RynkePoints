@@ -76,8 +76,8 @@ describe("D1 round trips per page (#184, #185)", () => {
 		await seedReadyRider();
 		// The rider's first view shows them a quote and marks it as seen.
 		expect(await tripsOf("/team")).toBe(3);
-		counter.reset();
 		const cookies = await sessionCookie(ctx, ATHLETE_A);
+		counter.reset();
 		const head = await handleFetch(
 			request("/team", { cookies, method: "HEAD" }),
 			ctx,

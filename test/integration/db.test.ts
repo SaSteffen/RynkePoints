@@ -43,7 +43,7 @@ const db = env.DB;
 
 function record(overrides: Partial<ActivityRecord> = {}): ActivityRecord {
 	return {
-		strava_activity_id: 7001,
+		strava_activity_id: "7001",
 		athlete_id: ATHLETE_A,
 		sport_type: "Ride",
 		start_date: "2026-10-05T07:30:00Z",
@@ -79,7 +79,7 @@ describe("riders", () => {
 		await upsertActivity(db, record());
 		await upsertActivity(
 			db,
-			record({ strava_activity_id: 7002, athlete_id: ATHLETE_B }),
+			record({ strava_activity_id: "7002", athlete_id: ATHLETE_B }),
 		);
 		await upsertFailedWork(db, {
 			athleteId: ATHLETE_A,
@@ -175,8 +175,8 @@ describe("riders", () => {
 			"rider_summaries",
 		]) {
 			const { results } = await db
-				.prepare(`SELECT athlete_id FROM ${table}`)
-				.all<{ athlete_id: number }>();
+				.prepare(`SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM ${table}`)
+				.all<{ athlete_id: string }>();
 			expect(results.map((r) => r.athlete_id)).toEqual([ATHLETE_B]);
 		}
 	});
@@ -198,8 +198,8 @@ describe("riders", () => {
 		await deleteRider(db, ATHLETE_A);
 
 		const { results } = await db
-			.prepare("SELECT athlete_id FROM quote_seen")
-			.all<{ athlete_id: number }>();
+			.prepare("SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM quote_seen")
+			.all<{ athlete_id: string }>();
 		expect(results.map((r) => r.athlete_id)).toEqual([ATHLETE_B]);
 	});
 
@@ -258,6 +258,8 @@ describe("riders", () => {
 			recheckedAt: null,
 			guest: false,
 			onGuestList: false,
+			// No cookie from before a disconnect signs them in (issue #314).
+			sessionEpoch: NOW,
 		});
 	});
 
@@ -326,7 +328,7 @@ describe("riders", () => {
 		await seedRider(ctx, { athleteId: ATHLETE_A, figuresVersion: 0 });
 		await seedRider(ctx, { athleteId: ATHLETE_B, figuresVersion: 2 });
 		await seedRider(ctx, {
-			athleteId: 900003,
+			athleteId: "900003",
 			figuresVersion: 0,
 			status: "needs_reconnect",
 		});
@@ -407,7 +409,7 @@ describe("riders", () => {
 			reconnectRequestedAt: NOW - 8 * 86400,
 		});
 		await seedRider(ctx, {
-			athleteId: 900003,
+			athleteId: "900003",
 			status: "needs_reconnect",
 			reconnectRequestedAt: NOW - 86400,
 		});
@@ -523,7 +525,11 @@ describe("credentials", () => {
 		expect(await getCredentials(env, ATHLETE_A)).toEqual(creds);
 
 		const raw = JSON.stringify(
-			await db.prepare("SELECT * FROM strava_credentials").all(),
+			await db
+				.prepare(
+					"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM strava_credentials",
+				)
+				.all(),
 		);
 		expect(raw).not.toContain("access-synthetic");
 		expect(raw).not.toContain("refresh-synthetic");
@@ -567,11 +573,11 @@ describe("activities", () => {
 
 	it("refuses rows for unknown riders", async () => {
 		await expect(
-			upsertActivity(db, record({ athlete_id: 999999 })),
+			upsertActivity(db, record({ athlete_id: "999999" })),
 		).rejects.toThrow(/FOREIGN KEY/);
 		await expect(
 			upsertFailedWork(db, {
-				athleteId: 999999,
+				athleteId: "999999",
 				message: "{}",
 				lastError: "x",
 				now: NOW,
@@ -584,7 +590,7 @@ describe("activities", () => {
 			await upsertActivity(
 				db,
 				record({
-					strava_activity_id: 7000 + day,
+					strava_activity_id: String(7000 + day),
 					start_date: `2026-10-0${day}T07:00:00Z`,
 				}),
 			);
@@ -592,20 +598,24 @@ describe("activities", () => {
 		await upsertActivity(
 			db,
 			record({
-				strava_activity_id: 8000,
+				strava_activity_id: "8000",
 				athlete_id: ATHLETE_B,
 				start_date: "2026-10-09T07:00:00Z",
 			}),
 		);
 		const rows = await listRecentActivities(db, ATHLETE_A, 3);
-		expect(rows.map((r) => r.strava_activity_id)).toEqual([7005, 7004, 7003]);
+		expect(rows.map((r) => r.strava_activity_id)).toEqual([
+			"7005",
+			"7004",
+			"7003",
+		]);
 	});
 
 	it("deletes one activity of its owner", async () => {
 		await upsertActivity(db, record());
-		await deleteActivityStatement(db, ATHLETE_B, 7001).run();
+		await deleteActivityStatement(db, ATHLETE_B, "7001").run();
 		expect(await listRecentActivities(db, ATHLETE_A, 20)).toHaveLength(1);
-		await deleteActivityStatement(db, ATHLETE_A, 7001).run();
+		await deleteActivityStatement(db, ATHLETE_A, "7001").run();
 		expect(await listRecentActivities(db, ATHLETE_A, 20)).toHaveLength(0);
 	});
 
@@ -657,27 +667,27 @@ describe("activities", () => {
 	});
 
 	it("lists a rider's activities with any unknown figure", async () => {
-		await upsertActivity(db, record({ strava_activity_id: 1 }));
+		await upsertActivity(db, record({ strava_activity_id: "1" }));
 		await upsertActivity(
 			db,
-			record({ strava_activity_id: 2, elapsed_time_s: null }),
+			record({ strava_activity_id: "2", elapsed_time_s: null }),
 		);
 		await upsertActivity(
 			db,
-			record({ strava_activity_id: 3, is_manual: null }),
+			record({ strava_activity_id: "3", is_manual: null }),
 		);
 		await upsertActivity(
 			db,
-			record({ strava_activity_id: 4, is_trainer: null }),
+			record({ strava_activity_id: "4", is_trainer: null }),
 		);
 		await upsertActivity(
 			db,
-			record({ strava_activity_id: 6, is_flagged: null }),
+			record({ strava_activity_id: "6", is_flagged: null }),
 		);
 		await upsertActivity(
 			db,
 			record({
-				strava_activity_id: 5,
+				strava_activity_id: "5",
 				athlete_id: ATHLETE_B,
 				elapsed_time_s: null,
 				is_manual: null,
@@ -686,24 +696,33 @@ describe("activities", () => {
 			}),
 		);
 		expect(await listActivityIdsMissingFigures(db, ATHLETE_A)).toEqual([
-			2, 3, 4, 6,
+			"2",
+			"3",
+			"4",
+			"6",
 		]);
-		expect(await listActivityIdsMissingFigures(db, ATHLETE_B)).toEqual([5]);
+		expect(await listActivityIdsMissingFigures(db, ATHLETE_B)).toEqual(["5"]);
 	});
 
 	it("deletes only private activities", async () => {
-		await upsertActivity(db, record({ strava_activity_id: 1, is_private: 0 }));
-		await upsertActivity(db, record({ strava_activity_id: 2, is_private: 1 }));
 		await upsertActivity(
 			db,
-			record({ strava_activity_id: 3, is_private: 1, athlete_id: ATHLETE_B }),
+			record({ strava_activity_id: "1", is_private: 0 }),
+		);
+		await upsertActivity(
+			db,
+			record({ strava_activity_id: "2", is_private: 1 }),
+		);
+		await upsertActivity(
+			db,
+			record({ strava_activity_id: "3", is_private: 1, athlete_id: ATHLETE_B }),
 		);
 		await deletePrivateActivitiesStatement(db, ATHLETE_A).run();
 		expect(
 			(await listRecentActivities(db, ATHLETE_A, 20)).map(
 				(r) => r.strava_activity_id,
 			),
-		).toEqual([1]);
+		).toEqual(["1"]);
 		expect(await listRecentActivities(db, ATHLETE_B, 20)).toHaveLength(1);
 	});
 });
@@ -726,7 +745,11 @@ describe("failed_work", () => {
 			lastError: "network",
 			now: NOW + 100,
 		});
-		const rows = await db.prepare("SELECT * FROM failed_work").all();
+		const rows = await db
+			.prepare(
+				"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM failed_work",
+			)
+			.all();
 		expect(rows.results).toEqual([
 			expect.objectContaining({
 				athlete_id: ATHLETE_A,
@@ -833,7 +856,7 @@ describe("rynke tables (migration 0005)", () => {
 		await upsertActivity(db, record());
 		await upsertActivity(
 			db,
-			record({ strava_activity_id: 7002, athlete_id: ATHLETE_B }),
+			record({ strava_activity_id: "7002", athlete_id: ATHLETE_B }),
 		);
 	});
 
@@ -879,7 +902,7 @@ describe("rynke tables (migration 0005)", () => {
 
 	it("deleting an activity deletes its result", async () => {
 		await insert("ride_results", result());
-		await deleteActivityStatement(db, ATHLETE_A, 7001).run();
+		await deleteActivityStatement(db, ATHLETE_A, "7001").run();
 		expect(await count("ride_results")).toBe(0);
 	});
 
@@ -911,7 +934,7 @@ describe("team-event tables (migration 0006)", () => {
 			.first<number>("event_id");
 	}
 
-	function attend(eventId: number, athleteId: number, onConflict = "") {
+	function attend(eventId: number, athleteId: string, onConflict = "") {
 		return db
 			.prepare(
 				`INSERT INTO attendances (event_id, athlete_id) VALUES (?, ?) ${onConflict}`,
@@ -923,11 +946,11 @@ describe("team-event tables (migration 0006)", () => {
 	async function attendees(eventId?: number) {
 		const { results } = await db
 			.prepare(
-				`SELECT event_id, athlete_id FROM attendances
-				WHERE ?1 IS NULL OR event_id = ?1 ORDER BY event_id, athlete_id`,
+				`SELECT event_id, CAST(athlete_id AS TEXT) AS athlete_id FROM attendances
+				WHERE ?1 IS NULL OR event_id = ?1 ORDER BY event_id, attendances.athlete_id`,
 			)
 			.bind(eventId ?? null)
-			.all<{ event_id: number; athlete_id: number }>();
+			.all<{ event_id: number; athlete_id: string }>();
 		return results;
 	}
 
@@ -994,7 +1017,7 @@ describe("team-event tables (migration 0006)", () => {
 			null,
 		)) as number;
 		await expect(attend(eventId + 1, ATHLETE_A)).rejects.toThrow(/FOREIGN KEY/);
-		await expect(attend(eventId, 900999)).rejects.toThrow(/FOREIGN KEY/);
+		await expect(attend(eventId, "900999")).rejects.toThrow(/FOREIGN KEY/);
 	});
 
 	it("stores a rider's attendance once", async () => {

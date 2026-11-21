@@ -67,7 +67,7 @@ beforeEach(async () => {
 
 describe("rose (contracts/push-delivery.md case table)", () => {
 	it("is true for a new ride earning Training Rynke", async () => {
-		expect(await rose(upsert(activityRecord(1, { distance_m: 79000 })))).toBe(
+		expect(await rose(upsert(activityRecord("1", { distance_m: 79000 })))).toBe(
 			true,
 		);
 		expect(await balanceRow()).toMatchObject({ distance_rynke: 7 });
@@ -79,10 +79,10 @@ describe("rose (contracts/push-delivery.md case table)", () => {
 	});
 
 	it("stores only the latest rise, and none for a change that earns 0", async () => {
-		await rose(upsert(activityRecord(1, { distance_m: 79000 })));
+		await rose(upsert(activityRecord("1", { distance_m: 79000 })));
 		await rose(
 			upsert(
-				activityRecord(2, {
+				activityRecord("2", {
 					distance_m: 31000,
 					start_date: "2026-05-02T08:00:00Z",
 				}),
@@ -94,7 +94,7 @@ describe("rose (contracts/push-delivery.md case table)", () => {
 			team_rynke: 0,
 			risen_at: NOW + 60,
 		});
-		await rose({ kind: "delete", activityIds: [2] }, NOW + 120);
+		await rose({ kind: "delete", activityIds: ["2"] }, NOW + 120);
 		expect(await storedRise()).toMatchObject({ risen_at: NOW + 60 });
 	});
 
@@ -104,35 +104,35 @@ describe("rose (contracts/push-delivery.md case table)", () => {
 		["a flagged ride", { is_flagged: 1 }],
 		["a ride before the season", { start_date: "2025-12-01T08:00:00Z" }],
 	])("is false for %s, which earns 0", async (_, overrides) => {
-		expect(await rose(upsert(activityRecord(1, overrides)))).toBe(false);
+		expect(await rose(upsert(activityRecord("1", overrides)))).toBe(false);
 	});
 
 	it("is true, then false, for the same ride delivered twice", async () => {
-		const ride = activityRecord(1);
+		const ride = activityRecord("1");
 		expect(await rose(upsert(ride))).toBe(true);
 		expect(await rose(upsert(ride), NOW + 60)).toBe(false);
 	});
 
 	it("is true when an overlapping 80 km recording replaces a 78 km one", async () => {
-		await rose(upsert(activityRecord(1, { distance_m: 78000 })));
-		expect(await rose(upsert(activityRecord(2, { distance_m: 80000 })))).toBe(
+		await rose(upsert(activityRecord("1", { distance_m: 78000 })));
+		expect(await rose(upsert(activityRecord("2", { distance_m: 80000 })))).toBe(
 			true,
 		);
 	});
 
 	it("is false when the overlap is a shorter recording", async () => {
-		await rose(upsert(activityRecord(1, { distance_m: 80000 })));
-		expect(await rose(upsert(activityRecord(2, { distance_m: 78000 })))).toBe(
+		await rose(upsert(activityRecord("1", { distance_m: 80000 })));
+		expect(await rose(upsert(activityRecord("2", { distance_m: 78000 })))).toBe(
 			false,
 		);
 	});
 
 	it("is true for a 9 km ride taking the elevation past the next 1000 m", async () => {
-		await rose(upsert(activityRecord(1, { elevation_gain_m: 950 })));
+		await rose(upsert(activityRecord("1", { elevation_gain_m: 950 })));
 		expect(
 			await rose(
 				upsert(
-					activityRecord(2, {
+					activityRecord("2", {
 						start_date: "2026-05-02T08:00:00Z",
 						distance_m: 9000,
 						moving_time_s: 1800,
@@ -145,15 +145,15 @@ describe("rose (contracts/push-delivery.md case table)", () => {
 	});
 
 	it("is false for a deleted ride", async () => {
-		await rose(upsert(activityRecord(1)));
-		expect(await rose({ kind: "delete", activityIds: [1] })).toBe(false);
+		await rose(upsert(activityRecord("1")));
+		expect(await rose({ kind: "delete", activityIds: ["1"] })).toBe(false);
 	});
 
 	it("compares with the stored rides evaluated now, not a stale balance", async () => {
 		// Stored but never evaluated: no balance row yet.
-		await upsertActivity(env.DB, activityRecord(1));
+		await upsertActivity(env.DB, activityRecord("1"));
 		expect(
-			await rose(upsert(activityRecord(2, { sport_type: "EBikeRide" }))),
+			await rose(upsert(activityRecord("2", { sport_type: "EBikeRide" }))),
 		).toBe(false);
 	});
 
@@ -221,7 +221,7 @@ describe("send-notification messages", () => {
 			.map((m) => m.body)
 			.filter((b) => b.kind === "send-notification");
 
-	const event = (activityId: number, aspect = "create") => ({
+	const event = (activityId: string, aspect = "create") => ({
 		kind: "activity-event",
 		athleteId: ATHLETE_A,
 		activityId,
@@ -239,16 +239,16 @@ describe("send-notification messages", () => {
 
 	it("queues one per device of the rider for a ride that earns Rynke", async () => {
 		const [a1, a2] = await devices();
-		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: 501 }));
+		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: "501" }));
 
-		expect((await deliver(event(501))).explicitAcks).toEqual(["m1"]);
+		expect((await deliver(event("501"))).explicitAcks).toEqual(["m1"]);
 		expect(notifications()).toEqual([
 			{ kind: "send-notification", athleteId: ATHLETE_A, subscriptionId: a1 },
 			{ kind: "send-notification", athleteId: ATHLETE_A, subscriptionId: a2 },
 		]);
 
 		ctx.queue.sent.length = 0;
-		await deliver(event(501, "update"));
+		await deliver(event("501", "update"));
 		expect(notifications()).toEqual([]);
 	});
 
@@ -275,7 +275,7 @@ describe("send-notification messages", () => {
 		fake.addActivity(
 			ATHLETE_A,
 			makeStravaActivity({
-				id: 507,
+				id: "507",
 				start_date: "2026-05-04T08:00:00Z",
 				start_date_local: "2026-05-04T10:00:00Z",
 				distance: 6000,
@@ -285,7 +285,7 @@ describe("send-notification messages", () => {
 			}),
 		);
 
-		await deliver(event(507));
+		await deliver(event("507"));
 		expect(await balanceRow()).toMatchObject({ distance_rynke: 9 });
 		expect(notifications()).toEqual([
 			{ kind: "send-notification", athleteId: ATHLETE_A, subscriptionId: a1 },
@@ -294,7 +294,7 @@ describe("send-notification messages", () => {
 
 		// Taking the badge back notifies no one.
 		ctx.queue.sent.length = 0;
-		await deliver(event(507, "delete"));
+		await deliver(event("507", "delete"));
 		expect(notifications()).toEqual([]);
 	});
 
@@ -303,20 +303,20 @@ describe("send-notification messages", () => {
 		fake.addActivity(
 			ATHLETE_A,
 			makeStravaActivity({
-				id: 502,
+				id: "502",
 				sport_type: "EBikeRide",
 				type: "EBikeRide",
 			}),
 		);
-		await deliver(event(502));
-		await deliver(event(502, "delete"));
+		await deliver(event("502"));
+		await deliver(event("502", "delete"));
 		expect(notifications()).toEqual([]);
 	});
 
 	it("queues none for import, re-read or evaluate-rider (FR-016)", async () => {
 		await devices();
 		const after = seasonStartEpoch("2026-01-01");
-		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: 503 }));
+		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: "503" }));
 		await deliver({
 			kind: "import-page",
 			athleteId: ATHLETE_A,
@@ -327,7 +327,7 @@ describe("send-notification messages", () => {
 
 		fake.addActivity(
 			ATHLETE_A,
-			makeStravaActivity({ id: 504, start_date: "2026-10-04T07:30:00Z" }),
+			makeStravaActivity({ id: "504", start_date: "2026-10-04T07:30:00Z" }),
 		);
 		await deliver({
 			kind: "reread-page",
@@ -338,7 +338,7 @@ describe("send-notification messages", () => {
 
 		await upsertActivity(
 			env.DB,
-			activityRecord(505, { start_date: "2026-05-01T08:00:00Z" }),
+			activityRecord("505", { start_date: "2026-05-01T08:00:00Z" }),
 		);
 		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_A });
 		expect(await balanceRow()).toMatchObject({ distance_rynke: 12 });
@@ -367,13 +367,13 @@ describe("send-notification messages", () => {
 
 	it("still stores the ride when queueing fails (FR-018)", async () => {
 		await devices();
-		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: 506 }));
+		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: "506" }));
 		ctx.queue.sendBatch = async () => {
 			throw new Error("queue down");
 		};
 		const error = vi.spyOn(console, "error").mockImplementation(() => {});
 
-		expect((await deliver(event(506))).explicitAcks).toEqual(["m1"]);
+		expect((await deliver(event("506"))).explicitAcks).toEqual(["m1"]);
 		expect(await balanceRow()).toMatchObject({ distance_rynke: 4 });
 		expect(error).toHaveBeenCalledWith(
 			"Queueing notifications for 1 riders failed: Error",

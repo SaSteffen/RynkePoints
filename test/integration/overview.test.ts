@@ -161,7 +161,7 @@ describe("GET /me Overview", () => {
 		await seedRider(ctx);
 		await seedBalance(ATHLETE_A);
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			name: "Synthetic Overview ride",
 		});
 		const page = await main();

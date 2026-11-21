@@ -7,7 +7,7 @@
 export const ACCESS_LIFETIME = 6 * 3600;
 
 export interface Grant {
-	athleteId: number;
+	athleteId: string;
 	scopes: string[];
 }
 
@@ -40,7 +40,7 @@ function parts(value: string, prefix: string, count: number): string[] | null {
 
 function grantOf([id, scopes]: string[]): Grant | null {
 	const decoded = scopes === undefined ? null : decodeScopes(scopes);
-	return decoded === null ? null : { athleteId: Number(id), scopes: decoded };
+	return decoded === null ? null : { athleteId: id ?? "", scopes: decoded };
 }
 
 export function encodeCode({ athleteId, scopes }: Grant): string {

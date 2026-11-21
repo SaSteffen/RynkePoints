@@ -69,7 +69,7 @@ const FORBIDDEN: Record<(typeof LANGS)[number], readonly (string | RegExp)[]> =
 const EVENT_LINK = /href="\/(organiser\/)?events/;
 
 /** A connected sample rider who isn't an organiser, with rides. */
-function rider(): number {
+function rider(): string {
 	const found = SAMPLES.find(
 		(r) =>
 			r.clubMember &&
@@ -83,7 +83,7 @@ function rider(): number {
 	return found.athleteId;
 }
 
-function heldBack(): number {
+function heldBack(): string {
 	const found = SAMPLES.find((r) => r.consentVersion !== undefined);
 	if (!found) throw new Error("no sample rider is held back on consent");
 	return found.athleteId;
@@ -402,12 +402,12 @@ describe.runIf(!hasEvents(team))(
 
 		it("counts a rider with Training Rynke and the outdoor share as qualified (SC-005)", async () => {
 			const qualified = (await rows(
-				"SELECT athlete_id FROM rynke_balances WHERE qualified = 1 AND team_missing = 0",
-			)) as { athlete_id: number }[];
+				"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM rynke_balances WHERE qualified = 1 AND team_missing = 0",
+			)) as { athlete_id: string }[];
 			expect(qualified.length).toBeGreaterThan(0);
 			expect(
 				await rows(
-					"SELECT athlete_id FROM rynke_balances WHERE training_missing = 0 AND virtual_share_missing = 0 AND qualified = 0",
+					"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM rynke_balances WHERE training_missing = 0 AND virtual_share_missing = 0 AND qualified = 0",
 				),
 			).toEqual([]);
 		});

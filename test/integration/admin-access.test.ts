@@ -29,7 +29,7 @@ const POSTS: { path: string; form: Record<string, string> }[] = [
 	{ path: `/admin/riders/${TARGET}/remove`, form: {} },
 ];
 
-async function get(path: string, athleteId: number | null) {
+async function get(path: string, athleteId: string | null) {
 	return handleFetch(
 		request(path, {
 			cookies: athleteId ? await sessionCookie(ctx, athleteId) : undefined,
@@ -41,7 +41,7 @@ async function get(path: string, athleteId: number | null) {
 async function post(
 	path: string,
 	form: Record<string, string>,
-	athleteId: number | null,
+	athleteId: string | null,
 	origin?: string,
 ) {
 	return handleFetch(
@@ -56,10 +56,14 @@ async function post(
 
 async function stored() {
 	const riders = await env.DB.prepare(
-		"SELECT athlete_id, admin_alerts FROM riders ORDER BY athlete_id",
+		"SELECT CAST(athlete_id AS TEXT) AS athlete_id, admin_alerts FROM riders ORDER BY riders.athlete_id",
 	).all();
-	const blocked = await env.DB.prepare("SELECT * FROM blocked_athletes").all();
-	const log = await env.DB.prepare("SELECT * FROM removal_log").all();
+	const blocked = await env.DB.prepare(
+		"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM blocked_athletes",
+	).all();
+	const log = await env.DB.prepare(
+		"SELECT *, CAST(administrator_id AS TEXT) AS administrator_id FROM removal_log",
+	).all();
 	return [riders.results, blocked.results, log.results];
 }
 
@@ -186,7 +190,7 @@ describe("an administrator", () => {
 });
 
 describe("the Admin tab (T007)", () => {
-	const hasTab = async (athleteId: number) =>
+	const hasTab = async (athleteId: string) =>
 		(await (await get("/team", athleteId)).text()).includes('<a href="/admin"');
 
 	it("shows only for administrators", async () => {

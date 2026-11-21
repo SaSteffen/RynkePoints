@@ -267,7 +267,7 @@ describe("GET /me/settings consent section (008 FR-007)", () => {
 		);
 		const page = await res.text();
 		const section = page.match(
-			/<h2>Deine Zustimmung<\/h2>([\s\S]*?)<\/section>/,
+			/<li id="settings-consent">([\s\S]*?)<\/li>/,
 		)?.[1];
 		expect(section).toBeDefined();
 		const dataRead = section?.indexOf(escapeHtml(de["landing.dataRead"])) ?? -1;

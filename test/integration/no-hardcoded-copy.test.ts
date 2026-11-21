@@ -71,10 +71,16 @@ function unmarkedText(page: string): string[] {
 		.replace(/<span class="ride-name">[\s\S]*?<\/span>/g, "")
 		// So are riders' first names (feature 014 Story 2).
 		.replace(/<span class="rider-name">[\s\S]*?<\/span>/g, "")
+		// And the initial and name on Settings' Strava card.
+		.replace(/<span class="settings-avatar"[^>]*>[^<]*<\/span>/g, "")
+		.replace(/<h2 class="settings-name"[^>]*>[^<]*<\/h2>/g, "")
 		// The controller's name and address are settings, not copy (feature 017).
 		.replace(/<p class="privacy-controller">[\s\S]*?<\/p>/g, "")
 		// So is the team's name under the start page's coin (feature 026).
 		.replace(/<p class="team-name">[\s\S]*?<\/p>/g, "")
+		// The changelog's entries are English in every language (constitution,
+		// Language).
+		.replace(/<ul class="changelog-changes"[^>]*>[\s\S]*?<\/ul>/g, "")
 		// An event's weekday and month come from Intl like any formatted date
 		// (feature 019 contracts/pages.md).
 		.replace(

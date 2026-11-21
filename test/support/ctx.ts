@@ -86,7 +86,7 @@ export function withGateway(ctx: TestCtx): TestCtx {
 }
 
 export interface SeedRiderOptions {
-	athleteId?: number;
+	athleteId?: string;
 	firstName?: string;
 	status?: "connected" | "needs_reconnect";
 	reconnectRequestedAt?: number | null;
@@ -120,7 +120,7 @@ export interface SeedRiderOptions {
 }
 
 /** Puts an ID on the team's guest list, as the maintainer would (feature 041). */
-export async function listGuest(ctx: Ctx, athleteId: number): Promise<void> {
+export async function listGuest(ctx: Ctx, athleteId: string): Promise<void> {
 	await ctx.env.DB.prepare(
 		"INSERT OR IGNORE INTO guests (athlete_id) VALUES (?)",
 	)
@@ -344,20 +344,39 @@ export function stableHeaders(res: Response): [string, string][] {
 	return [...res.headers].filter(([name]) => name !== "server-timing");
 }
 
-/** A valid signed `rp_session` cookie for `athleteId`. */
+/**
+ * A valid signed `rp_session` cookie for `athleteId`, with the rider's stored
+ * session epoch (0 without a rider) unless given (issue #314).
+ */
 export async function sessionCookie(
 	ctx: Ctx,
-	athleteId: number,
+	athleteId: string,
+	epoch?: number,
 ): Promise<Record<string, string>> {
-	return cookiePair(await createSessionCookie(athleteId, ctx.now(), ctx.env));
+	const stored = await ctx.env.DB.prepare(
+		"SELECT session_epoch FROM riders WHERE athlete_id = ?",
+	)
+		.bind(athleteId)
+		.first<number>("session_epoch");
+	return cookiePair(
+		await createSessionCookie(
+			{ athleteId, epoch: epoch ?? stored ?? 0 },
+			ctx.now(),
+			ctx.env,
+		),
+	);
 }
 
-/** A valid signed `rp_oauth_state` cookie carrying `state`, a consent version and `next`. */
+/**
+ * A valid signed `rp_oauth_state` cookie carrying `state`, a consent version,
+ * `next` and whether the person chose to switch here (feature 044).
+ */
 export async function oauthStateCookie(
 	ctx: Ctx,
 	state: string,
 	consentVersion = CONSENT_VERSION,
 	next = "/me",
+	switchTeam = false,
 ): Promise<Record<string, string>> {
 	return cookiePair(
 		await createOAuthStateCookie(
@@ -366,6 +385,7 @@ export async function oauthStateCookie(
 			next,
 			ctx.now(),
 			ctx.env,
+			switchTeam,
 		),
 	);
 }

@@ -360,9 +360,7 @@ export const nl: Catalog = {
 	"push.rise.team": "+{n} Team-Rynke",
 	"notifications.heading": "Meldingen",
 	"notifications.explain":
-		"Dit apparaat laat je weten als je nieuwe Rynke hebt, en wat je nog nodig hebt.",
-	"notifications.on": "Aan voor dit apparaat.",
-	"notifications.off": "Uit voor dit apparaat.",
+		"Je apparaat laat het je weten zodra je nieuwe Rynke of badges krijgt, ook als de app dicht is.",
 	"notifications.blocked":
 		"Je apparaat blokkeert meldingen van RynkePoints. Je kunt ze toestaan in de instellingen van je browser of apparaat.",
 	"notifications.needsHomeScreen":
@@ -411,15 +409,21 @@ export const nl: Catalog = {
 	"theme.name.disco": "Disco",
 	"theme.name.contrast-light": "Hoog contrast licht",
 	"theme.name.contrast-dark": "Hoog contrast donker",
-	"settings.app": "App",
-	"settings.strava": "Strava-verbinding",
 	"settings.account": "Account",
+	"settings.device": "Dit apparaat",
+	"settings.data": "Rynke en je gegevens",
+	"settings.strava.broken": "Verbinding verbroken",
+	"settings.logout.here": "Op dit apparaat",
+	"settings.logoutEverywhere": "Overal afmelden",
+	"settings.logoutEverywhere.sub": "Op al je apparaten, ook dit",
 	"settings.shows": "Animaties",
-	"settings.shows.on":
-		"Animaties bij het wisselen van onderdeel in Confetti en Disco",
-	"settings.tour": "Rondleidingen",
 	"settings.tour.rider": "Rondleiding opnieuw tonen",
 	"settings.tour.organiser": "Orga-rondleiding opnieuw tonen",
+	"settings.about": "Over de app",
+	"changelog.version": "Versie {version}",
+	"changelog.title": "Wat is er nieuw",
+	"changelog.intro":
+		"Wat er in elke versie is veranderd. De items zijn in het Engels.",
 	"rynke.ride.why": "Waarom?",
 	"notifications.switch": "Meldingen op dit apparaat",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",
@@ -934,6 +938,8 @@ export const nl: Catalog = {
 		"Meldingen zijn optioneel en per apparaat. Alleen het adres dat de pushdienst van je apparaat of browser het geeft, wordt opgeslagen. De melding zelf is leeg: wat ze toont, haalt je apparaat rechtstreeks bij RynkePoints op. Het adres wordt gewist als je meldingen uitzet, je op dat apparaat afmeldt of stopt.",
 	"privacy.technical.logs":
 		"Serverlogs bevatten alleen kenmerken zoals atleet- en activiteit-ID's en het soort fout, nooit toegangssleutels of activiteitsgegevens. RynkePoints slaat geen IP-adressen op.",
+	"privacy.technical.oneTeam":
+		"Op RynkePoints rijd je voor één team tegelijk. Daarom vraagt een team bij het koppelen aan de andere teams of je al voor een van hen rijdt. Het hoort alleen ja of nee, nooit welk team, en bewaart het antwoord niet. Stap je over naar een ander team, dan wist het team dat je verlaat alles over je.",
 	"privacy.visibility.heading": "Wie wat ziet",
 	"privacy.visibility.you":
 		"Jij ziet je eigen activiteiten met hun titels, je Rynke en je badges. Niemand anders ziet de titels.",
@@ -1241,10 +1247,13 @@ export const nl: Catalog = {
 	"notice.blocked.title": "Je kunt niet meedoen in dit team",
 	"notice.blocked.body":
 		"Een beheerder heeft je uit dit team verwijderd. We bewaren alleen je Strava-ID, zodat je niet opnieuw kunt verbinden.",
-	"notice.oneTeam.title": "Je zit ook in de club van een ander team",
-	"notice.oneTeam.body":
-		"Op RynkePoints doe je mee met één team tegelijk. Strava geeft de app één koppeling per persoon, dus als je koppelt met een tweede team, stopt de koppeling met het eerste. Je bent nu hier gekoppeld.",
-	"notice.carryOn": "Verder",
+	"switchTeam.title": "Je rijdt al voor een ander team",
+	"switchTeam.body":
+		"Op RynkePoints rijd je voor één team tegelijk, en je rijdt hier al voor een ander team. Bij dit team is nog niets van je opgeslagen.",
+	"switchTeam.cost":
+		"Stap je over naar dit team, dan wist het andere team daar je ritten, Rynke en badges. Dit team telt de ritten van je seizoen opnieuw, volgens zijn eigen regels.",
+	"switchTeam.switch": "Overstappen naar dit team",
+	"switchTeam.stay": "Bij mijn team blijven",
 	"organiser.graphs.heading": "Voortgang",
 	"organiser.graphs.title.outdoor": "Kilometers buiten (km)",
 	"organiser.graphs.title.virtual": "Virtuele kilometers (km)",

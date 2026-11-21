@@ -56,7 +56,6 @@ const FIELDS = [
 	"phrases",
 	"badgeNames",
 	"holidays",
-	"otherClubIds",
 	"recheckAllowance",
 	"dev",
 	"cloudflare",
@@ -348,19 +347,6 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 	for (const id of Object.keys(wrangler.env ?? {})) {
 		if (!seenIds.has(id) && !isSandbox(id)) {
 			problems.push(`wrangler.jsonc: env.${id}: no registered team`);
-		}
-	}
-
-	// Every other team's club, for the one-team-at-a-time notice (feature 039
-	// contracts/team-data.md › Clubs); a club still "0" is no club yet.
-	for (const team of teams) {
-		for (const other of teams) {
-			if (other === team || !Array.isArray(team.otherClubIds)) continue;
-			const club = wrangler.env?.[other.id]?.vars?.STRAVA_CLUB_ID;
-			if (club === undefined || club === "0") continue;
-			if (!team.otherClubIds.includes(Number(club))) {
-				say(team, "otherClubIds", `${club} of ${other.id} missing`);
-			}
 		}
 	}
 

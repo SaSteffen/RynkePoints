@@ -154,7 +154,7 @@ describe("scheduled: figures re-read", () => {
 			fake.addActivity(
 				ATHLETE_A,
 				makeStravaActivity({
-					id: 7_400_001,
+					id: "7400001",
 					sport_type: "Run",
 					type: "Run",
 					distance: 10400,
@@ -204,7 +204,7 @@ describe("scheduled: figures re-read", () => {
 			fake.addActivity(
 				ATHLETE_A,
 				makeStravaActivity({
-					id: 7_400_002,
+					id: "7400002",
 					sport_type: "Swim",
 					type: "Swim",
 					distance: 1200,

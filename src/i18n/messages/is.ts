@@ -354,9 +354,7 @@ export const is: Catalog = {
 	"push.rise.team": "+{n} Liðs-Rynke",
 	"notifications.heading": "Tilkynningar",
 	"notifications.explain":
-		"Þetta tæki lætur þig vita þegar þú færð ný Rynke og hvað þig vantar enn.",
-	"notifications.on": "Kveikt fyrir þetta tæki.",
-	"notifications.off": "Slökkt fyrir þetta tæki.",
+		"Tækið þitt lætur þig vita um leið og þú færð ný Rynke eða merki – líka þegar appið er lokað.",
 	"notifications.blocked":
 		"Tækið þitt lokar á tilkynningar frá RynkePoints. Þú getur leyft þær í stillingum vafrans eða tækisins.",
 	"notifications.needsHomeScreen":
@@ -404,15 +402,20 @@ export const is: Catalog = {
 	"theme.name.disco": "Disco",
 	"theme.name.contrast-light": "Mikil birtuskil, ljóst",
 	"theme.name.contrast-dark": "Mikil birtuskil, dökkt",
-	"settings.app": "App",
-	"settings.strava": "Strava-tenging",
 	"settings.account": "Aðgangur",
+	"settings.device": "Þetta tæki",
+	"settings.data": "Rynke og gögnin þín",
+	"settings.strava.broken": "Tengingin rofnaði",
+	"settings.logout.here": "Í þessu tæki",
+	"settings.logoutEverywhere": "Skrá út alls staðar",
+	"settings.logoutEverywhere.sub": "Í öllum tækjum, líka þessu",
 	"settings.shows": "Hreyfimyndir",
-	"settings.shows.on":
-		"Hreyfimyndir þegar skipt er milli hluta í Konfetti og Disco",
-	"settings.tour": "Kynningar",
 	"settings.tour.rider": "Sýna kynninguna aftur",
 	"settings.tour.organiser": "Sýna Orga-kynninguna aftur",
+	"settings.about": "Um appið",
+	"changelog.version": "Útgáfa {version}",
+	"changelog.title": "Hvað er nýtt",
+	"changelog.intro": "Hvað breyttist í hverri útgáfu. Færslurnar eru á ensku.",
 	"rynke.ride.why": "Af hverju?",
 	"notifications.switch": "Tilkynningar á þessu tæki",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",
@@ -922,6 +925,8 @@ export const is: Catalog = {
 		"Tilkynningar eru valfrjálsar og gilda fyrir hvert tæki. Aðeins vistfangið sem push-þjónusta tækisins eða vafrans gefur því er geymt. Tilkynningin sjálf er tóm: það sem hún sýnir sækir tækið beint frá RynkePoints. Vistfanginu er eytt þegar þú slekkur á tilkynningum, skráir þig út á því tæki eða hættir.",
 	"privacy.technical.logs":
 		"Netþjónaskrár geyma aðeins auðkenni eins og íþróttamanns- og virkniauðkenni og tegund villu, aldrei aðgangslykla eða virknigögn. RynkePoints geymir ekki IP-tölur.",
+	"privacy.technical.oneTeam":
+		"Á RynkePoints hjólarðu fyrir eitt lið í einu. Þegar þú tengist spyr lið því hin liðin hvort þú hjólir nú þegar fyrir eitt þeirra. Það fær aðeins að vita já eða nei, aldrei hvaða lið, og geymir ekki svarið. Ef þú skiptir um lið eyðir liðið sem þú yfirgefur öllu um þig.",
 	"privacy.visibility.heading": "Hver sér hvað",
 	"privacy.visibility.you":
 		"Þú sérð þína eigin virkni með titlum, Rynke-stigin og merkin. Enginn annar sér titlana.",
@@ -1234,10 +1239,13 @@ export const is: Catalog = {
 	"notice.blocked.title": "Þú getur ekki tekið þátt í þessu liði",
 	"notice.blocked.body":
 		"Stjórnandi fjarlægði þig úr þessu liði. Við geymum aðeins Strava-auðkennið þitt svo þú getir ekki tengst aftur.",
-	"notice.oneTeam.title": "Þú ert líka í klúbbi annars liðs",
-	"notice.oneTeam.body":
-		"Á RynkePoints geturðu verið með í einu liði í einu. Strava gefur appinu eina tengingu á hverja manneskju, svo ef þú tengist öðru liði rofnar tengingin við það fyrra. Þú ert nú tengd/ur hér.",
-	"notice.carryOn": "Halda áfram",
+	"switchTeam.title": "Þú hjólar nú þegar fyrir annað lið",
+	"switchTeam.body":
+		"Á RynkePoints hjólarðu fyrir eitt lið í einu, og þú hjólar nú þegar fyrir annað lið hér. Ekkert um þig er enn vistað hjá þessu liði.",
+	"switchTeam.cost":
+		"Ef þú skiptir yfir í þetta lið eyðir hitt liðið ferðum þínum, Rynke og merkjum þar. Þetta lið telur ferðir tímabilsins upp á nýtt eftir sínum eigin reglum.",
+	"switchTeam.switch": "Skipta yfir í þetta lið",
+	"switchTeam.stay": "Vera áfram í mínu liði",
 	"organiser.graphs.heading": "Framvinda",
 	"organiser.graphs.title.outdoor": "Kílómetrar úti (km)",
 	"organiser.graphs.title.virtual": "Sýndarkílómetrar (km)",

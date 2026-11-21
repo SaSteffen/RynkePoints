@@ -101,7 +101,7 @@ import { type Attendance, evaluateAttendance } from "./team-events";
 
 /** What a full evaluation of one rider needs, as stored. */
 export interface RiderState {
-	activities: Map<number, ActivityRow>;
+	activities: Map<string, ActivityRow>;
 	results: StoredRideResult[];
 	balance: StoredBalance | null;
 	attendance: Attendance[];
@@ -116,9 +116,9 @@ export interface RiderState {
 	/** The `BADGE_CATALOG_VERSION` the stored badges were worked out with. */
 	badgesVersion: number;
 	/** Outdoor runs by activity id (feature 013). */
-	runs: Map<number, RunRecord>;
+	runs: Map<string, RunRecord>;
 	/** Swims by activity id (feature 013 part C). */
-	swims: Map<number, SwimRecord>;
+	swims: Map<string, SwimRecord>;
 	/** Every tour day, which numbers the tour badges (feature 021 FR-011). */
 	tourEvents: TourEvent[];
 	/** The stored summary of any version (feature 030), `null` without one. */
@@ -152,7 +152,7 @@ export interface Reevaluation {
  */
 export function reevaluate(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	state: RiderState,
 	rules: RynkeRules,
 	window: CountingWindow,
@@ -193,9 +193,9 @@ export function reevaluate(
  */
 export async function readRiders(
 	db: D1Database,
-	athleteIds: number[],
+	athleteIds: string[],
 	extraReads: D1PreparedStatement[],
-): Promise<{ riders: Map<number, RiderState>; extra: D1Result[] }> {
+): Promise<{ riders: Map<string, RiderState>; extra: D1Result[] }> {
 	const [
 		activityRows,
 		resultRows,
@@ -242,7 +242,7 @@ export async function readRiders(
 		throw new Error("D1 batch returned too few results");
 	}
 	const tourEvents = (tourRows.results as TourEventRow[]).map(toTourEvent);
-	const riders = new Map<number, RiderState>(
+	const riders = new Map<string, RiderState>(
 		athleteIds.map((id) => [
 			id,
 			{
@@ -307,7 +307,7 @@ export async function readRiders(
 }
 
 interface EvaluationsRow {
-	athlete_id: number;
+	athlete_id: string;
 	evaluations: number;
 }
 
@@ -327,7 +327,7 @@ class StaleRiders extends Error {
  */
 export async function storeEvaluated(
 	db: D1Database,
-	riders: ReadonlyMap<number, RiderState>,
+	riders: ReadonlyMap<string, RiderState>,
 	writes: D1PreparedStatement[],
 ): Promise<void> {
 	if (writes.length === 0) return;
@@ -348,7 +348,7 @@ export async function storeEvaluated(
 
 async function countsMoved(
 	db: D1Database,
-	read: Map<number, number>,
+	read: Map<string, number>,
 ): Promise<boolean> {
 	const { results } = await readEvaluationsStatement(db, [
 		...read.keys(),
@@ -499,7 +499,7 @@ export const BADGE_NEWS_ON: BadgeNewsSwitch = { badges: true };
  */
 function badgeNews(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	state: RiderState,
 	before: { badges: EarnedBadge[] },
 	after: { badges: EarnedBadge[] },
@@ -545,7 +545,7 @@ function rose(before: Balance, after: Balance): boolean {
 /** What the rider gained; a total that fell counts as 0. */
 function riseWrite(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	before: Balance,
 	after: Balance,
 	now: number,
@@ -564,7 +564,7 @@ function riseWrite(
 /** The writes of what changed between the stored state and `evaluated`. */
 function riderWrites(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	state: RiderState,
 	{
 		evaluation,
@@ -623,7 +623,7 @@ function riderWrites(
 /** Only badges that appeared, disappeared or changed date (research R13). */
 function badgeWrites(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	state: RiderState,
 	badges: EarnedBadge[],
 ): D1PreparedStatement[] {

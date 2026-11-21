@@ -4,12 +4,18 @@
 /** Default test clock: 2026-10-06T10:00:00Z, in epoch seconds. */
 export const NOW = Date.UTC(2026, 9, 6, 10, 0, 0) / 1000;
 
-export const ATHLETE_A = 900001;
-export const ATHLETE_B = 900002;
-export const ATHLETE_C = 900003;
+// Athlete and activity IDs are strings, as in the app (feature 042).
+export const ATHLETE_A = "900001";
+export const ATHLETE_B = "900002";
+export const ATHLETE_C = "900003";
 
-export function firstNameFor(athleteId: number): string {
-	return `Testrider ${String.fromCharCode(65 + ((athleteId - 900001) % 26))}`;
+/** Past 2^53: the digits a JavaScript number can't hold (feature 042). */
+export const LARGE_ATHLETE = "9223372036854775807";
+export const LARGE_ACTIVITY = "9007199254740993";
+
+export function firstNameFor(athleteId: string): string {
+	const n = Number((BigInt(athleteId) - 900001n) % 26n);
+	return `Testrider ${String.fromCharCode(65 + n)}`;
 }
 
 export const TEAM_CLUB = { id: 1088689, name: "Team Rynkeby Hamburg" };
@@ -19,7 +25,7 @@ export const OTHER_CLUB = { id: 1111, name: "Synthetic Other Club" };
 
 /** The full Strava `DetailedActivity` shape, including fields we must drop. */
 export interface StravaActivityFixture {
-	id: number;
+	id: string;
 	sport_type: string;
 	start_date: string;
 	start_date_local: string;
@@ -41,7 +47,7 @@ let nextActivityId = 7_000_001;
 export function makeStravaActivity(
 	overrides: Partial<StravaActivityFixture> = {},
 ): StravaActivityFixture {
-	const id = overrides.id ?? nextActivityId++;
+	const id = overrides.id ?? String(nextActivityId++);
 	return {
 		id,
 		resource_state: 3,

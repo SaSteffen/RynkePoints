@@ -5,7 +5,7 @@
 /** The ids of the quotes the rider has seen in the current round. */
 export async function readSeenQuotes(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Set<string>> {
 	const { results } = await db
 		.prepare("SELECT quote_id FROM quote_seen WHERE athlete_id = ?")
@@ -21,7 +21,7 @@ export async function readSeenQuotes(
  */
 export async function writeSeenQuote(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	quoteId: string,
 	restart: readonly string[] | null,
 ): Promise<void> {

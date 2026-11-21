@@ -355,9 +355,7 @@ export const en: Catalog = {
 	"push.rise.team": "+{n}\u00a0Team Rynke",
 	"notifications.heading": "Notifications",
 	"notifications.explain":
-		"This device lets you know when you have new Rynke, and what you still need.",
-	"notifications.on": "On for this device.",
-	"notifications.off": "Off for this device.",
+		"Your device lets you know as soon as you get new Rynke or badges, even when the app is closed.",
 	"notifications.blocked":
 		"Your device blocks notifications for RynkePoints. You can allow them in your browser's or device's settings.",
 	"notifications.needsHomeScreen":
@@ -406,15 +404,21 @@ export const en: Catalog = {
 	"theme.name.disco": "Disco",
 	"theme.name.contrast-light": "High contrast light",
 	"theme.name.contrast-dark": "High contrast dark",
-	"settings.app": "App",
-	"settings.strava": "Strava connection",
 	"settings.account": "Account",
+	"settings.device": "This device",
+	"settings.data": "Rynke and your data",
+	"settings.strava.broken": "Connection lost",
+	"settings.logout.here": "On this device",
+	"settings.logoutEverywhere": "Sign out everywhere",
+	"settings.logoutEverywhere.sub": "On every device, this one too",
 	"settings.shows": "Animations",
-	"settings.shows.on":
-		"Animations when switching sections in Confetti and Disco",
-	"settings.tour": "Tours",
 	"settings.tour.rider": "Show the tour again",
 	"settings.tour.organiser": "Show the Orga tour again",
+	"settings.about": "About the app",
+	"changelog.version": "Version {version}",
+	"changelog.title": "What's new",
+	"changelog.intro":
+		"What changed with each version. The entries are in English.",
 	"rynke.ride.why": "Why?",
 	"notifications.switch": "Notifications on this device",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",
@@ -921,6 +925,8 @@ export const en: Catalog = {
 		"Notifications are optional and per device. Only the address your device's or browser's push service gives it is stored. The notification itself is empty: what it shows, your device fetches straight from RynkePoints. The address is deleted when you turn notifications off, sign out on that device or leave.",
 	"privacy.technical.logs":
 		"Server logs hold only identifiers such as athlete and activity IDs and the kind of an error, never access keys or activity data. RynkePoints doesn't store IP addresses.",
+	"privacy.technical.oneTeam":
+		"On RynkePoints you ride for one team at a time. So when you connect, a team asks the other teams whether you already ride for one of them. It learns only yes or no, never which team, and doesn't store the answer. If you switch teams, the team you leave deletes everything about you.",
 	"privacy.visibility.heading": "Who sees what",
 	"privacy.visibility.you":
 		"You see your own activities with their titles, your Rynke and your badges. Nobody else sees the titles.",
@@ -1224,10 +1230,13 @@ export const en: Catalog = {
 	"notice.blocked.title": "You can't take part in this team",
 	"notice.blocked.body":
 		"An administrator removed you from this team. We only keep your Strava ID, so you can't connect again.",
-	"notice.oneTeam.title": "You're in another team's club too",
-	"notice.oneTeam.body":
-		"On RynkePoints you can take part in one team at a time. Strava gives the app one connection per person, so connecting to a second team ends the connection to the first. You're connected here now.",
-	"notice.carryOn": "Continue",
+	"switchTeam.title": "You already ride for another team",
+	"switchTeam.body":
+		"On RynkePoints you ride for one team at a time, and you already ride for another team here. Nothing about you is stored on this team yet.",
+	"switchTeam.cost":
+		"If you switch to this team, the other team deletes your rides, Rynke and badges there. This team counts your season's rides anew, under its own rules.",
+	"switchTeam.switch": "Switch to this team",
+	"switchTeam.stay": "Stay with my team",
 	"organiser.graphs.heading": "Progress",
 	"organiser.graphs.title.outdoor": "Outdoor kilometres (km)",
 	"organiser.graphs.title.virtual": "Virtual kilometres (km)",

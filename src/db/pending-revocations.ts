@@ -5,7 +5,7 @@ import { encryptToken } from "../crypto/encrypt";
 // grant, so the newest token is enough.
 
 export interface PendingRevocation {
-	athleteId: number;
+	athleteId: string;
 	refreshTokenEnc: string;
 }
 
@@ -15,7 +15,7 @@ export interface PendingRevocation {
  */
 export async function keepStoredToken(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	now: number,
 ): Promise<boolean> {
 	const { meta } = await db
@@ -34,7 +34,7 @@ export async function keepStoredToken(
 /** Keeps a token just exchanged at a refused sign-in, encrypted. */
 export async function keepToken(
 	env: { DB: D1Database; TOKEN_ENCRYPTION_KEY: string },
-	athleteId: number,
+	athleteId: string,
 	refreshToken: string,
 	now: number,
 ): Promise<void> {
@@ -54,7 +54,7 @@ export async function keepToken(
 
 export async function getPendingRevocation(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<PendingRevocation | null> {
 	const row = await db
 		.prepare(
@@ -67,10 +67,12 @@ export async function getPendingRevocation(
 
 export async function listPendingRevocationIds(
 	db: D1Database,
-): Promise<number[]> {
+): Promise<string[]> {
 	const { results } = await db
-		.prepare("SELECT athlete_id FROM pending_revocations ORDER BY since")
-		.all<{ athlete_id: number }>();
+		.prepare(
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM pending_revocations ORDER BY since",
+		)
+		.all<{ athlete_id: string }>();
 	return results.map((r) => r.athlete_id);
 }
 
@@ -84,5 +86,21 @@ export async function dropPendingRevocation(
 			"DELETE FROM pending_revocations WHERE athlete_id = ? AND refresh_token_enc = ?",
 		)
 		.bind(row.athleteId, row.refreshTokenEnc)
+		.run();
+}
+
+/**
+ * Forgets a kept token of a person this team now holds as a rider or guest
+ * (feature 044 R5): the team controls the grant from now on and withdraws it
+ * when it lets them go. Settling the kept one later would revoke the grant
+ * the team now uses.
+ */
+export async function forgetPendingRevocation(
+	db: D1Database,
+	athleteId: string,
+): Promise<void> {
+	await db
+		.prepare("DELETE FROM pending_revocations WHERE athlete_id = ?")
+		.bind(athleteId)
 		.run();
 }

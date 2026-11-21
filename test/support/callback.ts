@@ -24,6 +24,8 @@ export interface CallbackOptions {
 	consentVersion?: number;
 	/** Where the state cookie returns the rider; defaults to `/me`. */
 	next?: string;
+	/** The person chose to switch here from another team (feature 044). */
+	switchTeam?: boolean;
 }
 
 export async function callback(
@@ -41,6 +43,7 @@ export async function callback(
 					cookieState,
 					options.consentVersion ?? CONSENT_VERSION,
 					options.next,
+					options.switchTeam,
 				)),
 		...options.cookies,
 	};
@@ -54,10 +57,10 @@ export async function callback(
 export async function approve(
 	ctx: TestCtx,
 	fake: FakeStrava,
-	athleteId: number,
+	athleteId: string,
 	scope = SCOPES_ALL,
 	cookies: Record<string, string> = {},
-	options: Pick<CallbackOptions, "consentVersion" | "next"> = {},
+	options: Pick<CallbackOptions, "consentVersion" | "next" | "switchTeam"> = {},
 ): Promise<Response> {
 	const athlete =
 		fake.athletes.get(athleteId) ?? fake.addAthlete({ id: athleteId });

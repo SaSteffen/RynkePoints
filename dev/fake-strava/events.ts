@@ -1,6 +1,7 @@
 import { berlinDate, subscriptionId, verifyToken } from "../../src/config";
 import type { Ctx } from "../../src/ctx";
 import { handleFetch } from "../../src/index";
+import { idJson } from "../../src/strava/id";
 import { sampleRider } from "./sample-sets";
 import { type RideRecipe, recipeToActivity } from "./samples";
 import {
@@ -158,16 +159,17 @@ function eventBody(
 	event: {
 		objectType: "activity" | "athlete";
 		aspect: "create" | "update" | "delete";
-		objectId: number;
-		ownerId: number;
+		objectId: string;
+		ownerId: string;
 		updates?: Record<string, string>;
 	},
 ): string {
 	return JSON.stringify({
 		object_type: event.objectType,
 		aspect_type: event.aspect,
-		object_id: event.objectId,
-		owner_id: event.ownerId,
+		// Numbers with every digit, as Strava sends them (feature 042).
+		object_id: idJson(event.objectId),
+		owner_id: idJson(event.ownerId),
 		event_time: ctx.now(),
 		subscription_id: subscriptionId(ctx.env),
 		updates: event.updates ?? {},
@@ -189,7 +191,7 @@ export async function simulateEvent(
 		return `Sent the last event again: webhook answered ${await send(ctx, origin, lastEvent)}`;
 	}
 
-	const rider = sampleRider(ctx.team.id, Number(field(form, "athleteId")));
+	const rider = sampleRider(ctx.team.id, field(form, "athleteId") ?? "");
 	if (!rider) return "Unknown sample rider";
 	const db = ctx.env.DB;
 	const who = `${rider.firstName} (${rider.athleteId})`;
@@ -206,7 +208,7 @@ export async function simulateEvent(
 			movingMin: 90,
 		});
 		const date = field(form, "date") ?? berlinDate(ctx.now());
-		const body = recipeToActivity(recipe, date, "", 0);
+		const body = recipeToActivity(recipe, date, "", "0");
 		const id = await insertActivity(db, rider.athleteId, body);
 		const status = await send(
 			ctx,
@@ -241,7 +243,7 @@ export async function simulateEvent(
 					},
 					today,
 					ctx.env.SEASON_START_DATE,
-					0,
+					"0",
 				),
 			})),
 		);
@@ -277,7 +279,7 @@ export async function simulateEvent(
 		return `${who} revoked access: webhook answered ${status}`;
 	}
 
-	const id = Number(field(form, "activityId"));
+	const id = field(form, "activityId") ?? "";
 	const stored = await getActivity(db, id);
 	if (!stored || stored.athleteId !== rider.athleteId) {
 		return `Ride ${field(form, "activityId") ?? ""} isn't ${who}'s`;

@@ -42,7 +42,7 @@ import { type BalanceRow, type StoredBalance, toStoredBalance } from "./rynke";
 
 /** A listed rider with everything both pages need. */
 export interface TeamRider extends RiderInputs {
-	athleteId: number;
+	athleteId: string;
 	firstName: string;
 	balance: StoredBalance | null;
 	/** Their result when a deadline had passed, if one was kept (review L-12). */
@@ -88,7 +88,7 @@ function toEvents(result: D1Result): StoredEvents {
 
 /** One row per listed rider; `b.*` is all nulls without a balance. */
 type TeamRiderRow = BalanceRow & {
-	rider_id: number;
+	rider_id: string;
 	first_name: string;
 	/** Null without a current summary. */
 	weeks: string | null;
@@ -131,7 +131,7 @@ export async function readTeamAndRides(
  */
 export function rideRidersStatement(db: D1Database, since: number) {
 	return db.prepare(
-		`SELECT r.athlete_id, rs.rides
+		`SELECT CAST(r.athlete_id AS TEXT) AS athlete_id, rs.rides
 		FROM riders r
 		${RIDE_SUMMARY_JOIN}
 		WHERE ${listedRiderFilter("r")}
@@ -146,12 +146,12 @@ export async function toRideRiders(
 	result: D1Result,
 	since: number,
 ): Promise<RideRider[]> {
-	const rows = result.results as { athlete_id: number; rides: string | null }[];
+	const rows = result.results as { athlete_id: string; rides: string | null }[];
 	const missing = rows.filter((r) => r.rides === null).map((r) => r.athlete_id);
 	const addedUp =
 		missing.length > 0
 			? await readRidesAddedUp(db, missing, since)
-			: new Map<number, RideEntry[]>();
+			: new Map<string, RideEntry[]>();
 	return rows.map((row) => ({
 		athleteId: row.athlete_id,
 		rides: addedUp.get(row.athlete_id) ?? parseRides(row.rides ?? "[]"),
@@ -174,7 +174,8 @@ async function readTeamWith(
 ): Promise<{ team: TeamRider[]; rides: RideRider[] | null }> {
 	const [riderRows, eventRows, rideRows] = await db.batch([
 		db.prepare(
-			`SELECT b.*, r.athlete_id AS rider_id, r.first_name, s.weeks, s.attended,
+			`SELECT b.*, CAST(b.athlete_id AS TEXT) AS athlete_id,
+				CAST(r.athlete_id AS TEXT) AS rider_id, r.first_name, s.weeks, s.attended,
 				${CORRECTIONS_OF_RIDER} AS corrections,
 				d.deadline AS result_deadline, d.qualified AS result_qualified,
 				d.training_rynke AS result_training, d.team_rynke AS result_team
@@ -197,7 +198,7 @@ async function readTeamWith(
 	const [addedUp, rides] = await Promise.all([
 		missing.length > 0
 			? readWeeksAddedUp(db, missing)
-			: new Map<number, AddedUpWeeks>(),
+			: new Map<string, AddedUpWeeks>(),
 		rideRows ? toTeamRides(db, rideRows) : null,
 	]);
 	const team = rows.map((row) => {
@@ -233,7 +234,7 @@ async function readTeamWith(
 
 /** One row per listed rider; the summary's columns are null without one. */
 interface BadgeRiderRow {
-	athlete_id: number;
+	athlete_id: string;
 	connected_at: number;
 	days: string | null;
 	run_days: string | null;
@@ -263,7 +264,7 @@ export async function readTeamBadgeSums(
 export function teamBadgeSumsStatements(db: D1Database): D1PreparedStatement[] {
 	return [
 		db.prepare(
-			`SELECT r.athlete_id, r.connected_at, s.days, s.run_days, s.active,
+			`SELECT CAST(r.athlete_id AS TEXT) AS athlete_id, r.connected_at, s.days, s.run_days, s.active,
 				s.attended, ${CORRECTIONS_OF_RIDER} AS corrections
 			FROM riders r
 			${TEAM_SUMMARY_JOIN}
@@ -291,7 +292,7 @@ export async function toTeamBadgeSums(
 	const addedUp =
 		missing.length > 0
 			? await readDaysAddedUp(db, missing)
-			: new Map<number, AddedUpDays>();
+			: new Map<string, AddedUpDays>();
 	const riders = rows.map((row): BadgeRider => {
 		const own = addedUp.get(row.athlete_id);
 		return {
@@ -310,6 +311,7 @@ export async function toTeamBadgeSums(
 /** The listed riders' balances, for the season album. */
 export function listTeamBalancesStatement(db: D1Database) {
 	return db.prepare(
-		`SELECT * FROM rynke_balances WHERE athlete_id IN (${LISTED_RIDER_IDS})`,
+		`SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM rynke_balances
+			WHERE athlete_id IN (${LISTED_RIDER_IDS})`,
 	);
 }

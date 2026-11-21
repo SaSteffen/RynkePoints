@@ -232,8 +232,6 @@ export const hamburg: TeamData = {
 			kind: "short",
 		},
 	],
-	// Team Europe's club (wrangler.jsonc `STRAVA_CLUB_ID`, feature 039).
-	otherClubIds: [2292744],
 	// Half of the re-check's 300 reads a day; Europe has the other half (036).
 	recheckAllowance: 150,
 	rulesHandout: { path: "/rynke-punkte.pdf", locale: "de" },

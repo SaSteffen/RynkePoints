@@ -38,11 +38,11 @@ export const MAX_RIDE_BATCH = 1000;
 export interface RideKey {
 	/** `activities.start_date`, ISO UTC. */
 	startDate: string;
-	activityId: number;
+	activityId: string;
 }
 
 export interface RideRow {
-	activityId: number;
+	activityId: string;
 	sportType: CyclingSportType;
 	/** ISO UTC, the list's order (feature 018 R1). */
 	startDate: string;
@@ -92,10 +92,10 @@ export interface AttendedEvent {
 }
 
 /** A ride with its result and the ride an overlap counted instead. */
-const RIDE_COLUMNS = `SELECT a.strava_activity_id, a.sport_type, a.start_date, a.start_date_local, a.distance_m,
+const RIDE_COLUMNS = `SELECT CAST(a.strava_activity_id AS TEXT) AS strava_activity_id, a.sport_type, a.start_date, a.start_date_local, a.distance_m,
 	a.moving_time_s, a.elapsed_time_s, a.elevation_gain_m, a.name,
-	r.strava_activity_id AS result_id, r.athlete_id, r.counts, r.reasons,
-	r.overlaps_activity_id, r.distance_rynke, r.elevation_dm, r.is_virtual,
+	CAST(r.strava_activity_id AS TEXT) AS result_id, CAST(r.athlete_id AS TEXT) AS athlete_id, r.counts, r.reasons,
+	CAST(r.overlaps_activity_id AS TEXT) AS overlaps_activity_id, r.distance_rynke, r.elevation_dm, r.is_virtual,
 	r.unknown_figures, r.rules_version, r.activity_refreshed_at,
 	c.start_date_local AS counted_start_date_local,
 	c.distance_m AS counted_distance_m
@@ -117,7 +117,7 @@ LIMIT ${RIDES_PER_PAGE} OFFSET min((?2 - 1) * ${RIDES_PER_PAGE}, max(0,
 		/ ${RIDES_PER_PAGE} * ${RIDES_PER_PAGE}))`;
 
 type RidePageRow = Omit<RideResultRow, "strava_activity_id"> & {
-	strava_activity_id: number;
+	strava_activity_id: string;
 	sport_type: CyclingSportType;
 	start_date: string;
 	start_date_local: string;
@@ -126,7 +126,7 @@ type RidePageRow = Omit<RideResultRow, "strava_activity_id"> & {
 	elapsed_time_s: number | null;
 	elevation_gain_m: number;
 	name: string | null;
-	result_id: number | null;
+	result_id: string | null;
 	counted_start_date_local: string | null;
 	counted_distance_m: number | null;
 };
@@ -144,7 +144,7 @@ WHERE r.athlete_id = ?1 AND r.counts = 1
 GROUP BY 1, 2 ORDER BY 1, 2`;
 
 /** The rider's ride and virtual ride counts, as `rides` and `virtual`. */
-export function rideCountsStatement(db: D1Database, athleteId: number) {
+export function rideCountsStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare(
 			`SELECT (SELECT count(*) FROM activities WHERE athlete_id = ?1) AS rides,
@@ -177,7 +177,7 @@ WHERE athlete_id = ?1 ORDER BY correction_date, correction_id`;
  */
 export async function readRiderView(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	page: number,
 	options: { progress?: boolean; seen?: boolean } = {},
 ): Promise<RiderViewRead> {
@@ -254,7 +254,7 @@ export interface RiderStanding {
  */
 export function riderStandingStatements(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): D1PreparedStatement[] {
 	return [
 		readBalanceStatement(db, athleteId),
@@ -346,7 +346,7 @@ export interface RideBatch {
 /** Up to `limit` (1 … `MAX_RIDE_BATCH`) of the rider's rides after `after`. */
 export async function readRideBatch(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	after: RideKey,
 	limit: number,
 ): Promise<RideBatch> {
@@ -371,7 +371,7 @@ export async function readRideBatch(
  */
 export async function hasBalance(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<boolean | null> {
 	const row = await db
 		.prepare(

@@ -62,14 +62,14 @@ describe("a team's sample guest (feature 041)", () => {
 
 	it("is named on no team-facing page", async () => {
 		const name = guest?.firstName ?? "";
-		const views: [string[], number | undefined][] = [
+		const views: [string[], string | undefined][] = [
 			[TEAM_PAGES, rider?.athleteId],
 			[[...TEAM_PAGES, ...ORGANISER_PAGES], organiser?.athleteId],
 			[[...ADMIN_PAGES], admin?.athleteId],
 			[[...TEAM_PAGES, ...ORGANISER_PAGES, ...ADMIN_PAGES], guest?.athleteId],
 		];
 		for (const [paths, athleteId] of views) {
-			const cookie = await riderCookie(athleteId ?? 0);
+			const cookie = await riderCookie(athleteId ?? "0");
 			for (const path of paths) {
 				const { status, markup } = await getPage(path, "en", cookie);
 				// A team without team events sends /organiser on to the riders.
@@ -103,7 +103,7 @@ describe("a team's sample guest (feature 041)", () => {
 		const { markup } = await getPage(
 			"/admin/riders",
 			"en",
-			await riderCookie(admin?.athleteId ?? 0),
+			await riderCookie(admin?.athleteId ?? "0"),
 		);
 		const [team, guests] = markup.split("<h2>Guests</h2>");
 		expect(team).not.toContain(guest?.firstName);

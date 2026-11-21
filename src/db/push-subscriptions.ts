@@ -1,3 +1,5 @@
+import { idsJson } from "../strava/id";
+
 // Devices with notifications on (feature 010 data-model.md, research R7). A
 // row is the endpoint the browser gave the device, its rider and the time it was
 // turned on. Rows are deleted with the rider by the schema's cascade (FR-013).
@@ -33,7 +35,7 @@ export function isPushEndpoint(value: string): boolean {
 export function upsertSubscriptionStatement(
 	db: D1Database,
 	endpoint: string,
-	athleteId: number,
+	athleteId: string,
 	now: number,
 ): D1PreparedStatement {
 	return db
@@ -49,7 +51,7 @@ export function upsertSubscriptionStatement(
 /** Deletes the rider's rows that aren't among their newest 10. */
 export function trimSubscriptionsStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): D1PreparedStatement {
 	return db
 		.prepare(
@@ -66,7 +68,7 @@ export function trimSubscriptionsStatement(
 export async function deleteSubscription(
 	db: D1Database,
 	endpoint: string,
-	athleteId: number,
+	athleteId: string,
 ): Promise<void> {
 	await db
 		.prepare(
@@ -74,6 +76,16 @@ export async function deleteSubscription(
 		)
 		.bind(endpoint, athleteId)
 		.run();
+}
+
+/** Every device of the rider. */
+export function deleteSubscriptionsStatement(
+	db: D1Database,
+	athleteId: string,
+) {
+	return db
+		.prepare("DELETE FROM push_subscriptions WHERE athlete_id = ?")
+		.bind(athleteId);
 }
 
 export async function deleteSubscriptionById(
@@ -89,7 +101,7 @@ export async function deleteSubscriptionById(
 export async function hasSubscription(
 	db: D1Database,
 	endpoint: string,
-	athleteId: number,
+	athleteId: string,
 ): Promise<boolean> {
 	const row = await db
 		.prepare(
@@ -103,16 +115,16 @@ export async function hasSubscription(
 /** Every device of these riders, by rider and then ID. */
 export async function subscriptionIdsOfRiders(
 	db: D1Database,
-	athleteIds: number[],
-): Promise<{ athleteId: number; subscriptionId: number }[]> {
+	athleteIds: string[],
+): Promise<{ athleteId: string; subscriptionId: number }[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT athlete_id, subscription_id FROM push_subscriptions
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, subscription_id FROM push_subscriptions
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))
-			ORDER BY athlete_id, subscription_id`,
+			ORDER BY push_subscriptions.athlete_id, subscription_id`,
 		)
-		.bind(JSON.stringify(athleteIds))
-		.all<{ athlete_id: number; subscription_id: number }>();
+		.bind(idsJson(athleteIds))
+		.all<{ athlete_id: string; subscription_id: number }>();
 	return results.map((r) => ({
 		athleteId: r.athlete_id,
 		subscriptionId: r.subscription_id,
@@ -123,7 +135,7 @@ export async function subscriptionIdsOfRiders(
 export async function subscriptionEndpoint(
 	db: D1Database,
 	subscriptionId: number,
-	athleteId: number,
+	athleteId: string,
 ): Promise<string | null> {
 	return db
 		.prepare(

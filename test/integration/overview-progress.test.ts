@@ -86,7 +86,7 @@ describe("GET /me progress section (feature 009)", () => {
 	it("shows another rider only their own Rynke (SC-007)", async () => {
 		await seedRider(ctx, { athleteId: ATHLETE_B });
 		await seedRide(ATHLETE_B, {
-			id: 7_300_001,
+			id: "7300001",
 			start_date: "2026-09-08T07:00:00Z",
 			start_date_local: "2026-09-08T09:00:00Z",
 			result: { counts: true, distanceRynke: 7, elevationDm: 0 },

@@ -1,19 +1,11 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { answerStrava } from "../../dev/fake-strava/api";
-import { samplesFor } from "../../dev/fake-strava/sample-sets";
 import type { SampleRider } from "../../dev/fake-strava/samples";
 import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples.hamburg";
 import { encodeAccess } from "../../dev/fake-strava/tokens";
-import {
-	type DevEnv,
-	devFetch,
-	removeStravaInterceptor,
-} from "../../dev/worker";
 import { getAthleteClubs } from "../../src/strava/client";
-import { TEAMS } from "../../src/teams";
-import { europe } from "../../src/teams/europe";
-import { makeCtx, resetDb, type TestCtx } from "../support/ctx";
+import { makeCtx, resetDb } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, NOW, TEAM_CLUB } from "../support/fixtures";
 
@@ -71,8 +63,7 @@ describe("fake Strava", () => {
 });
 
 // The fake Strava of fake mode (dev/fake-strava/api.ts) lists a sample rider's
-// clubs; one also in another team's club lists that club too (feature 039
-// research R10), for the one-team-at-a-time notice.
+// clubs: the team's club for a member, none otherwise.
 describe("fake mode's club list", () => {
 	async function clubIds(teamId: string, rider: SampleRider) {
 		const token = encodeAccess({
@@ -92,20 +83,6 @@ describe("fake mode's club list", () => {
 		return (await res.json()) as { id: number; name: string }[];
 	}
 
-	it("lists the team's club and the first other team's club for a rider in both", async () => {
-		const inBoth = TEAMS.flatMap((team) =>
-			samplesFor(team.id)
-				.riders.filter((rider) => rider.otherClubMember)
-				.map((rider) => ({ team, rider })),
-		);
-		expect(inBoth.length).toBeGreaterThan(0);
-		for (const { team, rider } of inBoth) {
-			expect(rider.clubMember).toBe(true);
-			const ids = (await clubIds(team.id, rider)).map((club) => club.id);
-			expect(ids).toEqual([Number(env.STRAVA_CLUB_ID), team.otherClubIds[0]]);
-		}
-	});
-
 	it("lists every Hamburg sample's clubs as before", async () => {
 		for (const rider of SAMPLE_RIDERS) {
 			expect(await clubIds("hamburg", rider)).toEqual(
@@ -118,48 +95,6 @@ describe("fake mode's club list", () => {
 						]
 					: [],
 			);
-		}
-	});
-});
-
-// Seeding connects every club member through the app; one in both clubs lands
-// on the one-team-at-a-time notice instead of their own page (feature 039).
-describe("seeding Europe's fake mode", { timeout: 20_000 }, () => {
-	beforeEach(async () => {
-		await resetDb();
-		await env.DB.batch([
-			env.DB.prepare("DROP TABLE IF EXISTS fake_strava_activities"),
-			env.DB.prepare("DROP TABLE IF EXISTS fake_strava_seed"),
-			env.DB.prepare("DROP TABLE IF EXISTS fake_dev_clock"),
-		]);
-	});
-
-	afterEach(() => removeStravaInterceptor());
-
-	it("connects the rider in both clubs too", async () => {
-		const base = makeCtx({ team: europe });
-		const devEnv: DevEnv = {
-			...base.env,
-			TEAM_ID: "europe",
-			STRAVA_CLUB_ID: "2292744",
-			STRAVA_EXTRA_CLUB_IDS: "",
-			RYNKE_FAKE_STRAVA: "local-only",
-		};
-		const ctx: TestCtx = { ...base, env: devEnv };
-		const index = await devFetch(
-			new Request("http://localhost:8789/_dev/"),
-			ctx,
-		);
-		expect(index.status).toBe(200);
-		await index.text();
-		const inBoth = samplesFor("europe").riders.filter((r) => r.otherClubMember);
-		for (const rider of inBoth) {
-			const stored = await env.DB.prepare(
-				"SELECT status FROM riders WHERE athlete_id = ?",
-			)
-				.bind(rider.athleteId)
-				.first<{ status: string }>();
-			expect(stored?.status).toBe("connected");
 		}
 	});
 });

@@ -5,6 +5,7 @@ import {
 	applyTeamEventChange,
 	type TeamEventChange,
 } from "../../src/rynke/team-event-change";
+import { compareIds } from "../../src/strava/id";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
 import { CURRENT_RULES } from "../support/team-rules";
@@ -30,12 +31,12 @@ async function day(date: string, kind = "tour_de_paris"): Promise<number> {
 	return eventId;
 }
 
-function attend(eventId: number, athleteIds: number[]) {
+function attend(eventId: number, athleteIds: string[]) {
 	return change({ kind: "add-attendance", eventId, athleteIds });
 }
 
 /** The rider's stored tour badges, `id@date`, in id order. */
-async function tour(athleteId: number): Promise<string[]> {
+async function tour(athleteId: string): Promise<string[]> {
 	const { results } = await db
 		.prepare(
 			`SELECT badge_id, earned_on FROM rider_badges
@@ -89,9 +90,7 @@ describe("tour badges (021 US2)", () => {
 			kind: "create-event",
 			event: { kind: "tour_de_paris", date: "2026-07-03", name: null },
 		});
-		expect(result.affected).toEqual(
-			[ATHLETE_A, ATHLETE_B].sort((a, b) => a - b),
-		);
+		expect(result.affected).toEqual([ATHLETE_A, ATHLETE_B].sort(compareIds));
 		expect(await tour(ATHLETE_A)).toEqual([
 			"tour-de-paris-2@2026-07-04",
 			"tour-de-paris-3@2026-07-05",

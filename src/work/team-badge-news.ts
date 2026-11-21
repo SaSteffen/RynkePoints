@@ -35,8 +35,8 @@ import { countingWindow, currentRules } from "../rynke/rules";
  */
 export async function teamBadgeNews(
 	ctx: Ctx,
-	keep: readonly number[],
-): Promise<number[]> {
+	keep: readonly string[],
+): Promise<string[]> {
 	if (!badges(ctx.env)) return [];
 	try {
 		return await announce(ctx, new Set(keep));
@@ -47,7 +47,7 @@ export async function teamBadgeNews(
 	}
 }
 
-async function announce(ctx: Ctx, keep: Set<number>): Promise<number[]> {
+async function announce(ctx: Ctx, keep: Set<string>): Promise<string[]> {
 	const db = ctx.env.DB;
 	const window = countingWindow(ctx.env);
 	const { seasonStart } = window;
@@ -98,9 +98,9 @@ async function announce(ctx: Ctx, keep: Set<number>): Promise<number[]> {
 	if (!riderRows || !revealRows) {
 		throw new Error("D1 batch returned too few results");
 	}
-	const reveals = new Map<number, { badge_id: string; earned_on: string }[]>();
+	const reveals = new Map<string, { badge_id: string; earned_on: string }[]>();
 	for (const row of revealRows.results as {
-		athlete_id: number;
+		athlete_id: string;
 		badge_id: string;
 		earned_on: string;
 	}[]) {
@@ -111,10 +111,10 @@ async function announce(ctx: Ctx, keep: Set<number>): Promise<number[]> {
 		seasonStart,
 		announced: [...announced, ...fresh.map((b) => b.badgeId)].sort(),
 	};
-	const notify: number[] = [];
+	const notify: string[] = [];
 	const rises: D1PreparedStatement[] = [];
 	for (const rider of riderRows.results as {
-		athlete_id: number;
+		athlete_id: string;
 		connected_at: number;
 	}[]) {
 		const connectedOn = berlinDate(rider.connected_at);

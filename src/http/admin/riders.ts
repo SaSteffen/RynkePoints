@@ -36,7 +36,7 @@ function dateOf(i18n: I18n, epochSeconds: number): string {
 function riderCard(
 	i18n: I18n,
 	rider: OverviewRider,
-	viewerId: number,
+	viewerId: string,
 	guest = false,
 ): SafeHtml {
 	return html`<li class="card admin-rider">

@@ -37,7 +37,7 @@ export const ZERO_BALANCE: Balance = {
 };
 
 export async function seedBalance(
-	athleteId: number,
+	athleteId: string,
 	overrides: Partial<Balance> = {},
 ): Promise<void> {
 	await upsertBalanceStatement(
@@ -49,14 +49,14 @@ export async function seedBalance(
 }
 
 /** A current empty summary, as `insertRider` writes (feature 030). */
-export async function seedEmptySummary(athleteId: number): Promise<void> {
+export async function seedEmptySummary(athleteId: string): Promise<void> {
 	await insertEmptySummaryStatement(env.DB, athleteId).run();
 }
 
 export interface SeedResult {
 	counts: boolean;
 	reasons?: ReasonCode[];
-	overlapsActivityId?: number | null;
+	overlapsActivityId?: string | null;
 	distanceRynke?: number;
 	elevationDm?: number;
 	isVirtual?: boolean;
@@ -65,14 +65,14 @@ export interface SeedResult {
 }
 
 export interface SeedRide extends Partial<ActivityRecord> {
-	id: number;
+	id: string;
 	/** Absent = no `ride_results` row: the ride is being evaluated. */
 	result?: SeedResult;
 }
 
 /** One activity, plus its result when `ride.result` is given. */
 export async function seedRide(
-	athleteId: number,
+	athleteId: string,
 	{ id, result, ...activity }: SeedRide,
 ): Promise<void> {
 	const record = activityRecord(id, { ...activity, athlete_id: athleteId });
@@ -99,7 +99,7 @@ export async function seedRide(
  * `start` (`YYYY-MM-DD`), newest first.
  */
 export async function seedRides(
-	athleteId: number,
+	athleteId: string,
 	n: number,
 	start: string,
 	firstId = 8_000_001,
@@ -111,7 +111,7 @@ export async function seedRides(
 		const startDate = new Date(day - i * 86_400_000)
 			.toISOString()
 			.replace(".000Z", "Z");
-		const record = activityRecord(firstId + i, {
+		const record = activityRecord(String(firstId + i), {
 			athlete_id: athleteId,
 			start_date: startDate,
 		});
@@ -136,7 +136,7 @@ export async function seedRides(
 /** `GET path` as the signed-in rider. */
 export async function riderPage(
 	ctx: TestCtx,
-	athleteId: number,
+	athleteId: string,
 	path = "/me",
 	acceptLanguage?: string,
 ): Promise<{ status: number; html: string }> {

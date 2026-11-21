@@ -60,6 +60,9 @@ function expectLanguage(
 		html,
 	)
 		.replace(/<blockquote [^>]*lang="de">[\s\S]*?<\/blockquote>/g, "")
+		// The changelog's entries are English in every language (constitution,
+		// Language).
+		.replace(/<ul class="changelog-changes" lang="en">[\s\S]*?<\/ul>/g, "")
 		// Chart data holds numbers and names under keys no rider reads.
 		.replace(/<script type="application\/json"[^>]*>[\s\S]*?<\/script\s*>/g, "")
 		// So do the graphs' tabs, charts and text templates ("virtual").

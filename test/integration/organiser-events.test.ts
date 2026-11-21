@@ -24,7 +24,7 @@ import { CURRENT_RULES } from "../support/team-rules";
 const ctx = makeCtx();
 const { de } = CATALOGS;
 const ORGANISER = ATHLETE_C;
-const OTHER_ORGANISER = 900004;
+const OTHER_ORGANISER = "900004";
 const RIDER = ATHLETE_A;
 const ORGANISER_NAME = "Synthetic Orga";
 const TODAY = "2026-10-06";
@@ -34,13 +34,13 @@ interface EventRow {
 	kind: string;
 	event_date: string;
 	name: string | null;
-	changed_by: number | null;
+	changed_by: string | null;
 	changed_at: number | null;
 }
 
 async function events(): Promise<EventRow[]> {
 	const { results } = await env.DB.prepare(
-		"SELECT * FROM team_events ORDER BY event_id",
+		"SELECT *, CAST(changed_by AS TEXT) AS changed_by FROM team_events ORDER BY event_id",
 	).all<EventRow>();
 	return results;
 }
@@ -73,7 +73,7 @@ function expectRedirect(res: Response, location: string): void {
 }
 
 /** Records `athleteIds` as attending, re-evaluating them as the pages do. */
-async function attend(eventId: number, athleteIds: number[]): Promise<void> {
+async function attend(eventId: number, athleteIds: string[]): Promise<void> {
 	await applyTeamEventChange(
 		env.DB,
 		{ kind: "add-attendance", eventId, athleteIds },
@@ -83,7 +83,7 @@ async function attend(eventId: number, athleteIds: number[]): Promise<void> {
 	);
 }
 
-async function teamRynke(athleteId: number): Promise<number | null> {
+async function teamRynke(athleteId: string): Promise<number | null> {
 	return env.DB.prepare(
 		"SELECT team_rynke FROM rynke_balances WHERE athlete_id = ?",
 	)
@@ -400,10 +400,10 @@ describe("Ich war auch dabei", () => {
 		const res = await post(`/organiser/events/${past}/self`, {});
 		expectRedirect(res, `/organiser?done=attendance#event-${past}`);
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id, changed_by FROM attendances WHERE event_id = ? ORDER BY athlete_id",
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id, CAST(changed_by AS TEXT) AS changed_by FROM attendances WHERE event_id = ? ORDER BY attendances.athlete_id",
 		)
 			.bind(past)
-			.all<{ athlete_id: number; changed_by: number | null }>();
+			.all<{ athlete_id: string; changed_by: string | null }>();
 		expect(results).toContainEqual({
 			athlete_id: ORGANISER,
 			changed_by: ORGANISER,

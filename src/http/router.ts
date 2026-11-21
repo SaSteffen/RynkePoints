@@ -13,13 +13,19 @@ import {
 import { handleUsageExport } from "./admin/usage-export";
 import { handleCallback, handleConnectForm, handleReconnect } from "./auth";
 import { handleCatchUp } from "./catch-up";
+import { handleChangelog } from "./changelog";
 import { handleConsent } from "./consent-gate";
 import { notFound } from "./errors";
 import { handleFetching } from "./fetching";
-import { handleHeld } from "./held";
+import { handleHeld, handleLetGo } from "./held";
 import { handleLanding } from "./landing";
 import { handleLang } from "./lang";
-import { handleDisconnect, handleDisconnectPage, handleLogout } from "./me";
+import {
+	handleDisconnect,
+	handleDisconnectPage,
+	handleLogout,
+	handleLogoutEverywhere,
+} from "./me";
 import { handleNotice } from "./notice";
 import { handleNotifications } from "./notifications";
 import { handleSaveAttendance } from "./organiser/attendance";
@@ -57,6 +63,7 @@ import { handleSettings } from "./sections/settings";
 import { handleTeam } from "./sections/team";
 import { renewSession } from "./session";
 import { handleStylesheet, isStylesheet } from "./stylesheet";
+import { handleSwitchTeam } from "./switch-team";
 import { handleTour } from "./tour";
 import { handleWebhook } from "./webhook";
 
@@ -73,6 +80,7 @@ import { handleWebhook } from "./webhook";
 const WEBHOOK_PREFIX = "/strava/webhook/";
 /** The gateway asks whether this team holds a person (feature 041 R14). */
 const HELD_PREFIX = "/strava/held/";
+const LET_GO_PREFIX = "/strava/let-go/";
 
 /**
  * `/organiser/events/{id}`, its `/delete` and its `/attendance`; `id` is a
@@ -85,13 +93,14 @@ const ORGANISER_EVENT =
 const EVENT_REPORT = /^\/events\/(\d{1,15})\/report(\/delete)?$/;
 
 /** `/organiser/riders/{athleteId}` and its `/corrections`. */
-const ORGANISER_RIDER = /^\/organiser\/riders\/(\d{1,15})(\/corrections)?$/;
+const ORGANISER_RIDER =
+	/^\/organiser\/riders\/([1-9]\d{0,18})(\/corrections)?$/;
 
 /** `/organiser/corrections/{id}/delete`. */
 const ORGANISER_CORRECTION = /^\/organiser\/corrections\/(\d{1,15})\/delete$/;
 
 /** `/admin/riders/{athleteId}/remove` (feature 025). */
-const ADMIN_REMOVE = /^\/admin\/riders\/(\d{1,15})\/remove$/;
+const ADMIN_REMOVE = /^\/admin\/riders\/([1-9]\d{0,18})\/remove$/;
 
 /**
  * What belongs to events: the riders' Events page and reports, the organisers'
@@ -123,6 +132,9 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	}
 	if (path.startsWith(HELD_PREFIX)) {
 		return handleHeld(request, path.slice(HELD_PREFIX.length), ctx);
+	}
+	if (path.startsWith(LET_GO_PREFIX)) {
+		return handleLetGo(request, path.slice(LET_GO_PREFIX.length), ctx);
 	}
 
 	// `?lang=` shows this one page in that language without picking it, for
@@ -187,6 +199,8 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleTour(request, ctx, i18n);
 			case "/logout":
 				return handleLogout(request, ctx, i18n);
+			case "/logout/everywhere":
+				return handleLogoutEverywhere(request, ctx, i18n);
 			case "/admin/alerts":
 				return handleAdminAlerts(request, ctx, i18n);
 			case "/admin/refresh":
@@ -200,7 +214,7 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		}
 		const removal = path.match(ADMIN_REMOVE);
 		if (removal) {
-			return handleRemoveRider(request, ctx, i18n, Number(removal[1]));
+			return handleRemoveRider(request, ctx, i18n, removal[1] as string);
 		}
 		const event = path.match(ORGANISER_EVENT);
 		if (event) {
@@ -225,7 +239,7 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		}
 		const rider = path.match(ORGANISER_RIDER);
 		if (rider?.[2]) {
-			return handleAddCorrection(request, ctx, i18n, Number(rider[1]));
+			return handleAddCorrection(request, ctx, i18n, rider[1] as string);
 		}
 		const correction = path.match(ORGANISER_CORRECTION);
 		if (correction) {
@@ -246,6 +260,10 @@ async function page(
 			return handleLanding(request, ctx, i18n);
 		case "/privacy":
 			return handlePrivacy(ctx, i18n);
+		case "/switch-team":
+			return handleSwitchTeam(ctx, i18n);
+		case "/changelog":
+			return handleChangelog(ctx, i18n);
 		case "/connect":
 			return handleReconnect(request, ctx);
 		case "/auth/callback":
@@ -282,7 +300,7 @@ async function page(
 	}
 	const removal = path.match(ADMIN_REMOVE);
 	if (removal) {
-		return handleRemoveConfirm(request, ctx, i18n, Number(removal[1]));
+		return handleRemoveConfirm(request, ctx, i18n, removal[1] as string);
 	}
 	const event = path.match(ORGANISER_EVENT);
 	if (event && !event[2]) {
@@ -290,7 +308,7 @@ async function page(
 	}
 	const rider = path.match(ORGANISER_RIDER);
 	if (rider && !rider[2]) {
-		return handleOrganiserRider(request, ctx, i18n, Number(rider[1]));
+		return handleOrganiserRider(request, ctx, i18n, rider[1] as string);
 	}
 	if (path.startsWith("/notice/")) {
 		return handleNotice(path.slice("/notice/".length), ctx, i18n);

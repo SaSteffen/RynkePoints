@@ -21,6 +21,7 @@ import {
 } from "../rynke/team-events";
 import { addDays, type CurveRideSum } from "../rynke/weeks";
 import type { CyclingSportType } from "../strava/activity";
+import { compareIds } from "../strava/id";
 
 // The example rider of the tour's Du and Fahrten steps (feature 020 FR-005 –
 // FR-007, research R3): what those pages read for a rider, built from a few
@@ -32,7 +33,7 @@ import type { CyclingSportType } from "../strava/activity";
 // import (feature 006 FR-009).
 
 interface ExampleRide {
-	id: number;
+	id: string;
 	/** Days before the anchor day (research R4). */
 	daysAgo: number;
 	/** Start hour; the rides never overlap even on one day. */
@@ -45,14 +46,14 @@ interface ExampleRide {
 }
 
 /** The ride under one distance step: it counts, but earns no distance Rynke. */
-export const EXAMPLE_SHORT_RIDE_ID = 2;
+export const EXAMPLE_SHORT_RIDE_ID = "2";
 
 /** The ride that doesn't count: a café stop longer than the riding. */
-export const EXAMPLE_REJECTED_RIDE_ID = 7;
+export const EXAMPLE_REJECTED_RIDE_ID = "7";
 
 const RIDES: readonly ExampleRide[] = [
 	{
-		id: 1,
+		id: "1",
 		daysAgo: 1,
 		hour: 18,
 		sportType: "Ride",
@@ -82,7 +83,7 @@ const RIDES: readonly ExampleRide[] = [
 		elapsedMin: 230,
 	},
 	{
-		id: 3,
+		id: "3",
 		daysAgo: 6,
 		hour: 10,
 		sportType: "VirtualRide",
@@ -92,7 +93,7 @@ const RIDES: readonly ExampleRide[] = [
 		elapsedMin: 70,
 	},
 	{
-		id: 4,
+		id: "4",
 		daysAgo: 9,
 		hour: 12,
 		sportType: "GravelRide",
@@ -102,7 +103,7 @@ const RIDES: readonly ExampleRide[] = [
 		elapsedMin: 135,
 	},
 	{
-		id: 5,
+		id: "5",
 		daysAgo: 13,
 		hour: 15,
 		sportType: "MountainBikeRide",
@@ -112,7 +113,7 @@ const RIDES: readonly ExampleRide[] = [
 		elapsedMin: 130,
 	},
 	{
-		id: 6,
+		id: "6",
 		daysAgo: 17,
 		hour: 6,
 		sportType: "Ride",
@@ -202,7 +203,8 @@ export function exampleRiderView(
 	// Newest first, as the list's order (feature 018 R1).
 	rows.sort(
 		(a, b) =>
-			b.startDate.localeCompare(a.startDate) || b.activityId - a.activityId,
+			b.startDate.localeCompare(a.startDate) ||
+			compareIds(b.activityId, a.activityId),
 	);
 	// The progress curve's input, summed per day and kind as the Overview's
 	// read does (feature 009 FR-043).
@@ -253,7 +255,7 @@ export function exampleRiderView(
  * qualified.
  */
 interface ExampleTeamRider {
-	id: number;
+	id: string;
 	firstName: string;
 	/** Training Rynke as a share of today's even pace, in percent. */
 	trainingPace: number;
@@ -265,16 +267,22 @@ interface ExampleTeamRider {
 }
 
 const TEAM: readonly ExampleTeamRider[] = [
-	{ id: 1, firstName: "Anna", trainingPace: 55, teamPace: 0, virtualShare: 0 },
 	{
-		id: 2,
+		id: "1",
+		firstName: "Anna",
+		trainingPace: 55,
+		teamPace: 0,
+		virtualShare: 0,
+	},
+	{
+		id: "2",
 		firstName: "Ben",
 		trainingPace: 130,
 		teamPace: 120,
 		virtualShare: 10,
 	},
 	{
-		id: 3,
+		id: "3",
 		firstName: "Clara",
 		trainingPace: 0,
 		teamPace: 0,
@@ -282,20 +290,26 @@ const TEAM: readonly ExampleTeamRider[] = [
 		qualified: true,
 	},
 	{
-		id: 4,
+		id: "4",
 		firstName: "Deniz",
 		trainingPace: 110,
 		teamPace: 40,
 		virtualShare: 0,
 	},
 	{
-		id: 5,
+		id: "5",
 		firstName: "Emma",
 		trainingPace: 160,
 		teamPace: 150,
 		virtualShare: 25,
 	},
-	{ id: 6, firstName: "Finn", trainingPace: 20, teamPace: 0, virtualShare: 60 },
+	{
+		id: "6",
+		firstName: "Finn",
+		trainingPace: 20,
+		teamPace: 0,
+		virtualShare: 60,
+	},
 ];
 
 /** The example team's events; `you`: the organiser was there. */
@@ -343,9 +357,9 @@ export const EXAMPLE_UPCOMING_EVENT_ID = 1;
 export const EXAMPLE_PAST_EVENT_ID = 2;
 
 /** Who reported the past event without being ticked yet (019 FR-031). */
-const REQUESTS: readonly { riderId: number; eventId: number }[] = [
-	{ riderId: 1, eventId: EXAMPLE_PAST_EVENT_ID },
-	{ riderId: 4, eventId: EXAMPLE_PAST_EVENT_ID },
+const REQUESTS: readonly { riderId: string; eventId: number }[] = [
+	{ riderId: "1", eventId: EXAMPLE_PAST_EVENT_ID },
+	{ riderId: "4", eventId: EXAMPLE_PAST_EVENT_ID },
 ];
 
 /** What the Orga pages read for the organiser tour (FR-013). */
@@ -359,7 +373,7 @@ export interface ExampleTeam {
 	/** The events the organiser attended. */
 	attended: ReadonlySet<number>;
 	/** Each rider's counting rides, as the Rider page reads them (feature 032). */
-	rides: ReadonlyMap<number, readonly RideEntry[]>;
+	rides: ReadonlyMap<string, readonly RideEntry[]>;
 	/** Each rider's daily figures, as the progress graphs read them (feature 029). */
 	graphRows: GraphRow[];
 }
@@ -439,7 +453,7 @@ function teamRiderRides(
 		climbed += share;
 		const daysAgo =
 			Math.round((span * (rides.length - 1 - i)) / rides.length) +
-			(rider.id % 3);
+			(Number(rider.id) % 3);
 		return {
 			...ride,
 			date: dateFor(daysAgo, today, window),
@@ -449,7 +463,7 @@ function teamRiderRides(
 }
 
 /** The rides as the graphs read a rider's stored summary: summed per day. */
-function graphRowOf(athleteId: number, rides: ExampleTeamRide[]): GraphRow {
+function graphRowOf(athleteId: string, rides: ExampleTeamRide[]): GraphRow {
 	const days = new Map<string, DayEntry>();
 	const virtualDays = new Map<string, VirtualDayEntry>();
 	for (const ride of rides) {
@@ -510,7 +524,7 @@ export function exampleTeam(
 ): ExampleTeam {
 	const pace = (amount: number) =>
 		evenPace(amount, window.windowStart, window.deadline, today);
-	const rides = new Map<number, ExampleTeamRide[]>();
+	const rides = new Map<string, ExampleTeamRide[]>();
 	// Without Team Rynke the example team has no Team Rynke and no events
 	// (feature 039).
 	const teamThreshold = rules.teamThreshold;

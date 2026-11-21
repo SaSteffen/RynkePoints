@@ -357,9 +357,7 @@ export const lt: Catalog = {
 	"push.rise.team": "+{n} Komandos Rynke",
 	"notifications.heading": "Pranešimai",
 	"notifications.explain":
-		"Šis įrenginys praneša, kai turi naujų Rynke, ir ko tau dar trūksta.",
-	"notifications.on": "Įjungta šiame įrenginyje.",
-	"notifications.off": "Išjungta šiame įrenginyje.",
+		"Tavo įrenginys praneša, kai tik gauni naujų Rynke ar ženklelių – net kai programėlė uždaryta.",
 	"notifications.blocked":
 		"Tavo įrenginys blokuoja RynkePoints pranešimus. Juos gali leisti naršyklės ar įrenginio nustatymuose.",
 	"notifications.needsHomeScreen":
@@ -408,14 +406,21 @@ export const lt: Catalog = {
 	"theme.name.disco": "Disco",
 	"theme.name.contrast-light": "Didelis kontrastas, šviesi",
 	"theme.name.contrast-dark": "Didelis kontrastas, tamsi",
-	"settings.app": "Programėlė",
-	"settings.strava": "Ryšys su Strava",
 	"settings.account": "Paskyra",
+	"settings.device": "Šis įrenginys",
+	"settings.data": "Rynke ir tavo duomenys",
+	"settings.strava.broken": "Ryšys nutrūko",
+	"settings.logout.here": "Šiame įrenginyje",
+	"settings.logoutEverywhere": "Atsijungti visur",
+	"settings.logoutEverywhere.sub": "Visuose įrenginiuose, ir šiame",
 	"settings.shows": "Animacijos",
-	"settings.shows.on": "Animacijos perjungiant skiltis su Konfeti ir Disco",
-	"settings.tour": "Apžvalgos",
 	"settings.tour.rider": "Rodyti apžvalgą dar kartą",
 	"settings.tour.organiser": "Rodyti Orga apžvalgą dar kartą",
+	"settings.about": "Apie programėlę",
+	"changelog.version": "Versija {version}",
+	"changelog.title": "Kas naujo",
+	"changelog.intro":
+		"Kas pasikeitė kiekvienoje versijoje. Įrašai yra anglų kalba.",
 	"rynke.ride.why": "Kodėl?",
 	"notifications.switch": "Pranešimai šiame įrenginyje",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",
@@ -946,6 +951,8 @@ export const lt: Catalog = {
 		"Pranešimai neprivalomi ir įjungiami kiekviename įrenginyje atskirai. Saugomas tik adresas, kurį tavo įrenginiui suteikia jo ar naršyklės „push“ paslauga. Pats pranešimas tuščias: tai, ką jis rodo, tavo įrenginys gauna tiesiai iš RynkePoints. Adresas ištrinamas, kai išjungi pranešimus, atsijungi tame įrenginyje ar išeini.",
 	"privacy.technical.logs":
 		"Serverio žurnaluose yra tik identifikatoriai, pvz., sportininkų ir veiklų ID, ir klaidos rūšis, bet niekada ne prieigos raktai ar veiklų duomenys. RynkePoints nesaugo IP adresų.",
+	"privacy.technical.oneTeam":
+		"RynkePoints vienu metu važinėji už vieną komandą. Todėl jungiantis komanda paklausia kitų komandų, ar jau važinėji už kurią nors iš jų. Ji sužino tik taip arba ne, niekada kuri komanda, ir atsakymo nesaugo. Jei pakeisi komandą, komanda, kurią palieki, ištrins viską apie tave.",
 	"privacy.visibility.heading": "Kas ką mato",
 	"privacy.visibility.you":
 		"Tu matai savo veiklas su jų pavadinimais, savo Rynke ir savo ženklelius. Pavadinimų niekas kitas nemato.",
@@ -1278,10 +1285,13 @@ export const lt: Catalog = {
 	"notice.blocked.title": "Negali dalyvauti šioje komandoje",
 	"notice.blocked.body":
 		"Administratorius tave pašalino iš šios komandos. Pasiliekame tik tavo Strava ID, kad negalėtum vėl prisijungti.",
-	"notice.oneTeam.title": "Tu taip pat esi kitos komandos klube",
-	"notice.oneTeam.body":
-		"RynkePoints gali dalyvauti tik vienoje komandoje vienu metu. Strava suteikia programėlei vieną ryšį vienam asmeniui, todėl prisijungus prie antros komandos ryšys su pirmąja nutrūksta. Dabar ryšys veikia čia.",
-	"notice.carryOn": "Tęsti",
+	"switchTeam.title": "Tu jau važinėji už kitą komandą",
+	"switchTeam.body":
+		"RynkePoints vienu metu važinėji už vieną komandą, o čia tu jau važinėji už kitą komandą. Šioje komandoje apie tave dar niekas neišsaugota.",
+	"switchTeam.cost":
+		"Jei pereisi į šią komandą, kita komanda ten ištrins tavo važiavimus, Rynke ir ženklelius. Ši komanda iš naujo suskaičiuos tavo sezono važiavimus pagal savo taisykles.",
+	"switchTeam.switch": "Pereiti į šią komandą",
+	"switchTeam.stay": "Likti savo komandoje",
 	"organiser.graphs.heading": "Pažanga",
 	"organiser.graphs.title.outdoor": "Kilometrai lauke (km)",
 	"organiser.graphs.title.virtual": "Virtualūs kilometrai (km)",

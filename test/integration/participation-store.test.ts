@@ -25,18 +25,18 @@ const db = env.DB;
 const ctx = makeCtx();
 const W = countingWindow(env);
 const TODAY = "2026-10-06";
-const RECONNECT = 900005;
+const RECONNECT = "900005";
 
-async function report(eventId: number, athleteId: number, at = NOW) {
+async function report(eventId: number, athleteId: string, at = NOW) {
 	await insertReportStatement(db, eventId, athleteId, at).run();
 }
 
 async function reports() {
 	const { results } = await db
 		.prepare(
-			"SELECT event_id, athlete_id, reported_at FROM participation_reports ORDER BY event_id, athlete_id",
+			"SELECT event_id, CAST(athlete_id AS TEXT) AS athlete_id, reported_at FROM participation_reports ORDER BY event_id, participation_reports.athlete_id",
 		)
-		.all<{ event_id: number; athlete_id: number; reported_at: number }>();
+		.all<{ event_id: number; athlete_id: string; reported_at: number }>();
 	return results;
 }
 
@@ -175,7 +175,7 @@ describe("open requests (research R7)", () => {
 		await report(event, RECONNECT);
 		await attendRaw(event, [ATHLETE_B]);
 		const { results } = await listEventReportsStatement(db, event).all<{
-			athlete_id: number;
+			athlete_id: string;
 		}>();
 		expect(results.map((r) => r.athlete_id)).toEqual([ATHLETE_A]);
 	});

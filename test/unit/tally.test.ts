@@ -241,7 +241,7 @@ describe("tally", () => {
 	describe("team events (Story 3)", () => {
 		// 60 km and 1000 m: 6 + 5 = 11 Training Rynke.
 		const ride = evaluateRides(
-			[makeRide({ id: 1, km: 60, movingH: 2.5, elevationM: 1000 })],
+			[makeRide({ id: "1", km: 60, movingH: 2.5, elevationM: 1000 })],
 			CURRENT_RULES,
 			WINDOW,
 		).riding;

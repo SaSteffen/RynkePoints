@@ -22,11 +22,11 @@ import { CURRENT_RULES } from "../support/team-rules";
 let fake: FakeStrava;
 let ctx: TestCtx;
 
-const RIDE = 7_300_001;
-const RUN = 7_300_002;
-const TRAIL = 7_300_003;
+const RIDE = "7300001";
+const RUN = "7300002";
+const TRAIL = "7300003";
 
-const run = (id: number, overrides = {}) =>
+const run = (id: string, overrides = {}) =>
 	makeStravaActivity({
 		id,
 		sport_type: "Run",
@@ -47,7 +47,7 @@ async function deliver(body: unknown) {
 	return getQueueResult(batch, createExecutionContext());
 }
 
-const event = (activityId: number, aspect = "create") => ({
+const event = (activityId: string, aspect = "create") => ({
 	kind: "activity-event",
 	athleteId: ATHLETE_A,
 	activityId,
@@ -57,15 +57,15 @@ const event = (activityId: number, aspect = "create") => ({
 
 async function runs() {
 	const { results } = await env.DB.prepare(
-		"SELECT strava_activity_id, distance_m, is_private FROM runs ORDER BY strava_activity_id",
+		"SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id, distance_m, is_private FROM runs ORDER BY runs.strava_activity_id",
 	).all();
 	return results;
 }
 
 async function rideIds() {
 	const { results } = await env.DB.prepare(
-		"SELECT strava_activity_id FROM activities ORDER BY strava_activity_id",
-	).all<{ strava_activity_id: number }>();
+		"SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id FROM activities ORDER BY activities.strava_activity_id",
+	).all<{ strava_activity_id: string }>();
 	return results.map((r) => r.strava_activity_id);
 }
 

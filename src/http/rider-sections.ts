@@ -399,9 +399,17 @@ function eventItem(i18n: I18n, event: EventLine): SafeHtml {
 		: html`<li class="event-not-counting">${parts.join(" · ")}</li>`;
 }
 
+/** The rules version and since when it applies (FR-050), Settings' rules row. */
+export function rulesVersion(i18n: I18n, rules: RulesInfo): string {
+	return i18n.t("rynke.rules.version", {
+		version: String(rules.version),
+		date: day(i18n, rules.effectiveDate),
+	});
+}
+
 /**
- * The rules version, the counting window and the team's handout (FR-050,
- * FR-053; 026 FR-022), for their group in Settings (issue #92).
+ * The counting window, the team's limits and its handout (FR-053; 026
+ * FR-022), opened under the rules row in Settings (issue #92).
  */
 export function renderRules(
 	i18n: I18n,
@@ -412,11 +420,7 @@ export function renderRules(
 		start: day(i18n, rules.windowStart),
 		deadline: day(i18n, rules.deadline),
 	});
-	return html`<p>${i18n.t("rynke.rules.version", {
-		version: String(rules.version),
-		date: day(i18n, rules.effectiveDate),
-	})}</p>
-<p>${window}</p>
+	return html`<p>${window}</p>
 ${
 	rules.minRideKm !== undefined &&
 	html`<p>${i18n.t("rynke.rules.minRide", { limit: wholeKm(i18n, rules.minRideKm) })}</p>
@@ -437,8 +441,8 @@ ${
  * are where their steps point.
  */
 export interface ExampleRides {
-	rejectedRideId: number;
-	shortRideId: number;
+	rejectedRideId: string;
+	shortRideId: string;
 }
 
 /**

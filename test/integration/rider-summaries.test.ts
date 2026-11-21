@@ -33,7 +33,7 @@ import { CURRENT_RULES } from "../support/team-rules";
 let ctx = makeCtx();
 const window = countingWindow(env);
 
-function runRecord(id: number, overrides: Partial<RunRecord> = {}): RunRecord {
+function runRecord(id: string, overrides: Partial<RunRecord> = {}): RunRecord {
 	return {
 		strava_activity_id: id,
 		athlete_id: ATHLETE_A,
@@ -47,14 +47,16 @@ function runRecord(id: number, overrides: Partial<RunRecord> = {}): RunRecord {
 }
 
 function swimRecord(
-	id: number,
+	id: string,
 	overrides: Partial<SwimRecord> = {},
 ): SwimRecord {
 	return { ...runRecord(id, { distance_m: 1500 }), ...overrides };
 }
 
 async function storedRow(athleteId = ATHLETE_A) {
-	return env.DB.prepare("SELECT * FROM rider_summaries WHERE athlete_id = ?")
+	return env.DB.prepare(
+		"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM rider_summaries WHERE athlete_id = ?",
+	)
 		.bind(athleteId)
 		.first<RiderSummaryRow>();
 }
@@ -126,7 +128,7 @@ async function expectRowMatches(athleteId = ATHLETE_A) {
 	expect(await storedRow(athleteId)).toEqual(await fromScratch(athleteId));
 }
 
-const eveningRide = (id: number, distance = 40123.45) =>
+const eveningRide = (id: string, distance = 40123.45) =>
 	activityRecord(id, {
 		start_date: "2026-05-04T16:30:00Z",
 		start_date_local: "2026-05-04T18:30:00Z",
@@ -160,7 +162,7 @@ describe("a rider's summary follows every change (US3)", () => {
 	it("follows a ride added, edited and deleted", async () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [eveningRide(1), activityRecord(2)],
+			records: [eveningRide("1"), activityRecord("2")],
 		});
 		await expectRowMatches();
 		const days = JSON.parse((await storedRow())?.days ?? "");
@@ -168,12 +170,15 @@ describe("a rider's summary follows every change (US3)", () => {
 
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [eveningRide(1, 50000.5)],
+			records: [eveningRide("1", 50000.5)],
 		});
 		await expectRowMatches();
 		expect((await storedRow())?.days).toContain("50000.5");
 
-		await evaluateChange(ctx, ATHLETE_A, { kind: "delete", activityIds: [1] });
+		await evaluateChange(ctx, ATHLETE_A, {
+			kind: "delete",
+			activityIds: ["1"],
+		});
 		await expectRowMatches();
 		expect(JSON.parse((await storedRow())?.days ?? "")).toHaveLength(1);
 	});
@@ -182,8 +187,8 @@ describe("a rider's summary follows every change (US3)", () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
 			records: [],
-			runs: [runRecord(3)],
-			swims: [swimRecord(4)],
+			runs: [runRecord("3")],
+			swims: [swimRecord("4")],
 		});
 		await expectRowMatches();
 		expect(JSON.parse((await storedRow())?.run_days ?? "")).toEqual([
@@ -193,7 +198,7 @@ describe("a rider's summary follows every change (US3)", () => {
 			kind: "upsert",
 			records: [],
 			runs: [
-				runRecord(3, {
+				runRecord("3", {
 					start_date_local: "2026-05-02T06:10:00Z",
 					distance_m: 6000,
 				}),
@@ -203,7 +208,7 @@ describe("a rider's summary follows every change (US3)", () => {
 		expect((await storedRow())?.active).toContain('["2026-05-02",6,0]');
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "delete",
-			activityIds: [3, 4],
+			activityIds: ["3", "4"],
 		});
 		await expectRowMatches();
 		expect((await storedRow())?.active).toBe("[]");
@@ -212,19 +217,19 @@ describe("a rider's summary follows every change (US3)", () => {
 	it("follows an activity moved between ride, run and swim", async () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [eveningRide(5)],
+			records: [eveningRide("5")],
 		});
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
 			records: [],
-			runs: [runRecord(5)],
+			runs: [runRecord("5")],
 		});
 		await expectRowMatches();
 		expect((await storedRow())?.days).toBe("[]");
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
 			records: [],
-			swims: [swimRecord(5)],
+			swims: [swimRecord("5")],
 		});
 		await expectRowMatches();
 		expect((await storedRow())?.run_days).toBe("[]");
@@ -234,14 +239,14 @@ describe("a rider's summary follows every change (US3)", () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
 			records: [
-				activityRecord(6),
-				activityRecord(7, {
+				activityRecord("6"),
+				activityRecord("7", {
 					start_date: "2026-05-08T08:00:00Z",
 					is_private: 1,
 				}),
 			],
-			runs: [runRecord(8, { is_private: 1 })],
-			swims: [swimRecord(9, { is_private: 1 })],
+			runs: [runRecord("8", { is_private: 1 })],
+			swims: [swimRecord("9", { is_private: 1 })],
 		});
 		await evaluateChange(ctx, ATHLETE_A, { kind: "delete-private" });
 		await expectRowMatches();
@@ -313,7 +318,7 @@ describe("a rider's summary follows every change (US3)", () => {
 	it("doesn't change with a correction, which is read live", async () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [activityRecord(10)],
+			records: [activityRecord("10")],
 		});
 		const before = await storedRow();
 		await applyCorrectionChange(
@@ -339,7 +344,7 @@ describe("a rider's summary follows every change (US3)", () => {
 	it("follows a change of rules", async () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [activityRecord(11)],
+			records: [activityRecord("11")],
 		});
 		const before = await storedRow();
 		const rules = {
@@ -363,11 +368,11 @@ describe("a rider's summary follows every change (US3)", () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
 			records: [
-				activityRecord(12),
-				activityRecord(13, { start_date: "2025-05-01T08:00:00Z" }),
+				activityRecord("12"),
+				activityRecord("13", { start_date: "2025-05-01T08:00:00Z" }),
 			],
 			runs: [
-				runRecord(14, {
+				runRecord("14", {
 					start_date: "2025-05-02T08:00:00Z",
 					start_date_local: "2025-05-02T10:00:00Z",
 				}),
@@ -388,7 +393,7 @@ describe("a rider's summary follows every change (US3)", () => {
 	it("replaces a row of another version", async () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [activityRecord(15)],
+			records: [activityRecord("15")],
 		});
 		await env.DB.prepare(
 			"UPDATE rider_summaries SET version = version - 1 WHERE athlete_id = ?",
@@ -407,9 +412,9 @@ describe("a rider's counting rides (feature 032 research R1)", () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
 			records: [
-				eveningRide(1, 79000),
-				activityRecord(2, { is_manual: 1 }),
-				activityRecord(3, { start_date: "2026-05-02T08:00:00Z" }),
+				eveningRide("1", 79000),
+				activityRecord("2", { is_manual: 1 }),
+				activityRecord("3", { start_date: "2026-05-02T08:00:00Z" }),
 			],
 		});
 		await expectRowMatches();
@@ -422,28 +427,34 @@ describe("a rider's counting rides (feature 032 research R1)", () => {
 	it("follows a ride edited, starting to count, stopping and deleted", async () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [eveningRide(1), activityRecord(2, { is_manual: 1 })],
+			records: [eveningRide("1"), activityRecord("2", { is_manual: 1 })],
 		});
 		expect(await rides()).toHaveLength(1);
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [activityRecord(2)],
+			records: [activityRecord("2")],
 		});
 		await expectRowMatches();
 		expect(await rides()).toHaveLength(2);
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [eveningRide(1, 55555.5)],
+			records: [eveningRide("1", 55555.5)],
 		});
 		await expectRowMatches();
 		expect((await storedRow())?.rides).toContain("55555.5");
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [eveningRide(1, 55555.5), activityRecord(2, { is_flagged: 1 })],
+			records: [
+				eveningRide("1", 55555.5),
+				activityRecord("2", { is_flagged: 1 }),
+			],
 		});
 		await expectRowMatches();
 		expect(await rides()).toHaveLength(1);
-		await evaluateChange(ctx, ATHLETE_A, { kind: "delete", activityIds: [1] });
+		await evaluateChange(ctx, ATHLETE_A, {
+			kind: "delete",
+			activityIds: ["1"],
+		});
 		await expectRowMatches();
 		expect(await rides()).toEqual([]);
 	});
@@ -451,7 +462,7 @@ describe("a rider's counting rides (feature 032 research R1)", () => {
 	it("reads stored rides from version 4 rows, and adds up a rider with an older one", async () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [eveningRide(1), activityRecord(2)],
+			records: [eveningRide("1"), activityRecord("2")],
 		});
 		await evaluateChange(ctx, ATHLETE_B, { kind: "none" });
 		const stored = await readRidesOfRiders(env.DB, [ATHLETE_A, ATHLETE_B], 3);
@@ -470,15 +481,17 @@ describe("a rider's counting rides (feature 032 research R1)", () => {
 	});
 
 	it("adds up only riders on the given consent version", async () => {
-		await seedRider(ctx, { athleteId: 9001, consentVersion: 2 });
-		await evaluateChange(ctx, 9001, {
+		await seedRider(ctx, { athleteId: "9001", consentVersion: 2 });
+		await evaluateChange(ctx, "9001", {
 			kind: "upsert",
-			records: [activityRecord(5, { athlete_id: 9001 })],
+			records: [activityRecord("5", { athlete_id: "9001" })],
 		});
-		expect((await readRidesAddedUp(env.DB, [9001], 3)).get(9001)).toEqual([]);
-		expect((await readRidesAddedUp(env.DB, [9001], 2)).get(9001)).toHaveLength(
-			1,
+		expect((await readRidesAddedUp(env.DB, ["9001"], 3)).get("9001")).toEqual(
+			[],
 		);
+		expect(
+			(await readRidesAddedUp(env.DB, ["9001"], 2)).get("9001"),
+		).toHaveLength(1);
 	});
 });
 
@@ -486,9 +499,13 @@ describe("an evaluation that changes nothing (FR-004)", () => {
 	const seed = () =>
 		evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [eveningRide(20, 0.1), eveningRide(21, 0.2), activityRecord(22)],
-			runs: [runRecord(23), runRecord(24, { distance_m: 0.7 })],
-			swims: [swimRecord(25)],
+			records: [
+				eveningRide("20", 0.1),
+				eveningRide("21", 0.2),
+				activityRecord("22"),
+			],
+			runs: [runRecord("23"), runRecord("24", { distance_m: 0.7 })],
+			swims: [swimRecord("25")],
 		});
 
 	it("writes no row at all", async () => {
@@ -503,12 +520,12 @@ describe("an evaluation that changes nothing (FR-004)", () => {
 		await seed();
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "delete",
-			activityIds: [20, 23],
+			activityIds: ["20", "23"],
 		});
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [eveningRide(20, 0.1)],
-			runs: [runRecord(23)],
+			records: [eveningRide("20", 0.1)],
+			runs: [runRecord("23")],
 		});
 		await expectRowMatches();
 		const rows = countRows(ctx);
@@ -631,7 +648,7 @@ describe("the release is invisible (US5)", () => {
 			.filter((b) => b.kind === "evaluate-rider");
 
 	it("gives a rider through insertRider a current empty row, and no second round trip", async () => {
-		const NEW = 900_010;
+		const NEW = "900010";
 		await insertRider(
 			env.DB,
 			{
@@ -668,7 +685,7 @@ describe("the release is invisible (US5)", () => {
 	it("fills rows through the daily job, with nothing else written and nothing sent", async () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [activityRecord(30)],
+			records: [activityRecord("30")],
 		});
 		await evaluateChange(ctx, ATHLETE_B, { kind: "none" });
 		// As after the release: everything stored except the rows.
@@ -680,7 +697,7 @@ describe("the release is invisible (US5)", () => {
 			);
 		const risesBefore = await rises();
 		const balance = await env.DB.prepare(
-			"SELECT * FROM rynke_balances WHERE athlete_id = ?",
+			"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM rynke_balances WHERE athlete_id = ?",
 		)
 			.bind(ATHLETE_A)
 			.first();
@@ -702,7 +719,9 @@ describe("the release is invisible (US5)", () => {
 		await evaluateChange(ctx, ATHLETE_B, { kind: "none" });
 		await expectRowMatches(ATHLETE_A);
 		expect(
-			await env.DB.prepare("SELECT * FROM rynke_balances WHERE athlete_id = ?")
+			await env.DB.prepare(
+				"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM rynke_balances WHERE athlete_id = ?",
+			)
 				.bind(ATHLETE_A)
 				.first(),
 		).toEqual(balance);
@@ -725,7 +744,7 @@ describe("a new format costs no costly day (organiser graphs, research R14)", ()
 	beforeEach(async () => {
 		await evaluateChange(ctx, ATHLETE_A, {
 			kind: "upsert",
-			records: [activityRecord(40)],
+			records: [activityRecord("40")],
 		});
 		await evaluateChange(ctx, ATHLETE_B, { kind: "none" });
 	});
@@ -758,7 +777,9 @@ describe("a new format costs no costly day (organiser graphs, research R14)", ()
 		await toVersionOne();
 		const sentBefore = ctx.queue.sent.length;
 		const balance = () =>
-			env.DB.prepare("SELECT * FROM rynke_balances WHERE athlete_id = ?")
+			env.DB.prepare(
+				"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM rynke_balances WHERE athlete_id = ?",
+			)
 				.bind(ATHLETE_A)
 				.first();
 		const before = await balance();

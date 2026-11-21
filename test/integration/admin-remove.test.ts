@@ -36,16 +36,16 @@ const BYSTANDER = ATHLETE_C;
 let fake: FakeStrava;
 let ctx: TestCtx;
 
-const PATH = (id: number) => `/admin/riders/${id}/remove`;
+const PATH = (id: string) => `/admin/riders/${id}/remove`;
 
-async function confirmPage(id: number) {
+async function confirmPage(id: string) {
 	return handleFetch(
 		request(PATH(id), { cookies: await sessionCookie(ctx, ADMIN) }),
 		ctx,
 	);
 }
 
-async function remove(id: number, by = ADMIN) {
+async function remove(id: string, by = ADMIN) {
 	return handleFetch(
 		request(PATH(id), { form: {}, cookies: await sessionCookie(ctx, by) }),
 		ctx,
@@ -53,7 +53,7 @@ async function remove(id: number, by = ADMIN) {
 }
 
 /** Every table with a column naming a rider, and how many rows name this one. */
-async function rowsNaming(athleteId: number): Promise<Record<string, number>> {
+async function rowsNaming(athleteId: string): Promise<Record<string, number>> {
 	const { results: tables } = await env.DB.prepare(
 		`SELECT name FROM sqlite_master WHERE type = 'table'
 		AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' AND name <> 'd1_migrations'`,
@@ -133,7 +133,7 @@ describe("the confirmation (scenario 1, FR-021)", () => {
 	});
 
 	it("refuses an unknown ID", async () => {
-		const res = await confirmPage(123456);
+		const res = await confirmPage("123456");
 		expect(res.headers.get("Location")).toBe("/admin/riders?error=unknown");
 	});
 
@@ -157,7 +157,11 @@ describe("the removal (scenario 2, FR-022 to FR-024, SC-005)", () => {
 			"blocked_athletes.athlete_id": 1,
 		});
 		expect(
-			(await env.DB.prepare("SELECT * FROM blocked_athletes").all()).results,
+			(
+				await env.DB.prepare(
+					"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM blocked_athletes",
+				).all()
+			).results,
 		).toEqual([{ athlete_id: TARGET }]);
 		expect(
 			(await env.DB.prepare("SELECT * FROM usage_daily").all()).results,
@@ -173,7 +177,11 @@ describe("the removal (scenario 2, FR-022 to FR-024, SC-005)", () => {
 		await seedTarget();
 		await remove(TARGET);
 		expect(
-			(await env.DB.prepare("SELECT * FROM removal_log").all()).results,
+			(
+				await env.DB.prepare(
+					"SELECT *, CAST(administrator_id AS TEXT) AS administrator_id FROM removal_log",
+				).all()
+			).results,
 		).toEqual([
 			{ id: expect.any(Number), removed_at: NOW, administrator_id: ADMIN },
 		]);
@@ -186,9 +194,9 @@ describe("the removal (scenario 2, FR-022 to FR-024, SC-005)", () => {
 			.bind(ADMIN)
 			.run();
 		expect(
-			await env.DB.prepare("SELECT administrator_id FROM removal_log").first(
-				"administrator_id",
-			),
+			await env.DB.prepare(
+				"SELECT CAST(administrator_id AS TEXT) AS administrator_id FROM removal_log",
+			).first("administrator_id"),
 		).toBeNull();
 	});
 
@@ -214,13 +222,21 @@ describe("the removal (scenario 2, FR-022 to FR-024, SC-005)", () => {
 	});
 
 	it("refuses an unknown ID, with nothing changed (scenario 4)", async () => {
-		const res = await remove(123456);
+		const res = await remove("123456");
 		expect(res.headers.get("Location")).toBe("/admin/riders?error=unknown");
 		expect(
-			(await env.DB.prepare("SELECT * FROM blocked_athletes").all()).results,
+			(
+				await env.DB.prepare(
+					"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM blocked_athletes",
+				).all()
+			).results,
 		).toEqual([]);
 		expect(
-			(await env.DB.prepare("SELECT * FROM removal_log").all()).results,
+			(
+				await env.DB.prepare(
+					"SELECT *, CAST(administrator_id AS TEXT) AS administrator_id FROM removal_log",
+				).all()
+			).results,
 		).toEqual([]);
 		expect(fake.revocations).toEqual([]);
 	});
@@ -290,7 +306,11 @@ describe("leaving by oneself (FR-024)", () => {
 		);
 		expect(res.status).toBe(303);
 		expect(
-			(await env.DB.prepare("SELECT * FROM blocked_athletes").all()).results,
+			(
+				await env.DB.prepare(
+					"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM blocked_athletes",
+				).all()
+			).results,
 		).toEqual([]);
 		const back = await approve(ctx, fake, TARGET);
 		expect(back.headers.get("Location")).toBe("/me");
@@ -301,7 +321,11 @@ describe("leaving by oneself (FR-024)", () => {
 		const { deleteRider } = await import("../../src/db/riders");
 		await deleteRider(env.DB, TARGET);
 		expect(
-			(await env.DB.prepare("SELECT * FROM blocked_athletes").all()).results,
+			(
+				await env.DB.prepare(
+					"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM blocked_athletes",
+				).all()
+			).results,
 		).toEqual([]);
 	});
 });

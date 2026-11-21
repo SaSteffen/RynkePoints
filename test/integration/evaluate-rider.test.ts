@@ -58,10 +58,10 @@ async function deliver(body: unknown, testCtx: TestCtx = ctx) {
 }
 
 async function seedRides() {
-	await upsertActivity(env.DB, activityRecord(1, { distance_m: 79000 }));
+	await upsertActivity(env.DB, activityRecord("1", { distance_m: 79000 }));
 	await upsertActivity(
 		env.DB,
-		activityRecord(2, {
+		activityRecord("2", {
 			start_date: "2026-05-02T08:00:00Z",
 			elevation_gain_m: 1240,
 			moving_time_s: 3 * 3600,

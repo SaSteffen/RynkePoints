@@ -14,7 +14,7 @@ export const PROGRESS_THRESHOLD = 10;
 
 export interface StravaWorkItem {
 	id: number;
-	athleteId: number;
+	athleteId: string;
 	message: WorkMessage;
 	/** The attempt this run is, counted like a queue message's `attempts`. */
 	attempts: number;
@@ -81,7 +81,7 @@ export async function storeWork(
 
 interface WorkRow {
 	id: number;
-	athlete_id: number;
+	athlete_id: string;
 	message: string;
 	attempts: number;
 }
@@ -98,7 +98,7 @@ export async function nextWork(
 	for (;;) {
 		const row = await db
 			.prepare(
-				`SELECT w.id, w.athlete_id, w.message, w.attempts
+				`SELECT w.id, CAST(w.athlete_id AS TEXT) AS athlete_id, w.message, w.attempts
 				FROM strava_queues q
 				JOIN strava_work w ON w.id = (
 					SELECT MIN(x.id) FROM strava_work x WHERE x.athlete_id = q.athlete_id
@@ -148,7 +148,7 @@ export async function earliestWaiting(db: D1Database): Promise<number | null> {
 }
 
 /** Moves the rider to the back of the round: they had their turn (R2). */
-function servedStatement(db: D1Database, athleteId: number) {
+function servedStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare(
 			`UPDATE strava_queues SET fresh = 0, turn = ${NEXT_TURN}
@@ -201,7 +201,7 @@ export async function retryWork(
 
 export async function waitingCount(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<number> {
 	return (
 		(await db
@@ -239,7 +239,7 @@ export async function anyWorkReady(
  */
 export async function dropRiderWork(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<void> {
 	await db.batch([
 		db.prepare("DELETE FROM strava_work WHERE athlete_id = ?").bind(athleteId),
@@ -253,7 +253,7 @@ export async function dropRiderWork(
 /** The queue row goes once nothing waits, so the next work makes them fresh. */
 async function closeQueueIfEmpty(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<void> {
 	await db
 		.prepare(
@@ -267,7 +267,7 @@ async function closeQueueIfEmpty(
 // Held notifications (research R6).
 
 export interface HeldBacklog {
-	recipients: number[];
+	recipients: string[];
 	startTraining: number | null;
 	startTeam: number | null;
 	badges: string[];
@@ -276,8 +276,8 @@ export interface HeldBacklog {
 /** Riders owed a push once `ownerId`'s backlog is done; one row each. */
 export async function holdRecipients(
 	db: D1Database,
-	ownerId: number,
-	recipients: readonly number[],
+	ownerId: string,
+	recipients: readonly string[],
 ): Promise<void> {
 	if (recipients.length === 0) return;
 	await db.batch(
@@ -295,7 +295,7 @@ export async function holdRecipients(
 /** Adds the owner's badges of one item to what the backlog earned. */
 export async function addHeldBadges(
 	db: D1Database,
-	ownerId: number,
+	ownerId: string,
 	badgeIds: readonly string[],
 ): Promise<void> {
 	if (badgeIds.length === 0) return;
@@ -316,12 +316,12 @@ export async function addHeldBadges(
 /** What a backlog holds; `null` when its queue row is gone. */
 export async function readHeldBacklog(
 	db: D1Database,
-	ownerId: number,
+	ownerId: string,
 ): Promise<HeldBacklog | null> {
 	const [held, queue] = await db.batch([
 		db
 			.prepare(
-				"SELECT recipient_id FROM strava_held WHERE owner_id = ? ORDER BY recipient_id",
+				"SELECT CAST(recipient_id AS TEXT) AS recipient_id FROM strava_held WHERE owner_id = ? ORDER BY strava_held.recipient_id",
 			)
 			.bind(ownerId),
 		db
@@ -342,7 +342,7 @@ export async function readHeldBacklog(
 	)?.[0];
 	if (!row) return null;
 	return {
-		recipients: ((held?.results ?? []) as { recipient_id: number }[]).map(
+		recipients: ((held?.results ?? []) as { recipient_id: string }[]).map(
 			(r) => r.recipient_id,
 		),
 		startTraining: row.start_training,
@@ -354,7 +354,7 @@ export async function readHeldBacklog(
 /** The backlog is done: its queue row and held rows go (FR-018 line, R6). */
 export async function closeBacklog(
 	db: D1Database,
-	ownerId: number,
+	ownerId: string,
 ): Promise<void> {
 	await db.batch([
 		db.prepare("DELETE FROM strava_held WHERE owner_id = ?").bind(ownerId),
@@ -396,7 +396,7 @@ export type FetchProgress =
 /** What the rider's line says, or `null` when it doesn't show (FR-018, FR-019). */
 export async function readFetchProgress(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<FetchProgress | null> {
 	const row = await db
 		.prepare(

@@ -7,7 +7,8 @@ import type { FakeActivity } from "./store";
 // What the sample riders of fake mode are made of, one per state of the rider
 // page (specs/006-local-frontend-dev data-model.md, research R6); each team's
 // riders are in `samples.<team id>.ts` (feature 026 FR-050). Everything is
-// invented (constitution Principle I): athlete IDs from 990001, names that name
+// invented (constitution Principle I): athlete IDs from 990001 (the ordinary
+// riders' above 2^53, feature 042), names that name
 // the state, rides without GPS, heart rate or power. A recipe only picks
 // figures that fall clearly on one side of a rule; whether a ride counts is
 // always decided by the app.
@@ -59,18 +60,13 @@ export interface EventRecipe {
 }
 
 export interface SampleRider {
-	athleteId: number;
+	athleteId: string;
 	firstName: string;
 	/** The state the rider shows, for the `/_dev/` list. */
 	state: string;
 	/** The scopes it connects with when seeded, comma-separated. */
 	scopes: string;
 	clubMember: boolean;
-	/**
-	 * Also a member of the other team's club (the first of the team's
-	 * `otherClubIds`), for the one-team-at-a-time notice (feature 039).
-	 */
-	otherClubMember?: true;
 	behaviour: Behaviour;
 	rides: readonly RideRecipe[];
 	events?: readonly EventRecipe[];
@@ -138,7 +134,7 @@ function shortTrips(collector: boolean, n: number): number {
  */
 export function ordinaryRiders(
 	names: readonly string[],
-	firstId: number,
+	firstId: string,
 	collector: string,
 ): SampleRider[] {
 	return names.map((firstName, n) => {
@@ -147,7 +143,7 @@ export function ordinaryRiders(
 		const virtualEvery = 2 + (n % 5);
 		const held = n % 5 === 2;
 		return {
-			athleteId: firstId + n,
+			athleteId: String(BigInt(firstId) + BigInt(n)),
 			firstName,
 			state: held
 				? "Ordinary season, hasn't agreed to daily figures yet"
@@ -183,12 +179,12 @@ export function ordinaryRiders(
 
 /** A team event several sample riders attended, entered by an organiser. */
 export interface TeamEventRecipe extends EventRecipe {
-	attendees: readonly number[];
+	attendees: readonly string[];
 	/**
 	 * Riders who reported the event themselves (feature 019): "Bin dabei" for
 	 * one still to come (a negative `daysAgo`), "Ich war dabei" for a past one.
 	 */
-	reports?: readonly number[];
+	reports?: readonly string[];
 }
 
 /** One team's sample riders and team events. */
@@ -196,7 +192,7 @@ export interface SampleSet {
 	riders: readonly SampleRider[];
 	teamEvents: readonly TeamEventRecipe[];
 	/** A club member of `riders` who records the team events. */
-	organiser: number;
+	organiser: string;
 }
 
 const TIME_ZONE = "Europe/Berlin";
@@ -312,7 +308,7 @@ export function recipeToActivity(
 	recipe: RideRecipe,
 	seedDay: string,
 	seasonStart: string,
-	id: number,
+	id: string,
 ): FakeActivity {
 	const preseason = seedDay < seasonStart;
 	const season = preseason ? yearBefore(seasonStart) : seasonStart;

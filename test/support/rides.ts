@@ -5,7 +5,8 @@ import type { Ride } from "../../src/rynke/rides";
 import type { CountingWindow } from "../../src/rynke/rules";
 
 export interface RideSpec {
-	id: number;
+	/** A number for brevity; the app's IDs are strings (feature 042). */
+	id: string | number;
 	km: number;
 	movingH: number;
 	pausedH?: number;
@@ -30,7 +31,7 @@ export function makeRide(spec: RideSpec): Ride {
 	const movingS = Math.round(spec.movingH * 3600);
 	const start = spec.start ?? "2026-05-01T08:00:00Z";
 	return {
-		activityId: spec.id,
+		activityId: String(spec.id),
 		sportType: spec.sportType ?? "Ride",
 		startUtc: start,
 		startLocal: spec.startLocal ?? start,

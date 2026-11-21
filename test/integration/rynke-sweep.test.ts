@@ -40,7 +40,7 @@ function needing(version = VERSION, window = WINDOW) {
 }
 
 function evaluate(
-	athleteId: number,
+	athleteId: string,
 	rules: RynkeRules = CURRENT_RULES,
 	window = WINDOW,
 ) {
@@ -48,7 +48,7 @@ function evaluate(
 }
 
 /** A connected rider with one evaluated ride. */
-async function evaluatedRider(athleteId: number, activityId: number) {
+async function evaluatedRider(athleteId: string, activityId: string) {
 	await seedRider(ctx, { athleteId });
 	await upsertActivity(
 		db,
@@ -66,59 +66,64 @@ function evaluations() {
 describe("listRidersNeedingEvaluation", () => {
 	it("finds exactly the riders whose stored Rynke are missing or stale", async () => {
 		// Up to date: nothing to do.
-		await evaluatedRider(900001, 1);
+		await evaluatedRider("900001", "1");
 		// No balance yet, with and without activities.
-		await seedRider(ctx, { athleteId: 900002 });
-		await upsertActivity(db, activityRecord(2, { athlete_id: 900002 }));
-		await seedRider(ctx, { athleteId: 900003 });
+		await seedRider(ctx, { athleteId: "900002" });
+		await upsertActivity(db, activityRecord("2", { athlete_id: "900002" }));
+		await seedRider(ctx, { athleteId: "900003" });
 		// Balance and results from another rules version.
-		await seedRider(ctx, { athleteId: 900004 });
-		await upsertActivity(db, activityRecord(4, { athlete_id: 900004 }));
-		await evaluate(900004, { ...CURRENT_RULES, version: NEXT });
+		await seedRider(ctx, { athleteId: "900004" });
+		await upsertActivity(db, activityRecord("4", { athlete_id: "900004" }));
+		await evaluate("900004", { ...CURRENT_RULES, version: NEXT });
 		// One result from another rules version.
-		await evaluatedRider(900005, 5);
+		await evaluatedRider("900005", "5");
 		await db
 			.prepare("UPDATE ride_results SET rules_version = ? WHERE athlete_id = ?")
 			.bind(NEXT, 900005)
 			.run();
 		// An activity without a result.
-		await evaluatedRider(900006, 6);
+		await evaluatedRider("900006", "6");
 		await upsertActivity(
 			db,
-			activityRecord(66, {
-				athlete_id: 900006,
+			activityRecord("66", {
+				athlete_id: "900006",
 				start_date: "2026-05-03T08:00:00Z",
 			}),
 		);
 		// An activity refreshed after its result.
-		await evaluatedRider(900007, 7);
+		await evaluatedRider("900007", "7");
 		await upsertActivity(
 			db,
-			activityRecord(7, { athlete_id: 900007, refreshed_at: NOW + 1 }),
+			activityRecord("7", { athlete_id: "900007", refreshed_at: NOW + 1 }),
 		);
 		// needs_reconnect riders are left alone, even without a balance.
 		await seedRider(ctx, {
-			athleteId: 900008,
+			athleteId: "900008",
 			status: "needs_reconnect",
 		});
 		// No activities but a current balance.
-		await seedRider(ctx, { athleteId: 900009 });
-		await evaluate(900009);
+		await seedRider(ctx, { athleteId: "900009" });
+		await evaluate("900009");
 
 		expect(await needing()).toEqual([
-			900002, 900003, 900004, 900005, 900006, 900007,
+			"900002",
+			"900003",
+			"900004",
+			"900005",
+			"900006",
+			"900007",
 		]);
 	});
 
 	it("finds every rider after a rules-version bump", async () => {
-		await evaluatedRider(900001, 1);
-		await evaluatedRider(900002, 2);
+		await evaluatedRider("900001", "1");
+		await evaluatedRider("900002", "2");
 		expect(await needing()).toEqual([]);
-		expect(await needing(NEXT)).toEqual([900001, 900002]);
+		expect(await needing(NEXT)).toEqual(["900001", "900002"]);
 	});
 
 	it("finds a balance of version 1 without a breakdown", async () => {
-		await evaluatedRider(900001, 1);
+		await evaluatedRider("900001", "1");
 		await db
 			.prepare(
 				`UPDATE rynke_balances SET rules_version = 1, team_event_breakdown = '[]'
@@ -126,16 +131,16 @@ describe("listRidersNeedingEvaluation", () => {
 			)
 			.bind(900001)
 			.run();
-		expect(await needing()).toEqual([900001]);
+		expect(await needing()).toEqual(["900001"]);
 	});
 });
 
 describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
-	const RIDER = 900001;
+	const RIDER = "900001";
 
 	/** An evaluated rider attending a team training on 2026-05-02. */
 	async function attending() {
-		await evaluatedRider(RIDER, 1);
+		await evaluatedRider(RIDER, "1");
 		const eventId = await insertEvent("team_training", "2026-05-02");
 		await attendRaw(eventId, [RIDER]);
 		expect(await needing()).toEqual([RIDER]);
@@ -187,7 +192,7 @@ describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
 
 	it("finds an event moved past the deadline", async () => {
 		const window = { ...WINDOW, deadline: "2026-08-31" };
-		await evaluatedRider(RIDER, 1);
+		await evaluatedRider(RIDER, "1");
 		const eventId = await insertEvent("team_training", "2026-08-31");
 		await attendRaw(eventId, [RIDER]);
 		await evaluate(RIDER, CURRENT_RULES, window);
@@ -226,7 +231,7 @@ describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
 	});
 
 	it("finds attendance outside the window once, for the rider's summary (feature 030 R7)", async () => {
-		await evaluatedRider(RIDER, 1);
+		await evaluatedRider(RIDER, "1");
 		await attendRaw(await insertEvent("team_training", "2025-12-31"), [RIDER]);
 		expect(await needing()).toEqual([RIDER]);
 		await evaluate(RIDER);
@@ -234,7 +239,7 @@ describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
 	});
 
 	it("finds a tour day entered by hand once, not every day after", async () => {
-		await evaluatedRider(RIDER, 1);
+		await evaluatedRider(RIDER, "1");
 		const day = await insertEvent("tour_de_paris", WINDOW.seasonStart);
 		await attendRaw(day, [RIDER]);
 		expect(await needing()).toEqual([RIDER]);
@@ -243,13 +248,15 @@ describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
 	});
 
 	it("ignores a needs_reconnect rider with attendance", async () => {
-		await seedRider(ctx, { athleteId: 900002, status: "needs_reconnect" });
-		await attendRaw(await insertEvent("team_training", "2026-05-02"), [900002]);
+		await seedRider(ctx, { athleteId: "900002", status: "needs_reconnect" });
+		await attendRaw(await insertEvent("team_training", "2026-05-02"), [
+			"900002",
+		]);
 		expect(await needing()).toEqual([]);
 	});
 
 	it("fanOutEvaluations uses the counting window of the current rules", async () => {
-		await evaluatedRider(RIDER, 1);
+		await evaluatedRider(RIDER, "1");
 		await attendRaw(await insertEvent("team_training", "2026-05-02"), [RIDER]);
 		await fanOutEvaluations(ctx);
 		expect(evaluations()).toEqual([
@@ -259,7 +266,7 @@ describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
 });
 
 describe("listRidersNeedingEvaluation with summaries (feature 030 US5)", () => {
-	const RIDER = 900001;
+	const RIDER = "900001";
 
 	function sql(query: string, ...values: unknown[]) {
 		return db
@@ -269,18 +276,18 @@ describe("listRidersNeedingEvaluation with summaries (feature 030 US5)", () => {
 	}
 
 	it("leaves out an evaluated rider", async () => {
-		await evaluatedRider(RIDER, 1);
+		await evaluatedRider(RIDER, "1");
 		expect(await needing()).toEqual([]);
 	});
 
 	it("finds a connected rider with no row", async () => {
-		await evaluatedRider(RIDER, 1);
+		await evaluatedRider(RIDER, "1");
 		await sql("DELETE FROM rider_summaries WHERE athlete_id = ?", RIDER);
 		expect(await needing()).toEqual([RIDER]);
 	});
 
 	it("finds a connected rider with a row of another version", async () => {
-		await evaluatedRider(RIDER, 1);
+		await evaluatedRider(RIDER, "1");
 		await sql(
 			"UPDATE rider_summaries SET version = version + 1 WHERE athlete_id = ?",
 			RIDER,
@@ -289,14 +296,14 @@ describe("listRidersNeedingEvaluation with summaries (feature 030 US5)", () => {
 	});
 
 	it("finds attendance the row doesn't name", async () => {
-		await evaluatedRider(RIDER, 1);
+		await evaluatedRider(RIDER, "1");
 		// Outside the window, so only the summary can notice it.
 		await attendRaw(await insertEvent("team_training", "2025-12-31"), [RIDER]);
 		expect(await needing()).toEqual([RIDER]);
 	});
 
 	it("finds a row naming attendance that's gone", async () => {
-		await evaluatedRider(RIDER, 1);
+		await evaluatedRider(RIDER, "1");
 		// An ID of an event that was never attended, and of no rise in Rynke.
 		await sql(
 			"UPDATE rider_summaries SET attended = '[424242]' WHERE athlete_id = ?",
@@ -335,18 +342,18 @@ describe("fanOutEvaluations", () => {
 		expect(evaluations()).toHaveLength(150);
 		expect(evaluations()[0]).toEqual({
 			kind: "evaluate-rider",
-			athleteId: 910_001,
+			athleteId: "910001",
 		});
 	});
 
 	it("sends nothing when every rider is up to date", async () => {
-		await evaluatedRider(900001, 1);
+		await evaluatedRider("900001", "1");
 		await fanOutEvaluations(ctx);
 		expect(ctx.queue.sent).toEqual([]);
 	});
 
 	it("runs as the last step of the daily cron", async () => {
-		await seedRider(ctx, { athleteId: 900001 });
+		await seedRider(ctx, { athleteId: "900001" });
 		await handleScheduled(
 			createScheduledController({
 				scheduledTime: new Date(NOW * 1000),

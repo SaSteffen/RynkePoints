@@ -45,8 +45,8 @@ beforeEach(async () => {
 
 async function seedRunOrSwim(
 	table: "runs" | "swims",
-	id: number,
-	athleteId: number,
+	id: string,
+	athleteId: string,
 	start: Start,
 ) {
 	await env.DB.prepare(
@@ -60,8 +60,8 @@ async function seedRunOrSwim(
 
 async function ids(table: "activities" | "runs" | "swims") {
 	const { results } = await env.DB.prepare(
-		`SELECT strava_activity_id AS id FROM ${table} ORDER BY id`,
-	).all<{ id: number }>();
+		`SELECT CAST(strava_activity_id AS TEXT) AS id FROM ${table} ORDER BY id`,
+	).all<{ id: string }>();
 	return results.map((r) => r.id);
 }
 
@@ -86,52 +86,52 @@ describe("purgePreSeasonActivities", () => {
 	it("deletes rides, runs and swims from before the season start only", async () => {
 		await seedRider(ctx);
 		await seedRider(ctx, { athleteId: ATHLETE_B });
-		await seedRide(ATHLETE_A, { id: 1, ...BEFORE });
-		await seedRide(ATHLETE_A, { id: 2, ...AT_START });
+		await seedRide(ATHLETE_A, { id: "1", ...BEFORE });
+		await seedRide(ATHLETE_A, { id: "2", ...AT_START });
 		await seedRide(ATHLETE_B, {
-			id: 3,
+			id: "3",
 			start_date: "2025-06-01T08:00:00Z",
 			start_date_local: "2025-06-01T10:00:00Z",
 		});
-		await seedRunOrSwim("runs", 4, ATHLETE_A, BEFORE);
-		await seedRunOrSwim("runs", 5, ATHLETE_A, AT_START);
-		await seedRunOrSwim("swims", 6, ATHLETE_B, BEFORE);
-		await seedRunOrSwim("swims", 7, ATHLETE_B, AT_START);
+		await seedRunOrSwim("runs", "4", ATHLETE_A, BEFORE);
+		await seedRunOrSwim("runs", "5", ATHLETE_A, AT_START);
+		await seedRunOrSwim("swims", "6", ATHLETE_B, BEFORE);
+		await seedRunOrSwim("swims", "7", ATHLETE_B, AT_START);
 
 		await purgePreSeasonActivities(ctx);
 
-		expect(await ids("activities")).toEqual([2]);
-		expect(await ids("runs")).toEqual([5]);
-		expect(await ids("swims")).toEqual([7]);
+		expect(await ids("activities")).toEqual(["2"]);
+		expect(await ids("runs")).toEqual(["5"]);
+		expect(await ids("swims")).toEqual(["7"]);
 	});
 
 	it("goes by the local date, not Berlin's midnight (review L-16)", async () => {
 		await seedRider(ctx);
-		await seedRide(ATHLETE_A, { id: 1, ...EAST });
-		await seedRide(ATHLETE_A, { id: 2, ...WEST });
-		await seedRunOrSwim("runs", 3, ATHLETE_A, EAST);
-		await seedRunOrSwim("runs", 4, ATHLETE_A, WEST);
+		await seedRide(ATHLETE_A, { id: "1", ...EAST });
+		await seedRide(ATHLETE_A, { id: "2", ...WEST });
+		await seedRunOrSwim("runs", "3", ATHLETE_A, EAST);
+		await seedRunOrSwim("runs", "4", ATHLETE_A, WEST);
 
 		await purgePreSeasonActivities(ctx);
 
-		expect(await ids("activities")).toEqual([1]);
-		expect(await ids("runs")).toEqual([3]);
+		expect(await ids("activities")).toEqual(["1"]);
+		expect(await ids("runs")).toEqual(["3"]);
 	});
 
 	it("does nothing when everything is in the season", async () => {
 		await seedRider(ctx);
-		await seedRide(ATHLETE_A, { id: 2, ...AT_START });
+		await seedRide(ATHLETE_A, { id: "2", ...AT_START });
 		await purgePreSeasonActivities(ctx);
-		expect(await ids("activities")).toEqual([2]);
+		expect(await ids("activities")).toEqual(["2"]);
 		expect(ctx.queue.sent).toEqual([]);
 	});
 
 	it("leaves each rider's evaluation to the queue, a minute late (review L-11)", async () => {
 		await seedRider(ctx);
 		await seedRider(ctx, { athleteId: ATHLETE_B });
-		await seedRide(ATHLETE_A, { id: 1, ...BEFORE });
-		await seedRunOrSwim("runs", 2, ATHLETE_A, BEFORE);
-		await seedRunOrSwim("swims", 3, ATHLETE_B, BEFORE);
+		await seedRide(ATHLETE_A, { id: "1", ...BEFORE });
+		await seedRunOrSwim("runs", "2", ATHLETE_A, BEFORE);
+		await seedRunOrSwim("swims", "3", ATHLETE_B, BEFORE);
 
 		await purgePreSeasonActivities(ctx);
 
@@ -145,12 +145,12 @@ describe("purgePreSeasonActivities", () => {
 
 	it("deletes nothing when the evaluations can't be sent", async () => {
 		await seedRider(ctx);
-		await seedRide(ATHLETE_A, { id: 1, ...BEFORE });
+		await seedRide(ATHLETE_A, { id: "1", ...BEFORE });
 		ctx.queue.sendBatch = async () => {
 			throw new Error("queue down");
 		};
 
 		await expect(purgePreSeasonActivities(ctx)).rejects.toThrow("queue down");
-		expect(await ids("activities")).toEqual([1]);
+		expect(await ids("activities")).toEqual(["1"]);
 	});
 });

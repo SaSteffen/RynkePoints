@@ -1,4 +1,4 @@
-import { teamFor } from "../../src/teams";
+import { idJson, isStravaId } from "../../src/strava/id";
 import { sampleRider } from "./sample-sets";
 import type { SampleRider } from "./samples";
 import {
@@ -30,14 +30,24 @@ const DEFAULT_PER_PAGE = 30;
 
 interface Answer {
 	response: Response;
-	athleteId?: number;
+	athleteId?: string;
 }
 
+/**
+ * Strava's JSON: every `id` a number with all its digits, also past what a
+ * JavaScript number holds (feature 042 research R3, R7). No `id_str`.
+ */
 function json(body: unknown, status = 200): Response {
-	return Response.json(body, { status });
+	const text = JSON.stringify(body, (key, value) =>
+		key === "id" && isStravaId(value) ? idJson(value) : value,
+	);
+	return new Response(text, {
+		status,
+		headers: { "Content-Type": "application/json" },
+	});
 }
 
-function answer(body: unknown, status = 200, athleteId?: number): Answer {
+function answer(body: unknown, status = 200, athleteId?: string): Answer {
 	return { response: json(body, status), athleteId };
 }
 
@@ -82,7 +92,7 @@ async function dispatch(
 		return activities(request, url, env, db, now);
 	}
 	const single = pathname.match(/^\/api\/v3\/activities\/(\d+)$/);
-	if (single) return activity(request, Number(single[1]), env, db, now);
+	if (single) return activity(request, single[1] as string, env, db, now);
 	return null;
 }
 
@@ -174,11 +184,6 @@ function clubs(request: Request, url: URL, env: Env, now: number): Answer {
 	const all = auth.rider.clubMember
 		? [{ id: Number(env.STRAVA_CLUB_ID), name: "Team Rynkeby Hamburg (fake)" }]
 		: [];
-	// Also in another team's club: the one-team-at-a-time notice (feature 039).
-	const other = teamFor(env).otherClubIds[0];
-	if (auth.rider.otherClubMember && other !== undefined) {
-		all.push({ id: other, name: "Another team's club (fake)" });
-	}
 	const { page, perPage } = paging(url);
 	return answer(
 		all.slice((page - 1) * perPage, page * perPage),
@@ -233,7 +238,7 @@ async function activities(
 
 async function activity(
 	request: Request,
-	id: number,
+	id: string,
 	env: Env,
 	db: D1Database,
 	now: number,

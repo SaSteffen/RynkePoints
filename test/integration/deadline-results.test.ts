@@ -10,16 +10,16 @@ import { seedBalance, seedEmptySummary, seedRide } from "../support/rider-view";
 // feature 016 data-model.md): the daily run takes them once. The test team's
 // deadline is 2027-06-30 (test/support/pinned.json). Synthetic riders only.
 
-const GUEST = 900007;
-const UNLISTED = 900008;
-const LATER = 900009;
+const GUEST = "900007";
+const UNLISTED = "900008";
+const LATER = "900009";
 
 /** The daily run's time on the given day, 03:17 UTC. */
 const runOn = (day: string) =>
 	makeCtx({ now: Date.parse(`${day}T03:17:00Z`) / 1000 });
 
 interface Kept {
-	athlete_id: number;
+	athlete_id: string;
 	deadline: string;
 	qualified: number;
 	training_rynke: number;
@@ -28,7 +28,7 @@ interface Kept {
 
 async function kept(): Promise<Kept[]> {
 	const { results } = await env.DB.prepare(
-		"SELECT * FROM deadline_results ORDER BY athlete_id",
+		"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM deadline_results ORDER BY athlete_id",
 	).all<Kept>();
 	return results;
 }
@@ -92,10 +92,10 @@ describe("recordDeadlineResults", () => {
 
 	it("waits for the evaluations still to run", async () => {
 		// Ben's last ride before the deadline isn't judged yet.
-		await seedRide(ATHLETE_B, { id: 1 });
+		await seedRide(ATHLETE_B, { id: "1" });
 		await recordDeadlineResults(runOn("2027-07-01"));
 		expect(await kept()).toEqual([]);
-		await seedRide(ATHLETE_B, { id: 1, result: { counts: true } });
+		await seedRide(ATHLETE_B, { id: "1", result: { counts: true } });
 		await seedBalance(ATHLETE_B, { trainingRynke: 250, teamRynke: 20 });
 		await recordDeadlineResults(runOn("2027-07-02"));
 		expect(await kept()).toContainEqual(

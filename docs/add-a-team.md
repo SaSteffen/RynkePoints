@@ -55,9 +55,8 @@ Until a value arrives, team data may hold Hamburg's value as a placeholder
 3. Local development: `"dev:<id>": "node scripts/dev.mjs <id>"` in `package.json`, a
    `dev` target with its own ports in team data, and synthetic sample riders in
    `dev/fake-strava/samples.<id>.ts` ([contracts/dev-commands.md](../specs/026-second-team/contracts/dev-commands.md)).
-4. Clubs (FR-012): add the new team's clubs to every other team's `otherClubIds`, and
-   theirs to the new team's. A rider in both clubs then learns, right after connecting,
-   that one team at a time works.
+4. One team at a time (feature 044) needs no team data: the gateway's `TEAMS` list
+   decides who is asked whether they hold a person.
 5. Ride re-check (feature 036): `recheckAllowance` is the team's checks per day. All
    teams together have 300; split them evenly, so a third team means lowering the
    others' (`team-check` refuses a sum above 300).
@@ -175,6 +174,6 @@ isn't counted as a team in the shared usage figures.
 4. Check:
    - `https://<domain>/health` answers `ok`.
    - A real rider of the team's club connects and ends up on `/me`.
-   - A rider who is also in another team's club sees the one-team-at-a-time notice.
+   - A rider of another team who connects here is asked to stay or switch.
    - After the next full hour, each team's admin view shows the other teams' counts,
      with no notice that a team didn't answer.

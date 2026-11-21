@@ -38,8 +38,8 @@ import { CURRENT_RULES, rulesForVersion } from "../support/team-rules";
 // successful step. Synthetic riders and events only.
 
 const db = env.DB;
-const ATHLETE_D = 900004;
-const UNKNOWN = 900999;
+const ATHLETE_D = "900004";
+const UNKNOWN = "900999";
 const NAME = "Synthetic team ride";
 
 let fake: FakeStrava;
@@ -49,7 +49,7 @@ function change(c: TeamEventChange, now = NOW, window = countingWindow(env)) {
 	return applyTeamEventChange(db, c, CURRENT_RULES, window, now);
 }
 
-function evaluate(athleteId: number, rules: RynkeRules = CURRENT_RULES) {
+function evaluate(athleteId: string, rules: RynkeRules = CURRENT_RULES) {
 	return applyAndEvaluate(
 		db,
 		athleteId,
@@ -65,13 +65,13 @@ async function seed() {
 	await seedRider(ctx, { athleteId: ATHLETE_A });
 	await seedRider(ctx, { athleteId: ATHLETE_B });
 	await seedRider(ctx, { athleteId: ATHLETE_C, status: "needs_reconnect" });
-	await upsertActivity(db, activityRecord(1));
-	await upsertActivity(db, activityRecord(2, { athlete_id: ATHLETE_B }));
+	await upsertActivity(db, activityRecord("1"));
+	await upsertActivity(db, activityRecord("2", { athlete_id: ATHLETE_B }));
 	await evaluate(ATHLETE_A);
 	await evaluate(ATHLETE_B);
 }
 
-async function balance(athleteId: number) {
+async function balance(athleteId: string) {
 	const { balance } = await readRynke(db, athleteId);
 	if (!balance) throw new Error(`no balance for ${athleteId}`);
 	return balance;
@@ -402,7 +402,7 @@ describe("remove-attendance", () => {
 		for (let i = 0; i < 9; i++) {
 			await upsertActivity(
 				db,
-				activityRecord(400 + i, {
+				activityRecord(String(400 + i), {
 					athlete_id: ATHLETE_D,
 					start_date: new Date(Date.UTC(2026, 4, 1 + i, 8)).toISOString(),
 					distance_m: 250000,
@@ -507,7 +507,7 @@ describe("scenarios for rider D (one ride of 60 km, 2.5 h and 1000 m)", () => {
 		await seedRider(ctx, { athleteId: ATHLETE_D });
 		await upsertActivity(
 			db,
-			activityRecord(500, {
+			activityRecord("500", {
 				athlete_id: ATHLETE_D,
 				distance_m: 60000,
 				moving_time_s: 2.5 * 3600,
@@ -605,7 +605,7 @@ describe("stale rows", () => {
 	it("an affected rider evaluated under version 1 gets every row at the current version", async () => {
 		await upsertActivity(
 			db,
-			activityRecord(3, { start_date: "2026-05-03T08:00:00Z" }),
+			activityRecord("3", { start_date: "2026-05-03T08:00:00Z" }),
 		);
 		await evaluate(ATHLETE_A, rulesForVersion(1) as RynkeRules);
 		expect((await resultRows()).map((r) => r.rules_version)).toEqual([1, 1]);
@@ -624,13 +624,13 @@ describe("stale rows", () => {
 
 describe("many attendees", () => {
 	it("deletes an event of ten riders with three rides each in one batch", async () => {
-		const riders = Array.from({ length: 10 }, (_, i) => 900_101 + i);
+		const riders = Array.from({ length: 10 }, (_, i) => String(900_101 + i));
 		for (const [r, athleteId] of riders.entries()) {
 			await seedRider(ctx, { athleteId });
 			for (let d = 0; d < 3; d++) {
 				await upsertActivity(
 					db,
-					activityRecord(10_000 + r * 10 + d, {
+					activityRecord(String(10000 + r * 10 + d), {
 						athlete_id: athleteId,
 						start_date: new Date(Date.UTC(2026, 4, 1 + d, 8)).toISOString(),
 					}),
@@ -720,17 +720,17 @@ describe("teamEventChange", () => {
 });
 
 describe("participation reports (feature 019 research R3)", () => {
-	async function reportedBy(eventId: number): Promise<number[]> {
+	async function reportedBy(eventId: number): Promise<string[]> {
 		const { results } = await db
 			.prepare(
-				"SELECT athlete_id FROM participation_reports WHERE event_id = ? ORDER BY athlete_id",
+				"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM participation_reports WHERE event_id = ? ORDER BY participation_reports.athlete_id",
 			)
 			.bind(eventId)
-			.all<{ athlete_id: number }>();
+			.all<{ athlete_id: string }>();
 		return results.map((r) => r.athlete_id);
 	}
 
-	async function report(eventId: number, athleteIds: number[]) {
+	async function report(eventId: number, athleteIds: string[]) {
 		await db.batch(
 			athleteIds.map((id) => insertReportStatement(db, eventId, id, NOW)),
 		);

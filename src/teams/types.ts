@@ -120,8 +120,6 @@ export interface TeamData {
 	badgeNames: BadgeNameMode;
 	/** The team's holidays with a seasonal quote monkey (feature 035). */
 	holidays: readonly Holiday[];
-	/** Other teams' Strava clubs, for the one-team-at-a-time notice (FR-012). */
-	otherClubIds: readonly number[];
 	/**
 	 * Ride re-checks per day in normal operation (feature 036 FR-008). All
 	 * teams' together are at most `RECHECK_READS`.

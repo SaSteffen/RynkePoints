@@ -110,7 +110,7 @@ describe("badges in applyAndEvaluate", () => {
 		await seedRides();
 		await apply({ kind: "none" });
 
-		await apply({ kind: "delete", activityIds: [3] });
+		await apply({ kind: "delete", activityIds: ["3"] });
 
 		expect(await badges()).not.toContainEqual(["distance-100", "2026-05-03"]);
 		expect((await badges()).map(([id]) => id)).not.toContain("distance-100");
@@ -123,7 +123,7 @@ describe("badges in applyAndEvaluate", () => {
 		await apply({
 			kind: "upsert",
 			records: [
-				activityRecord(4, {
+				activityRecord("4", {
 					start_date: "2026-04-20T08:00:00Z",
 					elevation_gain_m: 0,
 				}),
@@ -140,7 +140,7 @@ describe("badges in applyAndEvaluate", () => {
 			apply({
 				kind: "upsert",
 				records: [
-					activityRecord(3, {
+					activityRecord("3", {
 						start_date: "2026-05-03T08:00:00Z",
 						elevation_gain_m: 0,
 						...overrides,
@@ -157,7 +157,7 @@ describe("badges in applyAndEvaluate", () => {
 // Part C: the virtual flag comes from feature 003's evaluation (research R23).
 describe("ride length, virtual rides and winter in applyAndEvaluate", () => {
 	const winterRide = (
-		id: number,
+		id: string,
 		day: string,
 		overrides: Partial<ActivityRecord> = {},
 	) =>
@@ -172,8 +172,8 @@ describe("ride length, virtual rides and winter in applyAndEvaluate", () => {
 		await apply({
 			kind: "upsert",
 			records: [
-				winterRide(1, "2026-01-05", { sport_type: "VirtualRide" }),
-				winterRide(2, "2026-01-06", { is_trainer: 1 }),
+				winterRide("1", "2026-01-05", { sport_type: "VirtualRide" }),
+				winterRide("2", "2026-01-06", { is_trainer: 1 }),
 			],
 		});
 		const ids = (await badges()).map(([id]) => id);
@@ -185,7 +185,7 @@ describe("ride length, virtual rides and winter in applyAndEvaluate", () => {
 	it("counts a ride with an unknown trainer flag as outdoor (003 R6)", async () => {
 		await apply({
 			kind: "upsert",
-			records: [winterRide(1, "2026-01-05", { is_trainer: null })],
+			records: [winterRide("1", "2026-01-05", { is_trainer: null })],
 		});
 		expect(await badges()).toContainEqual(["winter-january-1", "2026-01-05"]);
 		expect((await badges()).map(([id]) => id)).not.toContain(
@@ -196,7 +196,7 @@ describe("ride length, virtual rides and winter in applyAndEvaluate", () => {
 	it("counts no excluded ride for any of the new categories", async () => {
 		await apply({
 			kind: "upsert",
-			records: [winterRide(1, "2026-01-05", { is_manual: 1 })],
+			records: [winterRide("1", "2026-01-05", { is_manual: 1 })],
 		});
 		expect(
 			(await badges()).filter(
@@ -211,11 +211,11 @@ describe("ride length, virtual rides and winter in applyAndEvaluate", () => {
 	it("takes the winter badge back when the day's ride is deleted", async () => {
 		await apply({
 			kind: "upsert",
-			records: [winterRide(1, "2026-02-14")],
+			records: [winterRide("1", "2026-02-14")],
 		});
 		expect(await badges()).toContainEqual(["winter-february-1", "2026-02-14"]);
 
-		await apply({ kind: "delete", activityIds: [1] });
+		await apply({ kind: "delete", activityIds: ["1"] });
 		expect((await badges()).map(([id]) => id)).not.toContain(
 			"winter-february-1",
 		);
@@ -225,28 +225,28 @@ describe("ride length, virtual rides and winter in applyAndEvaluate", () => {
 // Nothing dated after today in Berlin earns a badge; a rest day only once
 // it is over (research R33, badgeWindow). The test clock is 6 October 2026.
 describe("badges and the clock", () => {
-	const day = (id: number, date: string) =>
+	const day = (id: string, date: string) =>
 		activityRecord(id, { start_date: `${date}T10:00:00Z`, distance_m: 60000 });
 	const week = ["09-28", "09-29", "09-30", "10-01", "10-02", "10-03", "10-04"];
 
 	it("awards nothing for an activity dated in the future", async () => {
-		await apply({ kind: "upsert", records: [day(1, "2026-10-09")] });
+		await apply({ kind: "upsert", records: [day("1", "2026-10-09")] });
 		expect(await badges()).toEqual([]);
 	});
 
 	it("gives the rest day only with a later activity dated today at the latest", async () => {
-		const records = week.map((d, i) => day(10 + i, `2026-${d}`));
+		const records = week.map((d, i) => day(String(10 + i), `2026-${d}`));
 		// A week, then 5 October off, then a ride dated 7 October: not yet.
 		await apply({
 			kind: "upsert",
-			records: [...records, day(20, "2026-10-07")],
+			records: [...records, day("20", "2026-10-07")],
 		});
 		expect((await badges()).map(([id]) => id)).not.toContain(
 			"surprise-rest-day",
 		);
 
 		// A ride today, 6 October: 5 October is over.
-		await apply({ kind: "upsert", records: [day(21, "2026-10-06")] });
+		await apply({ kind: "upsert", records: [day("21", "2026-10-06")] });
 		expect(await badges()).toContainEqual(["surprise-rest-day", "2026-10-05"]);
 	});
 });
@@ -257,7 +257,7 @@ describe("surprise badges in applyAndEvaluate", () => {
 		await apply({
 			kind: "upsert",
 			records: [
-				activityRecord(1, {
+				activityRecord("1", {
 					start_date: "2026-01-01T21:45:00Z",
 				}),
 			],
@@ -269,7 +269,7 @@ describe("surprise badges in applyAndEvaluate", () => {
 			["surprise-night-owl", "2026-01-01"],
 		]);
 
-		await apply({ kind: "delete", activityIds: [1] });
+		await apply({ kind: "delete", activityIds: ["1"] });
 		expect(
 			(await badges()).filter(([id]) => id?.startsWith("surprise-")),
 		).toEqual([]);
@@ -280,7 +280,7 @@ describe("surprise badges in applyAndEvaluate", () => {
 describe("part F surprise badges in applyAndEvaluate", () => {
 	// After the Christmas week, so its rides are no longer in the future.
 	const JANUARY = Date.UTC(2027, 0, 5, 10, 0, 0) / 1000;
-	const long = (id: number, day: string) =>
+	const long = (id: string, day: string) =>
 		activityRecord(id, {
 			start_date: `2026-12-${day}T08:00:00Z`,
 			distance_m: 130_000,
@@ -294,13 +294,18 @@ describe("part F surprise badges in applyAndEvaluate", () => {
 		await apply(
 			{
 				kind: "upsert",
-				records: [long(1, "24"), long(2, "26"), long(3, "28"), long(4, "30")],
+				records: [
+					long("1", "24"),
+					long("2", "26"),
+					long("3", "28"),
+					long("4", "30"),
+				],
 			},
 			JANUARY,
 		);
 		expect(await festive()).toEqual([["surprise-festive-500", "2026-12-30"]]);
 
-		await apply({ kind: "delete", activityIds: [2] }, JANUARY);
+		await apply({ kind: "delete", activityIds: ["2"] }, JANUARY);
 		expect(await festive()).toEqual([]);
 	});
 });
@@ -401,7 +406,7 @@ describe("new badges (US2, research R16 to R18)", () => {
 			{
 				kind: "upsert",
 				records: [
-					activityRecord(3, {
+					activityRecord("3", {
 						start_date: "2026-05-03T08:00:00Z",
 						distance_m: 30000,
 						elevation_gain_m: 0,
@@ -425,9 +430,9 @@ describe("new badges (US2, research R16 to R18)", () => {
 		await db.prepare("DELETE FROM badge_rises").run();
 
 		expect((await apply({ kind: "none" }, NOW + 60)).badges).toEqual([]);
-		expect((await apply({ kind: "delete", activityIds: [3] })).badges).toEqual(
-			[],
-		);
+		expect(
+			(await apply({ kind: "delete", activityIds: ["3"] })).badges,
+		).toEqual([]);
 		expect(await rise()).toBeNull();
 	});
 
@@ -467,7 +472,7 @@ describe("new badges (US2, research R16 to R18)", () => {
 		const result = await apply({
 			kind: "upsert",
 			records: [
-				activityRecord(3, {
+				activityRecord("3", {
 					start_date: "2026-05-03T08:00:00Z",
 					distance_m: 30000,
 					elevation_gain_m: 0,
@@ -518,7 +523,7 @@ describe("new badges (US2, research R16 to R18)", () => {
 	});
 
 	it("never writes a rise for a team badge itself (FR-032; teamBadgeNews does, #125)", async () => {
-		const team = [900011, 900012, 900013, 900014];
+		const team = ["900011", "900012", "900013", "900014"];
 		for (const athleteId of team) await seedRider(makeCtx(), { athleteId });
 		const eventId = await insertEvent("team_training", "2026-05-09");
 		await applyTeamEventChange(

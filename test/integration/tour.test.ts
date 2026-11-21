@@ -213,9 +213,10 @@ describe("the rider tour", () => {
 		await seedReadyRider();
 		await finish("rider");
 		const { page } = await hintOn("/me/settings");
-		expect(page).toContain('<section id="settings-tour"');
-		expect(page).toContain(
-			`<a class="button-outlined" href="/team?tour=rider&amp;step=1">${t("settings.tour.rider")}</a>`,
+		expect(page).toMatch(
+			new RegExp(
+				`<a class="settings-row" href="/team\\?tour=rider&amp;step=1">[\\s\\S]*?${t("settings.tour.rider")}`,
+			),
 		);
 		expect(page).not.toContain("?tour=organiser");
 		expect((await hintOn("/team?tour=rider")).card).toContain(
@@ -240,7 +241,7 @@ describe("the example rider (feature 020)", () => {
 			trainingMissing: 173,
 		});
 		await seedRide(ATHLETE_A, {
-			id: 424242,
+			id: "424242",
 			result: { counts: true, distanceRynke: 7 },
 		});
 	}
@@ -441,8 +442,10 @@ describe("the organiser tour", () => {
 		await seedReadyRider({ organiser: true });
 		await finish("rider");
 		await finish("organiser");
-		expect((await hintOn("/me/settings")).page).toContain(
-			`<a class="button-outlined" href="/organiser/riders?tour=organiser&amp;step=1">${t("settings.tour.organiser")}</a>`,
+		expect((await hintOn("/me/settings")).page).toMatch(
+			new RegExp(
+				`<a class="settings-row" href="/organiser/riders\\?tour=organiser&amp;step=1">[\\s\\S]*?${t("settings.tour.organiser")}`,
+			),
 		);
 	});
 });

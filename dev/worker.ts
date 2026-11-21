@@ -260,10 +260,10 @@ function reseed(ctx: Ctx, origin: string): Promise<void> {
 }
 
 /** The app's stored state of every sample rider, in one query. */
-async function storedStates(ctx: Ctx): Promise<Map<number, StoredState>> {
+async function storedStates(ctx: Ctx): Promise<Map<string, StoredState>> {
 	const { results } = await ctx.env.DB.prepare(
-		"SELECT athlete_id, status, import_status FROM riders",
-	).all<{ athlete_id: number; status: string; import_status: string }>();
+		"SELECT CAST(athlete_id AS TEXT) AS athlete_id, status, import_status FROM riders",
+	).all<{ athlete_id: string; status: string; import_status: string }>();
 	return new Map(
 		results.map((r) => [
 			r.athlete_id,
@@ -282,7 +282,7 @@ async function indexRows(ctx: Ctx): Promise<IndexRow[]> {
 }
 
 /** `GET /_dev/riders/<athleteId>`: one sample rider's events and rides. */
-async function showRider(ctx: Ctx, url: URL, athleteId: number) {
+async function showRider(ctx: Ctx, url: URL, athleteId: string) {
 	const rider = sampleRider(ctx.team.id, athleteId);
 	if (!rider) return text("Not Found", 404);
 	const stored = (await storedStates(ctx)).get(athleteId) ?? null;
@@ -329,7 +329,7 @@ async function runRecheck(ctx: Ctx): Promise<Response> {
 
 /** `POST /_dev/connect`: the app's connect flow, ending on the stand-in screen. */
 async function connectAs(request: Request, ctx: Ctx, url: URL) {
-	const athleteId = Number((await form(request)).get("athleteId"));
+	const athleteId = String((await form(request)).get("athleteId") ?? "");
 	if (!sampleRider(ctx.team.id, athleteId))
 		return text("Unknown sample rider", 400);
 	const connect = rewriteAuthorize(
@@ -381,7 +381,7 @@ async function decide(request: Request, ctx: Ctx, url: URL) {
 		back.searchParams.set("error", "access_denied");
 		return redirect(back.href, 302);
 	}
-	const athleteId = Number(fields.get("athlete"));
+	const athleteId = String(fields.get("athlete") ?? "");
 	if (!sampleRider(ctx.team.id, athleteId))
 		return text("Unknown sample rider", 400);
 	const scopes = fields.getAll("scope").map(String);
@@ -399,8 +399,8 @@ async function setClock(request: Request, ctx: Ctx): Promise<Response> {
 	// Stored personal badges only count up to the day they were worked out on,
 	// tour days among them: every rider again on the new day.
 	const { results } = await ctx.env.DB.prepare(
-		"SELECT athlete_id FROM riders WHERE status = 'connected' ORDER BY athlete_id",
-	).all<{ athlete_id: number }>();
+		"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders WHERE status = 'connected' ORDER BY riders.athlete_id",
+	).all<{ athlete_id: string }>();
 	await sendAll(
 		ctx,
 		results.map((r) => ({ kind: "evaluate-rider", athleteId: r.athlete_id })),
@@ -422,12 +422,12 @@ async function devRoute(
 		/^\/_dev\/strava\/activities\/(\d+)$/,
 	)?.[1];
 	if (request.method === "GET" && activityId !== undefined) {
-		const stored = await getActivity(ctx.env.DB, Number(activityId));
+		const stored = await getActivity(ctx.env.DB, activityId);
 		return stored ? activityPage(stored.body) : text("Not Found", 404);
 	}
 	const riderId = url.pathname.match(/^\/_dev\/riders\/(\d+)$/)?.[1];
 	if (request.method === "GET" && riderId !== undefined) {
-		return showRider(ctx, url, Number(riderId));
+		return showRider(ctx, url, riderId);
 	}
 	switch (route) {
 		case "GET /_dev/":
@@ -449,7 +449,7 @@ async function devRoute(
 			const fields = await form(request);
 			const flash = await simulateEvent(ctx, url.origin, fields);
 			// Back to the rider's page (feature 027 FR-051).
-			const athleteId = Number(fields.get("athleteId"));
+			const athleteId = String(fields.get("athleteId") ?? "");
 			const back = sampleRider(ctx.team.id, athleteId)
 				? `/_dev/riders/${athleteId}`
 				: "/_dev/";

@@ -9,44 +9,44 @@ import {
 const valid: WorkMessage[] = [
 	{
 		kind: "activity-event",
-		athleteId: 900001,
-		activityId: 7001,
+		athleteId: "900001",
+		activityId: "7001",
 		aspect: "update",
 		changed: ["type", "private"],
 	},
-	{ kind: "import-page", athleteId: 900001, page: 2, after: 1767222000 },
-	{ kind: "import-page", athleteId: 900001, page: 1, after: 0 },
-	{ kind: "reread-page", athleteId: 900001, page: 3, after: 1767222000 },
-	{ kind: "check-membership", athleteId: 900001 },
-	{ kind: "send-notification", athleteId: 900001, subscriptionId: 45 },
+	{ kind: "import-page", athleteId: "900001", page: 2, after: 1767222000 },
+	{ kind: "import-page", athleteId: "900001", page: 1, after: 0 },
+	{ kind: "reread-page", athleteId: "900001", page: 3, after: 1767222000 },
+	{ kind: "check-membership", athleteId: "900001" },
+	{ kind: "send-notification", athleteId: "900001", subscriptionId: 45 },
 	{
 		kind: "delete-rider",
-		athleteId: 900001,
+		athleteId: "900001",
 		reason: "deauthorized",
 		revoke: false,
 	},
 	{
 		kind: "delete-rider",
-		athleteId: 900001,
+		athleteId: "900001",
 		reason: "left-club",
 		revoke: true,
 	},
 	{
 		kind: "delete-rider",
-		athleteId: 900001,
+		athleteId: "900001",
 		reason: "reconnect-expired",
 		revoke: true,
 	},
-	{ kind: "evaluate-rider", athleteId: 900001 },
+	{ kind: "evaluate-rider", athleteId: "900001" },
 	{
 		kind: "recheck-rider",
-		athleteId: 900001,
+		athleteId: "900001",
 		stamp: 1794553080,
 		previous: 1794524280,
 	},
 	{
 		kind: "recheck-rider",
-		athleteId: 900001,
+		athleteId: "900001",
 		stamp: 1794553080,
 		previous: null,
 	},
@@ -78,7 +78,7 @@ describe("parseWorkMessage", () => {
 				athleteId: 900001,
 				token: "x",
 			}),
-		).toEqual({ kind: "check-membership", athleteId: 900001 });
+		).toEqual({ kind: "check-membership", athleteId: "900001" });
 	});
 
 	it("drops unknown fields from evaluate-rider", () => {
@@ -88,7 +88,7 @@ describe("parseWorkMessage", () => {
 				athleteId: 900001,
 				rulesVersion: 2,
 			}),
-		).toEqual({ kind: "evaluate-rider", athleteId: 900001 });
+		).toEqual({ kind: "evaluate-rider", athleteId: "900001" });
 	});
 
 	it("drops unknown fields from reread-page", () => {
@@ -100,14 +100,17 @@ describe("parseWorkMessage", () => {
 				after: 0,
 				activities: [7001],
 			}),
-		).toEqual({ kind: "reread-page", athleteId: 900001, page: 1, after: 0 });
+		).toEqual({ kind: "reread-page", athleteId: "900001", page: 1, after: 0 });
 	});
 
 	it.each([
 		["not an object", "check-membership"],
 		["null", null],
 		["unknown kind", { kind: "poll", athleteId: 1 }],
-		["string id", { kind: "check-membership", athleteId: "900001" }],
+		// IDs are strings (feature 042): only canonical digits pass.
+		["leading-zero id", { kind: "check-membership", athleteId: "0900001" }],
+		["non-digit id", { kind: "check-membership", athleteId: "9e5" }],
+		["unsafe number id", { kind: "check-membership", athleteId: 2 ** 53 }],
 		["fractional id", { kind: "check-membership", athleteId: 1.5 }],
 		["zero id", { kind: "check-membership", athleteId: 0 }],
 		["evaluate-rider without id", { kind: "evaluate-rider" }],
@@ -200,63 +203,63 @@ describe("serializeWorkMessage", () => {
 		const shuffled = {
 			changed: ["title"],
 			aspect: "update",
-			activityId: 7001,
-			athleteId: 900001,
+			activityId: "7001",
+			athleteId: "900001",
 			kind: "activity-event",
 		} as WorkMessage;
 		expect(serializeWorkMessage(shuffled)).toBe(
-			'{"kind":"activity-event","athleteId":900001,"activityId":7001,"aspect":"update","changed":["title"]}',
+			'{"kind":"activity-event","athleteId":"900001","activityId":"7001","aspect":"update","changed":["title"]}',
 		);
 		expect(
 			serializeWorkMessage({
 				revoke: true,
 				reason: "left-club",
-				athleteId: 900001,
+				athleteId: "900001",
 				kind: "delete-rider",
 			} as WorkMessage),
 		).toBe(
-			'{"kind":"delete-rider","athleteId":900001,"reason":"left-club","revoke":true}',
+			'{"kind":"delete-rider","athleteId":"900001","reason":"left-club","revoke":true}',
 		);
 		expect(
 			serializeWorkMessage({
 				after: 5,
 				page: 1,
-				athleteId: 900001,
+				athleteId: "900001",
 				kind: "import-page",
 			} as WorkMessage),
-		).toBe('{"kind":"import-page","athleteId":900001,"page":1,"after":5}');
+		).toBe('{"kind":"import-page","athleteId":"900001","page":1,"after":5}');
 		expect(
 			serializeWorkMessage({
 				subscriptionId: 45,
-				athleteId: 900001,
+				athleteId: "900001",
 				kind: "send-notification",
 			} as WorkMessage),
 		).toBe(
-			'{"kind":"send-notification","athleteId":900001,"subscriptionId":45}',
+			'{"kind":"send-notification","athleteId":"900001","subscriptionId":45}',
 		);
 		expect(
 			serializeWorkMessage({
 				after: 5,
 				page: 2,
-				athleteId: 900001,
+				athleteId: "900001",
 				kind: "reread-page",
 			} as WorkMessage),
-		).toBe('{"kind":"reread-page","athleteId":900001,"page":2,"after":5}');
+		).toBe('{"kind":"reread-page","athleteId":"900001","page":2,"after":5}');
 		expect(
 			serializeWorkMessage({
-				athleteId: 900001,
+				athleteId: "900001",
 				kind: "evaluate-rider",
 			} as WorkMessage),
-		).toBe('{"kind":"evaluate-rider","athleteId":900001}');
+		).toBe('{"kind":"evaluate-rider","athleteId":"900001"}');
 		expect(
 			serializeWorkMessage({
 				previous: null,
 				stamp: 7,
-				athleteId: 900001,
+				athleteId: "900001",
 				kind: "recheck-rider",
 			} as WorkMessage),
 		).toBe(
-			'{"kind":"recheck-rider","athleteId":900001,"stamp":7,"previous":null}',
+			'{"kind":"recheck-rider","athleteId":"900001","stamp":7,"previous":null}',
 		);
 	});
 
@@ -272,7 +275,7 @@ describe("waitsForStrava", () => {
 		expect(
 			waitsForStrava({
 				kind: "recheck-rider",
-				athleteId: 900001,
+				athleteId: "900001",
 				stamp: 7,
 				previous: null,
 			}),

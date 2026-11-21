@@ -1,5 +1,6 @@
 import type { TourEvent } from "../badges/evaluate";
 import type { Attendance, EventKind } from "../rynke/team-events";
+import { idsJson } from "../strava/id";
 import { SHARED_RIDER_IDS } from "./consents";
 
 // Team events and attendance (feature 003 data-model.md, research R17, R21).
@@ -16,7 +17,7 @@ export interface RiderAttendanceRow {
 }
 
 export interface AttendanceOfRidersRow extends RiderAttendanceRow {
-	athlete_id: number;
+	athlete_id: string;
 }
 
 export interface TeamEventRow {
@@ -58,7 +59,7 @@ export function toAttendance(row: RiderAttendanceRow): Attendance {
 /** The rider's attendances, newest first (feature 005 FR-033 reads it too). */
 export function listRiderAttendanceStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ) {
 	return db
 		.prepare(
@@ -72,16 +73,16 @@ export function listRiderAttendanceStatement(
 
 export function listAttendanceOfRidersStatement(
 	db: D1Database,
-	athleteIds: number[],
+	athleteIds: string[],
 ) {
 	return db
 		.prepare(
-			`SELECT a.athlete_id, a.event_id, e.kind, e.event_date, e.name
+			`SELECT CAST(a.athlete_id AS TEXT) AS athlete_id, a.event_id, e.kind, e.event_date, e.name
 			FROM attendances a JOIN team_events e ON e.event_id = a.event_id
 			WHERE a.athlete_id IN (SELECT value FROM json_each(?1))
 			ORDER BY a.athlete_id, e.event_date DESC, a.event_id DESC`,
 		)
-		.bind(JSON.stringify(athleteIds));
+		.bind(idsJson(athleteIds));
 }
 
 /**
@@ -112,10 +113,11 @@ export function toTourEvent(row: TourEventRow): TourEvent {
 export function listTourRidersStatement(db: D1Database, seasonStart: string) {
 	return db
 		.prepare(
-			`SELECT DISTINCT a.athlete_id
-			FROM attendances a JOIN team_events e ON e.event_id = a.event_id
-			WHERE e.kind = 'tour_de_paris' AND e.event_date >= ?1
-			ORDER BY a.athlete_id`,
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM (
+				SELECT DISTINCT a.athlete_id
+				FROM attendances a JOIN team_events e ON e.event_id = a.event_id
+				WHERE e.kind = 'tour_de_paris' AND e.event_date >= ?1) t
+			ORDER BY t.athlete_id`,
 		)
 		.bind(seasonStart);
 }
@@ -155,26 +157,26 @@ export function listTeamEventsStatement(db: D1Database, seasonStart: string) {
 export function listEventAttendeesStatement(db: D1Database, eventId: number) {
 	return db
 		.prepare(
-			"SELECT athlete_id FROM attendances WHERE event_id = ? ORDER BY athlete_id",
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM attendances WHERE event_id = ? ORDER BY attendances.athlete_id",
 		)
 		.bind(eventId);
 }
 
 /** `athlete_id, status` of those of `athleteIds` that are stored. */
-export function riderStatusesStatement(db: D1Database, athleteIds: number[]) {
+export function riderStatusesStatement(db: D1Database, athleteIds: string[]) {
 	return db
 		.prepare(
-			`SELECT athlete_id, status FROM riders
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, status FROM riders
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))`,
 		)
-		.bind(JSON.stringify(athleteIds));
+		.bind(idsJson(athleteIds));
 }
 
 /** `by` is the organiser, null when no organiser made the change. */
 export function insertTeamEventStatement(
 	db: D1Database,
 	event: TeamEventFields,
-	by: number | null,
+	by: string | null,
 	now: number,
 ) {
 	return db
@@ -190,7 +192,7 @@ export function updateTeamEventStatement(
 	db: D1Database,
 	eventId: number,
 	event: TeamEventFields,
-	by: number | null,
+	by: string | null,
 	now: number,
 ) {
 	return db
@@ -214,8 +216,8 @@ export function deleteTeamEventStatement(db: D1Database, eventId: number) {
 export function insertAttendancesStatement(
 	db: D1Database,
 	eventId: number,
-	athleteIds: number[],
-	by: number | null,
+	athleteIds: string[],
+	by: string | null,
 	now: number,
 ) {
 	return db
@@ -224,18 +226,18 @@ export function insertAttendancesStatement(
 			SELECT ?1, value, ?3, ?4 FROM json_each(?2) WHERE true
 			ON CONFLICT DO NOTHING`,
 		)
-		.bind(eventId, JSON.stringify(athleteIds), by, now);
+		.bind(eventId, idsJson(athleteIds), by, now);
 }
 
 export function deleteAttendancesStatement(
 	db: D1Database,
 	eventId: number,
-	athleteIds: number[],
+	athleteIds: string[],
 ) {
 	return db
 		.prepare(
 			`DELETE FROM attendances WHERE event_id = ?1
 			AND athlete_id IN (SELECT value FROM json_each(?2))`,
 		)
-		.bind(eventId, JSON.stringify(athleteIds));
+		.bind(eventId, idsJson(athleteIds));
 }

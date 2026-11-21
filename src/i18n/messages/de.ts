@@ -376,9 +376,7 @@ export const de = {
 	"push.rise.team": "+{n}\u00a0Teamrynke",
 	"notifications.heading": "Benachrichtigungen",
 	"notifications.explain":
-		"Dieses Gerät sagt dir Bescheid, wenn du neue Rynke hast, und was dir noch fehlt.",
-	"notifications.on": "Auf diesem Gerät an.",
-	"notifications.off": "Auf diesem Gerät aus.",
+		"Dein Gerät meldet sich, sobald du neue Rynke oder Abzeichen bekommst – auch wenn die App zu ist.",
 	"notifications.blocked":
 		"Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.",
 	"notifications.needsHomeScreen":
@@ -430,14 +428,21 @@ export const de = {
 	"theme.name.disco": "Disco",
 	"theme.name.contrast-light": "Kontrast hell",
 	"theme.name.contrast-dark": "Kontrast dunkel",
-	"settings.app": "App",
-	"settings.strava": "Strava-Verbindung",
 	"settings.account": "Konto",
+	"settings.device": "Dieses Gerät",
+	"settings.data": "Rynke und deine Daten",
+	"settings.strava.broken": "Verbindung unterbrochen",
+	"settings.logout.here": "Auf diesem Gerät",
+	"settings.logoutEverywhere": "Überall abmelden",
+	"settings.logoutEverywhere.sub": "Auf allen Geräten, auch diesem",
 	"settings.shows": "Animationen",
-	"settings.shows.on": "Animationen beim Seitenwechsel in Konfetti und Disco",
-	"settings.tour": "Rundgang",
 	"settings.tour.rider": "Rundgang noch mal zeigen",
 	"settings.tour.organiser": "Orga-Rundgang noch mal zeigen",
+	"settings.about": "Über die App",
+	"changelog.version": "Version\u00a0{version}",
+	"changelog.title": "Was ist neu",
+	"changelog.intro":
+		"Was sich mit jeder Version geändert hat. Die Einträge sind auf Englisch.",
 	"rynke.ride.why": "Warum?",
 	"notifications.switch": "Benachrichtigungen auf diesem Gerät",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",
@@ -955,6 +960,8 @@ export const de = {
 		"Benachrichtigungen sind freiwillig und gelten pro Gerät. Gespeichert wird nur die Adresse, die der Push-Dienst deines Geräts oder Browsers vergibt. Die Benachrichtigung selbst ist leer: Was sie anzeigt, holt dein Gerät direkt bei RynkePoints. Die Adresse wird gelöscht, wenn du Benachrichtigungen ausschaltest, dich auf dem Gerät abmeldest oder gehst.",
 	"privacy.technical.logs":
 		"Server-Protokolle enthalten nur Kennungen wie Athleten- und Aktivitäts-IDs und die Art eines Fehlers, nie Zugangsschlüssel oder Aktivitätsdaten. IP-Adressen speichert RynkePoints nicht.",
+	"privacy.technical.oneTeam":
+		"Bei RynkePoints fährst du immer für ein Team. Deshalb fragt ein Team beim Verbinden die anderen Teams, ob du schon für eines von ihnen fährst. Es erfährt nur ja oder nein, nie welches Team, und speichert die Antwort nicht. Wechselst du das Team, löscht das Team, das du verlässt, alles über dich.",
 	"privacy.visibility.heading": "Wer was sieht",
 	"privacy.visibility.you":
 		"Du siehst deine eigenen Aktivitäten mit Titel, deine Rynke und deine Abzeichen. Die Titel sieht sonst niemand.",
@@ -1267,10 +1274,13 @@ export const de = {
 	"notice.blocked.title": "Du kannst bei diesem Team nicht mitmachen",
 	"notice.blocked.body":
 		"Ein Admin hat dich aus diesem Team entfernt. Wir behalten nur deine Strava-ID, damit du dich nicht wieder verbinden kannst.",
-	"notice.oneTeam.title": "Du bist auch im Club eines anderen Teams",
-	"notice.oneTeam.body":
-		"Bei RynkePoints kannst du immer nur in einem Team mitmachen. Strava gibt der App eine Verbindung pro Person: Verbindest du dich bei einem zweiten Team, endet die Verbindung beim ersten. Hier bist du jetzt verbunden.",
-	"notice.carryOn": "Weiter",
+	"switchTeam.title": "Du fährst schon für ein anderes Team",
+	"switchTeam.body":
+		"Bei RynkePoints fährst du immer für ein Team, und du fährst schon für ein anderes Team hier. Bei diesem Team ist noch nichts von dir gespeichert.",
+	"switchTeam.cost":
+		"Wechselst du zu diesem Team, löscht das andere Team dort deine Fahrten, Rynke und Abzeichen. Dieses Team zählt deine Fahrten der Saison neu, nach seinen eigenen Regeln.",
+	"switchTeam.switch": "Zu diesem Team wechseln",
+	"switchTeam.stay": "Bei meinem Team bleiben",
 	"organiser.graphs.heading": "Fortschritt",
 	"organiser.graphs.title.outdoor": "Kilometer draußen (km)",
 	"organiser.graphs.title.virtual": "Kilometer virtuell (km)",

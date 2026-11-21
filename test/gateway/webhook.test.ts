@@ -66,6 +66,34 @@ describe("events", () => {
 		expect(sent.map((m) => m.team)).toEqual(["hamburg", "europe"]);
 	});
 
+	it("forwards an event with IDs past 2^53 unchanged (feature 042)", async () => {
+		const sent = captureForwards();
+		// As Strava sends them: numbers with every digit, no text form.
+		const body = stravaEvent()
+			.replace('"object_id":900001', '"object_id":9007199254740993')
+			.replace('"owner_id":990001', '"owner_id":9223372036854775807');
+		expect(body).toContain('"owner_id":9223372036854775807');
+		const res = await post(`/strava/webhook/${VERIFY_TOKEN}`, body);
+		expect(res.status).toBe(200);
+		expect(sent.map((m) => m.body)).toEqual([body, body]);
+	});
+
+	it.each([
+		["a fraction", "900001.5"],
+		["an exponent", "9e5"],
+		["more than 64 bits", "9223372036854775808"],
+	])("gives 400 for an object_id that is %s", async (_name, digits) => {
+		const sent = captureForwards();
+		const body = stravaEvent().replace(
+			'"object_id":900001',
+			`"object_id":${digits}`,
+		);
+		expect((await post(`/strava/webhook/${VERIFY_TOKEN}`, body)).status).toBe(
+			400,
+		);
+		expect(sent).toEqual([]);
+	});
+
 	it("gives 400 for a body that isn't a Strava event", async () => {
 		const sent = captureForwards();
 		for (const body of [

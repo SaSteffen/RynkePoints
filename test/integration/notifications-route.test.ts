@@ -27,7 +27,7 @@ beforeEach(async () => {
 
 async function post(
 	form: Record<string, string>,
-	options: { athleteId?: number | null; origin?: string | null } = {},
+	options: { athleteId?: string | null; origin?: string | null } = {},
 ) {
 	const athleteId =
 		options.athleteId === undefined ? ATHLETE_A : options.athleteId;
@@ -57,8 +57,8 @@ async function post(
 
 async function rows() {
 	const { results } = await env.DB.prepare(
-		"SELECT endpoint, athlete_id FROM push_subscriptions ORDER BY subscription_id",
-	).all<{ endpoint: string; athlete_id: number }>();
+		"SELECT endpoint, CAST(athlete_id AS TEXT) AS athlete_id FROM push_subscriptions ORDER BY subscription_id",
+	).all<{ endpoint: string; athlete_id: string }>();
 	return results;
 }
 

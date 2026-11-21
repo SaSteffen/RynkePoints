@@ -2,6 +2,7 @@
 // and enum values only, never activity data or tokens.
 
 import type { Ctx } from "../ctx";
+import { toStravaId } from "../strava/id";
 
 export const ACTIVITY_ASPECTS = ["create", "update", "delete"] as const;
 export const DELETE_REASONS = [
@@ -14,15 +15,15 @@ export const DELETE_REASONS = [
 
 export interface ActivityEventMessage {
 	kind: "activity-event";
-	athleteId: number;
-	activityId: number;
+	athleteId: string;
+	activityId: string;
 	aspect: (typeof ACTIVITY_ASPECTS)[number];
 	changed: string[];
 }
 
 export interface ImportPageMessage {
 	kind: "import-page";
-	athleteId: number;
+	athleteId: string;
 	/**
 	 * Page of the list after `after`: always 1 since the import pages by start
 	 * (review L-21); higher on messages sent before.
@@ -44,7 +45,7 @@ export interface ImportPageMessage {
 /** The one-time re-read after FR-013 gained a figure (research R20). */
 export interface RereadPageMessage {
 	kind: "reread-page";
-	athleteId: number;
+	athleteId: string;
 	/** As for `ImportPageMessage`. */
 	page: number;
 	/** As for `ImportPageMessage`, from the season start when it was started. */
@@ -53,12 +54,12 @@ export interface RereadPageMessage {
 
 export interface CheckMembershipMessage {
 	kind: "check-membership";
-	athleteId: number;
+	athleteId: string;
 }
 
 export interface DeleteRiderMessage {
 	kind: "delete-rider";
-	athleteId: number;
+	athleteId: string;
 	reason: (typeof DELETE_REASONS)[number];
 	revoke: boolean;
 }
@@ -66,13 +67,13 @@ export interface DeleteRiderMessage {
 /** A full Rynke evaluation of the stored activities (feature 003). */
 export interface EvaluateRiderMessage {
 	kind: "evaluate-rider";
-	athleteId: number;
+	athleteId: string;
 }
 
 /** One empty push to one device after a rise (feature 010). */
 export interface SendNotificationMessage {
 	kind: "send-notification";
-	athleteId: number;
+	athleteId: string;
 	subscriptionId: number;
 }
 
@@ -82,7 +83,7 @@ export interface SendNotificationMessage {
  */
 export interface RecheckRiderMessage {
 	kind: "recheck-rider";
-	athleteId: number;
+	athleteId: string;
 	/** What the run wrote to `riders.rechecked_at` (epoch seconds). */
 	stamp: number;
 	/** The value before, put back when the check doesn't happen. */
@@ -139,6 +140,9 @@ export function waitsForStrava(m: WorkMessage): boolean {
 export const isId = (v: unknown): v is number =>
 	typeof v === "number" && Number.isSafeInteger(v) && v > 0;
 
+// Activity and athlete IDs are strings (feature 042); a message from the
+// previous version carries them as numbers and is taken as well (R6).
+
 const isEpoch = (v: unknown): v is number =>
 	typeof v === "number" && Number.isSafeInteger(v) && v >= 0;
 
@@ -151,12 +155,13 @@ export const isOneOf = <T extends string>(
 export function parseWorkMessage(body: unknown): WorkMessage | null {
 	if (typeof body !== "object" || body === null) return null;
 	const m = body as Record<string, unknown>;
-	if (!isId(m.athleteId)) return null;
-	const athleteId = m.athleteId;
+	const athleteId = toStravaId(m.athleteId);
+	if (athleteId === null) return null;
 	switch (m.kind) {
-		case "activity-event":
+		case "activity-event": {
+			const activityId = toStravaId(m.activityId);
 			if (
-				!isId(m.activityId) ||
+				activityId === null ||
 				!isOneOf(ACTIVITY_ASPECTS, m.aspect) ||
 				!Array.isArray(m.changed) ||
 				!m.changed.every((c) => typeof c === "string")
@@ -166,10 +171,11 @@ export function parseWorkMessage(body: unknown): WorkMessage | null {
 			return {
 				kind: m.kind,
 				athleteId,
-				activityId: m.activityId,
+				activityId,
 				aspect: m.aspect,
 				changed: [...m.changed],
 			};
+		}
 		case "import-page":
 			if (!isId(m.page) || !isEpoch(m.after)) return null;
 			if (m.startedAt !== undefined && !isEpoch(m.startedAt)) return null;

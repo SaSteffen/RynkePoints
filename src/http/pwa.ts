@@ -4,6 +4,7 @@ import { badgeName } from "../content";
 import type { Ctx } from "../ctx";
 import { readBadgeRiseStatement } from "../db/badges";
 import { riderStandingStatements, toRiderStanding } from "../db/rider-view";
+import { sessionCurrentStatement } from "../db/riders";
 import { readRiseStatement } from "../db/rynke";
 import { type CurrentAlert, currentAlertStatement } from "../db/usage";
 import { createI18n, type I18n } from "../i18n/i18n";
@@ -12,9 +13,9 @@ import { versionsOf } from "../rynke/rules";
 import { CRITICAL_LEVEL, utcDay } from "../usage/allowances";
 import { percentOf } from "../usage/figures";
 import { html, htmlResponse, layout, pageLook, type SafeHtml } from "./html";
-import { CLOSE } from "./icons";
+import { BELL, CLOSE } from "./icons";
 import { summary as riderSummary } from "./rider-view";
-import { readSession } from "./session";
+import { readSessionCookie } from "./session";
 
 // The installable app's server side (feature 010 contracts/client.md and
 // contracts/http-routes.md). `/offline` and `/notification-text` are the only
@@ -140,18 +141,28 @@ export async function handleRiderNotificationText(
 ): Promise<Response> {
 	const headers = { "Cache-Control": "no-store" };
 	const none = (status: number) => new Response(null, { status, headers });
-	const athleteId = await readSession(request, ctx.env, ctx.now());
-	if (athleteId === null) return none(401);
-
-	// The rises and only what the summary needs, in one batch (issue #185).
-	const db = ctx.env.DB;
 	const now = ctx.now();
-	const [alertRows, riseRows, badgeRiseRows, ...standingRows] = await db.batch([
-		currentAlertStatement(db, athleteId, now - ALERT_TEXT_SECONDS, utcDay(now)),
-		readRiseStatement(db, athleteId),
-		readBadgeRiseStatement(db, athleteId),
-		...riderStandingStatements(db, athleteId),
-	]);
+	const session = await readSessionCookie(request, ctx.env, now);
+	if (!session) return none(401);
+	const { athleteId } = session;
+
+	// Whether the session is still signed in (issue #314), the rises and only
+	// what the summary needs, in one batch (issue #185).
+	const db = ctx.env.DB;
+	const [current, alertRows, riseRows, badgeRiseRows, ...standingRows] =
+		await db.batch([
+			sessionCurrentStatement(db, athleteId, session.epoch),
+			currentAlertStatement(
+				db,
+				athleteId,
+				now - ALERT_TEXT_SECONDS,
+				utcDay(now),
+			),
+			readRiseStatement(db, athleteId),
+			readBadgeRiseStatement(db, athleteId),
+			...riderStandingStatements(db, athleteId),
+		]);
+	if (!current?.results.length) return none(401);
 	const alert = (alertRows?.results as CurrentAlert[] | undefined)?.[0];
 	if (alert) {
 		const i18n = textI18n(request, ctx);
@@ -260,26 +271,23 @@ export async function handleRiderNotificationText(
  */
 export function renderNotifications(i18n: I18n, pushKey: string): SafeHtml {
 	const state = (
-		name:
-			| "on"
-			| "off"
-			| "blocked"
-			| "needsHomeScreen"
-			| "unsupported"
-			| "failed",
+		name: "blocked" | "needsHomeScreen" | "unsupported" | "failed",
 	) =>
-		html`<p data-state="${name}" hidden>${i18n.t(`notifications.${name}`)}</p>`;
-	return html`<section id="notifications" class="settings-group" data-push-key="${pushKey}" hidden>
-<h2>${i18n.t("notifications.heading")}</h2>
-<p>${i18n.t("notifications.explain")}</p>
-${state("on")}
-${state("off")}
+		html`<p class="settings-sub is-warn" data-state="${name}" hidden>${i18n.t(`notifications.${name}`)}</p>`;
+	return html`<li id="notifications" data-push-key="${pushKey}" hidden>
+<div class="settings-row is-static">
+<span class="settings-icon">${BELL}</span>
+<div class="settings-text">
+<span class="settings-title">${i18n.t("notifications.heading")}</span>
+<p class="settings-sub" data-state="on off" hidden>${i18n.t("notifications.explain")}</p>
 ${state("blocked")}
 ${state("needsHomeScreen")}
 ${state("unsupported")}
 ${state("failed")}
+</div>
 <button type="button" role="switch" data-action="toggle" aria-checked="false" aria-label="${i18n.t("notifications.switch")}" hidden></button>
-</section>`;
+</div>
+</li>`;
 }
 
 /**

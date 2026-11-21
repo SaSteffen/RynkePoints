@@ -380,7 +380,7 @@ export interface CurrentAlert {
  */
 export function currentAlertStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	since: number,
 	today: string,
 ): D1PreparedStatement {

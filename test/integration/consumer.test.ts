@@ -41,7 +41,7 @@ const DELETE: WorkMessage = {
 const REMOVED: WorkMessage = {
 	kind: "activity-event",
 	athleteId: ATHLETE_A,
-	activityId: 7_200_001,
+	activityId: "7200001",
 	aspect: "delete",
 	changed: [],
 };
@@ -236,7 +236,9 @@ describe("processBatch", () => {
 		);
 		expect(queueResult.explicitAcks).toEqual(["m1"]);
 		expect(queueResult.retryMessages).toEqual([]);
-		const rows = await env.DB.prepare("SELECT * FROM failed_work").all();
+		const rows = await env.DB.prepare(
+			"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM failed_work",
+		).all();
 		expect(rows.results).toEqual([
 			expect.objectContaining({
 				athlete_id: ATHLETE_A,

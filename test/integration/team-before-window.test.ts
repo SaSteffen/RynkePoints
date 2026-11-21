@@ -18,9 +18,9 @@ const before = {
 	env: { ...started.env, QUALIFICATION_START_DATE: "2027-01-01" },
 };
 
-const VIEWER = 930_001;
-const OTHER = 930_002;
-const GUEST = 930_003;
+const VIEWER = "930001";
+const OTHER = "930002";
+const GUEST = "930003";
 
 const NOTE = `<p class="before-window-note">${escapeHtml(de["team.beforeWindow"]).replace("{date}", "01.01.2027")}</p>`;
 

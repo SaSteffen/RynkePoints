@@ -9,6 +9,7 @@ import {
 	listPendingRevocationIds,
 } from "../db/pending-revocations";
 import { isOneOf } from "../work/messages";
+import { idJson } from "./id";
 import { revokeToken } from "./tokens";
 
 // Withdrawing a person's grant at Strava (feature 041 FR-009, research R14,
@@ -30,7 +31,7 @@ const GATEWAY_TIMEOUT_MS = 10_000;
 /** Withdraws a token just exchanged at a refused sign-in. */
 export async function withdrawGrant(
 	ctx: WithdrawCtx,
-	athleteId: number,
+	athleteId: string,
 	refreshToken: string,
 ): Promise<Withdrawal> {
 	await keepToken(ctx.env, athleteId, refreshToken, ctx.now());
@@ -43,7 +44,7 @@ export async function withdrawGrant(
  */
 export async function withdrawStoredGrant(
 	ctx: WithdrawCtx,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Withdrawal> {
 	if (!(await keepStoredToken(ctx.env.DB, athleteId, ctx.now()))) {
 		return "done";
@@ -54,11 +55,11 @@ export async function withdrawStoredGrant(
 /** Settles one kept token: drops it, revokes it, or keeps it for later. */
 export async function settleWithdrawal(
 	ctx: WithdrawCtx,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Withdrawal> {
 	const row = await getPendingRevocation(ctx.env.DB, athleteId);
 	if (!row) return "done";
-	const hold = await heldElsewhere(ctx, athleteId);
+	const hold = (await askOtherTeams(ctx, athleteId))?.held ?? null;
 	if (hold === null || hold === "reconnect") return "pending";
 	if (hold === "none") {
 		let token: string;
@@ -89,24 +90,62 @@ export async function settleWithdrawals(ctx: WithdrawCtx): Promise<void> {
 	}
 }
 
+/** Another team's hold on a person, through the gateway (feature 044 R2). */
+export interface HeldElsewhere {
+	held: Hold;
+	/** Held as a rider, not a guest. */
+	rider: boolean;
+}
+
 /**
- * Whether another team holds the person, asked through the gateway; `null`
- * when it didn't answer. Without a gateway there is no other team.
+ * Whether another team holds the person, and as a rider, asked through the
+ * gateway; `null` when it didn't answer. Without a gateway there is no other
+ * team. An answer without `rider` (a gateway on the previous release) counts
+ * as no rider.
  */
-async function heldElsewhere(
+export async function askOtherTeams(
 	ctx: WithdrawCtx,
-	athleteId: number,
-): Promise<Hold | null> {
+	athleteId: string,
+): Promise<HeldElsewhere | null> {
+	const body = await askGateway(ctx, "held", athleteId);
+	if (body === null) return returnVia(ctx.env) === null ? NOBODY : null;
+	const { held, rider } = body as { held?: unknown; rider?: unknown };
+	return isOneOf(HOLDS, held) ? { held, rider: rider === true } : null;
+}
+
+const NOBODY: HeldElsewhere = { held: "none", rider: false };
+
+/**
+ * Has every other team let the person go as a rider, because they chose to
+ * switch here (feature 044 R4); false when that isn't confirmed. Without a
+ * gateway there is nobody to let them go.
+ */
+export async function letGoElsewhere(
+	ctx: WithdrawCtx,
+	athleteId: string,
+): Promise<boolean> {
+	if (returnVia(ctx.env) === null) return true;
+	const body = await askGateway(ctx, "let-go", athleteId);
+	return (body as { letGo?: unknown } | null)?.letGo === true;
+}
+
+/** The gateway's `200` answer at `/teams/<id>/<what>`, or `null`. */
+async function askGateway(
+	ctx: WithdrawCtx,
+	what: "held" | "let-go",
+	athleteId: string,
+): Promise<unknown> {
 	const gateway = returnVia(ctx.env);
-	if (gateway === null) return "none";
+	if (gateway === null) return null;
 	try {
-		const res = await fetch(new URL(`/teams/${ctx.team.id}/held`, gateway), {
+		const res = await fetch(new URL(`/teams/${ctx.team.id}/${what}`, gateway), {
 			method: "POST",
 			headers: {
 				Authorization: `Bearer ${verifyToken(ctx.env)}`,
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ athleteId }),
+			// A number, exactly, as the gateway reads it (feature 042 R3).
+			body: JSON.stringify({ athleteId: idJson(athleteId) }),
 			signal: AbortSignal.timeout(GATEWAY_TIMEOUT_MS),
 			redirect: "manual",
 		});
@@ -114,8 +153,7 @@ async function heldElsewhere(
 			await res.body?.cancel();
 			return null;
 		}
-		const body = (await res.json()) as { held?: unknown };
-		return isOneOf(HOLDS, body.held) ? body.held : null;
+		return await res.json();
 	} catch {
 		return null;
 	}

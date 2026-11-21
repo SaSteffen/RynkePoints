@@ -28,7 +28,8 @@ export const ACTIVITY_FIGURES_VERSION = 5;
 
 /** The fields we read from a Strava summary or detailed activity. */
 export interface StravaActivity {
-	id: number;
+	/** Exact, from the digits of `id` (feature 042 research R1). */
+	id: string;
 	sport_type: string;
 	start_date: string;
 	start_date_local: string;
@@ -45,8 +46,8 @@ export interface StravaActivity {
 }
 
 export interface ActivityRecord {
-	strava_activity_id: number;
-	athlete_id: number;
+	strava_activity_id: string;
+	athlete_id: string;
 	sport_type: CyclingSportType;
 	start_date: string;
 	start_date_local: string;
@@ -76,8 +77,8 @@ export const RUN_SPORT_TYPES = ["Run", "TrailRun"] as const;
 
 /** An outdoor, recorded run: only what the running badges need (R11). */
 export interface RunRecord {
-	strava_activity_id: number;
-	athlete_id: number;
+	strava_activity_id: string;
+	athlete_id: string;
 	start_date: string;
 	start_date_local: string;
 	distance_m: number;
@@ -114,7 +115,7 @@ export function startsInSeason(
 /** Returns the record to store, or null if the activity isn't cycling. */
 export function toActivityRecord(
 	activity: StravaActivity,
-	athleteId: number,
+	athleteId: string,
 	now: number,
 ): ActivityRecord | null {
 	if (!isCycling(activity.sport_type)) return null;
@@ -145,7 +146,7 @@ export function toActivityRecord(
  */
 export function toRunRecord(
 	activity: StravaActivity,
-	athleteId: number,
+	athleteId: string,
 	now: number,
 ): RunRecord | null {
 	if (
@@ -173,7 +174,7 @@ export function toRunRecord(
  */
 export function toSwimRecord(
 	activity: StravaActivity,
-	athleteId: number,
+	athleteId: string,
 	now: number,
 ): SwimRecord | null {
 	if (

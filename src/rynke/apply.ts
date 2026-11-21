@@ -54,7 +54,7 @@ export type ActivityChange =
 			runs?: RunRecord[];
 			swims?: SwimRecord[];
 	  }
-	| { kind: "delete"; activityIds: number[] }
+	| { kind: "delete"; activityIds: string[] }
 	| { kind: "delete-private" };
 
 /** What an activity change did to the rider. */
@@ -62,7 +62,7 @@ export type ActivityResult = Omit<Reevaluation, "writes">;
 
 export async function applyAndEvaluate(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	change: ActivityChange,
 	rules: RynkeRules,
 	window: CountingWindow,
@@ -87,10 +87,10 @@ export async function applyAndEvaluate(
 			: [];
 	return withCurrentRiders(async () => {
 		const { riders, extra } = await readRiders(db, [athleteId], ownerReads);
-		const owners = new Map<number, number>();
+		const owners = new Map<string, string>();
 		for (const row of extra.flatMap((rows) => rows.results) as {
-			strava_activity_id: number;
-			athlete_id: number;
+			strava_activity_id: string;
+			athlete_id: string;
 		}[]) {
 			owners.set(row.strava_activity_id, row.athlete_id);
 		}
@@ -118,14 +118,14 @@ export async function applyAndEvaluate(
  */
 function changeWrites(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	{ activities, runs, swims }: RiderState,
 	change: ActivityChange,
-	owners: Map<number, number>,
+	owners: Map<string, string>,
 ): D1PreparedStatement[] {
 	const writes: D1PreparedStatement[] = [];
 	/** Removes the activity as a ride, run or swim, but as `keep`. */
-	const remove = (id: number, keep?: "ride" | "run" | "swim") => {
+	const remove = (id: string, keep?: "ride" | "run" | "swim") => {
 		if (keep !== "ride" && activities.delete(id)) {
 			writes.push(deleteActivityStatement(db, athleteId, id));
 		}
@@ -137,7 +137,7 @@ function changeWrites(
 		}
 	};
 	/** Removes the private ones; whether there were any. */
-	const removePrivate = (rows: Map<number, { is_private: number }>) => {
+	const removePrivate = (rows: Map<string, { is_private: number }>) => {
 		let removed = false;
 		for (const [id, row] of rows) {
 			if (row.is_private === 1) {
@@ -152,7 +152,7 @@ function changeWrites(
 			break;
 		case "upsert": {
 			// The SQL guards leave another rider's activity alone; so does this.
-			const own = (r: { strava_activity_id: number; athlete_id: number }) =>
+			const own = (r: { strava_activity_id: string; athlete_id: string }) =>
 				r.athlete_id === athleteId &&
 				(owners.get(r.strava_activity_id) ?? athleteId) === athleteId;
 			for (const record of change.records.filter(own)) {
@@ -193,7 +193,7 @@ function changeWrites(
 /** `applyAndEvaluate` under the current rules, for the work handlers. */
 export function evaluateChange(
 	ctx: Ctx,
-	athleteId: number,
+	athleteId: string,
 	change: ActivityChange,
 ): Promise<ActivityResult> {
 	return applyAndEvaluate(

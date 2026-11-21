@@ -353,9 +353,7 @@ export const sv: Catalog = {
 	"push.rise.team": "+{n} Team-Rynke",
 	"notifications.heading": "Aviseringar",
 	"notifications.explain":
-		"Den här enheten säger till när du har nya Rynke och vad du har kvar.",
-	"notifications.on": "På för den här enheten.",
-	"notifications.off": "Av för den här enheten.",
+		"Din enhet säger till så fort du får nya Rynke eller märken – även när appen är stängd.",
 	"notifications.blocked":
 		"Din enhet blockerar aviseringar från RynkePoints. Du kan tillåta dem i inställningarna för din webbläsare eller enhet.",
 	"notifications.needsHomeScreen":
@@ -403,15 +401,21 @@ export const sv: Catalog = {
 	"theme.name.disco": "Disco",
 	"theme.name.contrast-light": "Hög kontrast ljus",
 	"theme.name.contrast-dark": "Hög kontrast mörk",
-	"settings.app": "App",
-	"settings.strava": "Strava-anslutning",
 	"settings.account": "Konto",
+	"settings.device": "Den här enheten",
+	"settings.data": "Rynke och dina data",
+	"settings.strava.broken": "Anslutningen är bruten",
+	"settings.logout.here": "På den här enheten",
+	"settings.logoutEverywhere": "Logga ut överallt",
+	"settings.logoutEverywhere.sub": "På alla enheter, även den här",
 	"settings.shows": "Animationer",
-	"settings.shows.on":
-		"Animationer vid byte mellan avsnitt i Konfetti och Disco",
-	"settings.tour": "Rundturer",
 	"settings.tour.rider": "Visa rundturen igen",
 	"settings.tour.organiser": "Visa Orga-rundturen igen",
+	"settings.about": "Om appen",
+	"changelog.version": "Version {version}",
+	"changelog.title": "Nyheter",
+	"changelog.intro":
+		"Vad som har ändrats i varje version. Posterna är på engelska.",
 	"rynke.ride.why": "Varför?",
 	"notifications.switch": "Aviseringar på den här enheten",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",
@@ -918,6 +922,8 @@ export const sv: Catalog = {
 		"Aviseringar är frivilliga och gäller per enhet. Bara adressen som din enhets eller webbläsares push-tjänst ger den sparas. Själva aviseringen är tom: det den visar hämtar din enhet direkt från RynkePoints. Adressen raderas när du stänger av aviseringar, loggar ut på den enheten eller slutar.",
 	"privacy.technical.logs":
 		"Serverloggar innehåller bara id:n som idrottar- och aktivitets-ID och typen av fel, aldrig åtkomstnycklar eller aktivitetsdata. RynkePoints sparar inga IP-adresser.",
+	"privacy.technical.oneTeam":
+		"På RynkePoints cyklar du för ett lag i taget. När du ansluter frågar ett lag därför de andra lagen om du redan cyklar för ett av dem. Det får bara veta ja eller nej, aldrig vilket lag, och sparar inte svaret. Byter du lag raderar laget du lämnar allt om dig.",
 	"privacy.visibility.heading": "Vem ser vad",
 	"privacy.visibility.you":
 		"Du ser dina egna aktiviteter med titlar, dina Rynke och dina märken. Ingen annan ser titlarna.",
@@ -1226,10 +1232,13 @@ export const sv: Catalog = {
 	"notice.blocked.title": "Du kan inte vara med i det här laget",
 	"notice.blocked.body":
 		"En administratör har tagit bort dig från det här laget. Vi behåller bara ditt Strava-ID, så att du inte kan ansluta igen.",
-	"notice.oneTeam.title": "Du är också med i ett annat lags klubb",
-	"notice.oneTeam.body":
-		"På RynkePoints kan du vara med i ett lag i taget. Strava ger appen en anslutning per person, så om du ansluter till ett andra lag upphör anslutningen till det första. Du är nu ansluten här.",
-	"notice.carryOn": "Fortsätt",
+	"switchTeam.title": "Du cyklar redan för ett annat lag",
+	"switchTeam.body":
+		"På RynkePoints cyklar du för ett lag i taget, och du cyklar redan för ett annat lag här. Inget om dig är sparat i det här laget än.",
+	"switchTeam.cost":
+		"Byter du till det här laget raderar det andra laget dina turer, Rynke och märken där. Det här laget räknar säsongens turer på nytt efter sina egna regler.",
+	"switchTeam.switch": "Byt till det här laget",
+	"switchTeam.stay": "Stanna i mitt lag",
 	"organiser.graphs.heading": "Framsteg",
 	"organiser.graphs.title.outdoor": "Kilometer utomhus (km)",
 	"organiser.graphs.title.virtual": "Virtuella kilometer (km)",

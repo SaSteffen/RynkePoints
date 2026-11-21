@@ -17,6 +17,7 @@ import {
 	retryWork,
 	type StravaWorkItem,
 } from "../db/strava-work";
+import { compareIds } from "../strava/id";
 import { backoffSeconds, MAX_DELAY_SECONDS } from "../strava/rate-limit";
 import {
 	type Handler,
@@ -206,8 +207,8 @@ function holdingNotifications(ctx: Ctx): {
 	return { ctx: { ...ctx, queue }, captured };
 }
 
-function recipientsOf(captured: readonly SendNotificationMessage[]): number[] {
-	return [...new Set(captured.map((m) => m.athleteId))].sort((a, b) => a - b);
+function recipientsOf(captured: readonly SendNotificationMessage[]): string[] {
+	return [...new Set(captured.map((m) => m.athleteId))].sort(compareIds);
 }
 
 interface BadgeRise {
@@ -217,7 +218,7 @@ interface BadgeRise {
 
 async function readBadgeRise(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<BadgeRise | null> {
 	return readBadgeRiseStatement(db, athleteId).first<BadgeRise>();
 }
@@ -225,7 +226,7 @@ async function readBadgeRise(
 /** The badges the item's change wrote as the rider's badge rise, if any. */
 async function newBadges(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	before: BadgeRise | null,
 ): Promise<string[]> {
 	const after = await readBadgeRise(db, athleteId);
@@ -286,10 +287,7 @@ async function settle(
 		const badges = [...new Set([...held.badges, ...ownBadges])].sort();
 		if (!(await writeBacklogRise(ctx, owner, held, badges))) owed.delete(owner);
 	}
-	await notifyRiders(
-		ctx,
-		[...owed].sort((a, b) => a - b),
-	);
+	await notifyRiders(ctx, [...owed].sort(compareIds));
 }
 
 /**
@@ -299,7 +297,7 @@ async function settle(
  */
 async function writeBacklogRise(
 	ctx: Ctx,
-	owner: number,
+	owner: string,
 	held: HeldBacklog,
 	badges: string[],
 ): Promise<boolean> {

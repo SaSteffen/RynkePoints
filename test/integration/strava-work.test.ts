@@ -51,8 +51,8 @@ const label = (m: ActivityEventMessage) =>
 	`${{ [ATHLETE_A]: "A", [ATHLETE_B]: "B", [ATHLETE_C]: "C" }[m.athleteId]}${m.activityId}`;
 
 function events(
-	athleteId: number,
-	ids: number[],
+	athleteId: string,
+	ids: string[],
 	aspect: ActivityEventMessage["aspect"] = "create",
 ): ActivityEventMessage[] {
 	return ids.map((activityId) => ({
@@ -64,8 +64,8 @@ function events(
 	}));
 }
 
-const range = (from: number, to: number) =>
-	Array.from({ length: to - from + 1 }, (_, i) => from + i);
+const range = (from: number, to: number): string[] =>
+	Array.from({ length: to - from + 1 }, (_, i) => String(from + i));
 
 /**
  * A handler for activity events that records the order and answers with
@@ -100,7 +100,7 @@ async function deliver(bodies: unknown[], handlers: Handlers, attempts = 1) {
 	return getQueueResult(batch, createExecutionContext());
 }
 
-async function waiting(athleteId?: number): Promise<number> {
+async function waiting(athleteId?: string): Promise<number> {
 	const sql =
 		athleteId === undefined
 			? "SELECT COUNT(*) AS n FROM strava_work"
@@ -128,7 +128,7 @@ const turns = () =>
 describe("storing", () => {
 	it("acks Strava work and keeps it in the table while the budget is out", async () => {
 		const { handlers } = recorder(budget);
-		const result = await deliver(events(ATHLETE_A, [1, 2, 3]), handlers);
+		const result = await deliver(events(ATHLETE_A, ["1", "2", "3"]), handlers);
 		expect(result.explicitAcks).toEqual(["m1", "m2", "m3"]);
 		expect(result.retryMessages).toEqual([]);
 		expect(await waiting(ATHLETE_A)).toBe(3);
@@ -136,7 +136,7 @@ describe("storing", () => {
 
 	it("runs a lone event at once and leaves nothing behind", async () => {
 		const { seen, handlers } = recorder();
-		await deliver(events(ATHLETE_A, [1]), handlers);
+		await deliver(events(ATHLETE_A, ["1"]), handlers);
 		expect(seen).toEqual(["A1"]);
 		expect(await waiting()).toBe(0);
 		expect(await queues()).toBe(0);
@@ -147,8 +147,8 @@ describe("storing", () => {
 		const { seen, handlers } = recorder((m) =>
 			m.aspect === "delete" ? { kind: "ok" } : budget(),
 		);
-		await deliver(events(ATHLETE_A, [1, 2]), handlers);
-		await deliver(events(ATHLETE_A, [9], "delete"), handlers);
+		await deliver(events(ATHLETE_A, ["1", "2"]), handlers);
+		await deliver(events(ATHLETE_A, ["9"], "delete"), handlers);
 		// The delete ran from the queue; then the batch's drain met the budget
 		// again at A1.
 		expect(seen).toEqual(["A1", "A9", "A1"]);
@@ -195,13 +195,16 @@ describe("turns", () => {
 
 		// B's single ride arrives; the budget is back.
 		const next = recorder();
-		await deliver(events(ATHLETE_B, [1]), next.handlers);
+		await deliver(events(ATHLETE_B, ["1"]), next.handlers);
 		expect(next.seen).toEqual(["B1", "A2", "A3", "A4", "A5"]);
 	});
 
 	it("serves several backlogs round robin, oldest first within each (FR-002, FR-003)", async () => {
 		await deliver(
-			[...events(ATHLETE_A, [1, 2, 3]), ...events(ATHLETE_C, [1, 2, 3])],
+			[
+				...events(ATHLETE_A, ["1", "2", "3"]),
+				...events(ATHLETE_C, ["1", "2", "3"]),
+			],
 			recorder(budget).handlers,
 		);
 		const { seen, handlers } = recorder();
@@ -211,7 +214,7 @@ describe("turns", () => {
 
 	it("serves two riders who arrive fresh in their arrival order", async () => {
 		await deliver(
-			[...events(ATHLETE_C, [1]), ...events(ATHLETE_A, [1])],
+			[...events(ATHLETE_C, ["1"]), ...events(ATHLETE_A, ["1"])],
 			recorder(budget).handlers,
 		);
 		const { seen, handlers } = recorder();
@@ -225,11 +228,14 @@ describe("turns", () => {
 			call <= 2 ? { kind: "ok" } : budget(),
 		);
 		await deliver(
-			[...events(ATHLETE_A, [1, 2, 3]), ...events(ATHLETE_C, [1, 2, 3])],
+			[
+				...events(ATHLETE_A, ["1", "2", "3"]),
+				...events(ATHLETE_C, ["1", "2", "3"]),
+			],
 			first.handlers,
 		);
 		expect(first.seen).toEqual(["A1", "C1", "A2"]);
-		await deliver(events(ATHLETE_A, [4]), recorder(budget).handlers);
+		await deliver(events(ATHLETE_A, ["4"]), recorder(budget).handlers);
 
 		const { seen, handlers } = recorder();
 		await deliver([STRAVA_TURN], handlers);
@@ -253,7 +259,7 @@ describe("turns", () => {
 		expect(await waiting(ATHLETE_A)).toBe(290);
 
 		// B's ride arrives while the budget is still out.
-		await deliver(events(ATHLETE_B, [1]), recorder(budget).handlers);
+		await deliver(events(ATHLETE_B, ["1"]), recorder(budget).handlers);
 
 		// The next window opens: B's ride is the first one done.
 		const next = recorder((_, call) =>
@@ -276,7 +282,7 @@ describe("budget and retries", () => {
 		expect(turns()).toEqual([{ body: STRAVA_TURN, delaySeconds: 900 }]);
 
 		// More arrives while the wake is pending: no second wake.
-		await deliver(events(ATHLETE_A, [11]), recorder(budget).handlers);
+		await deliver(events(ATHLETE_A, ["11"]), recorder(budget).handlers);
 		expect(turns()).toHaveLength(1);
 	});
 
@@ -287,7 +293,7 @@ describe("budget and retries", () => {
 				: { kind: "ok" },
 		);
 		await deliver(
-			[...events(ATHLETE_A, [1, 2]), ...events(ATHLETE_C, [1, 2])],
+			[...events(ATHLETE_A, ["1", "2"]), ...events(ATHLETE_C, ["1", "2"])],
 			handlers,
 		);
 		expect(seen).toEqual(["A1", "C1", "C2"]);
@@ -302,7 +308,7 @@ describe("budget and retries", () => {
 
 	it("runs a backed-off item once its time has come", async () => {
 		const failing = recorder(() => ({ kind: "transient", reason: "HTTP 503" }));
-		await deliver(events(ATHLETE_A, [1]), failing.handlers);
+		await deliver(events(ATHLETE_A, ["1"]), failing.handlers);
 		ctx = makeCtx({ now: NOW + backoffSeconds(1) });
 		const { seen, handler } = recorder();
 		await deliver([STRAVA_TURN], { "activity-event": handler });
@@ -318,7 +324,7 @@ describe("budget and retries", () => {
 
 	it("drops a rider's waiting work when their refresh is refused (FR-010)", async () => {
 		const { seen, handlers } = recorder(() => ({ kind: "refresh-refused" }));
-		await deliver(events(ATHLETE_A, [1, 2, 3]), handlers);
+		await deliver(events(ATHLETE_A, ["1", "2", "3"]), handlers);
 		expect(seen).toEqual(["A1"]);
 		expect(await getRider(env.DB, ATHLETE_A)).toMatchObject({
 			status: "needs_reconnect",
@@ -328,7 +334,7 @@ describe("budget and retries", () => {
 	});
 
 	it("removes a deleted rider's waiting work with them (FR-010)", async () => {
-		await deliver(events(ATHLETE_A, [1, 2]), recorder(budget).handlers);
+		await deliver(events(ATHLETE_A, ["1", "2"]), recorder(budget).handlers);
 		await deleteRider(env.DB, ATHLETE_A);
 		expect(await waiting()).toBe(0);
 		expect(await queues()).toBe(0);
@@ -346,7 +352,7 @@ describe("budget and retries", () => {
 		const fake = installFakeStrava();
 		try {
 			// One rider per item, each with an expired token: a refresh each.
-			for (const athleteId of range(1, DRAIN_LIMIT + 1)) {
+			for (const athleteId of range(1, DRAIN_LIMIT + 1).map(String)) {
 				fake.addAthlete({ id: athleteId });
 				await seedRider(ctx, { athleteId, expiresAt: NOW - 1 });
 				const activity = makeStravaActivity();
@@ -375,7 +381,7 @@ describe("budget and retries", () => {
 
 describe("messages", () => {
 	it("acks a strava-turn and drains", async () => {
-		await deliver(events(ATHLETE_A, [1]), recorder(budget).handlers);
+		await deliver(events(ATHLETE_A, ["1"]), recorder(budget).handlers);
 		const { seen, handlers } = recorder();
 		const result = await deliver([STRAVA_TURN], handlers);
 		expect(result.explicitAcks).toEqual([`m${seq}`]);

@@ -39,7 +39,7 @@ import {
 
 const LIST = "/organiser/riders";
 
-const riderPath = (id: number) => `/organiser/riders/${id}`;
+const riderPath = (id: string) => `/organiser/riders/${id}`;
 
 async function listedRiders(ctx: Ctx): Promise<ListedRider[]> {
 	const { results } = await listListedRidersStatement(
@@ -111,7 +111,7 @@ export function handleOrganiserRider(
 	request: Request,
 	ctx: Ctx,
 	i18n: I18n,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Response> {
 	const path = riderPath(athleteId);
 	return organiserPage(request, ctx, i18n, path, async () => {
@@ -159,7 +159,7 @@ export async function handleAddCorrection(
 	request: Request,
 	ctx: Ctx,
 	i18n: I18n,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Response> {
 	const path = riderPath(athleteId);
 	const organiser = await requireOrganiserPost(

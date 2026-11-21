@@ -36,6 +36,7 @@ import type { RideEntry } from "../../rynke/summary";
 import { countingCorrections } from "../../rynke/tally";
 import type { TeamEventSum } from "../../rynke/team-events";
 import { dayNumber } from "../../rynke/weeks";
+import { compareIds } from "../../strava/id";
 import { hasEvents } from "../../teams";
 import type { CoinArt, TeamData } from "../../teams/types";
 import { SINCE_VERSION } from "../../visibility";
@@ -67,7 +68,7 @@ const GROUPS: readonly Group[] = ["requests", "push", "on_track", "in", "all"];
  * sessions by name (feature 032); a rider missing from it shows "–". Null with
  * the ride figures off.
  */
-export type RiderRides = ReadonlyMap<number, readonly RideEntry[]> | null;
+export type RiderRides = ReadonlyMap<string, readonly RideEntry[]> | null;
 
 /**
  * A rider's sessions and typical ride from the season start, as the riders'
@@ -75,7 +76,7 @@ export type RiderRides = ReadonlyMap<number, readonly RideEntry[]> | null;
  */
 function seasonSessions(
 	rides: RiderRides,
-	athleteId: number,
+	athleteId: string,
 	window: CountingWindow,
 ): { sessions: number; typicalM: number | null } | null {
 	const own = rides?.get(athleteId);
@@ -84,7 +85,7 @@ function seasonSessions(
 }
 
 /** Each listed rider's open requests, newest event first (019 FR-034). */
-export type RiderRequests = ReadonlyMap<number, readonly OpenRequestRow[]>;
+export type RiderRequests = ReadonlyMap<string, readonly OpenRequestRow[]>;
 
 /** An amount still missing, flagged when the rider is behind its even pace. */
 export interface Missing {
@@ -110,7 +111,7 @@ export interface Pace {
 }
 
 export interface OverviewRider {
-	athleteId: number;
+	athleteId: string;
 	firstName: string;
 	profileLink: string | null;
 	status: RiderStatus;
@@ -247,7 +248,7 @@ export function overviewRiders(
 		(a, b) =>
 			need(b) - need(a) ||
 			a.firstName.localeCompare(b.firstName) ||
-			a.athleteId - b.athleteId,
+			compareIds(a.athleteId, b.athleteId),
 	);
 }
 
@@ -1127,7 +1128,7 @@ function renderHint(
 
 /** The open requests by rider, in their order. */
 function byRider(rows: readonly OpenRequestRow[]): RiderRequests {
-	const requests = new Map<number, OpenRequestRow[]>();
+	const requests = new Map<string, OpenRequestRow[]>();
 	for (const row of rows) {
 		requests.set(row.athlete_id, [
 			...(requests.get(row.athlete_id) ?? []),

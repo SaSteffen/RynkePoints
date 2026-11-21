@@ -149,7 +149,11 @@ describe.each(PAGES)("GET $url", ({ url, current }) => {
 	it("answers HEAD like GET and renews a 10-day-old session", async () => {
 		await seedRider(ctx);
 		const old = cookiePair(
-			await createSessionCookie(ATHLETE_A, NOW - 10 * DAY, ctx.env),
+			await createSessionCookie(
+				{ athleteId: ATHLETE_A, epoch: 0 },
+				NOW - 10 * DAY,
+				ctx.env,
+			),
 		);
 		for (const method of ["GET", "HEAD"]) {
 			const res = await handleFetch(
@@ -161,7 +165,11 @@ describe.each(PAGES)("GET $url", ({ url, current }) => {
 				.getSetCookie()
 				.filter((c) => c.startsWith("rp_session="));
 			expect(renewed).toEqual([
-				await createSessionCookie(ATHLETE_A, NOW, ctx.env),
+				await createSessionCookie(
+					{ athleteId: ATHLETE_A, epoch: 0 },
+					NOW,
+					ctx.env,
+				),
 			]);
 		}
 	});

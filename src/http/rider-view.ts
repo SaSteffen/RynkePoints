@@ -21,6 +21,7 @@ import type {
 	TeamEventSum,
 } from "../rynke/team-events";
 import type { CyclingSportType } from "../strava/activity";
+import { isStravaId } from "../strava/id";
 
 // The rider page's view model (feature 005 data-model.md, research R6): what
 // the Rynke sections of the Overview and Rides show, built from one reading.
@@ -203,7 +204,7 @@ export interface RideTable {
 }
 
 export interface RideLine {
-	activityId: number;
+	activityId: string;
 	/** Strava's name of the ride, shown only to its rider (008 FR-008). */
 	name: string | null;
 	startDateLocal: string;
@@ -489,16 +490,14 @@ export function formatRideKey(key: RideKey): string {
 }
 
 const RIDE_KEY =
-	/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z)~([1-9]\d{0,15})$/;
+	/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z)~([1-9]\d{0,18})$/;
 
 /** The key `formatRideKey` wrote, or `null` for anything else. */
 export function parseRideKey(value: string | null): RideKey | null {
 	const match = value?.match(RIDE_KEY);
 	if (!match?.[1] || !match[2]) return null;
-	const activityId = Number(match[2]);
-	return Number.isSafeInteger(activityId)
-		? { startDate: match[1], activityId }
-		: null;
+	const activityId = match[2];
+	return isStravaId(activityId) ? { startDate: match[1], activityId } : null;
 }
 
 /**

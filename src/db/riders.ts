@@ -1,10 +1,12 @@
 import { decryptToken, encryptToken } from "../crypto/encrypt";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
+import { idJson, idsJson } from "../strava/id";
 import {
 	type GivenConsent,
 	recordConsentStatement,
 	SHARED_RIDER_IDS,
 } from "./consents";
+import { deleteSubscriptionsStatement } from "./push-subscriptions";
 import { insertEmptySummaryStatement } from "./rider-summaries";
 
 // Riders and their Strava credentials (data-model.md). Deleting a rider is a
@@ -14,7 +16,7 @@ export type RiderStatus = "connected" | "needs_reconnect";
 export type ImportStatus = "pending" | "running" | "done";
 
 export interface Rider {
-	athleteId: number;
+	athleteId: string;
 	firstName: string;
 	status: RiderStatus;
 	scopeReadAll: boolean;
@@ -45,6 +47,8 @@ export interface Rider {
 	guest: boolean;
 	/** Whether the ID is on the guest list now; a guest off it is a visitor (041 R4). */
 	onGuestList: boolean;
+	/** Only a session cookie with this epoch is signed in (issue #314). */
+	sessionEpoch: number;
 }
 
 export interface Credentials {
@@ -54,7 +58,7 @@ export interface Credentials {
 }
 
 export interface RiderRow {
-	athlete_id: number;
+	athlete_id: string;
 	first_name: string;
 	status: RiderStatus;
 	scope_read_all: number;
@@ -73,6 +77,7 @@ export interface RiderRow {
 	rechecked_at: number | null;
 	guest: number;
 	on_guest_list: number;
+	session_epoch: number;
 }
 
 export interface RiderGrant {
@@ -85,10 +90,11 @@ export interface RiderGrant {
 }
 
 /** The rider's row and whether they are on the guest list, for `toRider`. */
-export function riderStatement(db: D1Database, athleteId: number) {
+export function riderStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare(
-			`SELECT r.*, EXISTS (SELECT 1 FROM guests g WHERE g.athlete_id = r.athlete_id)
+			`SELECT r.*, CAST(r.athlete_id AS TEXT) AS athlete_id,
+				EXISTS (SELECT 1 FROM guests g WHERE g.athlete_id = r.athlete_id)
 				AS on_guest_list
 			FROM riders r WHERE r.athlete_id = ?`,
 		)
@@ -118,12 +124,13 @@ export function toRider(row: RiderRow): Rider {
 		recheckedAt: row.rechecked_at,
 		guest,
 		onGuestList: row.on_guest_list === 1,
+		sessionEpoch: row.session_epoch,
 	};
 }
 
 export async function getRider(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Rider | null> {
 	const row = await riderStatement(db, athleteId).first<RiderRow>();
 	return row ? toRider(row) : null;
@@ -133,10 +140,12 @@ export async function getRider(
  * A newly connected rider: `connected`, import `pending`, stored together with
  * their consent so a rider never exists without it (research R21). Their import
  * reads every current figure, so they start at the current figures version.
+ * Their session epoch is the time, so no cookie from before a disconnect signs
+ * them in again (issue #314).
  */
 export async function insertRider(
 	db: D1Database,
-	rider: RiderGrant & { athleteId: number },
+	rider: RiderGrant & { athleteId: string },
 	consent: GivenConsent,
 ): Promise<void> {
 	await db.batch([
@@ -145,8 +154,8 @@ export async function insertRider(
 				`INSERT INTO riders (athlete_id, first_name, status, scope_read_all,
 					scopes, connected_at, scopes_updated_at,
 					membership_checked_at, import_status, reconnect_requested_at,
-					figures_version, guest)
-				VALUES (?1, ?2, 'connected', ?3, ?4, ?5, ?5, ?5, 'pending', NULL, ?6, ?7)`,
+					figures_version, guest, session_epoch)
+				VALUES (?1, ?2, 'connected', ?3, ?4, ?5, ?5, ?5, 'pending', NULL, ?6, ?7, ?5)`,
 			)
 			.bind(
 				rider.athleteId,
@@ -174,7 +183,7 @@ export async function insertRider(
  */
 export async function updateRiderOnReconnect(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	grant: RiderGrant,
 ): Promise<void> {
 	await db
@@ -199,13 +208,13 @@ export async function updateRiderOnReconnect(
  * Each stored rider of `athleteIds` with their count of stored evaluations
  * (review L-18).
  */
-export function readEvaluationsStatement(db: D1Database, athleteIds: number[]) {
+export function readEvaluationsStatement(db: D1Database, athleteIds: string[]) {
 	return db
 		.prepare(
-			`SELECT athlete_id, evaluations FROM riders
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, evaluations FROM riders
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))`,
 		)
-		.bind(JSON.stringify(athleteIds));
+		.bind(idsJson(athleteIds));
 }
 
 /**
@@ -216,7 +225,7 @@ export function readEvaluationsStatement(db: D1Database, athleteIds: number[]) {
  */
 export function countEvaluationsStatement(
 	db: D1Database,
-	read: Map<number, number>,
+	read: Map<string, number>,
 ) {
 	return db
 		.prepare(
@@ -227,7 +236,7 @@ export function countEvaluationsStatement(
 				FROM json_each(?1)) AS seen
 			WHERE riders.athlete_id = seen.athlete_id`,
 		)
-		.bind(JSON.stringify([...read]));
+		.bind(JSON.stringify([...read].map(([id, n]) => [idJson(id), n])));
 }
 
 /**
@@ -255,7 +264,7 @@ export type TourId = "rider" | "organiser";
 /** Records that the rider finished or skipped a tour, on every device (#90). */
 export async function setOnboarded(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	tour: TourId,
 	now: number,
 ): Promise<void> {
@@ -269,7 +278,7 @@ export async function setOnboarded(
 /** A `pending` import starts its count of fetched activities again (024 R7). */
 export async function setImportStatus(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	status: ImportStatus,
 ): Promise<void> {
 	await db
@@ -285,7 +294,7 @@ export async function setImportStatus(
 /** Counts a page of the import's listed activities (feature 024 R7). */
 export async function addImportFetched(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	listed: number,
 ): Promise<void> {
 	await db
@@ -298,7 +307,7 @@ export async function addImportFetched(
 
 export async function setMembershipChecked(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	now: number,
 ): Promise<void> {
 	await db
@@ -307,9 +316,52 @@ export async function setMembershipChecked(
 		.run();
 }
 
+/**
+ * Ends every session of the rider and every device's notifications, which end
+ * with the sign-in (issue #314, feature 010 FR-013). Raised to at least the
+ * time, the epoch never runs ahead of the clock by more than a few quick
+ * presses, so the time a rider gets on connecting again lies above it.
+ */
+export async function endSessions(
+	db: D1Database,
+	athleteId: string,
+	now: number,
+): Promise<void> {
+	await db.batch([
+		db
+			.prepare(
+				`UPDATE riders SET session_epoch = MAX(session_epoch + 1, ?2)
+				WHERE athlete_id = ?1`,
+			)
+			.bind(athleteId, now),
+		deleteSubscriptionsStatement(db, athleteId),
+	]);
+}
+
+/** A row only if the rider is stored and `epoch` is their session epoch. */
+export function sessionCurrentStatement(
+	db: D1Database,
+	athleteId: string,
+	epoch: number,
+) {
+	return db
+		.prepare(
+			"SELECT 1 AS current FROM riders WHERE athlete_id = ? AND session_epoch = ?",
+		)
+		.bind(athleteId, epoch);
+}
+
+export async function isSessionCurrent(
+	db: D1Database,
+	athleteId: string,
+	epoch: number,
+): Promise<boolean> {
+	return (await sessionCurrentStatement(db, athleteId, epoch).first()) !== null;
+}
+
 export async function deleteRider(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<void> {
 	await db
 		.prepare("DELETE FROM riders WHERE athlete_id = ?")
@@ -317,23 +369,23 @@ export async function deleteRider(
 		.run();
 }
 
-export async function listConnectedRiderIds(db: D1Database): Promise<number[]> {
+export async function listConnectedRiderIds(db: D1Database): Promise<string[]> {
 	const { results } = await db
 		.prepare(
-			"SELECT athlete_id FROM riders WHERE status = 'connected' ORDER BY athlete_id",
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders WHERE status = 'connected' ORDER BY riders.athlete_id",
 		)
-		.all<{ athlete_id: number }>();
+		.all<{ athlete_id: string }>();
 	return results.map((r) => r.athlete_id);
 }
 
 /** Connected riders of the team, guests left out: whose club the daily run checks (041 FR-006). */
-export async function listClubRiderIds(db: D1Database): Promise<number[]> {
+export async function listClubRiderIds(db: D1Database): Promise<string[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT athlete_id FROM riders
-			WHERE status = 'connected' AND guest = 0 ORDER BY athlete_id`,
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders
+			WHERE status = 'connected' AND guest = 0 ORDER BY riders.athlete_id`,
 		)
-		.all<{ athlete_id: number }>();
+		.all<{ athlete_id: string }>();
 	return results.map((r) => r.athlete_id);
 }
 
@@ -341,21 +393,21 @@ export async function listClubRiderIds(db: D1Database): Promise<number[]> {
 export async function listRidersBehindFiguresVersion(
 	db: D1Database,
 	version: number,
-): Promise<number[]> {
+): Promise<string[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT athlete_id FROM riders
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders
 			WHERE status = 'connected' AND figures_version < ?
-			ORDER BY athlete_id`,
+			ORDER BY riders.athlete_id`,
 		)
 		.bind(version)
-		.all<{ athlete_id: number }>();
+		.all<{ athlete_id: string }>();
 	return results.map((r) => r.athlete_id);
 }
 
 export async function setFiguresVersion(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	version: number,
 ): Promise<void> {
 	await db
@@ -368,15 +420,15 @@ export async function setFiguresVersion(
 export async function listExpiredReconnectRiderIds(
 	db: D1Database,
 	before: number,
-): Promise<number[]> {
+): Promise<string[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT athlete_id FROM riders
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders
 			WHERE status = 'needs_reconnect' AND reconnect_requested_at < ?
-			ORDER BY athlete_id`,
+			ORDER BY riders.athlete_id`,
 		)
 		.bind(before)
-		.all<{ athlete_id: number }>();
+		.all<{ athlete_id: string }>();
 	return results.map((r) => r.athlete_id);
 }
 
@@ -384,14 +436,14 @@ export async function listExpiredReconnectRiderIds(
  * Who gets usage alerts: every administrator, guests included (041 FR-004),
  * with their own switch (025).
  */
-export async function listAlertRecipients(db: D1Database): Promise<number[]> {
+export async function listAlertRecipients(db: D1Database): Promise<string[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT athlete_id FROM riders
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders
 			WHERE (administrator = 1 OR guest = 1) AND admin_alerts = 1
-			ORDER BY athlete_id`,
+			ORDER BY riders.athlete_id`,
 		)
-		.all<{ athlete_id: number }>();
+		.all<{ athlete_id: string }>();
 	return results.map((r) => r.athlete_id);
 }
 
@@ -408,7 +460,7 @@ export function connectedCountStatement(db: D1Database): D1PreparedStatement {
 /** Sets the administrator's own switch for their usage alerts (025 FR-039). */
 export async function setAdminAlerts(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	on: boolean,
 ): Promise<void> {
 	await db
@@ -418,7 +470,7 @@ export async function setAdminAlerts(
 }
 
 export interface OverviewRider {
-	athleteId: number;
+	athleteId: string;
 	firstName: string;
 	status: RiderStatus;
 	connectedAt: number;
@@ -426,7 +478,7 @@ export interface OverviewRider {
 	importStatus: ImportStatus;
 }
 
-const OVERVIEW_COLUMNS = `athlete_id, first_name, status, connected_at,
+const OVERVIEW_COLUMNS = `CAST(athlete_id AS TEXT) AS athlete_id, first_name, status, connected_at,
 	membership_checked_at, import_status`;
 
 type OverviewRow = Pick<
@@ -466,7 +518,7 @@ export async function readRiderOverview(db: D1Database): Promise<{
 		db.prepare(
 			`SELECT ${OVERVIEW_COLUMNS}
 			FROM riders WHERE athlete_id IN (${listed})
-			ORDER BY first_name COLLATE NOCASE, athlete_id`,
+			ORDER BY first_name COLLATE NOCASE, riders.athlete_id`,
 		),
 		db.prepare(
 			`SELECT COUNT(*) AS n FROM riders
@@ -475,7 +527,7 @@ export async function readRiderOverview(db: D1Database): Promise<{
 		db.prepare(
 			`SELECT ${OVERVIEW_COLUMNS}
 			FROM riders WHERE guest = 1
-			ORDER BY first_name COLLATE NOCASE, athlete_id`,
+			ORDER BY first_name COLLATE NOCASE, riders.athlete_id`,
 		),
 	]);
 	return {
@@ -491,7 +543,7 @@ export async function readRiderOverview(db: D1Database): Promise<{
  */
 export async function listedRider(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<{ firstName: string; guest: boolean } | null> {
 	const listed = SHARED_RIDER_IDS;
 	const row = await db
@@ -508,10 +560,10 @@ type CredentialEnv = Pick<Env, "DB" | "TOKEN_ENCRYPTION_KEY">;
 
 export async function getCredentials(
 	env: CredentialEnv,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Credentials | null> {
 	const row = await env.DB.prepare(
-		"SELECT * FROM strava_credentials WHERE athlete_id = ?",
+		"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM strava_credentials WHERE athlete_id = ?",
 	)
 		.bind(athleteId)
 		.first<{
@@ -536,7 +588,7 @@ export async function getCredentials(
 /** Inserts or replaces the rider's credentials, encrypted (FR-027). */
 export async function saveCredentials(
 	env: CredentialEnv,
-	athleteId: number,
+	athleteId: string,
 	creds: Credentials,
 ): Promise<void> {
 	await env.DB.prepare(
@@ -561,12 +613,31 @@ export async function saveCredentials(
  */
 export async function riderHold(
 	db: D1Database,
-	athleteId: number,
-): Promise<"connected" | "reconnect" | "none"> {
+	athleteId: string,
+): Promise<{ held: "connected" | "reconnect" | "none"; rider: boolean }> {
 	const row = await db
-		.prepare("SELECT status FROM riders WHERE athlete_id = ?")
+		.prepare("SELECT status, guest FROM riders WHERE athlete_id = ?")
 		.bind(athleteId)
-		.first<{ status: RiderStatus }>();
-	if (!row) return "none";
-	return row.status === "connected" ? "connected" : "reconnect";
+		.first<{ status: RiderStatus; guest: number }>();
+	if (!row) return { held: "none", rider: false };
+	return {
+		held: row.status === "connected" ? "connected" : "reconnect",
+		// Held as a rider, not a guest (feature 044 R2).
+		rider: row.guest === 0,
+	};
+}
+
+/**
+ * Lets a rider go for a switch to another team (feature 044 R4): the row and
+ * everything that cascades from it, never a guest's. No block, no withdrawal:
+ * the team they switch to holds the grant.
+ */
+export async function letGoRider(
+	db: D1Database,
+	athleteId: string,
+): Promise<void> {
+	await db
+		.prepare("DELETE FROM riders WHERE athlete_id = ? AND guest = 0")
+		.bind(athleteId)
+		.run();
 }

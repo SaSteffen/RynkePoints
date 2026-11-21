@@ -22,9 +22,9 @@ const hamburg = makeCtx();
 const other = makeCtx({ team: europe });
 const { en } = CATALOGS;
 
-const ORGANISER = 930_001;
-const PAULA = 930_002;
-const JONAS = 930_003;
+const ORGANISER = "930001";
+const PAULA = "930002";
+const JONAS = "930003";
 
 /** The page's text for a catalog entry. */
 const text = (id: keyof typeof en) => escapeHtml(en[id] as string);

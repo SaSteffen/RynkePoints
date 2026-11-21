@@ -25,11 +25,11 @@ import { attendRaw, expectConsistent, insertEvent } from "../support/rynke";
 const ctx = makeCtx();
 const { de } = CATALOGS;
 const ORGANISER = ATHLETE_C;
-const OTHER_ORGANISER = 900004;
+const OTHER_ORGANISER = "900004";
 const RIDER = ATHLETE_A;
 const NOT_LISTED = ATHLETE_B;
 
-const ridersPath = (id: number) => `/organiser/riders/${id}`;
+const ridersPath = (id: string) => `/organiser/riders/${id}`;
 
 const VALID = {
 	training: "10",
@@ -77,18 +77,18 @@ async function page(path: string, athleteId = ORGANISER): Promise<string> {
 
 interface CorrectionRow {
 	correction_id: number;
-	athlete_id: number;
+	athlete_id: string;
 	training: number;
 	team: number;
 	reason: string;
 	correction_date: string;
-	changed_by: number | null;
+	changed_by: string | null;
 	changed_at: number;
 }
 
 async function corrections(): Promise<CorrectionRow[]> {
 	const { results } = await env.DB.prepare(
-		"SELECT * FROM corrections ORDER BY correction_id",
+		"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id, CAST(changed_by AS TEXT) AS changed_by FROM corrections ORDER BY correction_id",
 	).all<CorrectionRow>();
 	return results;
 }
@@ -157,6 +157,22 @@ describe("POST /organiser/riders/{id}/corrections", () => {
 		// start again from it (review L-18).
 		expect(ctx.queue.sent).toEqual([]);
 		await expectConsistent(RIDER);
+	});
+
+	it("opens and corrects a rider whose ID is past 2^53 (feature 042)", async () => {
+		const large = "9223372036854775807";
+		await seedRider(ctx, { athleteId: large, firstName: "Lara" });
+		const page = await get(ridersPath(large));
+		expect(page.status).toBe(200);
+		expect(await page.text()).toContain("Lara");
+		const res = await add(VALID, large);
+		expectRedirect(res, `${ridersPath(large)}?done=added`);
+		expect(await corrections()).toMatchObject([
+			{ athlete_id: large, changed_by: ORGANISER },
+		]);
+		expect(await balance(large)).toEqual({ training: 10, team: 0 });
+		// One past it differs only beyond 2^53: no such rider.
+		expect((await get(ridersPath("9223372036854775806"))).status).toBe(404);
 	});
 
 	it("trims the reason", async () => {
@@ -272,7 +288,7 @@ describe("the riders pages", () => {
 
 	it("gives 404 for a rider who isn't listed", async () => {
 		expect((await get(ridersPath(NOT_LISTED))).status).toBe(404);
-		expect((await get(ridersPath(123456))).status).toBe(404);
+		expect((await get(ridersPath("123456"))).status).toBe(404);
 	});
 
 	it("shows a rider's corrections, each removable only after confirming (FR-030, FR-031)", async () => {

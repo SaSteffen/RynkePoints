@@ -1,3 +1,4 @@
+import { idsJson } from "../strava/id";
 import { SHARED_RIDER_IDS } from "./consents";
 
 // Corrections of a rider's Training and Team Rynke (feature 014 Story 3,
@@ -19,7 +20,7 @@ export interface CorrectionRow {
 
 export interface CorrectionOfRidersRow {
 	correction_id: number;
-	athlete_id: number;
+	athlete_id: string;
 	training: number;
 	team: number;
 	correction_date: string;
@@ -36,7 +37,7 @@ export interface CorrectionFields {
 /** The rider's `CorrectionRow`s, newest first. */
 export function listRiderCorrectionsStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ) {
 	return db
 		.prepare(
@@ -53,22 +54,22 @@ export function listRiderCorrectionsStatement(
 /** `CorrectionOfRidersRow`s, as the evaluation reads them. */
 export function listCorrectionsOfRidersStatement(
 	db: D1Database,
-	athleteIds: number[],
+	athleteIds: string[],
 ) {
 	return db
 		.prepare(
-			`SELECT correction_id, athlete_id, training, team, correction_date
+			`SELECT correction_id, CAST(athlete_id AS TEXT) AS athlete_id, training, team, correction_date
 			FROM corrections WHERE athlete_id IN (SELECT value FROM json_each(?1))
-			ORDER BY athlete_id, correction_id`,
+			ORDER BY corrections.athlete_id, correction_id`,
 		)
-		.bind(JSON.stringify(athleteIds));
+		.bind(idsJson(athleteIds));
 }
 
 /** `correction_id, athlete_id` of the correction. */
 export function readCorrectionStatement(db: D1Database, correctionId: number) {
 	return db
 		.prepare(
-			"SELECT correction_id, athlete_id FROM corrections WHERE correction_id = ?",
+			"SELECT correction_id, CAST(athlete_id AS TEXT) AS athlete_id FROM corrections WHERE correction_id = ?",
 		)
 		.bind(correctionId);
 }
@@ -76,9 +77,9 @@ export function readCorrectionStatement(db: D1Database, correctionId: number) {
 /** `by` is the organiser adding it. */
 export function insertCorrectionStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	correction: CorrectionFields,
-	by: number,
+	by: string,
 	now: number,
 ) {
 	return db

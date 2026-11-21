@@ -22,7 +22,7 @@ const BEN = ATHLETE_B;
 const NOT_LISTED = ATHLETE_C;
 const TODAY = "2026-10-06";
 
-async function load(athleteId: number, firstName: string, cutoff = TODAY) {
+async function load(athleteId: string, firstName: string, cutoff = TODAY) {
 	return loadAlbum(
 		readOnly(env.DB),
 		env,
@@ -32,7 +32,7 @@ async function load(athleteId: number, firstName: string, cutoff = TODAY) {
 	);
 }
 
-async function earn(athleteId: number, badgeId: string, earnedOn: string) {
+async function earn(athleteId: string, badgeId: string, earnedOn: string) {
 	await env.DB.prepare(
 		"INSERT INTO rider_badges (athlete_id, badge_id, earned_on) VALUES (?, ?, ?)",
 	)
@@ -55,17 +55,17 @@ beforeEach(async () => {
 	await seedBalance(BEN, { trainingRynke: 17, teamRynke: 3 });
 	await seedBalance(NOT_LISTED, { trainingRynke: 500, teamRynke: 50 });
 	await seedRide(ANNA, {
-		id: 1,
+		id: "1",
 		start_date: "2026-09-07T08:00:00Z",
 		result: { counts: true, distanceRynke: 4, elevationDm: 0 },
 	});
 	await seedRide(ANNA, {
-		id: 2,
+		id: "2",
 		start_date: "2026-09-14T08:00:00Z",
 		result: { counts: true, distanceRynke: 5, elevationDm: 0 },
 	});
 	await seedRide(BEN, {
-		id: 3,
+		id: "3",
 		start_date: "2026-09-08T08:00:00Z",
 		result: { counts: true, distanceRynke: 3, elevationDm: 0 },
 	});

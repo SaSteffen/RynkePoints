@@ -1,3 +1,4 @@
+import { compareIds } from "../strava/id";
 // A rider's stored summary (feature 030): what team reads add up, worked out
 // from the same evaluation as the balance and held as JSON text per column of
 // `rider_summaries`. Pure like `tally.ts`; the SQL is in `db/rider-summaries.ts`.
@@ -306,7 +307,7 @@ function byDateThenEvent(
 
 /** What the team badges read of one listed rider. */
 export interface BadgeRider {
-	athleteId: number;
+	athleteId: string;
 	/** `YYYY-MM-DD` */
 	connectedOn: string;
 	days: readonly DayEntry[];
@@ -329,7 +330,7 @@ export function teamBadgeSumsOf(
 	const runs = new Map<string, number>();
 	const attendees = new Map<number, number>();
 	const active: TeamActivity[] = [];
-	const connectedOn = new Map<number, string>();
+	const connectedOn = new Map<string, string>();
 	const days = [];
 	for (const rider of riders) {
 		connectedOn.set(rider.athleteId, rider.connectedOn);
@@ -381,7 +382,7 @@ export function teamBadgeSumsOf(
 		active: active.sort(
 			(a, b) =>
 				compareText(a.date, b.date) ||
-				a.athleteId - b.athleteId ||
+				compareIds(a.athleteId, b.athleteId) ||
 				a.hour - b.hour ||
 				Number(a.ride) - Number(b.ride),
 		),

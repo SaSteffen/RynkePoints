@@ -23,11 +23,11 @@ import { CURRENT_RULES } from "../support/team-rules";
 let fake: FakeStrava;
 let ctx: TestCtx;
 
-const RIDE = 7_400_001;
-const POOL = 7_400_002;
-const OPEN = 7_400_003;
+const RIDE = "7400001";
+const POOL = "7400002";
+const OPEN = "7400003";
 
-const swim = (id: number, overrides = {}) =>
+const swim = (id: string, overrides = {}) =>
 	makeStravaActivity({
 		id,
 		sport_type: "Swim",
@@ -49,7 +49,7 @@ async function deliver(body: unknown) {
 	return getQueueResult(batch, createExecutionContext());
 }
 
-const event = (activityId: number, aspect = "create") => ({
+const event = (activityId: string, aspect = "create") => ({
 	kind: "activity-event",
 	athleteId: ATHLETE_A,
 	activityId,
@@ -59,7 +59,7 @@ const event = (activityId: number, aspect = "create") => ({
 
 async function swims() {
 	const { results } = await env.DB.prepare(
-		"SELECT strava_activity_id, distance_m, is_private FROM swims ORDER BY strava_activity_id",
+		"SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id, distance_m, is_private FROM swims ORDER BY swims.strava_activity_id",
 	).all();
 	return results;
 }

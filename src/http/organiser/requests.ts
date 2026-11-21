@@ -18,9 +18,11 @@ import {
 	TeamEventRefused,
 	teamEventChange,
 } from "../../rynke/team-event-change";
+import { idsJson, isStravaId } from "../../strava/id";
 import { html, type SafeHtml } from "../html";
 import { CHECK, CLOSE } from "../icons";
 import { redirect } from "../redirect";
+import { type Keys, signingContext } from "../session";
 import { requireOrganiserPost } from "./access";
 
 // Organisers settle riders' requests in one tap (feature 019 US4, FR-030–
@@ -43,7 +45,7 @@ export type Decision = "confirm" | "deny";
 export interface UndoValue {
 	decision: Decision;
 	eventId: number;
-	reports: { athleteId: number; reportedAt: number }[];
+	reports: { athleteId: string; reportedAt: number }[];
 }
 
 /** `back`, or `/organiser` when it isn't one of the allowed pages. */
@@ -59,15 +61,15 @@ function withQuery(path: string, query: string): string {
 export function undoToken(
 	value: UndoValue,
 	now: number,
-	key: string,
+	env: Keys,
 ): Promise<string> {
 	const ids = value.reports.map((r) => r.athleteId).join("_");
 	const times = value.reports.map((r) => r.reportedAt).join("_");
 	return signValue(
 		`${value.decision}-${value.eventId}-${ids}-${times}`,
 		now + UNDO_SECONDS,
-		key,
-		UNDO_CONTEXT,
+		env.SESSION_SIGNING_KEY,
+		signingContext(env, UNDO_CONTEXT),
 	);
 }
 
@@ -75,17 +77,22 @@ export function undoToken(
 export async function readUndoToken(
 	token: string,
 	now: number,
-	key: string,
+	env: Keys,
 ): Promise<UndoValue | null> {
-	const verified = await verifySignedValue(token, key, now, UNDO_CONTEXT);
+	const verified = await verifySignedValue(
+		token,
+		env.SESSION_SIGNING_KEY,
+		now,
+		signingContext(env, UNDO_CONTEXT),
+	);
 	if (!verified) return null;
 	const match = verified.value.match(
 		/^(confirm|deny)-(\d+)-(\d+(?:_\d+)*)-(\d+(?:_\d+)*)$/,
 	);
 	if (!match) return null;
-	const ids = (match[3] ?? "").split("_").map(Number);
+	const ids = (match[3] ?? "").split("_");
 	const times = (match[4] ?? "").split("_").map(Number);
-	if (ids.length !== times.length) return null;
+	if (ids.length !== times.length || !ids.every(isStravaId)) return null;
 	return {
 		decision: match[1] as Decision,
 		eventId: Number(match[2]),
@@ -110,7 +117,7 @@ export function eventLabel(
  */
 function decideForm(
 	eventId: number,
-	athleteIds: readonly number[],
+	athleteIds: readonly string[],
 	decision: Decision,
 	back: string,
 	button: SafeHtml,
@@ -229,18 +236,14 @@ export async function decisionNotice(
 	const done = url.searchParams.get("done");
 	if (done !== "confirmed" && done !== "denied") return null;
 	const token = url.searchParams.get("undo") ?? "";
-	const undo = await readUndoToken(
-		token,
-		ctx.now(),
-		ctx.env.SESSION_SIGNING_KEY,
-	);
+	const undo = await readUndoToken(token, ctx.now(), ctx.env);
 	if (!undo) return null;
 	const ids = undo.reports.map((r) => r.athleteId);
 	const { results } = await ctx.env.DB.prepare(
 		`SELECT first_name FROM riders WHERE athlete_id IN (SELECT value FROM json_each(?))
 		ORDER BY first_name COLLATE NOCASE, athlete_id`,
 	)
-		.bind(JSON.stringify(ids))
+		.bind(idsJson(ids))
 		.all<{ first_name: string }>();
 	const names = results.map((r) => r.first_name).join(", ");
 	const text = i18n.t(`organiser.done.${done}`, { names });
@@ -267,7 +270,7 @@ export async function handleDecideRequests(
 		redirect(withQuery(back, `error=${code}`), 303);
 	const decision = form.get("decision");
 	const eventId = Number(form.get("event"));
-	const asked = new Set(form.getAll("athlete").map(Number));
+	const asked = new Set(form.getAll("athlete").map(String));
 	if (
 		(decision !== "confirm" && decision !== "deny") ||
 		!Number.isSafeInteger(eventId)
@@ -287,7 +290,7 @@ export async function handleDecideRequests(
 	// Only requests still open: one another organiser settled meanwhile stays
 	// as it is (spec edge cases).
 	const reports = (
-		(reportRows?.results ?? []) as { athlete_id: number; reported_at: number }[]
+		(reportRows?.results ?? []) as { athlete_id: string; reported_at: number }[]
 	)
 		.filter((r) => asked.has(r.athlete_id))
 		.map((r) => ({ athleteId: r.athlete_id, reportedAt: r.reported_at }));
@@ -306,7 +309,7 @@ export async function handleDecideRequests(
 	const token = await undoToken(
 		{ decision, eventId, reports },
 		ctx.now(),
-		ctx.env.SESSION_SIGNING_KEY,
+		ctx.env,
 	);
 	const done = decision === "confirm" ? "confirmed" : "denied";
 	return redirect(
@@ -333,7 +336,7 @@ export async function handleUndoRequests(
 	const token = form.get("token");
 	const undo =
 		typeof token === "string"
-			? await readUndoToken(token, ctx.now(), ctx.env.SESSION_SIGNING_KEY)
+			? await readUndoToken(token, ctx.now(), ctx.env)
 			: null;
 	if (!undo) return redirect(withQuery(back, "error=undo_expired"), 303);
 	const athleteIds = undo.reports.map((r) => r.athleteId);

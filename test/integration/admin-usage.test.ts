@@ -263,7 +263,7 @@ describe("updating now (FR-040)", () => {
 });
 
 describe("usage alerts switch (FR-039)", () => {
-	const set = async (athleteId: number, value: string) =>
+	const set = async (athleteId: string, value: string) =>
 		handleFetch(
 			request("/admin/alerts", {
 				form: { admin_alerts: value },
@@ -271,7 +271,7 @@ describe("usage alerts switch (FR-039)", () => {
 			}),
 			ctx,
 		);
-	const stored = (athleteId: number) =>
+	const stored = (athleteId: string) =>
 		env.DB.prepare("SELECT admin_alerts FROM riders WHERE athlete_id = ?")
 			.bind(athleteId)
 			.first("admin_alerts");

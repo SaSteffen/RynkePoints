@@ -37,6 +37,8 @@ const COLUMNS: Record<string, string[]> = {
 		// Feature 003 (review L-18): how many evaluations stored the rider's
 		// Rynke, so a batch from a stale read fails and starts again.
 		"evaluations",
+		// Issue #314: only a session cookie with this epoch is signed in.
+		"session_epoch",
 	],
 	activities: [
 		"strava_activity_id",

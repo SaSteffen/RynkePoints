@@ -69,7 +69,7 @@ describe("opening the app with a new badge (#150)", () => {
 
 	it("opens on the badges page for a team badge earned since connecting", async () => {
 		await seedBalance(ATHLETE_A, { trainingRynke: 30 });
-		const team = [900011, 900012, 900013, 900014, 900015];
+		const team = ["900011", "900012", "900013", "900014", "900015"];
 		for (const athleteId of team) await seedRider(ctx, { athleteId });
 		// The rider connected on 6 October 2026 (NOW).
 		await attendRaw(await insertEvent("team_training", "2026-10-06"), team);

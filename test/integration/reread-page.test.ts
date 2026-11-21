@@ -15,6 +15,7 @@ import {
 	type ActivityRecord,
 	toActivityRecord,
 } from "../../src/strava/activity";
+import { compareIds } from "../../src/strava/id";
 import type { RereadPageMessage } from "../../src/work/messages";
 import { rereadPage } from "../../src/work/reread-page";
 import {
@@ -82,7 +83,7 @@ function addActivities(
 
 /** A row as migration 0002 leaves it: every new figure `NULL`. */
 async function seedUnknownFigures(
-	activityIds: number[],
+	activityIds: string[],
 	athleteId = ATHLETE_A,
 ): Promise<void> {
 	if (activityIds.length === 0) return;
@@ -100,7 +101,7 @@ async function seedUnknownFigures(
 }
 
 /** A row as migration 0003 leaves it: the 0002 figures set, the flag `NULL`. */
-async function seedUnknownFlag(activityIds: number[]): Promise<void> {
+async function seedUnknownFlag(activityIds: string[]): Promise<void> {
 	await env.DB.batch(
 		activityIds.map((id) =>
 			env.DB.prepare(
@@ -146,7 +147,7 @@ async function rider() {
 	return r;
 }
 
-function refetch(activityId: number, athleteId = ATHLETE_A) {
+function refetch(activityId: string, athleteId = ATHLETE_A) {
 	return {
 		kind: "activity-event",
 		athleteId,
@@ -365,15 +366,15 @@ describe("reread-page", () => {
 		if (!filled || !omitsManual) throw new Error("activities not added");
 		delete omitsManual.manual;
 		fake.addActivity(ATHLETE_A, omitsManual);
-		const gone = 7_400_001;
-		const otherRider = 7_400_002;
+		const gone = "7400001";
+		const otherRider = "7400002";
 		await seedUnknownFigures([filled.id, omitsManual.id, gone]);
 		await seedUnknownFigures([otherRider], ATHLETE_B);
 
 		await deliver(FIRST);
 
 		expect(ctx.queue.sent.map((m) => m.body)).toEqual(
-			[omitsManual.id, gone].sort((a, b) => a - b).map((id) => refetch(id)),
+			[omitsManual.id, gone].sort(compareIds).map((id) => refetch(id)),
 		);
 		expect(
 			await listActivityIdsMissingFigures(env.DB, ATHLETE_A),
@@ -383,7 +384,7 @@ describe("reread-page", () => {
 	it("deletes a leftover row Strava no longer has", async () => {
 		fake.addAthlete({ id: ATHLETE_A });
 		await seedRider(ctx, { figuresVersion: 0 });
-		const gone = 7_400_001;
+		const gone = "7400001";
 		await seedUnknownFigures([gone]);
 
 		await drain(FIRST, async () => {});
@@ -395,7 +396,7 @@ describe("reread-page", () => {
 	it("sends the refetches in batches of 100", async () => {
 		fake.addAthlete({ id: ATHLETE_A });
 		await seedRider(ctx, { figuresVersion: 0 });
-		const ids = Array.from({ length: 150 }, (_, i) => 7_500_001 + i);
+		const ids = Array.from({ length: 150 }, (_, i) => String(7_500_001 + i));
 		await seedUnknownFigures(ids);
 		const sendBatch = vi.spyOn(ctx.queue, "sendBatch");
 
@@ -412,7 +413,7 @@ describe("reread-page", () => {
 	it("defers without calling Strava when the budget is exhausted", async () => {
 		fake.addAthlete({ id: ATHLETE_A });
 		await seedRider(ctx, { figuresVersion: 0 });
-		await seedUnknownFigures([7_400_001]);
+		await seedUnknownFigures(["7400001"]);
 		await env.DB.prepare(
 			"UPDATE strava_rate_limit SET observed_at = ?, read_15m = 100 WHERE id = 1",
 		)
@@ -428,7 +429,7 @@ describe("reread-page", () => {
 		fake.addAthlete({ id: ATHLETE_A });
 		await seedRider(ctx, { figuresVersion: 0 });
 		addActivities(2, SEASON_START + 86400);
-		await seedUnknownFigures([7_400_001]);
+		await seedUnknownFigures(["7400001"]);
 		fake.failNext("activities", { status: 503 });
 		const result = await rereadPage(FIRST, await rider(), ctx, ATTEMPT);
 		expect(result).toMatchObject({ kind: "transient" });

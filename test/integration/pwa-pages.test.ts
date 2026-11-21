@@ -2,7 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Ctx } from "../../src/ctx";
 import { THEME_SCRIPT } from "../../src/http/html";
-import { CLOSE } from "../../src/http/icons";
+import { BELL, CLOSE } from "../../src/http/icons";
 import { createSessionCookie } from "../../src/http/session";
 import { STYLE } from "../../src/http/style";
 import { handleFetch } from "../../src/index";
@@ -99,12 +99,12 @@ describe("every page's head", () => {
 	);
 });
 
-describe("install group (015 FR-010, FR-011)", () => {
-	it("is only in Settings' App group, hidden, without a dismiss", async () => {
+describe("install row (015 FR-010, FR-011)", () => {
+	it("is only in Settings' install row, hidden, without a dismiss", async () => {
 		const cookies = await sessionCookie(ctx, ATHLETE_A);
 		const settings = (await get("/me/settings", cookies)).page;
 		const group = settings.match(
-			/<section id="settings-app"[\s\S]*?<\/section>/,
+			/<li id="settings-app" hidden>[\s\S]*?<\/li>/,
 		)?.[0];
 		expect(group).toContain(INSTALL_HINT);
 		for (const path of ["/", "/me", "/me/rides", "/team"]) {
@@ -162,17 +162,20 @@ describe("app prompt (015 FR-010–FR-012, FR-016)", () => {
 });
 
 describe("notifications section (FR-010, FR-011)", () => {
-	const SECTION = `<section id="notifications" class="settings-group" data-push-key="${vapidPublicKey(ctx.env)}" hidden>
-<h2>Benachrichtigungen</h2>
-<p>Dieses Gerät sagt dir Bescheid, wenn du neue Rynke hast, und was dir noch fehlt.</p>
-<p data-state="on" hidden>Auf diesem Gerät an.</p>
-<p data-state="off" hidden>Auf diesem Gerät aus.</p>
-<p data-state="blocked" hidden>Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.</p>
-<p data-state="needsHomeScreen" hidden>Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.</p>
-<p data-state="unsupported" hidden>Dieser Browser kann keine Benachrichtigungen anzeigen.</p>
-<p data-state="failed" hidden>Das hat nicht geklappt. Versuch es bitte noch einmal.</p>
+	const SECTION = `<li id="notifications" data-push-key="${vapidPublicKey(ctx.env)}" hidden>
+<div class="settings-row is-static">
+<span class="settings-icon">${BELL}</span>
+<div class="settings-text">
+<span class="settings-title">Benachrichtigungen</span>
+<p class="settings-sub" data-state="on off" hidden>Dein Gerät meldet sich, sobald du neue Rynke oder Abzeichen bekommst – auch wenn die App zu ist.</p>
+<p class="settings-sub is-warn" data-state="blocked" hidden>Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.</p>
+<p class="settings-sub is-warn" data-state="needsHomeScreen" hidden>Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.</p>
+<p class="settings-sub is-warn" data-state="unsupported" hidden>Dieser Browser kann keine Benachrichtigungen anzeigen.</p>
+<p class="settings-sub is-warn" data-state="failed" hidden>Das hat nicht geklappt. Versuch es bitte noch einmal.</p>
+</div>
 <button type="button" role="switch" data-action="toggle" aria-checked="false" aria-label="Benachrichtigungen auf diesem Gerät" hidden></button>
-</section>`;
+</div>
+</li>`;
 
 	it("is in Settings, all hidden, and not on the Overview (011 FR-014)", async () => {
 		await evaluateChange(ctx, ATHLETE_A, { kind: "none" });
@@ -330,7 +333,7 @@ describe("GET /me/notification-text (issue #45)", () => {
 			qualified: false,
 		});
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			sport_type: "VirtualRide",
 			result: { counts: true, distanceRynke: 102, isVirtual: true },
 		});
@@ -361,7 +364,11 @@ describe("the cached texts hold no rider data (SC-007, SC-008)", () => {
 		async (path) => {
 			// Issued 10 days ago, so a page would renew it.
 			const cookies = cookiePair(
-				await createSessionCookie(ATHLETE_A, NOW - 10 * 86400, ctx.env),
+				await createSessionCookie(
+					{ athleteId: ATHLETE_A, epoch: 0 },
+					NOW - 10 * 86400,
+					ctx.env,
+				),
 			);
 			const noDb = withoutDb(ctx);
 			const anonymous = await handleFetch(request(path), noDb);

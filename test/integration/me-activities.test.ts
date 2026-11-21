@@ -25,7 +25,7 @@ import { rideCards, seedBalance } from "../support/rider-view";
 const ctx = makeCtx();
 
 function record(
-	athleteId: number,
+	athleteId: string,
 	overrides: Partial<StravaActivityFixture> = {},
 ): ActivityRecord {
 	const r = toActivityRecord(makeStravaActivity(overrides), athleteId, NOW);
@@ -35,9 +35,9 @@ function record(
 
 /** `n` activities on consecutive days in September 2026, oldest first. */
 function rides(
-	athleteId: number,
+	athleteId: string,
 	n: number,
-	firstId: number,
+	firstId: string,
 	overrides: Partial<StravaActivityFixture> = {},
 ): ActivityRecord[] {
 	return Array.from({ length: n }, (_, i) => {
@@ -85,10 +85,10 @@ describe("GET /me/rides recent rides", () => {
 	it("lists only the rider's 20 newest activities, newest first", async () => {
 		await seedReadyRider();
 		await seedRider(ctx, { athleteId: ATHLETE_B });
-		await upsertActivities(env.DB, rides(ATHLETE_A, 25, 7_100_001));
+		await upsertActivities(env.DB, rides(ATHLETE_A, 25, "7100001"));
 		await upsertActivities(
 			env.DB,
-			rides(ATHLETE_B, 3, 7_200_001, {
+			rides(ATHLETE_B, 3, "7200001", {
 				start_date: "2026-09-30T07:00:00Z",
 				start_date_local: "2026-09-30T09:00:00Z",
 				distance: 99_999,
@@ -175,7 +175,7 @@ describe("GET /me/rides recent rides", () => {
 	it("shows the empty state for a rider with a balance but no rides (015 R3)", async () => {
 		await seedReadyRider();
 		await seedRider(ctx, { athleteId: ATHLETE_B });
-		await upsertActivities(env.DB, rides(ATHLETE_B, 3, 7_200_001));
+		await upsertActivities(env.DB, rides(ATHLETE_B, 3, "7200001"));
 
 		const page = await getMe();
 		expect(page).toContain("<h2>Deine Fahrten</h2>");
@@ -186,7 +186,7 @@ describe("GET /me/rides recent rides", () => {
 
 	it("shows only the waiting state before the first balance (015 US1)", async () => {
 		await seedRider(ctx);
-		await upsertActivities(env.DB, rides(ATHLETE_A, 3, 7_100_001));
+		await upsertActivities(env.DB, rides(ATHLETE_A, 3, "7100001"));
 
 		const page = await getMe();
 		expect(page).toContain(

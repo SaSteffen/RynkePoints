@@ -10,6 +10,7 @@ import type { Ctx } from "../ctx";
 import { isBlocked } from "../db/blocked";
 import { recordConsent } from "../db/consents";
 import { isOnGuestList } from "../db/guests";
+import { forgetPendingRevocation } from "../db/pending-revocations";
 import {
 	deleteRider,
 	getRider,
@@ -22,10 +23,14 @@ import {
 } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { evaluateChange } from "../rynke/apply";
-import { clubMembership } from "../strava/client";
+import { isClubMember } from "../strava/client";
 import { STRAVA_ORIGIN } from "../strava/result";
 import { exchangeCode } from "../strava/tokens";
-import { withdrawGrant } from "../strava/withdraw";
+import {
+	askOtherTeams,
+	letGoElsewhere,
+	withdrawGrant,
+} from "../strava/withdraw";
 import { forbidden } from "./errors";
 import { arrival, sectionNext } from "./lang";
 import type { NoticeId } from "./notice";
@@ -70,6 +75,7 @@ async function authorizeRedirect(
 	ctx: Ctx,
 	consentVersion: number,
 	next: string,
+	switchTeam = false,
 ): Promise<Response> {
 	const state = randomState();
 	const authorize = new URL(`${STRAVA_ORIGIN}/oauth/authorize`);
@@ -77,7 +83,9 @@ async function authorizeRedirect(
 		client_id: clientId(ctx.env),
 		redirect_uri: redirectUri(request, ctx),
 		response_type: "code",
-		approval_prompt: "force",
+		// A switch follows an approval seconds ago: Strava needn't ask again
+		// (feature 044 R3).
+		approval_prompt: switchTeam ? "auto" : "force",
 		scope: REQUESTED_SCOPES,
 		state,
 	}).toString();
@@ -88,6 +96,7 @@ async function authorizeRedirect(
 			next,
 			ctx.now(),
 			ctx.env,
+			switchTeam,
 		),
 	]);
 }
@@ -117,6 +126,8 @@ export async function handleConnectForm(
 		ctx,
 		version,
 		sectionNext(form.get("next")),
+		// The choice page's "switch to this team" (feature 044 R3).
+		form.get("switch") === "1",
 	);
 }
 
@@ -125,8 +136,8 @@ export async function handleReconnect(
 	request: Request,
 	ctx: Ctx,
 ): Promise<Response> {
-	const athleteId = await readSession(request, ctx.env, ctx.now());
-	if (athleteId === null || !(await getRider(ctx.env.DB, athleteId))) {
+	// Null too for a rider who is gone (research R9).
+	if ((await readSession(request, ctx.env, ctx.now())) === null) {
 		return redirect("/", 302);
 	}
 	// Settings asks to come back to it (feature 011 research R9).
@@ -206,14 +217,8 @@ export async function handleCallback(
 	// A person waits for this page: it may use the reserve (feature 024 R5).
 	const membership = guest
 		? null
-		: await clubMembership(
-				ctx,
-				auth,
-				memberClubIds(ctx.env),
-				ctx.team.otherClubIds,
-				"interactive",
-			);
-	if (membership?.kind === "ok" && !membership.value.member) {
+		: await isClubMember(ctx, auth, memberClubIds(ctx.env), "interactive");
+	if (membership?.kind === "ok" && !membership.value) {
 		return refuse("not-member", "not-member-deleted");
 	}
 	if (membership && membership.kind !== "ok" && !existing) {
@@ -221,6 +226,25 @@ export async function handleCallback(
 		// the daily check decides later (research R4).
 		withdraw();
 		return notice("strava-busy");
+	}
+
+	// One team at a time (feature 044): a new person who rides for another
+	// team chooses first, and a switch has that team let them go before this
+	// one stores anything (research R1, R3, R6). Guests aren't riders.
+	if (!existing && !guest) {
+		const elsewhere = await askOtherTeams(ctx, token.athleteId);
+		if (elsewhere === null) {
+			withdraw();
+			return notice("strava-busy");
+		}
+		if (elsewhere.rider && !expected.switchTeam) {
+			withdraw();
+			return redirect("/switch-team", 303, [clearOAuthStateCookie()]);
+		}
+		if (elsewhere.rider && !(await letGoElsewhere(ctx, token.athleteId))) {
+			withdraw();
+			return notice("strava-busy");
+		}
 	}
 
 	const now = ctx.now();
@@ -248,6 +272,9 @@ export async function handleCallback(
 			},
 		);
 		await saveCredentials(ctx.env, token.athleteId, credentials);
+		// A token kept from an earlier refusal here must not be revoked now
+		// that this team holds the grant (feature 044 R5).
+		await forgetPendingRevocation(ctx.env.DB, token.athleteId);
 		startImport = true;
 	} else {
 		// Reconnect rules (data-model.md). The new token is stored before the
@@ -287,12 +314,12 @@ export async function handleCallback(
 		});
 	}
 
-	const session = await createSessionCookie(token.athleteId, now, ctx.env);
-	// A new rider in another team's club too learns that one team at a time
-	// works, before they connect to the other (FR-012).
-	if (!existing && membership?.kind === "ok" && membership.value.other) {
-		return notice("one-team", [session]);
-	}
-	const next = await arrival(sectionNext(expected.next), ctx, token.athleteId);
+	// A new rider's epoch is the time `insertRider` stored (issue #314).
+	const signedIn = {
+		athleteId: token.athleteId,
+		epoch: existing ? existing.sessionEpoch : now,
+	};
+	const session = await createSessionCookie(signedIn, now, ctx.env);
+	const next = await arrival(sectionNext(expected.next), ctx, signedIn);
 	return redirect(next, 302, [clearOAuthStateCookie(), session]);
 }

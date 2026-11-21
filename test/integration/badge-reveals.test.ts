@@ -156,7 +156,7 @@ describe("the badge reveal (US2)", () => {
 });
 
 describe("the team's badges in the reveal (US4 scenario 5)", () => {
-	const TEAM = [900011, 900012, 900013, 900014, 900015];
+	const TEAM = ["900011", "900012", "900013", "900014", "900015"];
 
 	async function bigTraining(date: string) {
 		for (const athleteId of TEAM) await seedRider(ctx, { athleteId });

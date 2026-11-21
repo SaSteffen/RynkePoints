@@ -1,3 +1,5 @@
+import { compareIds } from "../strava/id";
+
 // The pace of the ride edit re-check (feature 036 contracts/hourly-run.md,
 // research R2, R4, R5): how many riders an hourly run checks, which, and when
 // within the hour. Pure: no I/O, no clock. Times are epoch seconds.
@@ -20,7 +22,7 @@ export const REPEAT_GUARD = 30 * 60;
 
 /** A rider the run may check: active, connected, import done. */
 export interface Candidate {
-	athleteId: number;
+	athleteId: string;
 	/** `riders.rechecked_at`; null: never checked, which is longest ago. */
 	recheckedAt: number | null;
 	/** Has a recent ride a crop could rescue (FR-012). */
@@ -83,7 +85,7 @@ export function chooseRiders(
 	const ordered = [...candidates].sort(
 		(a, b) =>
 			(a.recheckedAt ?? -Infinity) - (b.recheckedAt ?? -Infinity) ||
-			a.athleteId - b.athleteId,
+			compareIds(a.athleteId, b.athleteId),
 	);
 	const due = ordered.filter((c) => checkedBefore(c, now, DUE_AFTER));
 	const fast = ordered.filter(

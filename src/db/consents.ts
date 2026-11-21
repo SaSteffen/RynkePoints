@@ -19,7 +19,7 @@ export type GivenConsent = Omit<Consent, "revision"> & { revision?: number };
  */
 export function recordConsentStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	version: number,
 	acceptedAt: number,
 	revision = 0,
@@ -35,7 +35,7 @@ export function recordConsentStatement(
 
 export async function recordConsent(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	version: number,
 	acceptedAt: number,
 	revision = 0,
@@ -50,7 +50,7 @@ export async function recordConsent(
 }
 
 /** The rider's current consent: the record with the highest version. */
-export function currentConsentStatement(db: D1Database, athleteId: number) {
+export function currentConsentStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare(
 			`SELECT version, revision, accepted_at FROM consent_records
@@ -76,7 +76,7 @@ export function toConsent(row: ConsentRow): Consent {
 
 export async function getCurrentConsent(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Consent | null> {
 	const row = await currentConsentStatement(db, athleteId).first<ConsentRow>();
 	return row ? toConsent(row) : null;
@@ -85,7 +85,7 @@ export async function getCurrentConsent(
 /** The rider's highest accepted version, null without a record (004 R13). */
 export async function consentVersionOf(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<number | null> {
 	return db
 		.prepare(
@@ -133,11 +133,13 @@ export function sharedRiderExists(alias: string, version: number): string {
 /** SQL subquery: athlete IDs whose consent includes the FR-020 sharing. */
 export const SHARED_RIDER_IDS = sharedRiderIdsSince(SHARING_SINCE_VERSION);
 
-export async function listSharedRiderIds(db: D1Database): Promise<number[]> {
+export async function listSharedRiderIds(db: D1Database): Promise<string[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT DISTINCT athlete_id FROM (${SHARED_RIDER_IDS}) ORDER BY athlete_id`,
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM (
+				SELECT DISTINCT athlete_id FROM (${SHARED_RIDER_IDS})) t
+			ORDER BY t.athlete_id`,
 		)
-		.all<{ athlete_id: number }>();
+		.all<{ athlete_id: string }>();
 	return results.map((row) => row.athlete_id);
 }

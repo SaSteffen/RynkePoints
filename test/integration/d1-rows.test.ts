@@ -26,9 +26,11 @@ import { activityRecord } from "../support/rynke";
 
 const ctx = makeCtx();
 const FIRST = 700_000;
+/** The `n`th test rider's athlete ID. */
+const id = (n = 0) => String(FIRST + n);
 const RIDERS = 40;
-const ORGANISER = FIRST;
-const RIDER = FIRST + 7;
+const ORGANISER = id();
+const RIDER = id(7);
 
 /** 40 riders with `rides` rides, 20 runs and 10 swims each, and 20 events. */
 async function seedTeam(rides: number): Promise<void> {
@@ -36,7 +38,7 @@ async function seedTeam(rides: number): Promise<void> {
 	const db = env.DB;
 	for (let i = 0; i < RIDERS; i++) {
 		await seedRider(ctx, {
-			athleteId: FIRST + i,
+			athleteId: id(i),
 			firstName: `Rider${i}`,
 			organiser: i === 0,
 		});
@@ -103,7 +105,7 @@ async function seedTeam(rides: number): Promise<void> {
 			.run();
 	}
 	for (let i = 0; i < RIDERS; i++) {
-		await evaluateChange(ctx, FIRST + i, { kind: "none" });
+		await evaluateChange(ctx, id(i), { kind: "none" });
 	}
 }
 
@@ -119,7 +121,7 @@ interface Uses {
 }
 
 /** The rows of a page's second view, once a first has marked what it marks. */
-async function pageRows(path: string, athleteId: number): Promise<number> {
+async function pageRows(path: string, athleteId: string): Promise<number> {
 	const { ctx: counted, counter } = countRows(ctx);
 	const cookies = await sessionCookie(ctx, athleteId);
 	await (await handleFetch(request(path, { cookies }), ctx)).arrayBuffer();
@@ -151,7 +153,7 @@ async function measure(): Promise<Uses> {
 	await evaluateChange(counted, RIDER, {
 		kind: "upsert",
 		records: [
-			activityRecord(999_000_111, {
+			activityRecord("999000111", {
 				athlete_id: RIDER,
 				start_date: "2026-09-29T08:00:00Z",
 				start_date_local: "2026-09-29T09:00:00Z",
@@ -307,12 +309,12 @@ describe("rows written by the ride edit re-check (feature 036)", () => {
 
 	async function team(n: number): Promise<void> {
 		for (let i = 0; i < n; i++) {
-			const athleteId = FIRST + i;
+			const athleteId = id(i);
 			const runCtx = makeCtx({ now: RUN_AT });
 			fake.addAthlete({ id: athleteId });
 			await seedRider(runCtx, { athleteId });
 			const ride = makeStravaActivity({
-				id: athleteId * 10,
+				id: `${athleteId}0`,
 				athlete: { id: athleteId },
 				start_date: "2026-10-04T07:30:00Z",
 			});
@@ -340,7 +342,7 @@ describe("rows written by the ride edit re-check (feature 036)", () => {
 		const runCtx = makeCtx({ now: RUN_AT });
 		await recheckRun(runCtx);
 		const [message] = runCtx.queue.sent;
-		const rider = await getRider(env.DB, FIRST);
+		const rider = await getRider(env.DB, id());
 		if (!message || !rider) throw new Error("no check sent");
 		const { ctx: counted, counter } = countRows(makeCtx({ now: RUN_AT + 60 }));
 		await recheckRider(message.body as RecheckRiderMessage, rider, counted, {

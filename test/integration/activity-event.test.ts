@@ -28,11 +28,11 @@ import {
 	NOW,
 } from "../support/fixtures";
 
-const A = 7_200_001;
-const B = 7_200_002;
-const C = 7_200_003;
-const D = 7_200_004;
-const E = 7_200_005;
+const A = "7200001";
+const B = "7200002";
+const C = "7200003";
+const D = "7200004";
+const E = "7200005";
 
 let fake: FakeStrava;
 let ctx: TestCtx;
@@ -49,7 +49,7 @@ afterEach(() => {
 });
 
 function msg(
-	activityId: number,
+	activityId: string,
 	aspect: ActivityEventMessage["aspect"],
 	changed: string[] = [],
 	athleteId = ATHLETE_A,
@@ -74,7 +74,7 @@ async function deliver(body: ActivityEventMessage, attempts = 1) {
 
 async function rows() {
 	const { results } = await env.DB.prepare(
-		"SELECT * FROM activities ORDER BY strava_activity_id",
+		"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id, CAST(strava_activity_id AS TEXT) AS strava_activity_id FROM activities ORDER BY strava_activity_id",
 	).all();
 	return results;
 }
@@ -94,11 +94,11 @@ async function connectedRider(scopeReadAll = true) {
 	await seedRider(ctx, { scopeReadAll });
 }
 
-function addRide(id: number, overrides: Record<string, unknown> = {}) {
+function addRide(id: string, overrides: Record<string, unknown> = {}) {
 	fake.addActivity(ATHLETE_A, makeStravaActivity({ id, ...overrides }));
 }
 
-function fakeActivity(id: number) {
+function fakeActivity(id: string) {
 	const activity = fake.activities.get(id);
 	if (!activity) throw new Error(`fake has no activity ${id}`);
 	return activity;
@@ -199,7 +199,9 @@ describe("activity-event: create", () => {
 		});
 		for (const id of [A, B, C, D, E]) await deliver(msg(id, "create"));
 		expect(await storedIds()).toEqual([B, D]);
-		const { results } = await env.DB.prepare("SELECT * FROM runs").all();
+		const { results } = await env.DB.prepare(
+			"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id, CAST(strava_activity_id AS TEXT) AS strava_activity_id FROM runs",
+		).all();
 		expect(results).toEqual([]);
 	});
 
@@ -437,7 +439,7 @@ describe("activity-event: retries", () => {
 		const { result } = await deliver(body, MAX_ATTEMPTS);
 		expect(result.explicitAcks).toEqual(["m1"]);
 		const failed = await env.DB.prepare(
-			"SELECT athlete_id, message, first_failed_at FROM failed_work",
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id, message, first_failed_at FROM failed_work",
 		).all();
 		expect(failed.results).toEqual([
 			{

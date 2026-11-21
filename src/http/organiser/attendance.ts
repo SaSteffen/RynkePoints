@@ -45,8 +45,8 @@ export async function readAttendance(
 	eventId: number,
 ): Promise<{
 	riders: ListedRider[];
-	attendees: Set<number>;
-	reports: Set<number>;
+	attendees: Set<string>;
+	reports: Set<string>;
 }> {
 	const [riderRows, attendeeRows, reportRows] = await ctx.env.DB.batch([
 		listListedRidersStatement(ctx.env.DB),
@@ -55,7 +55,7 @@ export async function readAttendance(
 	]);
 	const ids = (rows: { results?: unknown[] } | undefined) =>
 		new Set(
-			((rows?.results ?? []) as { athlete_id: number }[]).map(
+			((rows?.results ?? []) as { athlete_id: string }[]).map(
 				(r) => r.athlete_id,
 			),
 		);
@@ -133,8 +133,8 @@ export function attendanceSection(
 	i18n: I18n,
 	event: { eventId: number; future: boolean },
 	riders: ListedRider[],
-	attendees: Set<number>,
-	reports: ReadonlySet<number> = new Set(),
+	attendees: Set<string>,
+	reports: ReadonlySet<string> = new Set(),
 ): SafeHtml {
 	const { future } = event;
 	const reported = (r: ListedRider) =>
@@ -183,12 +183,12 @@ ${summary}</form>`;
 
 /** What the form asks for: 014's ticks and 019's decisions on requests. */
 interface AttendanceDiff {
-	add: number[];
-	remove: number[];
+	add: string[];
+	remove: string[];
 	/** Requests to confirm (019 FR-042). */
-	confirm: number[];
+	confirm: string[];
 	/** Requests to deny. */
-	deny: number[];
+	deny: string[];
 	/** Requests left grey. */
 	open: number;
 }
@@ -201,23 +201,24 @@ interface AttendanceDiff {
  */
 function attendanceDiff(
 	form: FormData,
-	listed: Set<number>,
+	listed: Set<string>,
 ): AttendanceDiff | null {
-	const attend = new Set<number>();
+	const attend = new Set<string>();
 	for (const value of form.getAll("attend")) {
-		const id = Number(value);
+		const id = String(value);
 		if (!listed.has(id)) return null;
 		attend.add(id);
 	}
-	const shown = new Map<number, boolean>();
-	const requested: number[] = [];
+	const shown = new Map<string, boolean>();
+	const requested: string[] = [];
 	for (const value of form.getAll("shown")) {
 		const match = typeof value === "string" && value.match(/^(\d+):([01r])$/);
-		if (!match || !listed.has(Number(match[1]))) return null;
-		if (match[2] === "r") requested.push(Number(match[1]));
-		else shown.set(Number(match[1]), match[2] === "1");
+		const id = match ? match[1] : undefined;
+		if (!match || id === undefined || !listed.has(id)) return null;
+		if (match[2] === "r") requested.push(id);
+		else shown.set(id, match[2] === "1");
 	}
-	const decide = (id: number) => form.get(`decide-${id}`);
+	const decide = (id: string) => form.get(`decide-${id}`);
 	const confirm = requested.filter((id) => decide(id) === "yes");
 	const deny = requested.filter((id) => decide(id) === "no");
 	return {
@@ -264,7 +265,7 @@ export async function handleSaveAttendance(
 	if (!diff) return redirectWith(path, "error", "rider_not_listed");
 	// A request another organiser settled meanwhile stays as it is.
 	const open = new Set(
-		((reportRows?.results ?? []) as { athlete_id: number }[]).map(
+		((reportRows?.results ?? []) as { athlete_id: string }[]).map(
 			(r) => r.athlete_id,
 		),
 	);

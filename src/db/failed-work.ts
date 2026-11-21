@@ -4,7 +4,7 @@
 
 export interface FailedWork {
 	id: number;
-	athleteId: number;
+	athleteId: string;
 	/** Canonical JSON from `serializeWorkMessage`. */
 	message: string;
 	lastError: string;
@@ -15,7 +15,7 @@ export interface FailedWork {
 
 interface FailedWorkRow {
 	id: number;
-	athlete_id: number;
+	athlete_id: string;
 	message: string;
 	last_error: string;
 	first_failed_at: number;
@@ -36,7 +36,7 @@ const toFailedWork = (r: FailedWorkRow): FailedWork => ({
 export async function upsertFailedWork(
 	db: D1Database,
 	failure: {
-		athleteId: number;
+		athleteId: string;
 		message: string;
 		lastError: string;
 		now: number;
@@ -69,7 +69,9 @@ export async function listFailedWorkFirstFailedSince(
 	since: number,
 ): Promise<FailedWork[]> {
 	const { results } = await db
-		.prepare("SELECT * FROM failed_work WHERE first_failed_at >= ? ORDER BY id")
+		.prepare(
+			"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM failed_work WHERE first_failed_at >= ? ORDER BY id",
+		)
 		.bind(since)
 		.all<FailedWorkRow>();
 	return results.map(toFailedWork);
@@ -81,7 +83,9 @@ export async function deleteFailedWorkFirstFailedBefore(
 	before: number,
 ): Promise<FailedWork[]> {
 	const { results } = await db
-		.prepare("DELETE FROM failed_work WHERE first_failed_at < ? RETURNING *")
+		.prepare(
+			"DELETE FROM failed_work WHERE first_failed_at < ? RETURNING *, CAST(athlete_id AS TEXT) AS athlete_id",
+		)
 		.bind(before)
 		.all<FailedWorkRow>();
 	return results.map(toFailedWork).sort((a, b) => a.id - b.id);

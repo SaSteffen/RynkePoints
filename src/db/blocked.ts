@@ -4,7 +4,7 @@
 
 export async function isBlocked(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<boolean> {
 	const row = await db
 		.prepare("SELECT 1 AS found FROM blocked_athletes WHERE athlete_id = ?")
@@ -25,8 +25,8 @@ export function blockedCountStatement(db: D1Database): D1PreparedStatement {
  */
 export async function removeRider(
 	db: D1Database,
-	athleteId: number,
-	administratorId: number,
+	athleteId: string,
+	administratorId: string,
 	now: number,
 ): Promise<void> {
 	await db.batch([

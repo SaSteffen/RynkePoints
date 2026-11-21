@@ -1,22 +1,26 @@
 import { verifyToken } from "../config";
 import { secretEquals } from "../crypto/secret";
 import type { Ctx } from "../ctx";
-import { riderHold } from "../db/riders";
-import { isId } from "../work/messages";
+import { letGoRider, riderHold } from "../db/riders";
+import { isStravaId, parseStravaJson } from "../strava/id";
 import { readBodyUpTo } from "./body";
 
-// `POST /strava/held/<token>`: the gateway asks, for another team about to
-// withdraw a grant, whether this team holds the person (feature 041 FR-012,
-// research R14, contracts/withdrawal.md). The answer is all that leaves the
+// The gateway's questions for another team: whether this team holds a person
+// (feature 041 FR-012, research R14), and letting a rider go who switches
+// (feature 044 R4, contracts/one-team.md). The answer is all that leaves the
 // team; the question is neither stored nor logged.
 
 const MAX_BODY_BYTES = 256;
 
-export async function handleHeld(
+/**
+ * The athlete the gateway asks about, once the token in the path is the
+ * team's; otherwise the response to answer with.
+ */
+async function gatewayAthlete(
 	request: Request,
 	secret: string,
 	ctx: Ctx,
-): Promise<Response> {
+): Promise<string | Response> {
 	if (!(await secretEquals(secret, verifyToken(ctx.env)))) {
 		return new Response("Not Found", { status: 404 });
 	}
@@ -32,10 +36,42 @@ export async function handleHeld(
 		athleteId =
 			body === null
 				? undefined
-				: (JSON.parse(body) as { athleteId?: unknown })?.athleteId;
+				: // A JSON number with the exact digits (feature 042 research R3).
+					(parseStravaJson(body, ["athleteId"]) as { athleteId?: unknown })
+						?.athleteId;
 	} catch {
 		athleteId = undefined;
 	}
-	if (!isId(athleteId)) return new Response("Bad Request", { status: 400 });
-	return Response.json({ held: await riderHold(ctx.env.DB, athleteId) });
+	if (!isStravaId(athleteId))
+		return new Response("Bad Request", { status: 400 });
+	return athleteId;
+}
+
+/**
+ * `POST /strava/held/<token>`: whether this team holds the person, and as a
+ * rider (feature 041 research R14, feature 044 R2).
+ */
+export async function handleHeld(
+	request: Request,
+	secret: string,
+	ctx: Ctx,
+): Promise<Response> {
+	const athleteId = await gatewayAthlete(request, secret, ctx);
+	if (athleteId instanceof Response) return athleteId;
+	return Response.json(await riderHold(ctx.env.DB, athleteId));
+}
+
+/**
+ * `POST /strava/let-go/<token>`: the person chose to switch to another team
+ * (feature 044 R4). Lets a rider go, never a guest, and confirms either way.
+ */
+export async function handleLetGo(
+	request: Request,
+	secret: string,
+	ctx: Ctx,
+): Promise<Response> {
+	const athleteId = await gatewayAthlete(request, secret, ctx);
+	if (athleteId instanceof Response) return athleteId;
+	await letGoRider(ctx.env.DB, athleteId);
+	return Response.json({ letGo: true });
 }
