@@ -13,7 +13,7 @@ import { versionsOf } from "../rynke/rules";
 import { CRITICAL_LEVEL, utcDay } from "../usage/allowances";
 import { percentOf } from "../usage/figures";
 import { html, htmlResponse, layout, pageLook, type SafeHtml } from "./html";
-import { CLOSE } from "./icons";
+import { BELL, CLOSE } from "./icons";
 import { summary as riderSummary } from "./rider-view";
 import { readSessionCookie } from "./session";
 
@@ -271,26 +271,23 @@ export async function handleRiderNotificationText(
  */
 export function renderNotifications(i18n: I18n, pushKey: string): SafeHtml {
 	const state = (
-		name:
-			| "on"
-			| "off"
-			| "blocked"
-			| "needsHomeScreen"
-			| "unsupported"
-			| "failed",
+		name: "blocked" | "needsHomeScreen" | "unsupported" | "failed",
 	) =>
-		html`<p data-state="${name}" hidden>${i18n.t(`notifications.${name}`)}</p>`;
-	return html`<section id="notifications" class="settings-group" data-push-key="${pushKey}" hidden>
-<h2>${i18n.t("notifications.heading")}</h2>
-<p>${i18n.t("notifications.explain")}</p>
-${state("on")}
-${state("off")}
+		html`<p class="settings-sub is-warn" data-state="${name}" hidden>${i18n.t(`notifications.${name}`)}</p>`;
+	return html`<li id="notifications" data-push-key="${pushKey}" hidden>
+<div class="settings-row is-static">
+<span class="settings-icon">${BELL}</span>
+<div class="settings-text">
+<span class="settings-title">${i18n.t("notifications.heading")}</span>
+<p class="settings-sub" data-state="on off" hidden>${i18n.t("notifications.explain")}</p>
 ${state("blocked")}
 ${state("needsHomeScreen")}
 ${state("unsupported")}
 ${state("failed")}
+</div>
 <button type="button" role="switch" data-action="toggle" aria-checked="false" aria-label="${i18n.t("notifications.switch")}" hidden></button>
-</section>`;
+</div>
+</li>`;
 }
 
 /**

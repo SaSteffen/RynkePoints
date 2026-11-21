@@ -355,9 +355,7 @@ export const en: Catalog = {
 	"push.rise.team": "+{n}\u00a0Team Rynke",
 	"notifications.heading": "Notifications",
 	"notifications.explain":
-		"This device lets you know when you have new Rynke, and what you still need.",
-	"notifications.on": "On for this device.",
-	"notifications.off": "Off for this device.",
+		"Your device lets you know as soon as you get new Rynke or badges, even when the app is closed.",
 	"notifications.blocked":
 		"Your device blocks notifications for RynkePoints. You can allow them in your browser's or device's settings.",
 	"notifications.needsHomeScreen":
@@ -406,14 +404,14 @@ export const en: Catalog = {
 	"theme.name.disco": "Disco",
 	"theme.name.contrast-light": "High contrast light",
 	"theme.name.contrast-dark": "High contrast dark",
-	"settings.app": "App",
-	"settings.strava": "Strava connection",
 	"settings.account": "Account",
+	"settings.device": "This device",
+	"settings.data": "Rynke and your data",
+	"settings.strava.broken": "Connection lost",
+	"settings.logout.here": "On this device",
 	"settings.logoutEverywhere": "Sign out everywhere",
+	"settings.logoutEverywhere.sub": "On every device, this one too",
 	"settings.shows": "Animations",
-	"settings.shows.on":
-		"Animations when switching sections in Confetti and Disco",
-	"settings.tour": "Tours",
 	"settings.tour.rider": "Show the tour again",
 	"settings.tour.organiser": "Show the Orga tour again",
 	"settings.about": "About the app",

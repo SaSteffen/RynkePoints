@@ -360,9 +360,7 @@ export const nl: Catalog = {
 	"push.rise.team": "+{n} Team-Rynke",
 	"notifications.heading": "Meldingen",
 	"notifications.explain":
-		"Dit apparaat laat je weten als je nieuwe Rynke hebt, en wat je nog nodig hebt.",
-	"notifications.on": "Aan voor dit apparaat.",
-	"notifications.off": "Uit voor dit apparaat.",
+		"Je apparaat laat het je weten zodra je nieuwe Rynke of badges krijgt, ook als de app dicht is.",
 	"notifications.blocked":
 		"Je apparaat blokkeert meldingen van RynkePoints. Je kunt ze toestaan in de instellingen van je browser of apparaat.",
 	"notifications.needsHomeScreen":
@@ -411,14 +409,14 @@ export const nl: Catalog = {
 	"theme.name.disco": "Disco",
 	"theme.name.contrast-light": "Hoog contrast licht",
 	"theme.name.contrast-dark": "Hoog contrast donker",
-	"settings.app": "App",
-	"settings.strava": "Strava-verbinding",
 	"settings.account": "Account",
+	"settings.device": "Dit apparaat",
+	"settings.data": "Rynke en je gegevens",
+	"settings.strava.broken": "Verbinding verbroken",
+	"settings.logout.here": "Op dit apparaat",
 	"settings.logoutEverywhere": "Overal afmelden",
+	"settings.logoutEverywhere.sub": "Op al je apparaten, ook dit",
 	"settings.shows": "Animaties",
-	"settings.shows.on":
-		"Animaties bij het wisselen van onderdeel in Confetti en Disco",
-	"settings.tour": "Rondleidingen",
 	"settings.tour.rider": "Rondleiding opnieuw tonen",
 	"settings.tour.organiser": "Orga-rondleiding opnieuw tonen",
 	"settings.about": "Over de app",

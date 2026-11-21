@@ -354,9 +354,7 @@ export const is: Catalog = {
 	"push.rise.team": "+{n} Liðs-Rynke",
 	"notifications.heading": "Tilkynningar",
 	"notifications.explain":
-		"Þetta tæki lætur þig vita þegar þú færð ný Rynke og hvað þig vantar enn.",
-	"notifications.on": "Kveikt fyrir þetta tæki.",
-	"notifications.off": "Slökkt fyrir þetta tæki.",
+		"Tækið þitt lætur þig vita um leið og þú færð ný Rynke eða merki – líka þegar appið er lokað.",
 	"notifications.blocked":
 		"Tækið þitt lokar á tilkynningar frá RynkePoints. Þú getur leyft þær í stillingum vafrans eða tækisins.",
 	"notifications.needsHomeScreen":
@@ -404,14 +402,14 @@ export const is: Catalog = {
 	"theme.name.disco": "Disco",
 	"theme.name.contrast-light": "Mikil birtuskil, ljóst",
 	"theme.name.contrast-dark": "Mikil birtuskil, dökkt",
-	"settings.app": "App",
-	"settings.strava": "Strava-tenging",
 	"settings.account": "Aðgangur",
+	"settings.device": "Þetta tæki",
+	"settings.data": "Rynke og gögnin þín",
+	"settings.strava.broken": "Tengingin rofnaði",
+	"settings.logout.here": "Í þessu tæki",
 	"settings.logoutEverywhere": "Skrá út alls staðar",
+	"settings.logoutEverywhere.sub": "Í öllum tækjum, líka þessu",
 	"settings.shows": "Hreyfimyndir",
-	"settings.shows.on":
-		"Hreyfimyndir þegar skipt er milli hluta í Konfetti og Disco",
-	"settings.tour": "Kynningar",
 	"settings.tour.rider": "Sýna kynninguna aftur",
 	"settings.tour.organiser": "Sýna Orga-kynninguna aftur",
 	"settings.about": "Um appið",

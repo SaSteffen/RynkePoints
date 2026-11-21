@@ -77,7 +77,7 @@ function promptInstall() {
 function installSettings(signal) {
 	const hint = document.querySelector("#settings-app #install");
 	if (!hint || standalone()) return;
-	const group = hint.closest("section#settings-app");
+	const group = hint.closest("#settings-app");
 	const setShown = (shown) => {
 		hint.hidden = !shown;
 		group.hidden = !shown;
@@ -176,7 +176,7 @@ async function notifications(signal) {
 	 */
 	const show = (state, checked) => {
 		for (const p of section.querySelectorAll("[data-state]")) {
-			p.hidden = p.dataset.state !== state;
+			p.hidden = !p.dataset.state.split(" ").includes(state);
 		}
 		toggle.hidden = !["on", "off", "failed"].includes(state);
 		if (checked !== undefined) toggle.setAttribute("aria-checked", checked);
@@ -389,6 +389,19 @@ function appPrompt() {
 	if (standalone()) offerNotifications().catch(() => {});
 }
 
+/** Names the theme shown now in Settings' colour scheme row. */
+function themeValue() {
+	const checked = document.querySelector(
+		"#theme-menu input[name=theme]:checked",
+	);
+	const name =
+		checked?.closest("label")?.querySelector(".theme-name,.theme-auto-name")
+			?.textContent ?? "";
+	for (const value of document.querySelectorAll("[data-theme-value]")) {
+		value.textContent = name;
+	}
+}
+
 /**
  * The header's theme menu (feature 022 contracts/theme-menu.md): the palette
  * button opens it with the theme shown now checked; a choice applies at once,
@@ -433,18 +446,23 @@ function themeMenu() {
 	});
 	document.addEventListener("click", (event) => {
 		const target = event.target;
+		if (!(target instanceof Element)) return;
+		// Settings' colour scheme row opens the same menu.
 		if (
-			target instanceof Node &&
-			!panel.contains(target) &&
+			target.closest("[aria-controls=theme-menu]") &&
 			!button.contains(target)
 		) {
-			close();
+			if (panel.hidden) open();
+			return;
 		}
+		if (!panel.contains(target) && !button.contains(target)) close();
 	});
 
+	themeValue();
 	for (const radio of radios) {
 		radio.addEventListener("change", () => {
 			const theme = radio.value;
+			themeValue();
 			preloadShow(theme);
 			try {
 				if (theme === "auto") localStorage.removeItem(KEY);
@@ -5539,6 +5557,7 @@ function enhance(signal) {
 	lazyRides(signal);
 	installSettings(signal);
 	showsSetting();
+	themeValue();
 	waitForFirstData(signal);
 	followFetching(signal);
 	badgeHover();
