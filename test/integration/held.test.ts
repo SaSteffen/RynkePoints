@@ -45,11 +45,11 @@ describe("POST /strava/held/<token>", () => {
 		await seedRider(ctx, { athleteId: LARGE_ATHLETE });
 		expect(
 			await (await ask(TOKEN, { athleteId: LARGE_ATHLETE })).json(),
-		).toEqual({ held: "connected" });
+		).toEqual({ held: "connected", rider: true });
 		// One past it differs only beyond 2^53: nobody here.
 		expect(
 			await (await ask(TOKEN, '{"athleteId":9223372036854775806}')).json(),
-		).toEqual({ held: "none" });
+		).toEqual({ held: "none", rider: false });
 	});
 
 	it("refuses an athlete ID sent as text", async () => {

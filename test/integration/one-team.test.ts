@@ -45,10 +45,10 @@ function ridesElsewhere(held: "connected" | "reconnect" = "connected") {
 	fake.riders.add(PERSON);
 }
 
-async function pendingRevocations(): Promise<number[]> {
+async function pendingRevocations(): Promise<string[]> {
 	const { results } = await env.DB.prepare(
-		"SELECT athlete_id FROM pending_revocations",
-	).all<{ athlete_id: number }>();
+		"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM pending_revocations",
+	).all<{ athlete_id: string }>();
 	return results.map((r) => r.athlete_id);
 }
 

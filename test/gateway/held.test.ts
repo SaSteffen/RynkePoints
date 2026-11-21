@@ -147,7 +147,7 @@ describe("POST /teams/<id>/held", () => {
 			large,
 		);
 		const res = await ask("hamburg", HAMBURG_TOKEN, `{"athleteId":${large}}`);
-		expect(await res.json()).toEqual({ held: "connected" });
+		expect(await res.json()).toEqual({ held: "connected", rider: false });
 		expect(asked.sort()).toEqual([EUROPE, NORDIC]);
 	});
 
