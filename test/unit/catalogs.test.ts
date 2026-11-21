@@ -300,6 +300,8 @@ const CONTRACT_IDS = [
 	"settings.app",
 	"settings.strava",
 	"settings.account",
+	// Issue #314: Sign out everywhere.
+	"settings.logoutEverywhere",
 	"settings.shows",
 	"settings.shows.on",
 	"settings.tour",

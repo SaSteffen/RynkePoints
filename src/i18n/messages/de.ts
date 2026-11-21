@@ -433,6 +433,7 @@ export const de = {
 	"settings.app": "App",
 	"settings.strava": "Strava-Verbindung",
 	"settings.account": "Konto",
+	"settings.logoutEverywhere": "Überall abmelden",
 	"settings.shows": "Animationen",
 	"settings.shows.on": "Animationen beim Seitenwechsel in Konfetti und Disco",
 	"settings.tour": "Rundgang",

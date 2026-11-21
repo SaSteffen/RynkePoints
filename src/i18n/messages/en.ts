@@ -409,6 +409,7 @@ export const en: Catalog = {
 	"settings.app": "App",
 	"settings.strava": "Strava connection",
 	"settings.account": "Account",
+	"settings.logoutEverywhere": "Sign out everywhere",
 	"settings.shows": "Animations",
 	"settings.shows.on":
 		"Animations when switching sections in Confetti and Disco",

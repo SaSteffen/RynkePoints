@@ -407,6 +407,7 @@ export const nb: Catalog = {
 	"settings.app": "App",
 	"settings.strava": "Strava-tilkobling",
 	"settings.account": "Konto",
+	"settings.logoutEverywhere": "Logg ut overalt",
 	"settings.shows": "Animasjoner",
 	"settings.shows.on":
 		"Animasjoner ved bytte mellom seksjoner i Konfetti og Disco",

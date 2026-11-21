@@ -7,8 +7,8 @@ import {
 	createSessionCookie,
 	isSameOrigin,
 	readOAuthState,
-	readSession,
-	readSessionExpiry,
+	readSessionCookie,
+	signingContext,
 } from "../../src/http/session";
 
 const NOW = 1_791_000_000;
@@ -18,57 +18,91 @@ function withCookie(setCookie: string) {
 	return new Request("https://rynke.test/me", { headers: { Cookie: pair } });
 }
 
+const SESSION = { athleteId: 900001, epoch: 7 };
+/** The same key at another team (issue #316). */
+const otherTeam = { ...env, TEAM_ID: "europe" };
+
+/** A cookie from before issues #314 and #316: the ID alone, signed without the team. */
+async function legacyCookie(value: string, expiresAt = NOW + 600) {
+	const signed = await signValue(
+		value,
+		expiresAt,
+		env.SESSION_SIGNING_KEY,
+		"rp_session",
+	);
+	return `rp_session=${signed}`;
+}
+
 describe("session cookie", () => {
 	it("is signed and lasts 180 days (010 FR-007)", async () => {
-		const cookie = await createSessionCookie(900001, NOW, env);
+		const cookie = await createSessionCookie(SESSION, NOW, env);
 		expect(cookie).toMatch(
 			new RegExp(
-				`^rp_session=900001\\.${NOW + 15552000}\\.[A-Za-z0-9_-]+; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=15552000$`,
+				`^rp_session=900001:7\\.${NOW + 15552000}\\.[A-Za-z0-9_-]+; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=15552000$`,
 			),
 		);
 	});
 
 	it("is host-only, so no other subdomain reads it (027 FR-014)", async () => {
-		const cookie = await createSessionCookie(900001, NOW, env);
+		const cookie = await createSessionCookie(SESSION, NOW, env);
 		expect(cookie).not.toMatch(/;\s*Domain=/i);
 	});
 
-	it("reads back the athlete ID", async () => {
-		const cookie = await createSessionCookie(900001, NOW, env);
-		expect(await readSession(withCookie(cookie), env, NOW + 10)).toBe(900001);
-	});
-
-	it("rejects tampered, expired and missing sessions", async () => {
-		const cookie = await createSessionCookie(900001, NOW, env);
-		const tampered = cookie.replace("rp_session=900001", "rp_session=900002");
-		expect(await readSession(withCookie(tampered), env, NOW)).toBeNull();
-		expect(
-			await readSession(withCookie(cookie), env, NOW + 15552001),
-		).toBeNull();
-		expect(
-			await readSession(new Request("https://rynke.test/"), env, NOW),
-		).toBeNull();
-	});
-
-	it("reads back the athlete ID with the expiry", async () => {
-		const cookie = await createSessionCookie(900001, NOW, env);
-		expect(await readSessionExpiry(withCookie(cookie), env, NOW + 10)).toEqual({
+	it("reads back the athlete ID, the epoch and the expiry", async () => {
+		const cookie = await createSessionCookie(SESSION, NOW, env);
+		expect(await readSessionCookie(withCookie(cookie), env, NOW + 10)).toEqual({
 			athleteId: 900001,
+			epoch: 7,
 			expiresAt: NOW + 15552000,
+			legacy: false,
 		});
 	});
 
-	it("reads no expiry of a missing, tampered or expired session", async () => {
-		const cookie = await createSessionCookie(900001, NOW, env);
-		const tampered = cookie.replace("rp_session=900001", "rp_session=900002");
+	it("rejects tampered, expired and missing sessions", async () => {
+		const cookie = await createSessionCookie(SESSION, NOW, env);
+		for (const tampered of [
+			cookie.replace("rp_session=900001", "rp_session=900002"),
+			cookie.replace("900001:7", "900001:8"),
+		]) {
+			expect(
+				await readSessionCookie(withCookie(tampered), env, NOW),
+			).toBeNull();
+		}
 		expect(
-			await readSessionExpiry(new Request("https://rynke.test/"), env, NOW),
+			await readSessionCookie(withCookie(cookie), env, NOW + 15552001),
 		).toBeNull();
-		expect(await readSessionExpiry(withCookie(tampered), env, NOW)).toBeNull();
 		expect(
-			await readSessionExpiry(withCookie(cookie), env, NOW + 15552001),
+			await readSessionCookie(new Request("https://rynke.test/"), env, NOW),
 		).toBeNull();
 	});
+
+	it("doesn't verify at another team with the same key (#316)", async () => {
+		const cookie = await createSessionCookie(SESSION, NOW, env);
+		expect(
+			await readSessionCookie(withCookie(cookie), otherTeam, NOW),
+		).toBeNull();
+	});
+
+	it("reads a cookie from before #314 and #316 as epoch 0", async () => {
+		const cookie = await legacyCookie("900001");
+		expect(await readSessionCookie(withCookie(cookie), env, NOW)).toEqual({
+			athleteId: 900001,
+			epoch: 0,
+			expiresAt: NOW + 600,
+			legacy: true,
+		});
+		expect(
+			await readSessionCookie(withCookie(cookie), env, NOW + 601),
+		).toBeNull();
+	});
+
+	it.each(["900001:7", "x", ""])(
+		"rejects the old-context value %j",
+		async (value) => {
+			const cookie = await legacyCookie(value);
+			expect(await readSessionCookie(withCookie(cookie), env, NOW)).toBeNull();
+		},
+	);
 
 	it("does not accept an OAuth state cookie as a session", async () => {
 		const state = await createOAuthStateCookie("900001", 1, "/me", NOW, env);
@@ -76,7 +110,7 @@ describe("session cookie", () => {
 		const forged = new Request("https://rynke.test/me", {
 			headers: { Cookie: `rp_session=${value}` },
 		});
-		expect(await readSession(forged, env, NOW)).toBeNull();
+		expect(await readSessionCookie(forged, env, NOW)).toBeNull();
 	});
 
 	it("can be cleared", () => {
@@ -93,7 +127,7 @@ describe("OAuth state cookie", () => {
 			value,
 			NOW + 600,
 			env.SESSION_SIGNING_KEY,
-			"rp_oauth_state",
+			signingContext(env, "rp_oauth_state"),
 		);
 		return `rp_oauth_state=${signed}; Max-Age=600`;
 	}
@@ -153,6 +187,22 @@ describe("OAuth state cookie", () => {
 			expect(await readOAuthState(withCookie(cookie), env, NOW)).toBeNull();
 		},
 	);
+
+	it("doesn't verify at another team with the same key (#316)", async () => {
+		const cookie = await createOAuthStateCookie("abc", 0, "/me", NOW, env);
+		expect(await readOAuthState(withCookie(cookie), otherTeam, NOW)).toBeNull();
+	});
+
+	it("has no fallback for one signed without the team: it lives 10 minutes", async () => {
+		const signed = await signValue(
+			"abc:1:/me",
+			NOW + 600,
+			env.SESSION_SIGNING_KEY,
+			"rp_oauth_state",
+		);
+		const cookie = `rp_oauth_state=${signed}`;
+		expect(await readOAuthState(withCookie(cookie), env, NOW)).toBeNull();
+	});
 
 	it("rejects a tampered cookie", async () => {
 		const cookie = await createOAuthStateCookie("abc", 0, "/me", NOW, env);

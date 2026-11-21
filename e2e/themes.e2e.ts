@@ -45,7 +45,7 @@ test("picks Wald from the header and keeps it on this device", {
 	await expect(page.locator("html")).toHaveAttribute("data-theme", "forest");
 
 	await page.goto("/me/settings");
-	await page.getByRole("button", { name: "Abmelden" }).click();
+	await page.getByRole("button", { name: "Abmelden", exact: true }).click();
 	await page.waitForURL("/");
 	await expect(page.locator("html")).toHaveAttribute("data-theme", "forest");
 	await signIn(page, "Tina TrainingDone");

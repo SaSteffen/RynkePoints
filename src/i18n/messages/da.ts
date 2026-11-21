@@ -410,6 +410,7 @@ export const da: Catalog = {
 	"settings.app": "App",
 	"settings.strava": "Strava-forbindelse",
 	"settings.account": "Konto",
+	"settings.logoutEverywhere": "Log ud overalt",
 	"settings.shows": "Animationer",
 	"settings.shows.on":
 		"Animationer ved skift mellem afsnit i Konfetti og Disco",

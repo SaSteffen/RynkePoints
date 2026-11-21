@@ -344,12 +344,27 @@ export function stableHeaders(res: Response): [string, string][] {
 	return [...res.headers].filter(([name]) => name !== "server-timing");
 }
 
-/** A valid signed `rp_session` cookie for `athleteId`. */
+/**
+ * A valid signed `rp_session` cookie for `athleteId`, with the rider's stored
+ * session epoch (0 without a rider) unless given (issue #314).
+ */
 export async function sessionCookie(
 	ctx: Ctx,
 	athleteId: number,
+	epoch?: number,
 ): Promise<Record<string, string>> {
-	return cookiePair(await createSessionCookie(athleteId, ctx.now(), ctx.env));
+	const stored = await ctx.env.DB.prepare(
+		"SELECT session_epoch FROM riders WHERE athlete_id = ?",
+	)
+		.bind(athleteId)
+		.first<number>("session_epoch");
+	return cookiePair(
+		await createSessionCookie(
+			{ athleteId, epoch: epoch ?? stored ?? 0 },
+			ctx.now(),
+			ctx.env,
+		),
+	);
 }
 
 /** A valid signed `rp_oauth_state` cookie carrying `state`, a consent version and `next`. */

@@ -427,6 +427,7 @@ export const fr: Catalog = {
 	"settings.app": "Application",
 	"settings.strava": "Connexion Strava",
 	"settings.account": "Compte",
+	"settings.logoutEverywhere": "Se déconnecter partout",
 	"settings.shows": "Animations",
 	"settings.shows.on":
 		"Animations au changement de section dans Confetti et Disco",

@@ -411,6 +411,7 @@ export const lt: Catalog = {
 	"settings.app": "Programėlė",
 	"settings.strava": "Ryšys su Strava",
 	"settings.account": "Paskyra",
+	"settings.logoutEverywhere": "Atsijungti visur",
 	"settings.shows": "Animacijos",
 	"settings.shows.on": "Animacijos perjungiant skiltis su Konfeti ir Disco",
 	"settings.tour": "Apžvalgos",

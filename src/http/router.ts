@@ -19,7 +19,12 @@ import { handleFetching } from "./fetching";
 import { handleHeld } from "./held";
 import { handleLanding } from "./landing";
 import { handleLang } from "./lang";
-import { handleDisconnect, handleDisconnectPage, handleLogout } from "./me";
+import {
+	handleDisconnect,
+	handleDisconnectPage,
+	handleLogout,
+	handleLogoutEverywhere,
+} from "./me";
 import { handleNotice } from "./notice";
 import { handleNotifications } from "./notifications";
 import { handleSaveAttendance } from "./organiser/attendance";
@@ -187,6 +192,8 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleTour(request, ctx, i18n);
 			case "/logout":
 				return handleLogout(request, ctx, i18n);
+			case "/logout/everywhere":
+				return handleLogoutEverywhere(request, ctx, i18n);
 			case "/admin/alerts":
 				return handleAdminAlerts(request, ctx, i18n);
 			case "/admin/refresh":

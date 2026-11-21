@@ -52,7 +52,11 @@ describe("GET /style-<hash>.css", () => {
 	it("is the same with a session, renews none and never reads D1", async () => {
 		// Issued 10 days ago, so a page would renew it.
 		const cookies = cookiePair(
-			await createSessionCookie(ATHLETE_A, NOW - 10 * 86400, ctx.env),
+			await createSessionCookie(
+				{ athleteId: ATHLETE_A, epoch: 0 },
+				NOW - 10 * 86400,
+				ctx.env,
+			),
 		);
 		const noDb = withoutDb(ctx);
 		const anonymous = await handleFetch(request(STYLESHEET_PATH), noDb);

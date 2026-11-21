@@ -424,7 +424,7 @@ describe("POST /organiser/requests/undo (FR-032)", () => {
 				reports: [{ athleteId: EMIL, reportedAt: NOW }],
 			},
 			NOW - 601,
-			ctx.env.SESSION_SIGNING_KEY,
+			ctx.env,
 		);
 		for (const token of [old, "forged"]) {
 			const res = await undo(token);

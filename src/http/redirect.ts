@@ -1,24 +1,26 @@
 import { badges as badgesOn } from "../config";
 import type { Ctx } from "../ctx";
 import { hasNewBadges, newBadgesStatements } from "./sections/badges";
+import type { Session } from "./session";
 
 /**
  * Where the app sends a signed-in rider: the badges page while it has a new
  * badge to reveal (issue #150), else their own page until a first ride is
  * imported, then the Team page (issue #73).
  */
-export async function home(ctx: Ctx, athleteId: number): Promise<string> {
-	return (await homeOf(ctx, athleteId)) ?? "/me";
+export async function home(ctx: Ctx, session: Session): Promise<string> {
+	return (await homeOf(ctx, session)) ?? "/me";
 }
 
 /**
- * `home()`, or null when the rider is gone, which the start page treats as
- * signed out (research R9). One batch decides, with what the badges need, so
- * the app starts after one round trip (issue #185).
+ * `home()`, or null when the rider is gone or the session was ended, which
+ * the start page treats as signed out (research R9, issue #314). One batch
+ * decides, with what the badges need, so the app starts after one round trip
+ * (issue #185).
  */
 export async function homeOf(
 	ctx: Ctx,
-	athleteId: number,
+	{ athleteId, epoch }: Session,
 ): Promise<string | null> {
 	const db = ctx.env.DB;
 	const [rows, ...badges] = await db.batch([
@@ -27,9 +29,9 @@ export async function homeOf(
 				`SELECT connected_at,
 				EXISTS (SELECT 1 FROM rynke_balances WHERE athlete_id = ?1) AS ready,
 				EXISTS (SELECT 1 FROM activities WHERE athlete_id = ?1) AS rode
-			FROM riders WHERE athlete_id = ?1`,
+			FROM riders WHERE athlete_id = ?1 AND session_epoch = ?2`,
 			)
-			.bind(athleteId),
+			.bind(athleteId, epoch),
 		...(badgesOn(ctx.env) ? newBadgesStatements(db, athleteId) : []),
 	]);
 	const row = (

@@ -5,6 +5,7 @@ import {
 	recordConsentStatement,
 	SHARED_RIDER_IDS,
 } from "./consents";
+import { deleteSubscriptionsStatement } from "./push-subscriptions";
 import { insertEmptySummaryStatement } from "./rider-summaries";
 
 // Riders and their Strava credentials (data-model.md). Deleting a rider is a
@@ -45,6 +46,8 @@ export interface Rider {
 	guest: boolean;
 	/** Whether the ID is on the guest list now; a guest off it is a visitor (041 R4). */
 	onGuestList: boolean;
+	/** Only a session cookie with this epoch is signed in (issue #314). */
+	sessionEpoch: number;
 }
 
 export interface Credentials {
@@ -73,6 +76,7 @@ export interface RiderRow {
 	rechecked_at: number | null;
 	guest: number;
 	on_guest_list: number;
+	session_epoch: number;
 }
 
 export interface RiderGrant {
@@ -118,6 +122,7 @@ export function toRider(row: RiderRow): Rider {
 		recheckedAt: row.rechecked_at,
 		guest,
 		onGuestList: row.on_guest_list === 1,
+		sessionEpoch: row.session_epoch,
 	};
 }
 
@@ -133,6 +138,8 @@ export async function getRider(
  * A newly connected rider: `connected`, import `pending`, stored together with
  * their consent so a rider never exists without it (research R21). Their import
  * reads every current figure, so they start at the current figures version.
+ * Their session epoch is the time, so no cookie from before a disconnect signs
+ * them in again (issue #314).
  */
 export async function insertRider(
 	db: D1Database,
@@ -145,8 +152,8 @@ export async function insertRider(
 				`INSERT INTO riders (athlete_id, first_name, status, scope_read_all,
 					scopes, connected_at, scopes_updated_at,
 					membership_checked_at, import_status, reconnect_requested_at,
-					figures_version, guest)
-				VALUES (?1, ?2, 'connected', ?3, ?4, ?5, ?5, ?5, 'pending', NULL, ?6, ?7)`,
+					figures_version, guest, session_epoch)
+				VALUES (?1, ?2, 'connected', ?3, ?4, ?5, ?5, ?5, 'pending', NULL, ?6, ?7, ?5)`,
 			)
 			.bind(
 				rider.athleteId,
@@ -305,6 +312,49 @@ export async function setMembershipChecked(
 		.prepare("UPDATE riders SET membership_checked_at = ? WHERE athlete_id = ?")
 		.bind(now, athleteId)
 		.run();
+}
+
+/**
+ * Ends every session of the rider and every device's notifications, which end
+ * with the sign-in (issue #314, feature 010 FR-013). Raised to at least the
+ * time, the epoch never runs ahead of the clock by more than a few quick
+ * presses, so the time a rider gets on connecting again lies above it.
+ */
+export async function endSessions(
+	db: D1Database,
+	athleteId: number,
+	now: number,
+): Promise<void> {
+	await db.batch([
+		db
+			.prepare(
+				`UPDATE riders SET session_epoch = MAX(session_epoch + 1, ?2)
+				WHERE athlete_id = ?1`,
+			)
+			.bind(athleteId, now),
+		deleteSubscriptionsStatement(db, athleteId),
+	]);
+}
+
+/** A row only if the rider is stored and `epoch` is their session epoch. */
+export function sessionCurrentStatement(
+	db: D1Database,
+	athleteId: number,
+	epoch: number,
+) {
+	return db
+		.prepare(
+			"SELECT 1 AS current FROM riders WHERE athlete_id = ? AND session_epoch = ?",
+		)
+		.bind(athleteId, epoch);
+}
+
+export async function isSessionCurrent(
+	db: D1Database,
+	athleteId: number,
+	epoch: number,
+): Promise<boolean> {
+	return (await sessionCurrentStatement(db, athleteId, epoch).first()) !== null;
 }
 
 export async function deleteRider(

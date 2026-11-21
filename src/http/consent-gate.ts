@@ -125,11 +125,10 @@ export async function handleConsent(
 	if (viewer.kind === "visitor") return redirect("/", 302);
 	const current = currentVersion(ctx.consentVersions).version;
 	const form = await request.formData().catch(() => null);
-	const next = await arrival(
-		sectionNext(form?.get("next")),
-		ctx,
-		viewer.rider.athleteId,
-	);
+	const next = await arrival(sectionNext(form?.get("next")), ctx, {
+		athleteId: viewer.rider.athleteId,
+		epoch: viewer.rider.sessionEpoch,
+	});
 	if (form?.get("consent") !== String(current)) return redirect(next, 303);
 	const state = riderConsentState(viewer, ctx);
 	// The gate shows the Strava form instead; a current rider has nothing to do.

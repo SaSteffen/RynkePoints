@@ -21,6 +21,7 @@ import {
 import { html, type SafeHtml } from "../html";
 import { CHECK, CLOSE } from "../icons";
 import { redirect } from "../redirect";
+import { type Keys, signingContext } from "../session";
 import { requireOrganiserPost } from "./access";
 
 // Organisers settle riders' requests in one tap (feature 019 US4, FR-030–
@@ -59,15 +60,15 @@ function withQuery(path: string, query: string): string {
 export function undoToken(
 	value: UndoValue,
 	now: number,
-	key: string,
+	env: Keys,
 ): Promise<string> {
 	const ids = value.reports.map((r) => r.athleteId).join("_");
 	const times = value.reports.map((r) => r.reportedAt).join("_");
 	return signValue(
 		`${value.decision}-${value.eventId}-${ids}-${times}`,
 		now + UNDO_SECONDS,
-		key,
-		UNDO_CONTEXT,
+		env.SESSION_SIGNING_KEY,
+		signingContext(env, UNDO_CONTEXT),
 	);
 }
 
@@ -75,9 +76,14 @@ export function undoToken(
 export async function readUndoToken(
 	token: string,
 	now: number,
-	key: string,
+	env: Keys,
 ): Promise<UndoValue | null> {
-	const verified = await verifySignedValue(token, key, now, UNDO_CONTEXT);
+	const verified = await verifySignedValue(
+		token,
+		env.SESSION_SIGNING_KEY,
+		now,
+		signingContext(env, UNDO_CONTEXT),
+	);
 	if (!verified) return null;
 	const match = verified.value.match(
 		/^(confirm|deny)-(\d+)-(\d+(?:_\d+)*)-(\d+(?:_\d+)*)$/,
@@ -229,11 +235,7 @@ export async function decisionNotice(
 	const done = url.searchParams.get("done");
 	if (done !== "confirmed" && done !== "denied") return null;
 	const token = url.searchParams.get("undo") ?? "";
-	const undo = await readUndoToken(
-		token,
-		ctx.now(),
-		ctx.env.SESSION_SIGNING_KEY,
-	);
+	const undo = await readUndoToken(token, ctx.now(), ctx.env);
 	if (!undo) return null;
 	const ids = undo.reports.map((r) => r.athleteId);
 	const { results } = await ctx.env.DB.prepare(
@@ -306,7 +308,7 @@ export async function handleDecideRequests(
 	const token = await undoToken(
 		{ decision, eventId, reports },
 		ctx.now(),
-		ctx.env.SESSION_SIGNING_KEY,
+		ctx.env,
 	);
 	const done = decision === "confirm" ? "confirmed" : "denied";
 	return redirect(
@@ -333,7 +335,7 @@ export async function handleUndoRequests(
 	const token = form.get("token");
 	const undo =
 		typeof token === "string"
-			? await readUndoToken(token, ctx.now(), ctx.env.SESSION_SIGNING_KEY)
+			? await readUndoToken(token, ctx.now(), ctx.env)
 			: null;
 	if (!undo) return redirect(withQuery(back, "error=undo_expired"), 303);
 	const athleteIds = undo.reports.map((r) => r.athleteId);

@@ -6,7 +6,7 @@ import { coinPair } from "./coin";
 import { consentSteps, consentSummary, step } from "./consent-form";
 import { html, htmlResponse, layout, pageLook } from "./html";
 import { homeOf, redirect } from "./redirect";
-import { readSession } from "./session";
+import { readSessionCookie } from "./session";
 
 // The public start page: what RynkePoints reads and why, who can join, how to
 // leave, who sees what, and the consent form with the Connect with Strava
@@ -22,9 +22,10 @@ export async function handleLanding(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	const athleteId = await readSession(request, ctx.env, ctx.now());
-	// A session for a deleted rider counts as signed out (research R9).
-	const to = athleteId === null ? null : await homeOf(ctx, athleteId);
+	const session = await readSessionCookie(request, ctx.env, ctx.now());
+	// A session for a deleted rider, or one ended, counts as signed out
+	// (research R9, issue #314).
+	const to = session === null ? null : await homeOf(ctx, session);
 	if (to !== null) return redirect(to, 302);
 
 	const title = i18n.t("landing.title");

@@ -414,6 +414,7 @@ export const nl: Catalog = {
 	"settings.app": "App",
 	"settings.strava": "Strava-verbinding",
 	"settings.account": "Account",
+	"settings.logoutEverywhere": "Overal afmelden",
 	"settings.shows": "Animaties",
 	"settings.shows.on":
 		"Animaties bij het wisselen van onderdeel in Confetti en Disco",

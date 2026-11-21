@@ -258,6 +258,8 @@ describe("riders", () => {
 			recheckedAt: null,
 			guest: false,
 			onGuestList: false,
+			// No cookie from before a disconnect signs them in (issue #314).
+			sessionEpoch: NOW,
 		});
 	});
 

@@ -7,6 +7,7 @@ import { upsertActivity } from "../../src/db/activities";
 import { getCurrentConsent } from "../../src/db/consents";
 import { getCredentials, getRider } from "../../src/db/riders";
 import { escapeHtml } from "../../src/http/html";
+import { signingContext } from "../../src/http/session";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import { toActivityRecord } from "../../src/strava/activity";
@@ -257,7 +258,7 @@ describe("GET /auth/callback success", () => {
 		expect(res.status).toBe(302);
 		expect(res.headers.get("Location")).toBe("/team");
 		expect(setCookies(res).rp_session).toMatch(
-			new RegExp(`^rp_session=${ATHLETE_A}\\.`),
+			new RegExp(`^rp_session=${ATHLETE_A}:${ctx.now()}\\.`),
 		);
 	});
 
@@ -266,7 +267,7 @@ describe("GET /auth/callback success", () => {
 			`synthetic-state-old:${CONSENT_VERSION}`,
 			ctx.now() + 600,
 			ctx.env.SESSION_SIGNING_KEY,
-			"rp_oauth_state",
+			signingContext(ctx.env, "rp_oauth_state"),
 		);
 		fake.addAthlete({ id: ATHLETE_A });
 		fake.codes.set("synthetic-code-old", ATHLETE_A);
@@ -322,7 +323,7 @@ describe("GET /auth/callback success", () => {
 		expect(res.status).toBe(302);
 		expect(res.headers.get("Location")).toBe("/me");
 		expect(setCookies(res).rp_session).toMatch(
-			new RegExp(`^rp_session=${ATHLETE_A}\\.`),
+			new RegExp(`^rp_session=${ATHLETE_A}:${ctx.now()}\\.`),
 		);
 
 		const rider = await getRider(env.DB, ATHLETE_A);
@@ -387,6 +388,10 @@ describe("GET /auth/callback success", () => {
 			connectedAt: NOW,
 			membershipCheckedAt: NOW + 3600,
 		});
+		// Other devices stay signed in: the epoch is kept (issue #314).
+		expect(setCookies(res).rp_session).toMatch(
+			new RegExp(`^rp_session=${ATHLETE_A}:0\\.`),
+		);
 	});
 
 	it("reconnects a needs_reconnect rider and re-imports", async () => {
