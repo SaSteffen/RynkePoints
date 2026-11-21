@@ -54,7 +54,7 @@ export async function callback(
 export async function approve(
 	ctx: TestCtx,
 	fake: FakeStrava,
-	athleteId: number,
+	athleteId: string,
 	scope = SCOPES_ALL,
 	cookies: Record<string, string> = {},
 	options: Pick<CallbackOptions, "consentVersion" | "next"> = {},

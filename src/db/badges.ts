@@ -15,6 +15,7 @@ import {
 	parseRunDays,
 	parseVirtualDays,
 } from "../rynke/summary";
+import { idsJson } from "../strava/id";
 import { LISTED_RIDER_IDS } from "./organiser";
 
 /**
@@ -27,45 +28,45 @@ import { LISTED_RIDER_IDS } from "./organiser";
 export const SEASON_RIDE = `(r.counts = 1 OR r.reasons = '["before_window"]')`;
 
 export interface RiderBadgeRow {
-	athlete_id: number;
+	athlete_id: string;
 	badge_id: string;
 	earned_on: string;
 }
 
 export interface BadgesVersionRow {
-	athlete_id: number;
+	athlete_id: string;
 	badges_version: number;
 }
 
 export function listBadgesOfRidersStatement(
 	db: D1Database,
-	athleteIds: number[],
+	athleteIds: string[],
 ) {
 	return db
 		.prepare(
-			`SELECT athlete_id, badge_id, earned_on FROM rider_badges
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, badge_id, earned_on FROM rider_badges
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))`,
 		)
-		.bind(JSON.stringify(athleteIds));
+		.bind(idsJson(athleteIds));
 }
 
 export function readBadgesVersionsStatement(
 	db: D1Database,
-	athleteIds: number[],
+	athleteIds: string[],
 ) {
 	return db
 		.prepare(
-			`SELECT athlete_id, badges_version FROM riders
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, badges_version FROM riders
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))`,
 		)
-		.bind(JSON.stringify(athleteIds));
+		.bind(idsJson(athleteIds));
 }
 
 /** One rider's badges, oldest first; the Overview's read. */
-export function listRiderBadgesStatement(db: D1Database, athleteId: number) {
+export function listRiderBadgesStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare(
-			`SELECT athlete_id, badge_id, earned_on FROM rider_badges
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, badge_id, earned_on FROM rider_badges
 			WHERE athlete_id = ? ORDER BY earned_on, badge_id`,
 		)
 		.bind(athleteId);
@@ -74,7 +75,7 @@ export function listRiderBadgesStatement(db: D1Database, athleteId: number) {
 /** Inserts or re-dates `badges` with one statement, as one JSON parameter. */
 export function upsertRiderBadgesStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	badges: readonly EarnedBadge[],
 ) {
 	return db
@@ -89,7 +90,7 @@ export function upsertRiderBadgesStatement(
 
 export function deleteRiderBadgesStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	badgeIds: readonly string[],
 ) {
 	return db
@@ -102,7 +103,7 @@ export function deleteRiderBadgesStatement(
 
 export function setBadgesVersionStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	version: number,
 ) {
 	return db
@@ -117,7 +118,7 @@ export function setBadgesVersionStatement(
  */
 export function upsertRevealsStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	badges: readonly EarnedBadge[],
 ) {
 	return db
@@ -133,7 +134,7 @@ export function upsertRevealsStatement(
 /** The rider's last badge rise (research R17); replaces the one before. */
 export function upsertBadgeRiseStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	badgeIds: readonly string[],
 	now: number,
 ) {
@@ -146,14 +147,14 @@ export function upsertBadgeRiseStatement(
 		.bind(athleteId, JSON.stringify(badgeIds), now);
 }
 
-export function readBadgeRiseStatement(db: D1Database, athleteId: number) {
+export function readBadgeRiseStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare("SELECT badge_ids, risen_at FROM badge_rises WHERE athlete_id = ?")
 		.bind(athleteId);
 }
 
 /** The badges revealed to the rider; the Overview's and the Team page's read. */
-export function listRevealsStatement(db: D1Database, athleteId: number) {
+export function listRevealsStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare(
 			"SELECT badge_id, earned_on FROM badge_reveals WHERE athlete_id = ?",
@@ -196,7 +197,7 @@ export interface RiderBadgesRead {
 
 export async function readRiderBadges(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	window: CountingWindow,
 ): Promise<RiderBadgesRead> {
 	return toRiderBadges(
@@ -213,7 +214,7 @@ export async function readRiderBadges(
  */
 export function riderBadgesStatements(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	window: CountingWindow,
 ): D1PreparedStatement[] {
 	return [
@@ -250,7 +251,7 @@ export function riderBadgesStatements(
 /** The rider's ride figures from their rides, for a rider without a row. */
 async function ownFiguresFromRides(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	window: CountingWindow,
 ): Promise<OwnFigures> {
 	const [sums, days] = await db.batch([
@@ -309,7 +310,7 @@ async function ownFiguresFromRides(
  */
 export async function toRiderBadges(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	window: CountingWindow,
 	results: readonly (D1Result | undefined)[],
 ): Promise<RiderBadgesRead> {
@@ -433,12 +434,12 @@ export function teamBadgeAudienceStatements(
 ): D1PreparedStatement[] {
 	return [
 		db.prepare(
-			`SELECT athlete_id, connected_at FROM riders
-			WHERE athlete_id IN (${LISTED_RIDER_IDS}) ORDER BY athlete_id`,
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, connected_at FROM riders
+			WHERE athlete_id IN (${LISTED_RIDER_IDS}) ORDER BY riders.athlete_id`,
 		),
 		db
 			.prepare(
-				`SELECT athlete_id, badge_id, earned_on FROM badge_reveals
+				`SELECT CAST(athlete_id AS TEXT) AS athlete_id, badge_id, earned_on FROM badge_reveals
 				WHERE athlete_id IN (${LISTED_RIDER_IDS})
 				AND badge_id IN (SELECT value FROM json_each(?1))`,
 			)
@@ -456,7 +457,7 @@ export function teamBadgeAudienceStatements(
  */
 export function teamBadgeRiseStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	badgeIds: readonly string[],
 	keep: boolean,
 	notice: { seasonStart: string; announced: readonly string[] },

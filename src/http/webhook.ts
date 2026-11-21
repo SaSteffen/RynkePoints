@@ -1,6 +1,7 @@
 import { subscriptionId, verifyToken } from "../config";
 import { secretEquals } from "../crypto/secret";
 import type { Ctx } from "../ctx";
+import { isStravaId, parseStravaJson } from "../strava/id";
 import {
 	ACTIVITY_ASPECTS,
 	isId,
@@ -26,10 +27,10 @@ const OBJECT_TYPES = ["activity", "athlete"] as const;
 
 interface StravaEvent {
 	objectType: (typeof OBJECT_TYPES)[number];
-	objectId: number;
+	objectId: string;
 	aspect: (typeof ACTIVITY_ASPECTS)[number];
 	updates: Record<string, unknown>;
-	ownerId: number;
+	ownerId: string;
 	subscriptionId: number;
 }
 
@@ -135,7 +136,8 @@ function toMessage(event: StravaEvent): WorkMessage | null {
 function parseEvent(body: string): StravaEvent | null {
 	let json: unknown;
 	try {
-		json = JSON.parse(body);
+		// The IDs' exact digits: there is no `*_str` for events (feature 042).
+		json = parseStravaJson(body, ["object_id", "owner_id"]);
 	} catch {
 		return null;
 	}
@@ -146,9 +148,9 @@ function parseEvent(body: string): StravaEvent | null {
 	const updates = e.updates ?? {};
 	if (
 		!isOneOf(OBJECT_TYPES, e.object_type) ||
-		!isId(e.object_id) ||
+		!isStravaId(e.object_id) ||
 		!isOneOf(ACTIVITY_ASPECTS, e.aspect_type) ||
-		!isId(e.owner_id) ||
+		!isStravaId(e.owner_id) ||
 		!isId(e.subscription_id) ||
 		typeof e.event_time !== "number" ||
 		typeof updates !== "object" ||

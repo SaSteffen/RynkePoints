@@ -14,11 +14,11 @@ const DAY = 86400;
 const RECENT: ActivityEventMessage = {
 	kind: "activity-event",
 	athleteId: ATHLETE_A,
-	activityId: 7_300_001,
+	activityId: "7300001",
 	aspect: "create",
 	changed: [],
 };
-const STALE: ActivityEventMessage = { ...RECENT, activityId: 7_300_002 };
+const STALE: ActivityEventMessage = { ...RECENT, activityId: "7300002" };
 
 let fake: FakeStrava;
 let ctx: TestCtx;

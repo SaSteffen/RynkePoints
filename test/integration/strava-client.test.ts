@@ -70,7 +70,7 @@ describe("rate-limit headers", () => {
 			readLimit: "100,1000",
 		};
 		fake.failNext("activity", { status: 429 });
-		await getActivity(ctx, asRider, 1);
+		await getActivity(ctx, asRider, "1");
 		expect(await readRateLimitState(env.DB)).toMatchObject({
 			observedAt: NOW,
 			read15m: 99,
@@ -97,7 +97,7 @@ describe("rate-limit headers", () => {
 			all15m: 3,
 			allDaily: 610,
 		});
-		expect(await getActivity(ctx, asRider, 424242)).toEqual({
+		expect(await getActivity(ctx, asRider, "424242")).toEqual({
 			kind: "not-found",
 		});
 	});
@@ -108,7 +108,7 @@ describe("rate-limit headers", () => {
 		)
 			.bind(NOW)
 			.run();
-		expect(await getActivity(ctx, asRider, 1)).toEqual({
+		expect(await getActivity(ctx, asRider, "1")).toEqual({
 			kind: "budget",
 			delaySeconds: 900,
 		});
@@ -128,7 +128,7 @@ describe("reserve for sign-ins", () => {
 
 	it("stops background calls at 80 reads in the window", async () => {
 		await usage(80);
-		expect(await getActivity(ctx, asRider, 1)).toEqual({
+		expect(await getActivity(ctx, asRider, "1")).toEqual({
 			kind: "budget",
 			delaySeconds: 900,
 		});
@@ -193,18 +193,35 @@ describe("reserve for sign-ins", () => {
 
 describe("response mapping", () => {
 	it("returns the activity on success", async () => {
-		const activity = makeStravaActivity({ id: 7001 });
+		const activity = makeStravaActivity({ id: "7001" });
 		fake.addActivity(ATHLETE_A, activity);
-		const result = await getActivity(ctx, asRider, 7001);
-		expect(result).toMatchObject({ kind: "ok", value: { id: 7001 } });
+		const result = await getActivity(ctx, asRider, "7001");
+		expect(result).toMatchObject({ kind: "ok", value: { id: "7001" } });
 		expect(fake.calls[0]?.headers.get("Authorization")).toBe(
 			"Bearer access-900001-0",
 		);
 	});
 
+	it("reads activity IDs past 2^53 exactly, list and detail (feature 042)", async () => {
+		// Two IDs a JavaScript number can't tell apart; the fake sends them as
+		// numbers with every digit, as Strava does.
+		for (const id of ["9007199254740992", "9007199254740993"]) {
+			fake.addActivity(ATHLETE_A, makeStravaActivity({ id }));
+		}
+		const detail = await getActivity(ctx, asRider, "9007199254740993");
+		expect(detail).toMatchObject({
+			kind: "ok",
+			value: { id: "9007199254740993" },
+		});
+		const list = await listNewestActivities(ctx, asRider);
+		expect(
+			list.kind === "ok" ? list.value.map((a) => a.id).sort() : list,
+		).toEqual(["9007199254740992", "9007199254740993"]);
+	});
+
 	it("maps 429 to a budget deferral until the next window", async () => {
 		fake.failNext("activity", { status: 429 });
-		expect(await getActivity(ctx, asRider, 1)).toEqual({
+		expect(await getActivity(ctx, asRider, "1")).toEqual({
 			kind: "budget",
 			delaySeconds: 900,
 		});
@@ -212,21 +229,21 @@ describe("response mapping", () => {
 
 	it("maps 5xx and network errors to transient", async () => {
 		fake.failNext("activity", { status: 503 });
-		expect(await getActivity(ctx, asRider, 1)).toMatchObject({
+		expect(await getActivity(ctx, asRider, "1")).toMatchObject({
 			kind: "transient",
 		});
 		fake.failNext("activity", "network");
-		expect(await getActivity(ctx, asRider, 1)).toMatchObject({
+		expect(await getActivity(ctx, asRider, "1")).toMatchObject({
 			kind: "transient",
 		});
 	});
 
 	it("maps 404 to not-found and 403 to forbidden", async () => {
-		expect(await getActivity(ctx, asRider, 424242)).toEqual({
+		expect(await getActivity(ctx, asRider, "424242")).toEqual({
 			kind: "not-found",
 		});
 		fake.failNext("activity", { status: 403 });
-		expect(await getActivity(ctx, asRider, 1)).toEqual({ kind: "forbidden" });
+		expect(await getActivity(ctx, asRider, "1")).toEqual({ kind: "forbidden" });
 	});
 });
 
@@ -258,7 +275,9 @@ describe("getAccessToken", () => {
 			expiresAt: NOW + 6 * 3600,
 		});
 		const raw = JSON.stringify(
-			await env.DB.prepare("SELECT * FROM strava_credentials").all(),
+			await env.DB.prepare(
+				"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM strava_credentials",
+			).all(),
 		);
 		expect(raw).not.toContain("refresh-900001-1");
 		expect(raw).not.toContain("access-900001-1");
@@ -432,16 +451,17 @@ describe("listNewestActivities", () => {
 	it("asks for the first 200 without `after`, newest first", async () => {
 		fake.addActivity(
 			ATHLETE_A,
-			makeStravaActivity({ id: 1, start_date: "2026-10-01T07:00:00Z" }),
+			makeStravaActivity({ id: "1", start_date: "2026-10-01T07:00:00Z" }),
 		);
 		fake.addActivity(
 			ATHLETE_A,
-			makeStravaActivity({ id: 2, start_date: "2026-10-03T07:00:00Z" }),
+			makeStravaActivity({ id: "2", start_date: "2026-10-03T07:00:00Z" }),
 		);
 		const result = await listNewestActivities(ctx, asRider);
 		expect(result.kind).toBe("ok");
 		expect(result.kind === "ok" && result.value.map((a) => a.id)).toEqual([
-			2, 1,
+			"2",
+			"1",
 		]);
 		const [call] = fake.callsTo("activities");
 		expect(call?.url.pathname).toBe("/api/v3/athlete/activities");

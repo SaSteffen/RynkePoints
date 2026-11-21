@@ -108,7 +108,7 @@ describe("the Ride re-check section", () => {
 		await evaluateChange(ctx, ATHLETE_B, {
 			kind: "upsert",
 			records: [
-				activityRecord(1, {
+				activityRecord("1", {
 					athlete_id: ATHLETE_B,
 					start_date: "2026-10-30T08:00:00Z",
 					start_date_local: "2026-10-30T08:00:00Z",

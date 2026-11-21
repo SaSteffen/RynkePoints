@@ -29,9 +29,9 @@ import { CURRENT_RULES } from "../support/team-rules";
 // ride result and the balance in one batch (research R11).
 // `expectConsistent` checks data-model.md's invariants after every step.
 
-const A = 7_500_001;
-const B = 7_500_002;
-const C = 7_500_003;
+const A = "7500001";
+const B = "7500002";
+const C = "7500003";
 
 let fake: FakeStrava;
 let ctx: TestCtx;
@@ -48,7 +48,7 @@ afterEach(() => fake.restore());
 
 /** A ride in human units on 2026-10-05 (UTC), unless `start` says otherwise. */
 function ride(
-	id: number,
+	id: string,
 	spec: {
 		km: number;
 		movingH: number;
@@ -78,7 +78,7 @@ function ride(
 }
 
 function event(
-	activityId: number,
+	activityId: string,
 	aspect: ActivityEventMessage["aspect"],
 	changed: string[] = [],
 ): ActivityEventMessage {
@@ -101,7 +101,7 @@ async function deliver(body: ActivityEventMessage) {
 	await expectConsistent();
 }
 
-async function result(activityId: number) {
+async function result(activityId: string) {
 	return (await resultRows()).find((r) => r.strava_activity_id === activityId);
 }
 

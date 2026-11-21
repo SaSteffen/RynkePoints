@@ -10,6 +10,7 @@ import {
 	TEAM_SUMMARY_SINCE,
 	type WeekEntry,
 } from "../rynke/summary";
+import { idsJson } from "../strava/id";
 import { SEASON_RIDE } from "./badges";
 import { sharedRiderIdsSince } from "./consents";
 import { LISTED_RIDER_IDS } from "./organiser";
@@ -19,7 +20,7 @@ import { LISTED_RIDER_IDS } from "./organiser";
 // team read's listed-rider check inside SQL (004 FR-021).
 
 export interface RiderSummaryRow {
-	athlete_id: number;
+	athlete_id: string;
 	version: number;
 	days: string;
 	weeks: string;
@@ -53,39 +54,39 @@ export const RIDE_SUMMARY_JOIN = `LEFT JOIN rider_summaries rs
  */
 export async function readRidesOfRiders(
 	db: D1Database,
-	athleteIds: readonly number[],
+	athleteIds: readonly string[],
 	consentSince: number,
-): Promise<Map<number, RideEntry[]>> {
+): Promise<Map<string, RideEntry[]>> {
 	const { results } = await db
 		.prepare(
-			`SELECT athlete_id, rides FROM rider_summaries
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, rides FROM rider_summaries
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))
 				AND version >= ${RIDE_SUMMARY_SINCE}
 				AND athlete_id IN (${sharedRiderIdsSince(consentSince)})`,
 		)
-		.bind(JSON.stringify(athleteIds))
-		.all<{ athlete_id: number; rides: string }>();
+		.bind(idsJson(athleteIds))
+		.all<{ athlete_id: string; rides: string }>();
 	return new Map(results.map((row) => [row.athlete_id, parseRides(row.rides)]));
 }
 
 /** The rows of every rider in `athleteIds`, for one batch (research R2). */
 export function readSummariesOfRidersStatement(
 	db: D1Database,
-	athleteIds: number[],
+	athleteIds: string[],
 ) {
 	return db
 		.prepare(
-			`SELECT athlete_id, version, days, weeks, run_days, active, attended,
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, version, days, weeks, run_days, active, attended,
 				virtual_days, own_days, rides
 			FROM rider_summaries
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))`,
 		)
-		.bind(JSON.stringify(athleteIds));
+		.bind(idsJson(athleteIds));
 }
 
 export function upsertSummaryStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	summary: RiderSummary,
 ) {
 	return db
@@ -112,7 +113,7 @@ export function upsertSummaryStatement(
 }
 
 /** A new rider has stored nothing yet, and counts as summarised (FR-014). */
-export function insertEmptySummaryStatement(db: D1Database, athleteId: number) {
+export function insertEmptySummaryStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare("INSERT INTO rider_summaries (athlete_id, version) VALUES (?, ?)")
 		.bind(athleteId, RIDER_SUMMARY_VERSION);
@@ -144,18 +145,18 @@ const OF_THESE_LISTED = (column: string) =>
 function attendedStatement(db: D1Database, ids: string) {
 	return db
 		.prepare(
-			`SELECT athlete_id, event_id FROM attendances
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, event_id FROM attendances
 			WHERE ${OF_THESE_LISTED("athlete_id")}
 			ORDER BY 1, 2`,
 		)
 		.bind(ids);
 }
 
-function entriesByRider<Row extends { athlete_id: number }, Entry>(
+function entriesByRider<Row extends { athlete_id: string }, Entry>(
 	rows: readonly Row[],
 	entry: (row: Row) => Entry,
-): Map<number, Entry[]> {
-	const map = new Map<number, Entry[]>();
+): Map<string, Entry[]> {
+	const map = new Map<string, Entry[]>();
 	for (const row of rows) {
 		const list = map.get(row.athlete_id);
 		if (list) list.push(entry(row));
@@ -174,12 +175,12 @@ function entriesByRider<Row extends { athlete_id: number }, Entry>(
  */
 export async function readRidesAddedUp(
 	db: D1Database,
-	athleteIds: readonly number[],
+	athleteIds: readonly string[],
 	consentSince: number,
-): Promise<Map<number, RideEntry[]>> {
+): Promise<Map<string, RideEntry[]>> {
 	const { results } = await db
 		.prepare(
-			`SELECT r.athlete_id, substr(a.start_date_local, 1, 10) AS date,
+			`SELECT CAST(r.athlete_id AS TEXT) AS athlete_id, substr(a.start_date_local, 1, 10) AS date,
 				a.distance_m, r.elevation_dm
 			FROM ride_results r
 			JOIN activities a ON a.strava_activity_id = r.strava_activity_id
@@ -187,9 +188,9 @@ export async function readRidesAddedUp(
 				AND r.athlete_id IN (${sharedRiderIdsSince(consentSince)})
 			ORDER BY 1, 2, 3, 4`,
 		)
-		.bind(JSON.stringify(athleteIds))
+		.bind(idsJson(athleteIds))
 		.all<{
-			athlete_id: number;
+			athlete_id: string;
 			date: string;
 			distance_m: number;
 			elevation_dm: number;
@@ -204,14 +205,14 @@ export async function readRidesAddedUp(
 /** Counting rides per Monday-to-Sunday week, and attended events. */
 export async function readWeeksAddedUp(
 	db: D1Database,
-	athleteIds: readonly number[],
-): Promise<Map<number, AddedUpWeeks>> {
-	const ids = JSON.stringify(athleteIds);
+	athleteIds: readonly string[],
+): Promise<Map<string, AddedUpWeeks>> {
+	const ids = idsJson(athleteIds);
 	const [weekRows, attendedRows] = await db.batch([
 		db
 			.prepare(
 				// 'weekday 0' moves a date to the Sunday ending its week.
-				`SELECT r.athlete_id,
+				`SELECT CAST(r.athlete_id AS TEXT) AS athlete_id,
 					date(substr(a.start_date_local, 1, 10), 'weekday 0') AS week_end,
 					SUM(r.distance_rynke) AS distance_rynke,
 					SUM(r.elevation_dm) AS elevation_dm
@@ -229,7 +230,7 @@ export async function readWeeksAddedUp(
 	}
 	const weeks = entriesByRider(
 		weekRows.results as {
-			athlete_id: number;
+			athlete_id: string;
 			week_end: string;
 			distance_rynke: number;
 			elevation_dm: number;
@@ -237,7 +238,7 @@ export async function readWeeksAddedUp(
 		(row): WeekEntry => [row.week_end, row.distance_rynke, row.elevation_dm],
 	);
 	const attended = entriesByRider(
-		attendedRows.results as { athlete_id: number; event_id: number }[],
+		attendedRows.results as { athlete_id: string; event_id: number }[],
 		(row) => row.event_id,
 	);
 	return new Map(
@@ -254,13 +255,13 @@ export async function readWeeksAddedUp(
  */
 export async function readDaysAddedUp(
 	db: D1Database,
-	athleteIds: readonly number[],
-): Promise<Map<number, AddedUpDays>> {
-	const ids = JSON.stringify(athleteIds);
+	athleteIds: readonly string[],
+): Promise<Map<string, AddedUpDays>> {
+	const ids = idsJson(athleteIds);
 	const [dayRows, runRows, activeRows, attendedRows] = await db.batch([
 		db
 			.prepare(
-				`SELECT r.athlete_id, substr(a.start_date_local, 1, 10) AS date,
+				`SELECT CAST(r.athlete_id AS TEXT) AS athlete_id, substr(a.start_date_local, 1, 10) AS date,
 					SUM(a.distance_m) AS distance_m,
 					SUM(r.distance_rynke) AS distance_rynke,
 					SUM(r.elevation_dm) AS elevation_dm
@@ -273,7 +274,7 @@ export async function readDaysAddedUp(
 			.bind(ids),
 		db
 			.prepare(
-				`SELECT athlete_id, substr(start_date_local, 1, 10) AS date,
+				`SELECT CAST(athlete_id AS TEXT) AS athlete_id, substr(start_date_local, 1, 10) AS date,
 					SUM(distance_m) AS distance_m
 				FROM runs WHERE ${OF_THESE_LISTED("athlete_id")}
 				GROUP BY 1, 2
@@ -283,7 +284,7 @@ export async function readDaysAddedUp(
 		// For the team surprises (feature 013 part E, research R39, R45).
 		db
 			.prepare(
-				`SELECT DISTINCT athlete_id, substr(start_date_local, 1, 10) AS date,
+				`SELECT DISTINCT CAST(athlete_id AS TEXT) AS athlete_id, substr(start_date_local, 1, 10) AS date,
 					CAST(substr(start_date_local, 12, 2) AS INTEGER) AS hour, ride
 				FROM (
 					SELECT a.athlete_id, a.start_date_local, 1 AS ride
@@ -307,7 +308,7 @@ export async function readDaysAddedUp(
 	}
 	const days = entriesByRider(
 		dayRows.results as {
-			athlete_id: number;
+			athlete_id: string;
 			date: string;
 			distance_m: number;
 			distance_rynke: number;
@@ -322,7 +323,7 @@ export async function readDaysAddedUp(
 	);
 	const runDays = entriesByRider(
 		runRows.results as {
-			athlete_id: number;
+			athlete_id: string;
 			date: string;
 			distance_m: number;
 		}[],
@@ -330,7 +331,7 @@ export async function readDaysAddedUp(
 	);
 	const active = entriesByRider(
 		activeRows.results as {
-			athlete_id: number;
+			athlete_id: string;
 			date: string;
 			hour: number;
 			ride: 0 | 1;
@@ -338,7 +339,7 @@ export async function readDaysAddedUp(
 		(row): ActiveEntry => [row.date, row.hour, row.ride],
 	);
 	const attended = entriesByRider(
-		attendedRows.results as { athlete_id: number; event_id: number }[],
+		attendedRows.results as { athlete_id: string; event_id: number }[],
 		(row) => row.event_id,
 	);
 	return new Map(

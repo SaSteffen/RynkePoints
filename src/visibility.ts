@@ -73,7 +73,7 @@ export const SINCE_VERSION: Readonly<Record<RiderData, number>> = {
 	consentRecords: SHARING_SINCE_VERSION,
 };
 
-export function audienceOf(viewer: Viewer, subjectAthleteId: number): Audience {
+export function audienceOf(viewer: Viewer, subjectAthleteId: string): Audience {
 	if (viewer.kind === "visitor") return "visitor";
 	if (viewer.rider.athleteId === subjectAthleteId) return "self";
 	return viewer.rider.organiser ? "organiser" : "rider";

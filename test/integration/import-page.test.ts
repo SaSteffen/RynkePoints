@@ -9,6 +9,7 @@ import { seasonStartEpoch } from "../../src/config";
 import { upsertActivity } from "../../src/db/activities";
 import { getRider } from "../../src/db/riders";
 import { handleQueue } from "../../src/index";
+import { compareIds } from "../../src/strava/id";
 import { PER_PAGE } from "../../src/work/activity-page";
 import { importPage } from "../../src/work/import-page";
 import type { ImportPageMessage } from "../../src/work/messages";
@@ -194,8 +195,8 @@ describe("import-page", () => {
 
 		async function storedIds() {
 			const { results } = await env.DB.prepare(
-				"SELECT strava_activity_id FROM activities ORDER BY 1",
-			).all<{ strava_activity_id: number }>();
+				"SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id FROM activities ORDER BY activities.strava_activity_id",
+			).all<{ strava_activity_id: string }>();
 			return results.map((r) => r.strava_activity_id);
 		}
 
@@ -203,7 +204,7 @@ describe("import-page", () => {
 			fake.addAthlete({ id: ATHLETE_A });
 			await seedRider(ctx);
 			addActivities(250, SEASON_START + 86400);
-			const all = [...fake.activities.keys()].sort((a, b) => a - b);
+			const all = [...fake.activities.keys()].sort(compareIds);
 			await deliver(FIRST);
 			// Deleted on Strava after the first page was read.
 			const [deleted] = [...fake.activities.values()].sort(
@@ -285,9 +286,9 @@ describe("import-page", () => {
 	});
 
 	describe("after the last page (review L-03)", () => {
-		const KEPT = 7_300_001;
-		const GONE = 7_300_002;
-		const SINCE = 7_300_003;
+		const KEPT = "7300001";
+		const GONE = "7300002";
+		const SINCE = "7300003";
 
 		/** Stores KEPT (still on Strava), GONE (not) and SINCE (refreshed since the import began). */
 		async function storeBefore() {
@@ -304,7 +305,7 @@ describe("import-page", () => {
 			]) {
 				await upsertActivity(
 					env.DB,
-					activityRecord(id as number, { refreshed_at: refreshed }),
+					activityRecord(id as string, { refreshed_at: refreshed as number }),
 				);
 			}
 		}
@@ -325,8 +326,8 @@ describe("import-page", () => {
 			// The decision table removes it: Strava answers 404.
 			await deliver(ctx.queue.sent[0]?.body);
 			const { results } = await env.DB.prepare(
-				"SELECT strava_activity_id FROM activities ORDER BY 1",
-			).all<{ strava_activity_id: number }>();
+				"SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id FROM activities ORDER BY activities.strava_activity_id",
+			).all<{ strava_activity_id: string }>();
 			expect(results.map((r) => r.strava_activity_id)).toEqual([KEPT, SINCE]);
 			await expectConsistent();
 		});

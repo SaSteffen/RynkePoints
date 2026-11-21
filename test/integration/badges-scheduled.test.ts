@@ -94,7 +94,7 @@ describe("the badge catalog's cron evaluation", () => {
 		// A 60 km ride: ride length 50 under catalog version 2.
 		await upsertActivity(
 			env.DB,
-			activityRecord(4, {
+			activityRecord("4", {
 				start_date: "2026-05-04T08:00:00Z",
 				distance_m: 60000,
 			}),
@@ -140,7 +140,7 @@ describe("the badge catalog's cron evaluation", () => {
 	it("gives riders on catalog version 2 their surprise badges once, silently (part D)", async () => {
 		await upsertActivity(
 			env.DB,
-			activityRecord(5, {
+			activityRecord("5", {
 				start_date: "2026-05-05T22:15:00Z",
 			}),
 		);
@@ -186,7 +186,7 @@ describe("the badge catalog's cron evaluation", () => {
 		// 40 km on Pi Day: Kreiszahl.
 		await upsertActivity(
 			env.DB,
-			activityRecord(6, { start_date: "2026-03-14T08:00:00Z" }),
+			activityRecord("6", { start_date: "2026-03-14T08:00:00Z" }),
 		);
 		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_A });
 		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_B });

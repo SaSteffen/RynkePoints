@@ -9,6 +9,7 @@ import {
 	listPendingRevocationIds,
 } from "../db/pending-revocations";
 import { isOneOf } from "../work/messages";
+import { idJson } from "./id";
 import { revokeToken } from "./tokens";
 
 // Withdrawing a person's grant at Strava (feature 041 FR-009, research R14,
@@ -30,7 +31,7 @@ const GATEWAY_TIMEOUT_MS = 10_000;
 /** Withdraws a token just exchanged at a refused sign-in. */
 export async function withdrawGrant(
 	ctx: WithdrawCtx,
-	athleteId: number,
+	athleteId: string,
 	refreshToken: string,
 ): Promise<Withdrawal> {
 	await keepToken(ctx.env, athleteId, refreshToken, ctx.now());
@@ -43,7 +44,7 @@ export async function withdrawGrant(
  */
 export async function withdrawStoredGrant(
 	ctx: WithdrawCtx,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Withdrawal> {
 	if (!(await keepStoredToken(ctx.env.DB, athleteId, ctx.now()))) {
 		return "done";
@@ -54,7 +55,7 @@ export async function withdrawStoredGrant(
 /** Settles one kept token: drops it, revokes it, or keeps it for later. */
 export async function settleWithdrawal(
 	ctx: WithdrawCtx,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Withdrawal> {
 	const row = await getPendingRevocation(ctx.env.DB, athleteId);
 	if (!row) return "done";
@@ -95,7 +96,7 @@ export async function settleWithdrawals(ctx: WithdrawCtx): Promise<void> {
  */
 async function heldElsewhere(
 	ctx: WithdrawCtx,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Hold | null> {
 	const gateway = returnVia(ctx.env);
 	if (gateway === null) return "none";
@@ -106,7 +107,8 @@ async function heldElsewhere(
 				Authorization: `Bearer ${verifyToken(ctx.env)}`,
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ athleteId }),
+			// A number, exactly, as the gateway reads it (feature 042 R3).
+			body: JSON.stringify({ athleteId: idJson(athleteId) }),
 			signal: AbortSignal.timeout(GATEWAY_TIMEOUT_MS),
 			redirect: "manual",
 		});

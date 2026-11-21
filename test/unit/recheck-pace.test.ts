@@ -19,7 +19,7 @@ function riders(n: number, fastLane: (i: number) => boolean = () => false) {
 	return Array.from(
 		{ length: n },
 		(_, i): Candidate => ({
-			athleteId: i + 1,
+			athleteId: String(i + 1),
 			recheckedAt: null,
 			fastLane: fastLane(i),
 		}),
@@ -32,8 +32,8 @@ function riders(n: number, fastLane: (i: number) => boolean = () => false) {
  */
 function simulate(team: Candidate[], days: number, allowance = ALLOWANCE) {
 	const perDay: number[] = [];
-	const intervals = new Map<number, number[]>();
-	const perRider = new Map<number, number>();
+	const intervals = new Map<string, number[]>();
+	const perRider = new Map<string, number>();
 	for (let d = 0; d < days; d++) {
 		let total = 0;
 		for (let h = 0; h < 24; h++) {
@@ -108,7 +108,7 @@ describe("runSize", () => {
 
 describe("chooseRiders", () => {
 	const NOW = 100 * DAY;
-	const at = (athleteId: number, ago: number | null, fastLane = false) => ({
+	const at = (athleteId: string, ago: number | null, fastLane = false) => ({
 		athleteId,
 		recheckedAt: ago === null ? null : NOW - ago,
 		fastLane,
@@ -116,46 +116,48 @@ describe("chooseRiders", () => {
 
 	it("takes the longest ago first, never checked before everyone, nobody twice", () => {
 		const chosen = chooseRiders(
-			[at(1, 2 * HOUR), at(2, null), at(3, 5 * HOUR), at(4, 3 * HOUR)],
+			[at("1", 2 * HOUR), at("2", null), at("3", 5 * HOUR), at("4", 3 * HOUR)],
 			3,
 			NOW,
 		);
-		expect(chosen.map((c) => c.athleteId)).toEqual([2, 3, 4]);
+		expect(chosen.map((c) => c.athleteId)).toEqual(["2", "3", "4"]);
 	});
 
 	it("takes nobody once a run chose riders in the last 30 minutes", () => {
-		expect(chooseRiders([at(1, 29 * 60), at(2, 5 * HOUR)], 2, NOW)).toEqual([]);
-		expect(chooseRiders([at(1, 30 * 60), at(2, 5 * HOUR)], 2, NOW).length).toBe(
-			2,
+		expect(chooseRiders([at("1", 29 * 60), at("2", 5 * HOUR)], 2, NOW)).toEqual(
+			[],
 		);
+		expect(
+			chooseRiders([at("1", 30 * 60), at("2", 5 * HOUR)], 2, NOW).length,
+		).toBe(2);
 	});
 
 	it("orders 20 hours or more, then the fast lane, then the rest (FR-010)", () => {
 		const chosen = chooseRiders(
 			[
-				at(1, 10 * HOUR),
-				at(2, 2 * HOUR, true),
-				at(3, 21 * HOUR),
-				at(4, 3 * HOUR, true),
-				at(5, 12 * HOUR),
+				at("1", 10 * HOUR),
+				at("2", 2 * HOUR, true),
+				at("3", 21 * HOUR),
+				at("4", 3 * HOUR, true),
+				at("5", 12 * HOUR),
 			],
 			5,
 			NOW,
 		);
-		expect(chosen.map((c) => c.athleteId)).toEqual([3, 4, 2, 5, 1]);
+		expect(chosen.map((c) => c.athleteId)).toEqual(["3", "4", "2", "5", "1"]);
 	});
 
 	it("gives the fast lane at most half, and its unused places to the others (US3 scenario 4)", () => {
-		const fast = [1, 2, 3, 4, 5].map((id) => at(id, HOUR, true));
-		const others = [6, 7, 8, 9].map((id) => at(id, 10 * HOUR));
+		const fast = ["1", "2", "3", "4", "5"].map((id) => at(id, HOUR, true));
+		const others = ["6", "7", "8", "9"].map((id) => at(id, 10 * HOUR));
 		expect(
 			chooseRiders([...fast, ...others], 6, NOW).map((c) => c.athleteId),
-		).toEqual([1, 2, 3, 6, 7, 8]);
+		).toEqual(["1", "2", "3", "6", "7", "8"]);
 		expect(
-			chooseRiders([at(1, HOUR, true), ...others], 4, NOW).map(
+			chooseRiders([at("1", HOUR, true), ...others], 4, NOW).map(
 				(c) => c.athleteId,
 			),
-		).toEqual([1, 6, 7, 8]);
+		).toEqual(["1", "6", "7", "8"]);
 	});
 });
 
@@ -217,10 +219,10 @@ describe("a day of runs", () => {
 	it("checks 3 fast-lane riders among 100 far more often than the rest", () => {
 		const team = riders(100, (i) => i < 3);
 		const day = simulate(team, 4);
-		for (const id of [1, 2, 3]) {
+		for (const id of ["1", "2", "3"]) {
 			expect(day.perRider.get(id) ?? 0).toBeGreaterThanOrEqual(9);
 		}
-		expect(day.perRider.get(50) ?? 0).toBeLessThanOrEqual(2);
+		expect(day.perRider.get("50") ?? 0).toBeLessThanOrEqual(2);
 		expect(day.longest).toBeLessThan(24);
 	});
 
@@ -229,6 +231,6 @@ describe("a day of runs", () => {
 			riders(50, (i) => i < 3),
 			4,
 		);
-		for (const id of [1, 2, 3]) expect(day.perRider.get(id)).toBe(24);
+		for (const id of ["1", "2", "3"]) expect(day.perRider.get(id)).toBe(24);
 	});
 });

@@ -260,7 +260,7 @@ export function renderAlbum(data: AlbumData): string {
 export async function albumHtml(
 	db: D1Database,
 	env: AlbumEnv,
-	rider: { athleteId: number; firstName: string },
+	rider: { athleteId: string; firstName: string },
 	cutoff: string,
 	now: number,
 ): Promise<string> {

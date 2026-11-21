@@ -1,3 +1,4 @@
+import { compareIds } from "../strava/id";
 // The ride figures of the Team page and the organiser area (feature 032
 // research R3, data-model.md): sessions, kilometres, elevation and the typical
 // ride per period, places on the shown value, and the team's figures. Pure, like
@@ -35,7 +36,7 @@ export interface Figures {
 }
 
 export interface RideRider {
-	athleteId: number;
+	athleteId: string;
 	rides: readonly RideEntry[];
 }
 
@@ -154,7 +155,7 @@ function units(
  */
 export function rideRows(
 	riders: readonly RideRider[],
-	viewerId: number,
+	viewerId: string,
 	by: RideFigure,
 	range: DateRange,
 ): { rows: RideRow[]; viewer: RideViewer | null } {
@@ -174,7 +175,7 @@ export function rideRows(
 			b.sessions - a.sessions ||
 			b.kmTenths - a.kmTenths ||
 			b.elevationM - a.elevationM ||
-			a.id - b.id,
+			compareIds(a.id, b.id),
 	);
 	const rows = ranked.map(
 		(rider): RideRow => ({

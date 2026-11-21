@@ -10,7 +10,12 @@ import {
 } from "./samples";
 
 // Hamburg's sample riders (feature 026 FR-050), one per state of the rider page
-// plus about 25 ordinary seasons: athlete IDs 990001–990099.
+// plus about 25 ordinary seasons: athlete IDs "990001"–"990099".
+
+// The ordinary riders' athlete IDs are large (feature 042): from 2^53 + 1, past
+// what a JavaScript number holds exactly, so every local run and test covers
+// them next to the small IDs of the named riders.
+const LARGE_IDS_FROM = "9007199254740993";
 
 const ORDINARY_NAMES = [
 	"Alma",
@@ -42,7 +47,7 @@ const ORDINARY_NAMES = [
 
 export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	{
-		athleteId: 990001,
+		athleteId: "990001",
 		firstName: "Ida Importing",
 		state: "Import still running: the fake answers her activity list with 503",
 		scopes: ALL_SCOPES,
@@ -51,7 +56,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(3, (i) => ride(...slot(i), 50, 300, 25)),
 	},
 	{
-		athleteId: 990002,
+		athleteId: "990002",
 		firstName: "Nora NoRides",
 		state: "No rides, so no badges yet",
 		scopes: ALL_SCOPES,
@@ -60,7 +65,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: [],
 	},
 	{
-		athleteId: 990003,
+		athleteId: "990003",
 		firstName: "Fiona FarAway",
 		state: "Far from both targets",
 		scopes: ALL_SCOPES,
@@ -69,7 +74,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(3, (i) => ride(...slot(i), 25 + 5 * i, 150, 22)),
 	},
 	{
-		athleteId: 990004,
+		athleteId: "990004",
 		firstName: "Tina TrainingDone",
 		state:
 			"Training target reached without virtual rides; Team Rynke missing; organiser",
@@ -83,7 +88,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		),
 	},
 	{
-		athleteId: 990005,
+		athleteId: "990005",
 		firstName: "Vera Virtual",
 		state: "Training target reached only thanks to virtual rides",
 		scopes: ALL_SCOPES,
@@ -101,7 +106,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		),
 	},
 	{
-		athleteId: 990006,
+		athleteId: "990006",
 		firstName: "Rex Rejected",
 		state:
 			"Rides that don't count, one per rule, and a run that counts only for the running badges",
@@ -128,7 +133,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 990007,
+		athleteId: "990007",
 		firstName: "Paula Paging",
 		state:
 			"More rides than one page (45; 20 per page) and team events, one before the season start",
@@ -148,7 +153,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 990008,
+		athleteId: "990008",
 		firstName: "Olli OptionalDenied",
 		state: "Optional permissions withheld; three private rides stay hidden",
 		scopes: "read,activity:read",
@@ -159,7 +164,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		),
 	},
 	{
-		athleteId: 990009,
+		athleteId: "990009",
 		firstName: "Remy Reconnect",
 		state: "Must reconnect: the fake refuses his activity calls and refresh",
 		scopes: ALL_SCOPES,
@@ -168,7 +173,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(3, (i) => ride(...slot(i), 50, 300, 25)),
 	},
 	{
-		athleteId: 990010,
+		athleteId: "990010",
 		firstName: "Noah NotMember",
 		state: "Not a club member: signing in shows the not-member notice",
 		scopes: ALL_SCOPES,
@@ -177,7 +182,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(3, (i) => ride(...slot(i), 50, 300, 25)),
 	},
 	{
-		athleteId: 990011,
+		athleteId: "990011",
 		firstName: "Olga Organiser",
 		state: "Organiser: manages team events and attendance at /organiser",
 		scopes: ALL_SCOPES,
@@ -187,7 +192,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(5, (i) => ride(...slot(i), 60, 400, 25)),
 	},
 	{
-		athleteId: 990012,
+		athleteId: "990012",
 		firstName: "Bea Badges",
 		state:
 			"Badges (feature 013): earlier and later ones in a category, both technique trainings",
@@ -204,7 +209,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 990013,
+		athleteId: "990013",
 		firstName: "Nick NearlyThere",
 		state:
 			"Badges (feature 013): just short of the first distance and elevation badges",
@@ -216,7 +221,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: [ride(1, "07:00", 49.8, 495, 25), ride(3, "07:00", 49.8, 495, 25)],
 	},
 	{
-		athleteId: 990014,
+		athleteId: "990014",
 		firstName: "Carla Complete",
 		state:
 			"Badges (feature 013): every personal riding and team-event badge, no runs",
@@ -234,7 +239,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		})),
 	},
 	{
-		athleteId: 990015,
+		athleteId: "990015",
 		firstName: "Rudi Runner",
 		state:
 			"Badges (feature 013): outdoor runs for the running badges; treadmill, virtual and manual runs that don't count",
@@ -253,7 +258,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 990016,
+		athleteId: "990016",
 		firstName: "Wanda Winter",
 		state:
 			"Badges (feature 013 parts C and D): a long ride, virtual rides, winter days, swims and surprise badges",
@@ -295,7 +300,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 990017,
+		athleteId: "990017",
 		firstName: "Fritz Festtag",
 		state:
 			"Badges (feature 013 part F): surprise badges from cycling traditions",
@@ -341,7 +346,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 990018,
+		athleteId: "990018",
 		firstName: "Alex Admin",
 		state: "Administrator: watches usage and riders at /admin",
 		scopes: ALL_SCOPES,
@@ -350,10 +355,10 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		administrator: true,
 		rides: rides(4, (i) => ride(...slot(i), 40, 200, 25)),
 	},
-	...ordinaryRiders(ORDINARY_NAMES, 990_020, "Kira"),
+	...ordinaryRiders(ORDINARY_NAMES, LARGE_IDS_FROM, "Kira"),
 	// Last, so the other riders' synthetic activity IDs stay as they were.
 	{
-		athleteId: 990019,
+		athleteId: "990019",
 		firstName: "Gesa Gast",
 		state:
 			"An administrator of another team on the guest list, not in the club: Orga and Admin, her rides count for nobody but her (feature 041)",
@@ -366,7 +371,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 ];
 
 /** Records the team events below (feature 014 FR-040). */
-export const EVENT_ORGANISER = 990004;
+export const EVENT_ORGANISER = "990004";
 
 // Tina TrainingDone stays without Team Rynke, as her state says.
 export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
@@ -374,15 +379,15 @@ export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
 		daysAgo: 5,
 		kind: "team_training",
 		name: "Sample team ride",
-		attendees: [990003, 990005, 990008, 990011],
-		reports: [990012, 990015],
+		attendees: ["990003", "990005", "990008", "990011"],
+		reports: ["990012", "990015"],
 	},
 	{
 		daysAgo: 12,
 		kind: "training_weekend_day",
 		name: "Sample training weekend",
-		attendees: [990005, 990011],
-		reports: [990012],
+		attendees: ["990005", "990011"],
+		reports: ["990012"],
 	},
 	// Six listed riders at one event: the team's first big training (feature
 	// 013 US4).
@@ -390,7 +395,7 @@ export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
 		daysAgo: 7,
 		kind: "team_training",
 		name: "Sample big training",
-		attendees: [990003, 990005, 990008, 990011, 990012, 990015],
+		attendees: ["990003", "990005", "990008", "990011", "990012", "990015"],
 	},
 	// Feature 019: open requests at three events, one rider with three and one
 	// with two, and intents for events still to come. Nobody attended them yet.
@@ -399,21 +404,21 @@ export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
 		kind: "team_training",
 		name: "Sample early ride",
 		attendees: [],
-		reports: [990012, 990015],
+		reports: ["990012", "990015"],
 	},
 	{
 		daysAgo: -4,
 		kind: "team_training",
 		name: "Sample ride ahead",
 		attendees: [],
-		reports: [990003, 990005, 990008],
+		reports: ["990003", "990005", "990008"],
 	},
 	{
 		daysAgo: -18,
 		kind: "technique_training",
 		name: "Sample technique session",
 		attendees: [],
-		reports: [990012],
+		reports: ["990012"],
 	},
 	// Feature 021: the eight days of the Tour de Paris, after the qualification
 	// deadline. Fiona rides all of them, Vera the first five, Olga the first
@@ -435,9 +440,9 @@ export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
 			kind: "tour_de_paris",
 			name,
 			attendees: [
-				990003,
-				...(i < 5 ? [990005] : []),
-				...(i < 2 ? [990011] : []),
+				"990003",
+				...(i < 5 ? ["990005"] : []),
+				...(i < 2 ? ["990011"] : []),
 			],
 		}),
 	),

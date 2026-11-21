@@ -2,6 +2,7 @@ import type { StoredActivities } from "../recheck/diff";
 import type { Candidate } from "../recheck/pace";
 import { FIXABLE_REASONS } from "../rynke/rides";
 import type { ActivityRecord, RunRecord, SwimRecord } from "../strava/activity";
+import { idsJson } from "../strava/id";
 
 // The ride edit re-check's rows (feature 036 data-model.md): the rider's
 // stamp `riders.rechecked_at`, and the counts per UTC day in `recheck_daily`.
@@ -53,7 +54,7 @@ export async function readCandidates(
 ): Promise<RecheckCandidate[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT r.athlete_id, r.rechecked_at, r.connected_at,
+			`SELECT CAST(r.athlete_id AS TEXT) AS athlete_id, r.rechecked_at, r.connected_at,
 				${startedBetween("?1", "?2")} AS settled,
 				EXISTS (SELECT 1 FROM ride_results rr
 					JOIN activities a ON a.strava_activity_id = rr.strava_activity_id
@@ -70,7 +71,7 @@ export async function readCandidates(
 			JSON.stringify(FIXABLE_REASONS),
 		)
 		.all<{
-			athlete_id: number;
+			athlete_id: string;
 			rechecked_at: number | null;
 			connected_at: number;
 			settled: number;
@@ -117,7 +118,7 @@ export function countRunStatement(
 /** Stamps the chosen riders with the run's time (research R5). */
 export function stampStatement(
 	db: D1Database,
-	athleteIds: readonly number[],
+	athleteIds: readonly string[],
 	now: number,
 ) {
 	return db
@@ -125,7 +126,7 @@ export function stampStatement(
 			`UPDATE riders SET rechecked_at = ?1
 			WHERE athlete_id IN (SELECT value FROM json_each(?2))`,
 		)
-		.bind(now, JSON.stringify(athleteIds));
+		.bind(now, idsJson(athleteIds));
 }
 
 /** A day of `recheck_daily`, for the usage view. */
@@ -180,12 +181,12 @@ export async function pruneRecheckDays(
 /** A rider's stored rides, with the name, and runs and swims, by activity id. */
 export async function readStoredActivities(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<StoredActivities> {
 	const [rides, runs, swims] = await db.batch([
 		db
 			.prepare(
-				`SELECT strava_activity_id, athlete_id, sport_type, start_date,
+				`SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id, CAST(athlete_id AS TEXT) AS athlete_id, sport_type, start_date,
 					start_date_local, timezone, distance_m, moving_time_s,
 					elapsed_time_s, elevation_gain_m, is_manual, is_trainer, is_flagged,
 					is_private, refreshed_at, name
@@ -195,14 +196,14 @@ export async function readStoredActivities(
 		...["runs", "swims"].map((table) =>
 			db
 				.prepare(
-					`SELECT strava_activity_id, athlete_id, start_date, start_date_local,
+					`SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id, CAST(athlete_id AS TEXT) AS athlete_id, start_date, start_date_local,
 						distance_m, is_private, refreshed_at
 					FROM ${table} WHERE athlete_id = ?`,
 				)
 				.bind(athleteId),
 		),
 	]);
-	const byId = <T extends { strava_activity_id: number }>(
+	const byId = <T extends { strava_activity_id: string }>(
 		rows: readonly unknown[] | undefined,
 	) =>
 		new Map((rows as T[] | undefined)?.map((r) => [r.strava_activity_id, r]));
@@ -243,7 +244,7 @@ export function countOutcomeStatement(
  */
 export async function checkNotMade(
 	db: D1Database,
-	check: { athleteId: number; stamp: number; previous: number | null },
+	check: { athleteId: string; stamp: number; previous: number | null },
 	day: string,
 	outcome: CheckOutcome,
 ): Promise<void> {

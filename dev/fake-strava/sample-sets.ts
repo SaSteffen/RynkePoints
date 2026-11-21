@@ -21,7 +21,7 @@ export function samplesFor(teamId: string): SampleSet {
 
 export function sampleRider(
 	teamId: string,
-	athleteId: number,
+	athleteId: string,
 ): SampleRider | undefined {
 	return samplesFor(teamId).riders.find((r) => r.athleteId === athleteId);
 }

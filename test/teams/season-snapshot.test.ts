@@ -7,6 +7,7 @@ import {
 	devQueue,
 	removeStravaInterceptor,
 } from "../../dev/worker";
+import { compareIds } from "../../src/strava/id";
 import { TEAMS } from "../../src/teams";
 import { makeCtx, resetDb, sessionCookie, type TestCtx } from "../support/ctx";
 import { NOW } from "../support/fixtures";
@@ -122,8 +123,8 @@ describe.skipIf(env.TEAM_ID !== TEAMS[0]?.id)(
 
 		it("recalculates to the committed snapshot", async () => {
 			const parts: string[] = [];
-			const riders = [...SAMPLE_RIDERS].sort(
-				(a, b) => a.athleteId - b.athleteId,
+			const riders = [...SAMPLE_RIDERS].sort((a, b) =>
+				compareIds(a.athleteId, b.athleteId),
 			);
 			for (const rider of riders) {
 				const id = rider.athleteId;
@@ -136,7 +137,10 @@ describe.skipIf(env.TEAM_ID !== TEAMS[0]?.id)(
 				if (stored.length === 0) continue;
 				parts.push(
 					`balance ${JSON.stringify(
-						await rows("SELECT * FROM rynke_balances WHERE athlete_id = ?", id),
+						await rows(
+							"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM rynke_balances WHERE athlete_id = ?",
+							id,
+						),
 					)}`,
 					`rides ${JSON.stringify(
 						await rows(

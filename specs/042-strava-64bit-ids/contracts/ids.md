@@ -10,13 +10,13 @@ object with an `id`, the ID is the exact digits of `id` and must be a valid ID (
 ## Strava → gateway → app (webhook events)
 
 Body unchanged and forwarded as received. `object_id` and `owner_id` are read from their exact
-digits and must be valid IDs, else the event is refused (400) as today. `subscription_id` stays a
+digits and must be JSON numbers that are valid IDs, else the event is refused (400) as today. `subscription_id` stays a
 safe-integer check.
 
 ## App ↔ gateway (`held`)
 
 `{"athleteId": <digits>}`: a JSON number with the exact digits, as before. Both sides read it
-exactly and also accept a JSON string with a valid ID.
+exactly; a JSON string is refused, as before.
 
 ## Queue and work tables
 

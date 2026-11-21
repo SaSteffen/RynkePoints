@@ -25,7 +25,7 @@ export const WINDOW: CountingWindow = {
 /** `count` rides like `spec`, one a day from 2026-05-01 + `firstDay`. */
 function daily(
 	count: number,
-	firstId: number,
+	firstId: string,
 	spec: Omit<RideSpec, "id" | "start">,
 	firstDay = 0,
 ): RideSpec[] {
@@ -62,21 +62,21 @@ export const RIDERS: Rider[] = [
 	// 79 km → floor(7.9) = 7.
 	{
 		name: "one ride",
-		rides: [{ id: 1, km: 79, movingH: 3 }],
+		rides: [{ id: "1", km: 79, movingH: 3 }],
 		training: 7,
 		qualified: false,
 	},
 	// 10 km at exactly 10 km/h → allowed, floor(1.0) = 1.
 	{
 		name: "minimum speed, one step",
-		rides: [{ id: 1, km: 10, movingH: 1 }],
+		rides: [{ id: "1", km: 10, movingH: 1 }],
 		training: 1,
 		qualified: false,
 	},
 	// 9.99 km counts but floor(0.999) = 0.
 	{
 		name: "just under a distance step",
-		rides: [{ id: 1, km: 9.99, movingH: 0.5 }],
+		rides: [{ id: "1", km: 9.99, movingH: 0.5 }],
 		training: 0,
 		qualified: false,
 	},
@@ -84,8 +84,8 @@ export const RIDERS: Rider[] = [
 	{
 		name: "elevation summed before rounding",
 		rides: [
-			{ id: 1, km: 30, movingH: 2, elevationM: 600 },
-			{ id: 2, km: 30, movingH: 2, elevationM: 600, start: DAY2 },
+			{ id: "1", km: 30, movingH: 2, elevationM: 600 },
+			{ id: "2", km: 30, movingH: 2, elevationM: 600, start: DAY2 },
 		],
 		training: 11,
 		qualified: false,
@@ -93,14 +93,14 @@ export const RIDERS: Rider[] = [
 	// 999.96 m rounds to 10000 dm = one step → 4 + 5.
 	{
 		name: "elevation rounded up to a step",
-		rides: [{ id: 1, km: 40, movingH: 2, elevationM: 999.96 }],
+		rides: [{ id: "1", km: 40, movingH: 2, elevationM: 999.96 }],
 		training: 9,
 		qualified: false,
 	},
 	// 999.94 m rounds to 9999 dm, under a step → 4 + 0.
 	{
 		name: "elevation rounded down under a step",
-		rides: [{ id: 1, km: 40, movingH: 2, elevationM: 999.94 }],
+		rides: [{ id: "1", km: 40, movingH: 2, elevationM: 999.94 }],
 		training: 4,
 		qualified: false,
 	},
@@ -108,8 +108,8 @@ export const RIDERS: Rider[] = [
 	{
 		name: "pause limit",
 		rides: [
-			{ id: 1, km: 40, movingH: 2, pausedH: 2 },
-			{ id: 2, km: 100, movingH: 4, pausedH: 4 + 1 / 3600, start: DAY2 },
+			{ id: "1", km: 40, movingH: 2, pausedH: 2 },
+			{ id: "2", km: 100, movingH: 4, pausedH: 4 + 1 / 3600, start: DAY2 },
 		],
 		training: 4,
 		qualified: false,
@@ -118,8 +118,8 @@ export const RIDERS: Rider[] = [
 	{
 		name: "maximum speed",
 		rides: [
-			{ id: 1, km: 45, movingH: 1 },
-			{ id: 2, km: 90.01, movingH: 2, start: DAY2 },
+			{ id: "1", km: 45, movingH: 1 },
+			{ id: "2", km: 90.01, movingH: 2, start: DAY2 },
 		],
 		training: 4,
 		qualified: false,
@@ -128,8 +128,8 @@ export const RIDERS: Rider[] = [
 	{
 		name: "minimum speed",
 		rides: [
-			{ id: 1, km: 20, movingH: 2 },
-			{ id: 2, km: 19.99, movingH: 2, start: DAY2 },
+			{ id: "1", km: 20, movingH: 2 },
+			{ id: "2", km: 19.99, movingH: 2, start: DAY2 },
 		],
 		training: 2,
 		qualified: false,
@@ -138,8 +138,8 @@ export const RIDERS: Rider[] = [
 	{
 		name: "climbing rate",
 		rides: [
-			{ id: 1, km: 30, movingH: 1, elevationM: 1500 },
-			{ id: 2, km: 30, movingH: 1, elevationM: 1501, start: DAY2 },
+			{ id: "1", km: 30, movingH: 1, elevationM: 1500 },
+			{ id: "2", km: 30, movingH: 1, elevationM: 1501, start: DAY2 },
 		],
 		training: 8,
 		qualified: false,
@@ -148,15 +148,15 @@ export const RIDERS: Rider[] = [
 	{
 		name: "e-bikes",
 		rides: [
-			{ id: 1, km: 100, movingH: 4, sportType: "EBikeRide" },
+			{ id: "1", km: 100, movingH: 4, sportType: "EBikeRide" },
 			{
-				id: 2,
+				id: "2",
 				km: 60,
 				movingH: 3,
 				sportType: "EMountainBikeRide",
 				start: DAY2,
 			},
-			{ id: 3, km: 30, movingH: 1, start: DAY3 },
+			{ id: "3", km: 30, movingH: 1, start: DAY3 },
 		],
 		training: 3,
 		qualified: false,
@@ -165,9 +165,9 @@ export const RIDERS: Rider[] = [
 	{
 		name: "manual entries",
 		rides: [
-			{ id: 1, km: 50, movingH: 2, manual: true },
-			{ id: 2, km: 50, movingH: 2, start: DAY2 },
-			{ id: 3, km: 30, movingH: 1, manual: null, start: DAY3 },
+			{ id: "1", km: 50, movingH: 2, manual: true },
+			{ id: "2", km: 50, movingH: 2, start: DAY2 },
+			{ id: "3", km: 30, movingH: 1, manual: null, start: DAY3 },
 		],
 		training: 8,
 		qualified: false,
@@ -176,8 +176,8 @@ export const RIDERS: Rider[] = [
 	{
 		name: "flagged rides",
 		rides: [
-			{ id: 1, km: 80, movingH: 3, flagged: true },
-			{ id: 2, km: 80, movingH: 3, flagged: null, start: DAY2 },
+			{ id: "1", km: 80, movingH: 3, flagged: true },
+			{ id: "2", km: 80, movingH: 3, flagged: null, start: DAY2 },
 		],
 		training: 8,
 		qualified: false,
@@ -188,14 +188,14 @@ export const RIDERS: Rider[] = [
 		name: "season start by local date",
 		rides: [
 			{
-				id: 1,
+				id: "1",
 				km: 30,
 				movingH: 1,
 				start: "2025-12-31T20:00:00Z",
 				startLocal: "2025-12-31T21:00:00",
 			},
 			{
-				id: 2,
+				id: "2",
 				km: 30,
 				movingH: 1,
 				start: "2025-12-31T23:30:00Z",
@@ -211,14 +211,14 @@ export const RIDERS: Rider[] = [
 		name: "deadline by local date",
 		rides: [
 			{
-				id: 1,
+				id: "1",
 				km: 50,
 				movingH: 2,
 				start: "2026-08-31T21:00:00Z",
 				startLocal: "2026-08-31T23:00:00",
 			},
 			{
-				id: 2,
+				id: "2",
 				km: 50,
 				movingH: 2,
 				start: "2026-09-01T04:00:00Z",
@@ -233,9 +233,9 @@ export const RIDERS: Rider[] = [
 	{
 		name: "overlapping recordings",
 		rides: [
-			{ id: 1, km: 78, movingH: 3 },
-			{ id: 2, km: 80, movingH: 3 },
-			{ id: 3, km: 20, movingH: 1, start: "2026-05-01T11:00:00Z" },
+			{ id: "1", km: 78, movingH: 3 },
+			{ id: "2", km: 80, movingH: 3 },
+			{ id: "3", km: 20, movingH: 1, start: "2026-05-01T11:00:00Z" },
 		],
 		training: 10,
 		qualified: false,
@@ -245,9 +245,9 @@ export const RIDERS: Rider[] = [
 	{
 		name: "overlap decided by elevation",
 		rides: [
-			{ id: 1, km: 50, movingH: 2, elevationM: 300 },
-			{ id: 2, km: 50, movingH: 2, elevationM: 400 },
-			{ id: 3, km: 30, movingH: 2, elevationM: 650, start: DAY2 },
+			{ id: "1", km: 50, movingH: 2, elevationM: 300 },
+			{ id: "2", km: 50, movingH: 2, elevationM: 400 },
+			{ id: "3", km: 30, movingH: 2, elevationM: 650, start: DAY2 },
 		],
 		training: 13,
 		qualified: false,
@@ -256,8 +256,8 @@ export const RIDERS: Rider[] = [
 	{
 		name: "overlap with a ride that doesn't count",
 		rides: [
-			{ id: 1, km: 100, movingH: 4, pausedH: 5 },
-			{ id: 2, km: 60, movingH: 3, start: "2026-05-01T09:00:00Z" },
+			{ id: "1", km: 100, movingH: 4, pausedH: 5 },
+			{ id: "2", km: 60, movingH: 3, start: "2026-05-01T09:00:00Z" },
 		],
 		training: 6,
 		qualified: false,
@@ -266,9 +266,9 @@ export const RIDERS: Rider[] = [
 	{
 		name: "virtual and trainer rides",
 		rides: [
-			{ id: 1, km: 50, movingH: 2, sportType: "VirtualRide" },
-			{ id: 2, km: 50, movingH: 2, trainer: true, start: DAY2 },
-			{ id: 3, km: 50, movingH: 2, start: DAY3 },
+			{ id: "1", km: 50, movingH: 2, sportType: "VirtualRide" },
+			{ id: "2", km: 50, movingH: 2, trainer: true, start: DAY2 },
+			{ id: "3", km: 50, movingH: 2, start: DAY3 },
 		],
 		training: 15,
 		qualified: false,
@@ -276,14 +276,14 @@ export const RIDERS: Rider[] = [
 	// No moving time: paused for all of it, 0.
 	{
 		name: "no moving time",
-		rides: [{ id: 1, km: 10, movingH: 0, pausedH: 1 }],
+		rides: [{ id: "1", km: 10, movingH: 0, pausedH: 1 }],
 		training: 0,
 		qualified: false,
 	},
 	// Unknown elapsed time can't fail the pause rule: 4.
 	{
 		name: "unknown elapsed time",
-		rides: [{ id: 1, km: 40, movingH: 2, elapsedUnknown: true }],
+		rides: [{ id: "1", km: 40, movingH: 2, elapsedUnknown: true }],
 		training: 4,
 		qualified: false,
 	},
@@ -292,7 +292,7 @@ export const RIDERS: Rider[] = [
 		name: "every reason",
 		rides: [
 			{
-				id: 1,
+				id: "1",
 				km: 1,
 				movingH: 1,
 				sportType: "EBikeRide",
@@ -307,21 +307,21 @@ export const RIDERS: Rider[] = [
 	// 10 × 3 km Rynke; 10 × 150 m = 1500 m → 5.
 	{
 		name: "many small climbs",
-		rides: daily(10, 1, { km: 30, movingH: 1.5, elevationM: 150 }),
+		rides: daily(10, "1", { km: 30, movingH: 1.5, elevationM: 150 }),
 		training: 35,
 		qualified: false,
 	},
 	// 10 × 26 = 260 training, but no team Rynke: not qualified.
 	{
 		name: "training met, team missing",
-		rides: daily(10, 1, { km: 260, movingH: 9 }),
+		rides: daily(10, "1", { km: 260, movingH: 9 }),
 		training: 260,
 		qualified: false,
 	},
 	// 260 training, 25 team, all outdoors: qualified.
 	{
 		name: "qualified",
-		rides: daily(10, 1, { km: 260, movingH: 9 }),
+		rides: daily(10, "1", { km: 260, movingH: 9 }),
 		team: 25,
 		training: 260,
 		qualified: true,
@@ -330,8 +330,8 @@ export const RIDERS: Rider[] = [
 	{
 		name: "too much of it virtual",
 		rides: [
-			...daily(6, 1, { km: 260, movingH: 9 }),
-			...daily(4, 11, { km: 260, movingH: 9, sportType: "VirtualRide" }, 10),
+			...daily(6, "1", { km: 260, movingH: 9 }),
+			...daily(4, "11", { km: 260, movingH: 9, sportType: "VirtualRide" }, 10),
 		],
 		team: 25,
 		training: 260,
@@ -342,10 +342,10 @@ export const RIDERS: Rider[] = [
 	{
 		name: "every threshold met exactly",
 		rides: [
-			...daily(6, 1, { km: 260, movingH: 9 }),
-			...daily(1, 7, { km: 110, movingH: 4 }, 6),
-			...daily(3, 11, { km: 260, movingH: 9, sportType: "VirtualRide" }, 10),
-			...daily(1, 14, { km: 50, movingH: 2, sportType: "VirtualRide" }, 13),
+			...daily(6, "1", { km: 260, movingH: 9 }),
+			...daily(1, "7", { km: 110, movingH: 4 }, 6),
+			...daily(3, "11", { km: 260, movingH: 9, sportType: "VirtualRide" }, 10),
+			...daily(1, "14", { km: 50, movingH: 2, sportType: "VirtualRide" }, 13),
 		],
 		team: 25,
 		training: 250,
@@ -356,10 +356,10 @@ export const RIDERS: Rider[] = [
 	{
 		name: "one outdoor Rynke short",
 		rides: [
-			...daily(6, 1, { km: 260, movingH: 9 }),
-			...daily(1, 7, { km: 100, movingH: 4 }, 6),
-			...daily(3, 11, { km: 260, movingH: 9, sportType: "VirtualRide" }, 10),
-			...daily(1, 14, { km: 60, movingH: 2, sportType: "VirtualRide" }, 13),
+			...daily(6, "1", { km: 260, movingH: 9 }),
+			...daily(1, "7", { km: 100, movingH: 4 }, 6),
+			...daily(3, "11", { km: 260, movingH: 9, sportType: "VirtualRide" }, 10),
+			...daily(1, "14", { km: 60, movingH: 2, sportType: "VirtualRide" }, 13),
 		],
 		team: 25,
 		training: 250,
@@ -368,7 +368,7 @@ export const RIDERS: Rider[] = [
 	// 24 team Rynke, one short of 25.
 	{
 		name: "one team Rynke short",
-		rides: daily(10, 1, { km: 260, movingH: 9 }),
+		rides: daily(10, "1", { km: 260, movingH: 9 }),
 		team: 24,
 		training: 260,
 		qualified: false,
@@ -420,7 +420,7 @@ export const RIDERS: Rider[] = [
 	// 79 km → 7, plus one team training listed twice → once: 7 + 5 = 12, 1 team.
 	{
 		name: "a duplicated attendance",
-		rides: [{ id: 1, km: 79, movingH: 3 }],
+		rides: [{ id: "1", km: 79, movingH: 3 }],
 		attendance: [
 			at("team_training", "2026-05-02", 1),
 			at("team_training", "2026-05-02", 1),
@@ -433,7 +433,7 @@ export const RIDERS: Rider[] = [
 	// 285 training, 25 team, all outdoors: qualified only thanks to events.
 	{
 		name: "qualified through event team Rynke",
-		rides: daily(10, 1, { km: 260, movingH: 9 }),
+		rides: daily(10, "1", { km: 260, movingH: 9 }),
 		attendance: Array.from({ length: 5 }, (_, i) =>
 			at("technique_training", `2026-07-0${i + 1}`),
 		),
@@ -448,8 +448,8 @@ export const RIDERS: Rider[] = [
 	{
 		name: "event training closes the non-virtual gap",
 		rides: [
-			...daily(6, 1, { km: 260, movingH: 9 }),
-			...daily(4, 11, { km: 260, movingH: 9, sportType: "VirtualRide" }, 10),
+			...daily(6, "1", { km: 260, movingH: 9 }),
+			...daily(4, "11", { km: 260, movingH: 9, sportType: "VirtualRide" }, 10),
 		],
 		attendance: [
 			at("training_weekend_day", "2026-06-13"),

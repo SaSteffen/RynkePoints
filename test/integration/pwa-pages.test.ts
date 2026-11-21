@@ -333,7 +333,7 @@ describe("GET /me/notification-text (issue #45)", () => {
 			qualified: false,
 		});
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			sport_type: "VirtualRide",
 			result: { counts: true, distanceRynke: 102, isVirtual: true },
 		});

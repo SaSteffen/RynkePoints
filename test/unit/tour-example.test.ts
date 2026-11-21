@@ -27,7 +27,7 @@ const statuses = (today: string) =>
 
 describe("the example rider", () => {
 	const rides = exampleRiderView(WINDOW, "2026-11-15", CURRENT_RULES).rides;
-	const result = (id: number) => rides.find((r) => r.activityId === id)?.result;
+	const result = (id: string) => rides.find((r) => r.activityId === id)?.result;
 
 	it("has a short ride that counts with no distance Rynke", () => {
 		expect(result(EXAMPLE_SHORT_RIDE_ID)).toMatchObject({
@@ -112,7 +112,7 @@ describe("the example team's rides (FR-013)", () => {
 			if (total > 0) expect(virtual).toBeLessThan(total);
 		}
 		// Finn rides mostly indoors.
-		const finn = team.graphRows.find((r) => r.athleteId === 6);
+		const finn = team.graphRows.find((r) => r.athleteId === "6");
 		expect(finn?.virtualDays.length).toBeGreaterThan(0);
 	});
 });

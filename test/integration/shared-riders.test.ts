@@ -18,7 +18,7 @@ import { seedBalance } from "../support/rider-view";
 // row and no figure (FR-021).
 
 const ctx = makeCtx();
-const ATHLETE_D = 900_004;
+const ATHLETE_D = "900004";
 
 beforeEach(async () => {
 	await resetDb();
@@ -67,8 +67,8 @@ describe("SHARED_RIDER_IDS", () => {
 			.bind(ATHLETE_C, ctx.now())
 			.run();
 		const { results } = await env.DB.prepare(
-			`SELECT athlete_id FROM riders WHERE athlete_id IN (${sharedRiderIdsSince(9)})`,
-		).all<{ athlete_id: number }>();
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders WHERE athlete_id IN (${sharedRiderIdsSince(9)})`,
+		).all<{ athlete_id: string }>();
 		expect(results.map((r) => r.athlete_id)).toEqual([ATHLETE_C]);
 	});
 
@@ -101,7 +101,7 @@ describe("a rider who leaves", () => {
 
 describe("listedRiderFilter (feature 030 research R5)", () => {
 	const ids = async (sql: string) =>
-		(await env.DB.prepare(sql).all<{ athlete_id: number }>()).results.map(
+		(await env.DB.prepare(sql).all<{ athlete_id: string }>()).results.map(
 			(r) => r.athlete_id,
 		);
 
@@ -118,10 +118,15 @@ describe("listedRiderFilter (feature 030 research R5)", () => {
 			.bind(ATHLETE_A, ctx.now())
 			.run();
 		const listed = await ids(
-			`SELECT r.athlete_id FROM riders r WHERE ${listedRiderFilter("r")}
-			ORDER BY 1`,
+			`SELECT CAST(r.athlete_id AS TEXT) AS athlete_id FROM riders r WHERE ${listedRiderFilter("r")}
+			ORDER BY r.athlete_id`,
 		);
 		expect(listed).toEqual([ATHLETE_A, ATHLETE_C]);
-		expect(listed).toEqual(await ids(`${LISTED_RIDER_IDS} ORDER BY 1`));
+		expect(listed).toEqual(
+			await ids(
+				`SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM (${LISTED_RIDER_IDS}) l
+				ORDER BY l.athlete_id`,
+			),
+		);
 	});
 });

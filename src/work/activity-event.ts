@@ -28,7 +28,7 @@ import { teamBadgeNews } from "./team-badge-news";
  */
 export async function evaluateAndNotify(
 	ctx: Ctx,
-	athleteId: number,
+	athleteId: string,
 	change: ActivityChange,
 ): Promise<void> {
 	const { rose, badges, figuresChanged } = await evaluateChange(

@@ -49,7 +49,7 @@ function events(n: number): ActivityEventMessage[] {
 	return Array.from({ length: n }, (_, i) => ({
 		kind: "activity-event",
 		athleteId: ATHLETE_A,
-		activityId: i + 1,
+		activityId: String(i + 1),
 		aspect: "create",
 		changed: [],
 	}));
@@ -78,7 +78,7 @@ async function deliver(n: number, done = 0) {
 }
 
 async function fetching(
-	options: { athleteId?: number; acceptLanguage?: string } = {},
+	options: { athleteId?: string; acceptLanguage?: string } = {},
 ) {
 	const res = await handleFetch(
 		request("/me/fetching", {
@@ -183,10 +183,10 @@ describe("import count", () => {
 	afterEach(() => fake.restore());
 
 	it("adds each page's listed activities", async () => {
-		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: 801 }));
+		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: "801" }));
 		fake.addActivity(
 			ATHLETE_A,
-			makeStravaActivity({ id: 802, start_date: "2026-10-04T07:30:00Z" }),
+			makeStravaActivity({ id: "802", start_date: "2026-10-04T07:30:00Z" }),
 		);
 		await setImportStatus(env.DB, ATHLETE_A, "pending");
 		const batch = createMessageBatch("rynke-points-work", [

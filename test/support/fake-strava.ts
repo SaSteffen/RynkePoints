@@ -1,10 +1,12 @@
 import { type MockInstance, vi } from "vitest";
+import { parseStravaJson } from "../../src/strava/id";
 import {
 	firstNameFor,
 	NOW,
 	type StravaActivityFixture,
 	TEAM_CLUB,
 } from "./fixtures";
+import { stravaJson } from "./strava-json";
 
 // An in-memory Strava, installed by spying on global fetch. Tests never reach
 // the real Strava (constitution Principle V); any other host is recorded as
@@ -22,7 +24,7 @@ export type FakeEndpoint =
 	| "activities";
 
 export interface FakeAthlete {
-	id: number;
+	id: string;
 	firstname: string;
 	accessToken: string;
 	refreshToken: string;
@@ -59,10 +61,10 @@ type Override =
 export interface FakeStrava {
 	/** The fake's clock in epoch seconds (token expiry). */
 	now: number;
-	athletes: Map<number, FakeAthlete>;
-	activities: Map<number, StravaActivityFixture & { ownerId: number }>;
+	athletes: Map<string, FakeAthlete>;
+	activities: Map<string, StravaActivityFixture & { ownerId: string }>;
 	/** Authorization codes accepted by the token exchange. */
-	codes: Map<string, number>;
+	codes: Map<string, string>;
 	calls: FakeCall[];
 	revocations: FakeRevocation[];
 	unexpected: string[];
@@ -71,10 +73,10 @@ export interface FakeStrava {
 	 * (feature 041 R14), per athlete; `none` if not set. Answered on
 	 * `GATEWAY_ORIGIN`, which `withGateway` points a context at.
 	 */
-	held: Map<number, "connected" | "reconnect" | "none">;
+	held: Map<string, "connected" | "reconnect" | "none">;
 	/** The gateway answers 503. */
 	gatewayDown: boolean;
-	gatewayCalls: { team: string; athleteId: number; auth: string | null }[];
+	gatewayCalls: { team: string; athleteId: string; auth: string | null }[];
 	/** Rate headers on every /api/v3 response; `null` sends none. */
 	rateHeaders: RateHeaders | null;
 	/**
@@ -82,10 +84,10 @@ export interface FakeStrava {
 	 * false lists it oldest first, a change on Strava's side (feature 036 FR-026).
 	 */
 	newestFirst: boolean;
-	addAthlete(athlete: Partial<FakeAthlete> & { id: number }): FakeAthlete;
-	addActivity(ownerId: number, activity: StravaActivityFixture): void;
+	addAthlete(athlete: Partial<FakeAthlete> & { id: string }): FakeAthlete;
+	addActivity(ownerId: string, activity: StravaActivityFixture): void;
 	/** The athlete revokes access on Strava: none of their tokens work. */
-	deauthorize(athleteId: number): void;
+	deauthorize(athleteId: string): void;
 	/** Answers the next call to `endpoint` with `status` (or a network error). */
 	failNext(endpoint: FakeEndpoint, override: Override): void;
 	callsTo(endpoint: FakeEndpoint): FakeCall[];
@@ -97,7 +99,7 @@ export const GATEWAY_ORIGIN = "https://gateway.example.test";
 
 export const DEFAULT_SCOPES = ["read", "activity:read", "activity:read_all"];
 
-export function initialTokens(athleteId: number) {
+export function initialTokens(athleteId: string) {
 	return {
 		accessToken: `access-${athleteId}-0`,
 		refreshToken: `refresh-${athleteId}-0`,
@@ -109,7 +111,9 @@ function json(
 	status = 200,
 	headers: Record<string, string> = {},
 ): Response {
-	return new Response(JSON.stringify(body), {
+	// Every `id` a JSON number with all its digits, as Strava sends it; no
+	// `id_str` (feature 042).
+	return new Response(stravaJson(body), {
 		status,
 		headers: { "Content-Type": "application/json", ...headers },
 	});
@@ -219,7 +223,7 @@ export function installFakeStrava(): FakeStrava {
 	function strip({
 		ownerId: _,
 		...activity
-	}: StravaActivityFixture & { ownerId: number }) {
+	}: StravaActivityFixture & { ownerId: string }) {
 		return activity;
 	}
 
@@ -302,7 +306,7 @@ export function installFakeStrava(): FakeStrava {
 			return json(paginate(clubs, url), 200, apiHeaders());
 		}
 		if (endpoint === "activity") {
-			const id = Number(url.pathname.split("/").at(-1));
+			const id = url.pathname.split("/").at(-1) ?? "";
 			const activity = fake.activities.get(id);
 			if (
 				!activity ||
@@ -352,7 +356,10 @@ export function installFakeStrava(): FakeStrava {
 			const url = new URL(request.url);
 			const held = /^\/teams\/([^/]+)\/held$/.exec(url.pathname);
 			if (url.origin === GATEWAY_ORIGIN && held && request.method === "POST") {
-				const { athleteId } = (await request.json()) as { athleteId: number };
+				// A JSON number with the exact digits (feature 042 research R3).
+				const { athleteId } = parseStravaJson(await request.text(), [
+					"athleteId",
+				]) as { athleteId: string };
 				fake.gatewayCalls.push({
 					team: held[1] ?? "",
 					athleteId,

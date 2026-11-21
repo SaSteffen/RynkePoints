@@ -14,9 +14,9 @@ const ctx = makeCtx();
 const LISTED = ATHLETE_A;
 const NO_CONSENT = ATHLETE_B;
 const NEEDS_RECONNECT = ATHLETE_C;
-const WITHOUT_BALANCE = 900004;
+const WITHOUT_BALANCE = "900004";
 
-async function seedRiderRows(athleteId: number, firstRideId: number) {
+async function seedRiderRows(athleteId: string, firstRideId: string) {
 	await seedBalance(athleteId, { trainingRynke: 9, teamRynke: 1 });
 	// Monday and Sunday of one week, then the next Monday.
 	await seedRide(athleteId, {
@@ -58,9 +58,9 @@ beforeEach(async () => {
 		athleteId: NEEDS_RECONNECT,
 		status: "needs_reconnect",
 	});
-	await seedRiderRows(LISTED, 8_100_001);
-	await seedRiderRows(NO_CONSENT, 8_200_001);
-	await seedRiderRows(NEEDS_RECONNECT, 8_300_001);
+	await seedRiderRows(LISTED, "8100001");
+	await seedRiderRows(NO_CONSENT, "8200001");
+	await seedRiderRows(NEEDS_RECONNECT, "8300001");
 	await attendRaw(await insertEvent("team_training", "2026-09-10"), [
 		LISTED,
 		NO_CONSENT,

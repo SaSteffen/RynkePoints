@@ -21,9 +21,9 @@ describe("the shared filter and guests", () => {
 
 	it("leaves a guest out of the per-rider check", async () => {
 		const { results } = await env.DB.prepare(
-			`SELECT r.athlete_id FROM riders r WHERE ${sharedRiderExists("r", 1)}
+			`SELECT CAST(r.athlete_id AS TEXT) AS athlete_id FROM riders r WHERE ${sharedRiderExists("r", 1)}
 			ORDER BY r.athlete_id`,
-		).all<{ athlete_id: number }>();
+		).all<{ athlete_id: string }>();
 		expect(results.map((r) => r.athlete_id)).toEqual([ATHLETE_A]);
 	});
 

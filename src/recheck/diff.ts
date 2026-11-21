@@ -17,9 +17,9 @@ export interface KeptActivities {
 
 /** A rider's stored rides, runs and swims by activity id. */
 export interface StoredActivities {
-	rides: ReadonlyMap<number, ActivityRecord>;
-	runs: ReadonlyMap<number, RunRecord>;
-	swims: ReadonlyMap<number, SwimRecord>;
+	rides: ReadonlyMap<string, ActivityRecord>;
+	runs: ReadonlyMap<string, RunRecord>;
+	swims: ReadonlyMap<string, SwimRecord>;
 }
 
 /** The ride fields Strava may leave out, read as unknown (`null`). */
@@ -84,7 +84,7 @@ export function differences(
 	}
 	const changed = <T extends RunRecord>(
 		rows: readonly T[],
-		before: ReadonlyMap<number, T>,
+		before: ReadonlyMap<string, T>,
 	) =>
 		rows.filter((row) => {
 			const was = before.get(row.strava_activity_id);
@@ -110,7 +110,7 @@ export function gone(
 	stored: StoredActivities,
 	oldestListed: string | undefined,
 	whole: boolean,
-): number[] {
+): string[] {
 	if (oldestListed === undefined) return [];
 	const since = whole ? Number.NEGATIVE_INFINITY : Date.parse(oldestListed);
 	const kept = new Set(
@@ -118,7 +118,7 @@ export function gone(
 			(a) => a.strava_activity_id,
 		),
 	);
-	const ids = new Set<number>();
+	const ids = new Set<string>();
 	for (const table of [stored.rides, stored.runs, stored.swims]) {
 		for (const [id, activity] of table) {
 			if (!kept.has(id) && Date.parse(activity.start_date) > since) {

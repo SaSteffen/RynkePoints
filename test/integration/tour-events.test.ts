@@ -42,7 +42,7 @@ async function post(
 	);
 }
 
-async function page(path: string, athleteId: number): Promise<string> {
+async function page(path: string, athleteId: string): Promise<string> {
 	const res = await handleFetch(
 		request(path, { cookies: await sessionCookie(ctx, athleteId) }),
 		ctx,
@@ -54,7 +54,7 @@ async function page(path: string, athleteId: number): Promise<string> {
 /** The organiser's attendance ticks for `athleteIds`, none shown ticked. */
 async function recordAttendance(
 	eventId: number,
-	athleteIds: number[],
+	athleteIds: string[],
 ): Promise<Response> {
 	const form = new FormData();
 	for (const id of athleteIds) {
@@ -83,7 +83,7 @@ async function eventIds(kind: string): Promise<number[]> {
 	return results.map((r) => r.event_id);
 }
 
-async function balance(athleteId: number) {
+async function balance(athleteId: string) {
 	return env.DB.prepare(
 		`SELECT training_rynke, team_rynke, qualified, team_event_breakdown
 		FROM rynke_balances WHERE athlete_id = ?`,
@@ -164,10 +164,10 @@ describe("Tour de Paris days", () => {
 		const res = await recordAttendance(eventId, [ANNA, BEN]);
 		expect(res.status).toBe(303);
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id FROM attendances WHERE event_id = ? ORDER BY athlete_id",
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM attendances WHERE event_id = ? ORDER BY attendances.athlete_id",
 		)
 			.bind(eventId)
-			.all<{ athlete_id: number }>();
+			.all<{ athlete_id: string }>();
 		expect(results.map((r) => r.athlete_id)).toEqual([ANNA, BEN]);
 		for (const athleteId of [ANNA, BEN]) {
 			const stored = await balance(athleteId);
@@ -203,10 +203,10 @@ describe("Tour de Paris days", () => {
 		expect(res.status).toBe(303);
 		expect(res.headers.get("Location")).toBe(`/events#event-${eventId}`);
 		const reported = await env.DB.prepare(
-			"SELECT athlete_id FROM participation_reports WHERE event_id = ?",
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM participation_reports WHERE event_id = ?",
 		)
 			.bind(eventId)
-			.all<{ athlete_id: number }>();
+			.all<{ athlete_id: string }>();
 		expect(reported.results.map((r) => r.athlete_id)).toEqual([ANNA]);
 		// The open request appears on the organiser's list.
 		const html = await page("/organiser", ORGANISER);

@@ -1,4 +1,5 @@
 import type { StravaActivity } from "../../src/strava/activity";
+import { idJson, parseStravaJson } from "../../src/strava/id";
 
 // The fake Strava's activities (specs/006-local-frontend-dev data-model.md
 // "Fake activity"). They live in fake mode's local D1, in tables the dev entry
@@ -10,11 +11,25 @@ export interface FakeActivity extends StravaActivity {
 }
 
 export interface StoredActivity {
-	athleteId: number;
+	athleteId: string;
 	body: FakeActivity;
 }
 
-const FIRST_ID = 8_000_001;
+/**
+ * The first activity ID, 2^53 + 1: every fake activity has an ID a JavaScript
+ * number can't hold exactly, as Strava's may after June 1, 2027 (feature 042).
+ */
+const FIRST_ID = "9007199254740993";
+
+/** A stored body, its `id` exact (feature 042). */
+function readBody(text: string): FakeActivity {
+	return parseStravaJson(text) as FakeActivity;
+}
+
+/** The body to store: its `id` a JSON number with every digit. */
+function bodyJson(body: FakeActivity): string {
+	return JSON.stringify({ ...body, id: idJson(body.id) });
+}
 
 export async function ensureTable(db: D1Database): Promise<void> {
 	await db.batch([
@@ -86,7 +101,7 @@ export async function clearActivities(db: D1Database): Promise<void> {
 /** The next fetch of each of these activities fails once (feature 024 US4). */
 export async function markSlow(
 	db: D1Database,
-	ids: readonly number[],
+	ids: readonly string[],
 ): Promise<void> {
 	if (ids.length === 0) return;
 	await db.batch(
@@ -106,7 +121,7 @@ export async function markSlow(
 /** Records that `athleteId` revoked access, or with false, signed in again. */
 export async function markRevoked(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	revoked: boolean,
 ): Promise<void> {
 	await ensureTable(db);
@@ -122,7 +137,7 @@ export async function markRevoked(
 
 export async function isRevoked(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<boolean> {
 	await ensureTable(db);
 	const row = await db
@@ -133,7 +148,7 @@ export async function isRevoked(
 }
 
 /** Whether this fetch of the activity is the one that fails; uses it up. */
-export async function takeSlow(db: D1Database, id: number): Promise<boolean> {
+export async function takeSlow(db: D1Database, id: string): Promise<boolean> {
 	const row = await db
 		.prepare("DELETE FROM fake_strava_slow WHERE id = ? RETURNING id")
 		.bind(id)
@@ -147,30 +162,30 @@ export async function takeSlow(db: D1Database, id: number): Promise<boolean> {
  */
 export async function insertActivities(
 	db: D1Database,
-	items: readonly { athleteId: number; body: Omit<FakeActivity, "id"> }[],
-): Promise<number[]> {
+	items: readonly { athleteId: string; body: Omit<FakeActivity, "id"> }[],
+): Promise<string[]> {
 	if (items.length === 0) return [];
-	const next = `COALESCE((SELECT MAX(id) FROM fake_strava_activities), ${FIRST_ID - 1}) + 1`;
-	const results = await db.batch<{ id: number }>(
+	const next = `COALESCE((SELECT MAX(id) + 1 FROM fake_strava_activities), ${FIRST_ID})`;
+	const results = await db.batch<{ id: string }>(
 		items.map(({ athleteId, body }) =>
 			db
 				.prepare(
 					`INSERT INTO fake_strava_activities (id, athlete_id, body)
-					VALUES (${next}, ?, json_set(?, '$.id', ${next})) RETURNING id`,
+					VALUES (${next}, ?, json_set(?, '$.id', ${next})) RETURNING CAST(id AS TEXT) AS id`,
 				)
 				.bind(athleteId, JSON.stringify(body)),
 		),
 	);
-	return results.map((r) => r.results[0]?.id ?? 0);
+	return results.map((r) => r.results[0]?.id ?? "");
 }
 
 export async function insertActivity(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	body: Omit<FakeActivity, "id">,
-): Promise<number> {
+): Promise<string> {
 	const [id] = await insertActivities(db, [{ athleteId, body }]);
-	return id ?? 0;
+	return id ?? "";
 }
 
 export async function updateActivity(
@@ -179,13 +194,13 @@ export async function updateActivity(
 ): Promise<void> {
 	await db
 		.prepare("UPDATE fake_strava_activities SET body = ? WHERE id = ?")
-		.bind(JSON.stringify(body), body.id)
+		.bind(bodyJson(body), body.id)
 		.run();
 }
 
 export async function deleteActivity(
 	db: D1Database,
-	id: number,
+	id: string,
 ): Promise<void> {
 	await db
 		.prepare("DELETE FROM fake_strava_activities WHERE id = ?")
@@ -195,13 +210,15 @@ export async function deleteActivity(
 
 export async function getActivity(
 	db: D1Database,
-	id: number,
+	id: string,
 ): Promise<StoredActivity | null> {
 	const row = await db
-		.prepare("SELECT athlete_id, body FROM fake_strava_activities WHERE id = ?")
+		.prepare(
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id, body FROM fake_strava_activities WHERE id = ?",
+		)
 		.bind(id)
-		.first<{ athlete_id: number; body: string }>();
-	return row && { athleteId: row.athlete_id, body: JSON.parse(row.body) };
+		.first<{ athlete_id: string; body: string }>();
+	return row && { athleteId: row.athlete_id, body: readBody(row.body) };
 }
 
 /**
@@ -211,7 +228,7 @@ export async function getActivity(
  */
 export async function listActivities(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	options: {
 		after: number;
 		page: number;
@@ -230,7 +247,7 @@ export async function listActivities(
 		.all<{ body: string }>();
 	const { after, page, perPage, includePrivate } = options;
 	return results
-		.map((r): FakeActivity => JSON.parse(r.body))
+		.map((r) => readBody(r.body))
 		.filter(
 			(a) =>
 				Date.parse(a.start_date) / 1000 > after &&
@@ -242,7 +259,7 @@ export async function listActivities(
 /** Every activity of the rider, newest first, for the `/_dev/` forms. */
 export async function riderActivities(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<FakeActivity[]> {
 	const { results } = await db
 		.prepare(
@@ -251,5 +268,5 @@ export async function riderActivities(
 		)
 		.bind(athleteId)
 		.all<{ body: string }>();
-	return results.map((r): FakeActivity => JSON.parse(r.body));
+	return results.map((r) => readBody(r.body));
 }

@@ -18,6 +18,7 @@ import {
 	TeamEventRefused,
 	teamEventChange,
 } from "../../rynke/team-event-change";
+import { idsJson, isStravaId } from "../../strava/id";
 import { html, type SafeHtml } from "../html";
 import { CHECK, CLOSE } from "../icons";
 import { redirect } from "../redirect";
@@ -44,7 +45,7 @@ export type Decision = "confirm" | "deny";
 export interface UndoValue {
 	decision: Decision;
 	eventId: number;
-	reports: { athleteId: number; reportedAt: number }[];
+	reports: { athleteId: string; reportedAt: number }[];
 }
 
 /** `back`, or `/organiser` when it isn't one of the allowed pages. */
@@ -89,9 +90,9 @@ export async function readUndoToken(
 		/^(confirm|deny)-(\d+)-(\d+(?:_\d+)*)-(\d+(?:_\d+)*)$/,
 	);
 	if (!match) return null;
-	const ids = (match[3] ?? "").split("_").map(Number);
+	const ids = (match[3] ?? "").split("_");
 	const times = (match[4] ?? "").split("_").map(Number);
-	if (ids.length !== times.length) return null;
+	if (ids.length !== times.length || !ids.every(isStravaId)) return null;
 	return {
 		decision: match[1] as Decision,
 		eventId: Number(match[2]),
@@ -116,7 +117,7 @@ export function eventLabel(
  */
 function decideForm(
 	eventId: number,
-	athleteIds: readonly number[],
+	athleteIds: readonly string[],
 	decision: Decision,
 	back: string,
 	button: SafeHtml,
@@ -242,7 +243,7 @@ export async function decisionNotice(
 		`SELECT first_name FROM riders WHERE athlete_id IN (SELECT value FROM json_each(?))
 		ORDER BY first_name COLLATE NOCASE, athlete_id`,
 	)
-		.bind(JSON.stringify(ids))
+		.bind(idsJson(ids))
 		.all<{ first_name: string }>();
 	const names = results.map((r) => r.first_name).join(", ");
 	const text = i18n.t(`organiser.done.${done}`, { names });
@@ -269,7 +270,7 @@ export async function handleDecideRequests(
 		redirect(withQuery(back, `error=${code}`), 303);
 	const decision = form.get("decision");
 	const eventId = Number(form.get("event"));
-	const asked = new Set(form.getAll("athlete").map(Number));
+	const asked = new Set(form.getAll("athlete").map(String));
 	if (
 		(decision !== "confirm" && decision !== "deny") ||
 		!Number.isSafeInteger(eventId)
@@ -289,7 +290,7 @@ export async function handleDecideRequests(
 	// Only requests still open: one another organiser settled meanwhile stays
 	// as it is (spec edge cases).
 	const reports = (
-		(reportRows?.results ?? []) as { athlete_id: number; reported_at: number }[]
+		(reportRows?.results ?? []) as { athlete_id: string; reported_at: number }[]
 	)
 		.filter((r) => asked.has(r.athlete_id))
 		.map((r) => ({ athleteId: r.athlete_id, reportedAt: r.reported_at }));

@@ -71,7 +71,7 @@ export function fileStem(firstName: string): string {
 /** The listed riders with their PDFs' file stems (`anna-1`, `ben-1`, `ben-2`). */
 export function albumFiles(
 	rows: readonly ListedRiderRow[],
-): { athleteId: number; file: string }[] {
+): { athleteId: string; file: string }[] {
 	const seen = new Map<string, number>();
 	return rows.map((row) => {
 		const stem = fileStem(row.first_name);
@@ -118,7 +118,7 @@ export async function handleAlbumRequest(
 	const riders = await listedRiders(db);
 	if (!album) return Response.json(albumFiles(riders));
 
-	const athleteId = Number(album[1]);
+	const athleteId = album[1] as string;
 	const rider = riders.find((row) => row.athlete_id === athleteId);
 	if (!rider) return notFound();
 	return new Response(

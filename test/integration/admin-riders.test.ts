@@ -112,8 +112,8 @@ describe("the consent filter (FR-038)", () => {
 	it("doesn't change the team's own lists for them", async () => {
 		await seedBalance(ATHLETE_B, { trainingRynke: 10 });
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id FROM consent_records WHERE version >= 1 ORDER BY athlete_id",
-		).all<{ athlete_id: number }>();
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM consent_records WHERE version >= 1 ORDER BY consent_records.athlete_id",
+		).all<{ athlete_id: string }>();
 		expect(results.map((r) => r.athlete_id)).toContain(ATHLETE_B);
 		const team = await handleFetch(
 			request("/organiser/riders", {

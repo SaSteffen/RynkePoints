@@ -1,5 +1,6 @@
 import { secretEquals } from "../src/crypto/secret";
 import { readBodyUpTo } from "../src/http/body";
+import { idJson, isStravaId, parseStravaJson } from "../src/strava/id";
 import {
 	type GatewayTeam,
 	parseTeams,
@@ -138,7 +139,8 @@ async function receiveEvent(
 function isStravaEvent(body: string): boolean {
 	let json: unknown;
 	try {
-		json = JSON.parse(body);
+		// The IDs' exact digits: events have no `*_str` (feature 042).
+		json = parseStravaJson(body, ["object_id", "owner_id"]);
 	} catch {
 		return false;
 	}
@@ -149,8 +151,8 @@ function isStravaEvent(body: string): boolean {
 	return (
 		typeof e.object_type === "string" &&
 		typeof e.aspect_type === "string" &&
-		Number.isSafeInteger(e.object_id) &&
-		Number.isSafeInteger(e.owner_id) &&
+		isStravaId(e.object_id) &&
+		isStravaId(e.owner_id) &&
 		Number.isSafeInteger(e.subscription_id) &&
 		typeof e.event_time === "number"
 	);
@@ -207,17 +209,17 @@ async function askTeams(
 	const body = await readBodyUpTo(request, MAX_BODY_BYTES);
 	let athleteId: unknown;
 	try {
-		athleteId = body === null ? undefined : JSON.parse(body)?.athleteId;
+		athleteId =
+			body === null
+				? undefined
+				: (parseStravaJson(body, ["athleteId"]) as { athleteId?: unknown })
+						?.athleteId;
 	} catch {
 		athleteId = undefined;
 	}
-	if (!Number.isSafeInteger(athleteId) || (athleteId as number) <= 0) {
-		return text("Bad Request", 400);
-	}
+	if (!isStravaId(athleteId)) return text("Bad Request", 400);
 	const answers = await Promise.all(
-		teams
-			.filter((t) => t.id !== teamId)
-			.map((t) => askTeam(t, athleteId as number, env)),
+		teams.filter((t) => t.id !== teamId).map((t) => askTeam(t, athleteId, env)),
 	);
 	if (answers.includes(null)) return text("Service Unavailable", 503);
 	const held = answers.reduce<Hold>(
@@ -233,7 +235,7 @@ async function askTeams(
 /** One team's answer, `null` if it gave none. */
 async function askTeam(
 	team: GatewayTeam,
-	athleteId: number,
+	athleteId: string,
 	env: GatewayEnv,
 ): Promise<Hold | null> {
 	const token =
@@ -248,7 +250,7 @@ async function askTeam(
 			{
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ athleteId }),
+				body: JSON.stringify({ athleteId: idJson(athleteId) }),
 				signal: AbortSignal.timeout(FORWARD_TIMEOUT_MS),
 				redirect: "manual",
 			},

@@ -9,6 +9,7 @@ import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import { countingWindow } from "../../src/rynke/rules";
 import { teamEventChange } from "../../src/rynke/team-event-change";
+import { compareIds } from "../../src/strava/id";
 import { teamBadgeNews } from "../../src/work/team-badge-news";
 import {
 	makeCtx,
@@ -26,7 +27,7 @@ import { attendRaw, insertEvent } from "../support/rynke";
 // Team badges notify the listed riders they are new to, once per season
 // (issue #125, amending feature 013 FR-032). Synthetic riders and events only.
 
-const TEAM = [ATHLETE_A, 900011, 900012, 900013, 900014];
+const TEAM = [ATHLETE_A, "900011", "900012", "900013", "900014"];
 const { seasonStart } = countingWindow(env);
 // NOW is 6 October 2026, the day every seeded rider connected.
 const TODAY = "2026-10-06";
@@ -42,7 +43,7 @@ async function announced(): Promise<string[] | null> {
 	return ids === null ? null : (JSON.parse(ids) as string[]);
 }
 
-async function badgeRise(athleteId: number): Promise<string[] | null> {
+async function badgeRise(athleteId: string): Promise<string[] | null> {
 	const ids = await env.DB.prepare(
 		"SELECT badge_ids FROM badge_rises WHERE athlete_id = ?",
 	)
@@ -52,7 +53,7 @@ async function badgeRise(athleteId: number): Promise<string[] | null> {
 }
 
 /** The riders the change queued a push for, sorted. */
-function notified(): number[] {
+function notified(): string[] {
 	return [
 		...new Set(
 			ctx.queue.sent
@@ -60,7 +61,7 @@ function notified(): number[] {
 				.filter((b) => b.kind === "send-notification")
 				.map((b) => b.athleteId),
 		),
-	].sort((a, b) => a - b);
+	].sort(compareIds);
 }
 
 /** Five riders at one team training: the team's first Big Training badge. */
@@ -95,7 +96,7 @@ describe("teamBadgeNews", () => {
 		await teamBadgeNews(ctx, []);
 		await bigTraining(TODAY);
 		expect(await announced()).toEqual(["big-training-5"]);
-		expect(notified()).toEqual([...TEAM].sort((a, b) => a - b));
+		expect(notified()).toEqual([...TEAM].sort(compareIds));
 		// The same change's personal badges stay in the rise.
 		expect(await badgeRise(ATHLETE_A)).toEqual(
 			expect.arrayContaining(["big-training-5", "team-events-1"]),
@@ -117,7 +118,7 @@ describe("teamBadgeNews", () => {
 		expect(await announced()).not.toContain("tour-de-paris-1");
 		expect(notified()).toEqual([ATHLETE_A]);
 		expect(await badgeRise(ATHLETE_A)).toContain("tour-de-paris-1");
-		expect(await badgeRise(TEAM[1] as number)).toBeNull();
+		expect(await badgeRise(TEAM[1] as string)).toBeNull();
 	});
 
 	it("announces a team badge once, even when taken back and earned again", async () => {
@@ -149,7 +150,7 @@ describe("teamBadgeNews", () => {
 	});
 
 	it("leaves out riders who don't share their data, who don't count either", async () => {
-		const outsider = 900099;
+		const outsider = "900099";
 		await seedRider(ctx, { athleteId: outsider, consentVersion: null });
 		await seedSubscription(outsider, pushEndpoint(99));
 		await teamBadgeNews(ctx, []);
@@ -179,12 +180,12 @@ describe("teamBadgeNews", () => {
 		await attendRaw(await insertEvent("team_training", TODAY), TEAM);
 
 		expect(await teamBadgeNews(ctx, [ATHLETE_A])).toEqual(
-			[...TEAM].sort((a, b) => a - b),
+			[...TEAM].sort(compareIds),
 		);
 		expect(await badgeRise(ATHLETE_A)).toEqual(
 			expect.arrayContaining(["distance-500", "big-training-5"]),
 		);
-		expect(await badgeRise(900011)).toEqual(["big-training-5"]);
+		expect(await badgeRise("900011")).toEqual(["big-training-5"]);
 	});
 
 	it("announces nothing when another check got there first", async () => {

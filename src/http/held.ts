@@ -2,7 +2,7 @@ import { verifyToken } from "../config";
 import { secretEquals } from "../crypto/secret";
 import type { Ctx } from "../ctx";
 import { riderHold } from "../db/riders";
-import { isId } from "../work/messages";
+import { isStravaId, parseStravaJson } from "../strava/id";
 import { readBodyUpTo } from "./body";
 
 // `POST /strava/held/<token>`: the gateway asks, for another team about to
@@ -32,10 +32,13 @@ export async function handleHeld(
 		athleteId =
 			body === null
 				? undefined
-				: (JSON.parse(body) as { athleteId?: unknown })?.athleteId;
+				: // A JSON number with the exact digits (feature 042 research R3).
+					(parseStravaJson(body, ["athleteId"]) as { athleteId?: unknown })
+						?.athleteId;
 	} catch {
 		athleteId = undefined;
 	}
-	if (!isId(athleteId)) return new Response("Bad Request", { status: 400 });
+	if (!isStravaId(athleteId))
+		return new Response("Bad Request", { status: 400 });
 	return Response.json({ held: await riderHold(ctx.env.DB, athleteId) });
 }

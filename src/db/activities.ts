@@ -1,4 +1,5 @@
 import type { ActivityRecord, ActivityRow } from "../strava/activity";
+import { idsJson } from "../strava/id";
 
 // Stored cycling activities (data-model.md). Every write is an upsert keyed by
 // the Strava activity ID, so replays converge (FR-017). An upsert never moves
@@ -6,7 +7,9 @@ import type { ActivityRecord, ActivityRow } from "../strava/activity";
 // `applyAndEvaluate` can batch them with the rider's Rynke rows (research R11).
 
 // Without `name`: only the rider's own ride table reads it (008 research R7).
-const COLUMNS = `strava_activity_id, athlete_id, sport_type, start_date, start_date_local,
+// IDs leave D1 as text: a number would round above 2^53 (feature 042 R5).
+const COLUMNS = `CAST(strava_activity_id AS TEXT) AS strava_activity_id,
+	CAST(athlete_id AS TEXT) AS athlete_id, sport_type, start_date, start_date_local,
 	timezone, distance_m, moving_time_s, elapsed_time_s, elevation_gain_m,
 	is_manual, is_trainer, is_flagged, is_private, refreshed_at`;
 
@@ -64,8 +67,8 @@ export async function upsertActivities(
 /** Deletes the activity only if it belongs to `athleteId`. */
 export function deleteActivityStatement(
 	db: D1Database,
-	athleteId: number,
-	activityId: number,
+	athleteId: string,
+	activityId: string,
 ) {
 	return db
 		.prepare(
@@ -77,7 +80,7 @@ export function deleteActivityStatement(
 /** Honours a narrowed scope: "Only You" activities go (FR-007). */
 export function deletePrivateActivitiesStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ) {
 	return db
 		.prepare("DELETE FROM activities WHERE athlete_id = ? AND is_private = 1")
@@ -90,36 +93,37 @@ export function deletePrivateActivitiesStatement(
  */
 export function listActivitiesOfRidersStatement(
 	db: D1Database,
-	athleteIds: number[],
+	athleteIds: string[],
 ) {
 	return db
 		.prepare(
 			`SELECT ${COLUMNS} FROM activities
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))
-			ORDER BY athlete_id, strava_activity_id`,
+			ORDER BY activities.athlete_id, activities.strava_activity_id`,
 		)
-		.bind(JSON.stringify(athleteIds));
+		.bind(idsJson(athleteIds));
 }
 
 /** `strava_activity_id, athlete_id` of those of `ids` that are stored. */
-export function activityOwnersStatement(db: D1Database, ids: number[]) {
+export function activityOwnersStatement(db: D1Database, ids: string[]) {
 	return db
 		.prepare(
-			`SELECT strava_activity_id, athlete_id FROM activities
+			`SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id,
+				CAST(athlete_id AS TEXT) AS athlete_id FROM activities
 			WHERE strava_activity_id IN (SELECT value FROM json_each(?))`,
 		)
-		.bind(JSON.stringify(ids));
+		.bind(idsJson(ids));
 }
 
 export async function listRecentActivities(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	limit: number,
 ): Promise<ActivityRow[]> {
 	const { results } = await db
 		.prepare(
 			`SELECT ${COLUMNS} FROM activities WHERE athlete_id = ?
-			ORDER BY start_date DESC, strava_activity_id DESC LIMIT ?`,
+			ORDER BY start_date DESC, activities.strava_activity_id DESC LIMIT ?`,
 		)
 		.bind(athleteId, limit)
 		.all<ActivityRow>();
@@ -133,17 +137,17 @@ export async function listRecentActivities(
  */
 export async function listActivityIdsMissingFigures(
 	db: D1Database,
-	athleteId: number,
-): Promise<number[]> {
+	athleteId: string,
+): Promise<string[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT strava_activity_id FROM activities
+			`SELECT CAST(strava_activity_id AS TEXT) AS strava_activity_id FROM activities
 			WHERE athlete_id = ? AND (elapsed_time_s IS NULL OR is_manual IS NULL
 				OR is_trainer IS NULL OR is_flagged IS NULL)
-			ORDER BY strava_activity_id`,
+			ORDER BY activities.strava_activity_id`,
 		)
 		.bind(athleteId)
-		.all<{ strava_activity_id: number }>();
+		.all<{ strava_activity_id: string }>();
 	return results.map((r) => r.strava_activity_id);
 }
 
@@ -153,20 +157,21 @@ export async function listActivityIdsMissingFigures(
  */
 export async function listActivityIdsRefreshedBefore(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	since: number,
-): Promise<number[]> {
+): Promise<string[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT strava_activity_id FROM activities
-				WHERE athlete_id = ?1 AND refreshed_at < ?2
-			UNION SELECT strava_activity_id FROM runs
-				WHERE athlete_id = ?1 AND refreshed_at < ?2
-			UNION SELECT strava_activity_id FROM swims
-				WHERE athlete_id = ?1 AND refreshed_at < ?2
-			ORDER BY strava_activity_id`,
+			`SELECT CAST(id AS TEXT) AS strava_activity_id FROM (
+				SELECT strava_activity_id AS id FROM activities
+					WHERE athlete_id = ?1 AND refreshed_at < ?2
+				UNION SELECT strava_activity_id FROM runs
+					WHERE athlete_id = ?1 AND refreshed_at < ?2
+				UNION SELECT strava_activity_id FROM swims
+					WHERE athlete_id = ?1 AND refreshed_at < ?2)
+			ORDER BY id`,
 		)
 		.bind(athleteId, since)
-		.all<{ strava_activity_id: number }>();
+		.all<{ strava_activity_id: string }>();
 	return results.map((r) => r.strava_activity_id);
 }

@@ -12,7 +12,7 @@ import {
 // Hamburg's, with first names from the team's countries (Denmark, Norway,
 // Sweden, Finland, Iceland, Germany, France, the Netherlands, Lithuania, the
 // UK and Canada). Only first names joined to the state they show, so nobody
-// real is meant; athlete IDs 991001–991099, apart from Hamburg's. The team has
+// real is meant; athlete IDs "991001"–"991099", apart from Hamburg's. The team has
 // no team events and no Team Rynke (feature 039), and kilometres earn Rynke
 // from 25 km outdoors and from 1 km on virtual rides (rules version 5): nobody
 // attends anything, and an outdoor ride is 25 km or longer unless it is there
@@ -24,6 +24,11 @@ import {
 // days (`onDate`).
 
 /** One to three per country, accents and all. */
+// The ordinary riders' athlete IDs are large (feature 042): from a few below 2^63 − 1, past
+// what a JavaScript number holds exactly, so every local run and test covers
+// them next to the small IDs of the named riders.
+const LARGE_IDS_FROM = "9223372036854775780";
+
 const ORDINARY_NAMES = [
 	"Aino", // Finland
 	"Bjørn", // Norway
@@ -54,7 +59,7 @@ const ORDINARY_NAMES = [
 
 export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	{
-		athleteId: 991001,
+		athleteId: "991001",
 		firstName: "Ingrid Importing",
 		state: "Import still running: the fake answers her activity list with 503",
 		scopes: ALL_SCOPES,
@@ -63,7 +68,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(4, (i) => ride(...slot(i), 45, 250, 24)),
 	},
 	{
-		athleteId: 991002,
+		athleteId: "991002",
 		firstName: "Nanna NoRides",
 		state: "No rides, so no badges yet",
 		scopes: ALL_SCOPES,
@@ -72,7 +77,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: [],
 	},
 	{
-		athleteId: 991003,
+		athleteId: "991003",
 		firstName: "Fleur FarAway",
 		state: "Far from the target",
 		scopes: ALL_SCOPES,
@@ -81,7 +86,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(4, (i) => ride(...slot(i), 26 + 6 * i, 120, 21)),
 	},
 	{
-		athleteId: 991004,
+		athleteId: "991004",
 		firstName: "Tuuli TrainingDone",
 		state:
 			"Training target reached without virtual rides, so qualified; organiser",
@@ -96,7 +101,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		),
 	},
 	{
-		athleteId: 991005,
+		athleteId: "991005",
 		firstName: "Védís Virtual",
 		state: "Training target reached only thanks to virtual rides",
 		scopes: ALL_SCOPES,
@@ -123,7 +128,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 991006,
+		athleteId: "991006",
 		firstName: "Rasmus Rejected",
 		state:
 			"Rides that don't count, one per rule, and a run that counts only for the running badges",
@@ -150,7 +155,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 991007,
+		athleteId: "991007",
 		firstName: "Pauliina Paging",
 		state: "More rides than one page (47; 20 per page)",
 		scopes: ALL_SCOPES,
@@ -162,7 +167,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		),
 	},
 	{
-		athleteId: 991008,
+		athleteId: "991008",
 		firstName: "Odile OptionalDenied",
 		state: "Optional permissions withheld; three private rides stay hidden",
 		scopes: "read,activity:read",
@@ -173,7 +178,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		),
 	},
 	{
-		athleteId: 991009,
+		athleteId: "991009",
 		firstName: "Rūta Reconnect",
 		state: "Must reconnect: the fake refuses her activity calls and refresh",
 		scopes: ALL_SCOPES,
@@ -182,7 +187,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(3, (i) => ride(...slot(i), 55, 350, 26)),
 	},
 	{
-		athleteId: 991010,
+		athleteId: "991010",
 		firstName: "Nigel NotMember",
 		state: "Not a club member: signing in shows the not-member notice",
 		scopes: ALL_SCOPES,
@@ -191,7 +196,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(3, (i) => ride(...slot(i), 45, 250, 25)),
 	},
 	{
-		athleteId: 991011,
+		athleteId: "991011",
 		firstName: "Oskar Organiser",
 		state: "Organiser: sees the team's riders at /organiser",
 		scopes: ALL_SCOPES,
@@ -201,7 +206,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(6, (i) => ride(...slot(i), 55, 450, 25)),
 	},
 	{
-		athleteId: 991012,
+		athleteId: "991012",
 		firstName: "Bente Badges",
 		state: "Badges (feature 013): earlier and later ones in a category",
 		scopes: ALL_SCOPES,
@@ -212,7 +217,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(12, (i) => ride(...slot(i), 60, 500, 26)),
 	},
 	{
-		athleteId: 991013,
+		athleteId: "991013",
 		firstName: "Nienke NearlyThere",
 		state:
 			"Badges (feature 013): just short of the first distance and elevation badges",
@@ -224,7 +229,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: [ride(2, "17:00", 49.8, 495, 24), ride(4, "17:00", 49.8, 495, 24)],
 	},
 	{
-		athleteId: 991014,
+		athleteId: "991014",
 		firstName: "Chloé Complete",
 		state: "Badges (feature 013): every personal riding badge, no runs",
 		scopes: ALL_SCOPES,
@@ -235,7 +240,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(25, (i) => ride(...slot(i), 200, 1000, 26)),
 	},
 	{
-		athleteId: 991015,
+		athleteId: "991015",
 		firstName: "Ragnar Runner",
 		state:
 			"Badges (feature 013): outdoor runs for the running badges; treadmill, virtual and manual runs that don't count",
@@ -254,7 +259,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 991016,
+		athleteId: "991016",
 		firstName: "Wouter Winter",
 		state:
 			"Badges (feature 013 parts C and D): a long ride, virtual rides, winter days, swims and surprise badges",
@@ -299,7 +304,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 991017,
+		athleteId: "991017",
 		firstName: "Frauke Festtag",
 		state:
 			"Badges (feature 013 part F): surprise badges from cycling traditions",
@@ -346,7 +351,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 991018,
+		athleteId: "991018",
 		firstName: "Aistė Admin",
 		state: "Administrator: watches usage and riders at /admin",
 		scopes: ALL_SCOPES,
@@ -356,7 +361,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(4, (i) => ride(...slot(i), 45, 220, 25)),
 	},
 	{
-		athleteId: 991019,
+		athleteId: "991019",
 		firstName: "Britt BothClubs",
 		state:
 			"In both teams' Strava clubs: connecting shows the one-team-at-a-time notice once",
@@ -366,9 +371,9 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		behaviour: "normal",
 		rides: rides(5, (i) => ride(...slot(i), 40 + 5 * i, 260, 25)),
 	},
-	...ordinaryRiders(ORDINARY_NAMES, 991_020, "Kalle"),
+	...ordinaryRiders(ORDINARY_NAMES, LARGE_IDS_FROM, "Kalle"),
 	{
-		athleteId: 991045,
+		athleteId: "991045",
 		firstName: "Siiri ShortRide",
 		state:
 			"Outdoor rides of 24.9, 25.0 and 60 km: all count, the 24.9 km ride with its elevation but no kilometre Rynke (rules version 5); a 15 km ride on 10 November is before the window (feature 040)",
@@ -385,7 +390,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		],
 	},
 	{
-		athleteId: 991099,
+		athleteId: "991099",
 		firstName: "Gwen Guest",
 		state:
 			"An administrator of another team on the guest list, not in the club: Orga and Admin, her rides count for nobody but her (feature 041)",
@@ -401,7 +406,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
  * An organiser among the riders (Tuuli TrainingDone); the team has no team
  * events for one to record (feature 039 research R3).
  */
-export const EVENT_ORGANISER = 991004;
+export const EVENT_ORGANISER = "991004";
 
 export const EUROPE_SAMPLES: SampleSet = {
 	riders: SAMPLE_RIDERS,

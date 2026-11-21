@@ -9,7 +9,8 @@ import {
 	tableCounts,
 } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
-import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
+import { ATHLETE_A, ATHLETE_B, LARGE_ATHLETE, NOW } from "../support/fixtures";
+import { stravaJson } from "../support/strava-json";
 
 const PATH = "/strava/webhook/test-verify-token";
 const SUBSCRIPTION_ID = 777;
@@ -38,7 +39,7 @@ function post(body: unknown, path = PATH) {
 		new Request(`${ORIGIN}${path}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: typeof body === "string" ? body : JSON.stringify(body),
+			body: typeof body === "string" ? body : stravaJson(body),
 		}),
 		ctx,
 	);
@@ -47,7 +48,7 @@ function post(body: unknown, path = PATH) {
 function event(overrides: Record<string, unknown> = {}) {
 	return {
 		object_type: "activity",
-		object_id: 7_100_001,
+		object_id: "7100001",
 		aspect_type: "create",
 		updates: {},
 		owner_id: ATHLETE_A,
@@ -130,7 +131,7 @@ describe("POST /strava/webhook/:secret (events)", () => {
 		["an unknown object_type", event({ object_type: "route" })],
 		["an unknown aspect_type", event({ aspect_type: "merge" })],
 		["a missing object_id", event({ object_id: undefined })],
-		["a string owner_id", event({ owner_id: String(ATHLETE_A) })],
+		["a string owner_id", JSON.stringify(event({ owner_id: ATHLETE_A }))],
 		["a missing subscription_id", event({ subscription_id: undefined })],
 		["updates that aren't an object", event({ updates: ["title"] })],
 	])("rejects %s", async (_name, body) => {
@@ -166,11 +167,57 @@ describe("POST /strava/webhook/:secret (events)", () => {
 			{
 				kind: "activity-event",
 				athleteId: ATHLETE_A,
-				activityId: 7_100_001,
+				activityId: "7100001",
 				aspect: "create",
 				changed: [],
 			},
 		]);
+	});
+
+	// Feature 042: IDs past 2^53, as numbers with every digit, the only way
+	// Strava sends them.
+	it("queues an activity create with IDs past 2^53 exactly", async () => {
+		const res = await post(
+			event({ object_id: "9007199254740993", owner_id: LARGE_ATHLETE }),
+		);
+		expect(res.status).toBe(200);
+		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
+			{
+				kind: "activity-event",
+				athleteId: LARGE_ATHLETE,
+				activityId: "9007199254740993",
+				aspect: "create",
+				changed: [],
+			},
+		]);
+	});
+
+	it("tells apart two activities whose IDs differ past 2^53", async () => {
+		await post(event({ object_id: "9007199254740992" }));
+		await post(event({ object_id: "9007199254740993" }));
+		expect(
+			ctx.queue.sent.map(
+				(m) => m.body.kind === "activity-event" && m.body.activityId,
+			),
+		).toEqual(["9007199254740992", "9007199254740993"]);
+	});
+
+	it.each([
+		["a fraction", "7100001.5"],
+		["an exponent", "7.1e6"],
+		["a negative", "-7100001"],
+		["zero", "0"],
+		["more than 64 bits", "9223372036854775808"],
+		["20 digits", "12345678901234567890"],
+	])("rejects an object_id that is %s", async (_name, digits) => {
+		const body = stravaJson(event()).replace(
+			'"object_id":7100001',
+			`"object_id":${digits}`,
+		);
+		expect(body).toContain(`"object_id":${digits}`);
+		const res = await post(body);
+		expect(res.status).toBe(400);
+		expect(ctx.queue.sent).toEqual([]);
 	});
 
 	it("queues the changed keys of an activity update", async () => {
@@ -185,7 +232,7 @@ describe("POST /strava/webhook/:secret (events)", () => {
 			{
 				kind: "activity-event",
 				athleteId: ATHLETE_A,
-				activityId: 7_100_001,
+				activityId: "7100001",
 				aspect: "update",
 				changed: ["title", "type"],
 			},
@@ -199,7 +246,7 @@ describe("POST /strava/webhook/:secret (events)", () => {
 			{
 				kind: "activity-event",
 				athleteId: ATHLETE_A,
-				activityId: 7_100_001,
+				activityId: "7100001",
 				aspect: "delete",
 				changed: [],
 			},
@@ -209,7 +256,7 @@ describe("POST /strava/webhook/:secret (events)", () => {
 	it("queues an update whose long emoji title is JSON-escaped", async () => {
 		// 255 bike emoji, each sent as two \uXXXX escapes: over 3,000 bytes.
 		const escaped = "\\ud83d\\udeb4".repeat(255);
-		const body = JSON.stringify(
+		const body = stravaJson(
 			event({ aspect_type: "update", updates: { title: "TITLE" } }),
 		).replace('"TITLE"', `"${escaped}"`);
 		expect(body.length).toBeGreaterThan(3000);
@@ -219,7 +266,7 @@ describe("POST /strava/webhook/:secret (events)", () => {
 			{
 				kind: "activity-event",
 				athleteId: ATHLETE_A,
-				activityId: 7_100_001,
+				activityId: "7100001",
 				aspect: "update",
 				changed: ["title"],
 			},
@@ -304,7 +351,7 @@ describe("an event for a rider of another team", () => {
 		}
 		try {
 			const res = await post(
-				event({ owner_id: ATHLETE_B, object_id: 7_100_099 }),
+				event({ owner_id: ATHLETE_B, object_id: "7100099" }),
 			);
 			expect(res.status).toBe(200);
 			const batch = createMessageBatch(

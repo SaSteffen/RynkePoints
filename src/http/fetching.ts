@@ -28,7 +28,7 @@ export function fetchingText(
 export async function riderFetchingText(
 	ctx: Ctx,
 	i18n: I18n,
-	athleteId: number,
+	athleteId: string,
 ): Promise<string | null> {
 	return fetchingText(i18n, await readFetchProgress(ctx.env.DB, athleteId));
 }

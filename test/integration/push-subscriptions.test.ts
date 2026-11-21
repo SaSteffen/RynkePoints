@@ -19,12 +19,12 @@ import { pushEndpoint, seedSubscription } from "../support/push";
 
 async function rows() {
 	const { results } = await env.DB.prepare(
-		`SELECT subscription_id, endpoint, athlete_id, created_at
+		`SELECT subscription_id, endpoint, CAST(athlete_id AS TEXT) AS athlete_id, created_at
 		FROM push_subscriptions ORDER BY subscription_id`,
 	).all<{
 		subscription_id: number;
 		endpoint: string;
-		athlete_id: number;
+		athlete_id: string;
 		created_at: number;
 	}>();
 	return results;

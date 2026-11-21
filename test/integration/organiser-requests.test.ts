@@ -4,6 +4,7 @@ import { escapeHtml } from "../../src/http/html";
 import { undoToken } from "../../src/http/organiser/requests";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
+import { compareIds } from "../../src/strava/id";
 import {
 	makeCtx,
 	request,
@@ -23,8 +24,8 @@ const { de } = CATALOGS;
 const KATRIN = ATHLETE_A;
 const EMIL = ATHLETE_B;
 const ORGANISER = ATHLETE_C;
-const NORA = 900_004;
-const IDA = 900_005;
+const NORA = "900004";
+const IDA = "900005";
 
 let technique: number;
 let training: number;
@@ -41,7 +42,7 @@ async function page(path: string, athleteId = ORGANISER) {
 /** POSTs a decision as a form with repeated `athlete` fields. */
 async function decide(
 	eventId: number,
-	athletes: number[],
+	athletes: string[],
 	decision: string,
 	back = "/organiser",
 	athleteId = ORGANISER,
@@ -80,19 +81,19 @@ async function undo(token: string, back = "/organiser") {
 
 async function reports(eventId: number) {
 	const { results } = await env.DB.prepare(
-		"SELECT athlete_id, reported_at FROM participation_reports WHERE event_id = ? ORDER BY athlete_id",
+		"SELECT CAST(athlete_id AS TEXT) AS athlete_id, reported_at FROM participation_reports WHERE event_id = ? ORDER BY participation_reports.athlete_id",
 	)
 		.bind(eventId)
-		.all<{ athlete_id: number; reported_at: number }>();
+		.all<{ athlete_id: string; reported_at: number }>();
 	return results;
 }
 
 async function attendees(eventId: number) {
 	const { results } = await env.DB.prepare(
-		"SELECT athlete_id, changed_by FROM attendances WHERE event_id = ? ORDER BY athlete_id",
+		"SELECT CAST(athlete_id AS TEXT) AS athlete_id, CAST(changed_by AS TEXT) AS changed_by FROM attendances WHERE event_id = ? ORDER BY attendances.athlete_id",
 	)
 		.bind(eventId)
-		.all<{ athlete_id: number; changed_by: number | null }>();
+		.all<{ athlete_id: string; changed_by: string | null }>();
 	return results;
 }
 
@@ -327,7 +328,7 @@ describe("POST /organiser/requests (FR-031, FR-035)", () => {
 	it("confirms all of an event at once", async () => {
 		await decide(technique, [KATRIN, EMIL, NORA], "confirm");
 		expect((await attendees(technique)).map((a) => a.athlete_id)).toEqual(
-			[KATRIN, EMIL, NORA].sort((a, b) => a - b),
+			[KATRIN, EMIL, NORA].sort(compareIds),
 		);
 		expect(await reports(technique)).toEqual([]);
 	});

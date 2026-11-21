@@ -145,7 +145,7 @@ describe("logging never includes credentials", () => {
 		await runQueue({
 			kind: "activity-event",
 			athleteId: ATHLETE_A,
-			activityId: 7_300_001,
+			activityId: "7300001",
 			aspect: "create",
 			changed: [],
 		});

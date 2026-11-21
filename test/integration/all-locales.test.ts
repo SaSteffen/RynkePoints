@@ -41,7 +41,7 @@ beforeEach(async () => {
 async function get(
 	path: string,
 	lang: Locale,
-	athleteId?: number,
+	athleteId?: string,
 ): Promise<{ status: number; body: string }> {
 	const session = athleteId ? await sessionCookie(ctx, athleteId) : {};
 	const res = await handleFetch(

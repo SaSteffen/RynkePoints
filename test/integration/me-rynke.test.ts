@@ -125,7 +125,7 @@ describe("GET /me Rynke summary (US1)", () => {
 			virtualShareMissing: 7,
 		});
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			sport_type: "VirtualRide",
 			result: { counts: true, distanceRynke: 102, isVirtual: true },
 		});
@@ -158,7 +158,7 @@ describe("GET /me Rynke summary (US1)", () => {
 	});
 
 	it("S1-9: shows only the waiting state before the first evaluation (015 US1)", async () => {
-		await seedRide(ATHLETE_A, { id: 8_100_001 });
+		await seedRide(ATHLETE_A, { id: "8100001" });
 		for (const path of ["/me", "/me/rides"]) {
 			const { html } = await riderPage(ctx, ATHLETE_A, path);
 			expect(html).toContain('<section class="waiting" role="status"');
@@ -264,7 +264,7 @@ describe("GET /me gauges (US2)", () => {
 			virtualShareMissing: 7,
 		});
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			sport_type: "VirtualRide",
 			result: { counts: true, distanceRynke: 102, isVirtual: true },
 		});
@@ -701,26 +701,26 @@ describe("GET /me/rides ride reasons (US4)", () => {
 
 	async function seedOverlap() {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			start_date: "2026-10-06T08:00:00Z",
 			distance_m: 80000,
 			result: { counts: true, distanceRynke: 8 },
 		});
 		await seedRide(ATHLETE_A, {
-			id: 8_100_002,
+			id: "8100002",
 			start_date: "2026-10-06T08:01:00Z",
 			distance_m: 78000,
 			result: {
 				counts: false,
 				reasons: ["overlap"],
-				overlapsActivityId: 8_100_001,
+				overlapsActivityId: "8100001",
 			},
 		});
 	}
 
 	async function seedPause() {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_003,
+			id: "8100003",
 			distance_m: 100000,
 			moving_time_s: 14400,
 			elapsed_time_s: 32400,
@@ -746,7 +746,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 
 	it("S4-3: lists both reasons of a slow manual entry", async () => {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_004,
+			id: "8100004",
 			distance_m: 15000,
 			moving_time_s: 7200,
 			is_manual: 1,
@@ -792,7 +792,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 		];
 		for (const [i, seeded] of rides.entries()) {
 			await seedRide(ATHLETE_A, {
-				id: 8_100_010 + i,
+				id: String(8100010 + i),
 				start_date: `2026-09-${30 - i}T08:00:00Z`,
 				...seeded,
 			});
@@ -815,7 +815,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 
 	it("S4-5: marks a counting virtual ride", async () => {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_020,
+			id: "8100020",
 			sport_type: "VirtualRide",
 			result: { counts: true, distanceRynke: 4, isVirtual: true },
 		});
@@ -826,7 +826,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 
 	it("S4-6: says a ride with an unknown figure may still change", async () => {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_021,
+			id: "8100021",
 			elapsed_time_s: null,
 			result: {
 				counts: true,
@@ -844,13 +844,13 @@ describe("GET /me/rides ride reasons (US4)", () => {
 		await seedOverlap();
 		await seedPause();
 		await seedRide(ATHLETE_A, {
-			id: 8_100_030,
+			id: "8100030",
 			start_date: "2026-04-01T08:00:00Z",
 			is_manual: 1,
 			result: { counts: false, reasons: ["manual", "pause"] },
 		});
 		await seedRide(ATHLETE_A, {
-			id: 8_100_031,
+			id: "8100031",
 			start_date: "2026-03-01T08:00:00Z",
 			is_flagged: 1,
 			result: { counts: false, reasons: ["flagged"] },
@@ -867,19 +867,19 @@ describe("GET /me/rides ride reasons (US4)", () => {
 	it("folds the steps for its reasons under the fix hint", async () => {
 		await seedPause();
 		await seedRide(ATHLETE_A, {
-			id: 8_100_032,
+			id: "8100032",
 			start_date: "2026-04-01T08:00:00Z",
 			is_manual: 1,
 			result: { counts: false, reasons: ["manual"] },
 		});
 		await seedRide(ATHLETE_A, {
-			id: 8_100_033,
+			id: "8100033",
 			start_date: "2026-03-01T08:00:00Z",
 			is_flagged: 1,
 			result: { counts: false, reasons: ["flagged"] },
 		});
 		await seedRide(ATHLETE_A, {
-			id: 8_100_034,
+			id: "8100034",
 			start_date: "2026-02-01T08:00:00Z",
 			is_manual: 1,
 			result: { counts: false, reasons: ["manual", "too_slow"] },
@@ -928,7 +928,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 
 	it("explains an unknown code in general words", async () => {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_040,
+			id: "8100040",
 			result: { counts: false, reasons: ["new_rule" as ReasonCode] },
 		});
 		const { status } = await riderPage(ctx, ATHLETE_A);
@@ -957,7 +957,7 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 
 	it("S1-6: shows a counting ride's Rynke and metres", async () => {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			start_date: "2026-10-06T08:00:00Z",
 			distance_m: 79000,
 			elevation_gain_m: 1240,
@@ -987,7 +987,7 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 
 	it("shows a counting ride under 10 km without the coin (020 FR-011)", async () => {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			start_date: "2026-10-06T08:00:00Z",
 			distance_m: 7400,
 			elevation_gain_m: 40,
@@ -1001,7 +1001,7 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 
 	it("S1-7: shows a ride that doesn't count with nothing, reasons open", async () => {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			start_date: "2026-10-05T08:00:00Z",
 			distance_m: 30000,
 			result: { counts: false, reasons: ["too_slow"] },
@@ -1022,7 +1022,7 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 
 	it("S1-8: shows a ride without a result as being evaluated", async () => {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			start_date: "2026-10-04T08:00:00Z",
 			distance_m: 40000,
 		});
@@ -1041,7 +1041,7 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 
 	it("keeps a counting ride's explanation closed (clarification Q5)", async () => {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			result: {
 				counts: true,
 				distanceRynke: 4,
@@ -1056,7 +1056,7 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 
 	it("marks a virtual ride in its meta line", async () => {
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			sport_type: "VirtualRide",
 			elevation_gain_m: 300,
 			result: {
@@ -1071,7 +1071,7 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 	});
 
 	it("labels the figures", async () => {
-		await seedRide(ATHLETE_A, { id: 8_100_001 });
+		await seedRide(ATHLETE_A, { id: "8100001" });
 		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
 		expect(rideCards(html)[0]?.labels).toEqual([
 			"Distanz",
@@ -1147,12 +1147,12 @@ describe("GET /me/rides paging (US5)", () => {
 	it("S5-5: names a ride on page 1 that a ride on page 3 overlaps", async () => {
 		await seedRides(ATHLETE_A, 44, "2026-10-06");
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			start_date: "2026-08-01T09:30:00Z",
 			result: {
 				counts: false,
 				reasons: ["overlap"],
-				overlapsActivityId: 8_000_001,
+				overlapsActivityId: "8000001",
 			},
 		});
 		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides?page=3");
@@ -1244,7 +1244,7 @@ describe("GET /me/rides paging (US5)", () => {
 	});
 
 	it("links a private ride like any other (008 FR-011, S1-3)", async () => {
-		await seedRide(ATHLETE_A, { id: 8_900_201, is_private: 1 });
+		await seedRide(ATHLETE_A, { id: "8900201", is_private: 1 });
 		const page = await stravaLinks("/me/rides");
 		expect(page.links.map((link) => link.href)).toEqual([
 			"https://www.strava.com/activities/8900201",
@@ -1360,17 +1360,17 @@ describe("GET /me isolation and access (US1)", () => {
 		await seedBalance(ATHLETE_A, { trainingRynke: 111, trainingMissing: 139 });
 		await seedBalance(ATHLETE_B, { trainingRynke: 222, trainingMissing: 28 });
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			distance_m: 51000,
 			result: { counts: true, distanceRynke: 5 },
 		});
 		await seedRide(ATHLETE_B, {
-			id: 8_200_001,
+			id: "8200001",
 			distance_m: 93000,
 			result: { counts: true, distanceRynke: 9 },
 		});
 
-		const shown = async (athleteId: number) =>
+		const shown = async (athleteId: string) =>
 			text(
 				(await riderPage(ctx, athleteId)).html +
 					(await riderPage(ctx, athleteId, "/me/rides")).html,
@@ -1398,10 +1398,10 @@ describe("GET /me isolation and access (US1)", () => {
 	it("SC-004: only reads", async () => {
 		await seedBalance(ATHLETE_A, { trainingRynke: 12, trainingMissing: 238 });
 		await seedRide(ATHLETE_A, {
-			id: 8_100_001,
+			id: "8100001",
 			result: { counts: true, distanceRynke: 4 },
 		});
-		await seedRide(ATHLETE_A, { id: 8_100_002 });
+		await seedRide(ATHLETE_A, { id: "8100002" });
 		const counts = await readOnlyCounts();
 		const rows = await snapshot(ATHLETE_A);
 
@@ -1458,7 +1458,7 @@ describe("GET /me isolation and access (US1)", () => {
 
 	it("places the sections after the greeting, without rides or consent", async () => {
 		await seedBalance(ATHLETE_A);
-		await seedRide(ATHLETE_A, { id: 8_100_001 });
+		await seedRide(ATHLETE_A, { id: "8100001" });
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		const order = [
 			'<p class="greeting">',

@@ -441,8 +441,8 @@ ${
  * are where their steps point.
  */
 export interface ExampleRides {
-	rejectedRideId: number;
-	shortRideId: number;
+	rejectedRideId: string;
+	shortRideId: string;
 }
 
 /**

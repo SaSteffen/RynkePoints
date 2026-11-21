@@ -58,7 +58,7 @@ function balance(overrides: Partial<StoredBalance> = {}): StoredBalance {
 }
 
 function result(
-	activityId: number,
+	activityId: string,
 	overrides: Partial<StoredRideResult> = {},
 ): StoredRideResult {
 	return {
@@ -77,7 +77,7 @@ function result(
 }
 
 function ride(
-	activityId: number,
+	activityId: string,
 	stored: StoredRideResult | null = null,
 	overrides: Partial<RideRow> = {},
 ): RideRow {
@@ -293,7 +293,7 @@ describe("buildRiderView summary", () => {
 describe("buildRiderView without a balance", () => {
 	it("015 R1: is waiting for the first data and holds nothing else", () => {
 		const view = buildRiderView(
-			read({ balance: null, rideCount: 1, rides: [ride(1)] }),
+			read({ balance: null, rideCount: 1, rides: [ride("1")] }),
 			null,
 			CURRENT_RULES,
 			CONTEXT,
@@ -317,18 +317,21 @@ describe("buildRiderView without a balance", () => {
 
 describe("buildRiderView ride lines", () => {
 	const rows = [
-		ride(1),
-		ride(2, result(2)),
+		ride("1"),
+		ride("2", result("2")),
 		ride(
-			3,
-			result(3, {
+			"3",
+			result("3", {
 				counts: false,
 				reasons: ["too_slow"],
 				distanceRynke: 0,
 				elevationDm: 0,
 			}),
 		),
-		ride(4, result(4, { isVirtual: true, distanceRynke: 3, elevationDm: 55 })),
+		ride(
+			"4",
+			result("4", { isVirtual: true, distanceRynke: 3, elevationDm: 55 }),
+		),
 	];
 	const lines = ready(
 		buildRiderView(
@@ -340,7 +343,7 @@ describe("buildRiderView ride lines", () => {
 	).rides.rows;
 
 	it("keeps the read order", () => {
-		expect(lines.map((l) => l.activityId)).toEqual([1, 2, 3, 4]);
+		expect(lines.map((l) => l.activityId)).toEqual(["1", "2", "3", "4"]);
 	});
 
 	it("S1-8: marks a ride without a result as being evaluated", () => {
@@ -386,7 +389,7 @@ describe("buildRiderView ride lines", () => {
 			buildRiderView(
 				read({
 					rideCount: 2,
-					rides: [ride(1, null, { name: "Synthetic loop" }), ride(2)],
+					rides: [ride("1", null, { name: "Synthetic loop" }), ride("2")],
 				}),
 				CURRENT_RULES,
 				CURRENT_RULES,
@@ -458,7 +461,7 @@ describe("buildRiderView later pages (US5, 018 FR-014)", () => {
 				read({
 					rideCount,
 					page,
-					rides: Array.from({ length: shown }, (_, i) => ride(i + 1)),
+					rides: Array.from({ length: shown }, (_, i) => ride(String(i + 1))),
 				}),
 				CURRENT_RULES,
 				CURRENT_RULES,
@@ -624,7 +627,7 @@ function lineOf(
 		context?: Partial<ViewContext>;
 	} = {},
 ) {
-	const stored = result(1, {
+	const stored = result("1", {
 		counts: false,
 		reasons: reasons as ReasonCode[],
 		distanceRynke: 0,
@@ -633,7 +636,7 @@ function lineOf(
 	});
 	const line = ready(
 		buildRiderView(
-			read({ rideCount: 1, rides: [ride(1, stored, activity)] }),
+			read({ rideCount: 1, rides: [ride("1", stored, activity)] }),
 			CURRENT_RULES,
 			CURRENT_RULES,
 			{ ...CONTEXT, ...options.context },
@@ -830,7 +833,7 @@ describe("buildRiderView ride reasons", () => {
 	it("has no reasons, and no fix hint, for a ride that counts", () => {
 		const line = ready(
 			buildRiderView(
-				read({ rideCount: 1, rides: [ride(1, result(1))] }),
+				read({ rideCount: 1, rides: [ride("1", result("1"))] }),
 				CURRENT_RULES,
 				CURRENT_RULES,
 				CONTEXT,
@@ -844,7 +847,7 @@ describe("buildRiderView ride reasons", () => {
 			buildRiderView(
 				read({
 					rideCount: 1,
-					rides: [ride(1, result(1, { unknownFigures: ["elapsed_time"] }))],
+					rides: [ride("1", result("1", { unknownFigures: ["elapsed_time"] }))],
 				}),
 				CURRENT_RULES,
 				CURRENT_RULES,
@@ -1284,7 +1287,7 @@ describe("gauge invariants (SC-009)", () => {
 });
 
 describe("ride key (018 data-model.md)", () => {
-	const key = { startDate: "2026-09-16T08:00:00Z", activityId: 8_000_021 };
+	const key = { startDate: "2026-09-16T08:00:00Z", activityId: "8000021" };
 
 	it("writes the start and the id with a tilde", () => {
 		expect(formatRideKey(key)).toBe("2026-09-16T08:00:00Z~8000021");
@@ -1292,8 +1295,14 @@ describe("ride key (018 data-model.md)", () => {
 
 	it("reads back what it wrote", () => {
 		expect(parseRideKey(formatRideKey(key))).toEqual(key);
-		const ms = { startDate: "2026-09-16T08:00:00.123Z", activityId: 1 };
+		const ms = { startDate: "2026-09-16T08:00:00.123Z", activityId: "1" };
 		expect(parseRideKey(formatRideKey(ms))).toEqual(ms);
+		// An ID past 2^53 keeps every digit (feature 042).
+		const large = {
+			startDate: "2026-09-16T08:00:00Z",
+			activityId: "9223372036854775807",
+		};
+		expect(parseRideKey(formatRideKey(large))).toEqual(large);
 	});
 
 	it.each([
@@ -1309,7 +1318,9 @@ describe("ride key (018 data-model.md)", () => {
 		"2026-09-16T08:00:00Z~8000021~1",
 		"2026-09-16T08:00:00+02:00~8000021",
 		" 2026-09-16T08:00:00Z~8000021",
-		"2026-09-16T08:00:00Z~12345678901234567",
+		// Past what the database holds (feature 042).
+		"2026-09-16T08:00:00Z~9223372036854775808",
+		"2026-09-16T08:00:00Z~12345678901234567890",
 	])("rejects %j", (value) => {
 		expect(parseRideKey(value)).toBeNull();
 	});
@@ -1350,7 +1361,7 @@ describe("buildRiderView more (018 US1)", () => {
 					rideCount,
 					page,
 					rides: Array.from({ length: shown }, (_, i) =>
-						ride((page - 1) * 20 + i + 1, null, {
+						ride(String((page - 1) * 20 + i + 1), null, {
 							startDate: `2026-09-${String(30 - i).padStart(2, "0")}T06:00:00Z`,
 						}),
 					),
@@ -1365,14 +1376,14 @@ describe("buildRiderView more (018 US1)", () => {
 	it("continues after the last ride of page 1 of 45", () => {
 		expect(table(45, 1).more).toEqual({
 			startDate: "2026-09-11T06:00:00Z",
-			activityId: 20,
+			activityId: "20",
 		});
 	});
 
 	it("continues after the last ride of page 2 of 45", () => {
 		expect(table(45, 2).more).toEqual({
 			startDate: "2026-09-11T06:00:00Z",
-			activityId: 40,
+			activityId: "40",
 		});
 	});
 

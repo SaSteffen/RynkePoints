@@ -85,7 +85,7 @@ export async function seedPageRiders(ctx: TestCtx): Promise<void> {
 		ATHLETE_A,
 	]);
 	await seedRide(ATHLETE_A, {
-		id: 8_900_001,
+		id: "8900001",
 		name: "Synthetic long ride",
 		start_date: "2026-09-20T08:00:00Z",
 		distance_m: 79000,
@@ -93,18 +93,18 @@ export async function seedPageRiders(ctx: TestCtx): Promise<void> {
 		result: { counts: true, distanceRynke: 7, elevationDm: 12400 },
 	});
 	await seedRide(ATHLETE_A, {
-		id: 8_900_002,
+		id: "8900002",
 		name: "Synthetic slow ride",
 		start_date: "2026-09-19T08:00:00Z",
 		result: { counts: false, reasons: ["too_slow"] },
 	});
 	await seedRide(ATHLETE_A, {
-		id: 8_900_003,
+		id: "8900003",
 		name: "Synthetic pending ride",
 		start_date: "2026-09-18T08:00:00Z",
 	});
 	await seedRide(ATHLETE_A, {
-		id: 8_900_004,
+		id: "8900004",
 		name: "Synthetic trainer session",
 		sport_type: "VirtualRide",
 		start_date: "2026-09-17T08:00:00Z",
@@ -119,11 +119,11 @@ export async function seedPageRiders(ctx: TestCtx): Promise<void> {
 		await insertEvent("technique_training", "2026-09-26"),
 		ATHLETE_A,
 	);
-	await seedRide(ATHLETE_C, { id: 8_900_101, name: "Synthetic ride of C" });
+	await seedRide(ATHLETE_C, { id: "8900101", name: "Synthetic ride of C" });
 }
 
 /** The names `seedPageRiders` gives each rider's rides. */
-export const RIDE_NAMES: Record<number, string[]> = {
+export const RIDE_NAMES: Record<string, string[]> = {
 	[ATHLETE_A]: [
 		"Synthetic <loop> & 🚴",
 		"Synthetic hill repeats",
@@ -135,7 +135,7 @@ export const RIDE_NAMES: Record<number, string[]> = {
 	[ATHLETE_C]: ["Synthetic ride of C"],
 };
 
-function get(path: string, athleteId?: number): RiderPage["fetch"] {
+function get(path: string, athleteId?: string): RiderPage["fetch"] {
 	return async (ctx, { acceptLanguage, cookies }) => {
 		const session = athleteId ? await sessionCookie(ctx, athleteId) : {};
 		return handleFetch(

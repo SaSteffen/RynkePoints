@@ -66,7 +66,7 @@ export interface AlbumData {
 	/** How the team names its badges (feature 026 FR-052). */
 	badgeNames: BadgeNameMode;
 	rider: {
-		athleteId: number;
+		athleteId: string;
 		firstName: string;
 		trainingRynke: number;
 		/** `null` for a team without Team Rynke (feature 039). */
@@ -158,7 +158,7 @@ function teamTrainingOn(
 export async function loadAlbum(
 	db: D1Database,
 	env: AlbumEnv,
-	rider: { athleteId: number; firstName: string },
+	rider: { athleteId: string; firstName: string },
 	cutoff: string,
 	now: number,
 ): Promise<AlbumData> {

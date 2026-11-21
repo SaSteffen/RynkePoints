@@ -7,7 +7,7 @@ export interface SeenRynke {
 	team: number;
 }
 
-export function readSeenStatement(db: D1Database, athleteId: number) {
+export function readSeenStatement(db: D1Database, athleteId: string) {
 	return db
 		.prepare(
 			"SELECT training_rynke, team_rynke FROM rynke_seen WHERE athlete_id = ?",
@@ -26,7 +26,7 @@ export function toSeen(row: SeenRow | undefined | null): SeenRynke | null {
 
 export async function readSeen(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 ): Promise<SeenRynke | null> {
 	return toSeen(await readSeenStatement(db, athleteId).first<SeenRow>());
 }
@@ -34,7 +34,7 @@ export async function readSeen(
 /** Replaces what the rider saw before. */
 export async function writeSeen(
 	db: D1Database,
-	athleteId: number,
+	athleteId: string,
 	seen: SeenRynke,
 ): Promise<void> {
 	await db

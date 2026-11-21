@@ -16,6 +16,8 @@ const NOW = Date.UTC(2026, 9, 6, 10, 58, 0) / 1000;
 const DAY = "2026-10-06";
 const HOUR = 3600;
 const FIRST = 800_001;
+/** The `n`th test rider's athlete ID. */
+const id = (n = 0) => String(FIRST + n);
 
 let ctx: TestCtx;
 
@@ -25,7 +27,7 @@ const iso = (epoch: number) =>
 
 /** A connected rider whose newest ride started `ago` seconds before now. */
 async function rider(
-	athleteId: number,
+	athleteId: string,
 	ago = 2 * 24 * HOUR,
 	options: Parameters<typeof seedRider>[1] = {},
 ) {
@@ -33,12 +35,12 @@ async function rider(
 		athleteId,
 		...options,
 	});
-	await insertRide(athleteId, athleteId * 10, ago);
+	await insertRide(athleteId, `${athleteId}0`, ago);
 }
 
 async function insertRide(
-	athleteId: number,
-	id: number,
+	athleteId: string,
+	id: string,
 	ago: number,
 	overrides: Parameters<typeof activityRecord>[1] = {},
 ) {
@@ -55,13 +57,13 @@ async function insertRide(
 	});
 }
 
-async function stampOf(athleteId: number): Promise<number | null> {
+async function stampOf(athleteId: string): Promise<number | null> {
 	return env.DB.prepare("SELECT rechecked_at FROM riders WHERE athlete_id = ?")
 		.bind(athleteId)
 		.first<number | null>("rechecked_at");
 }
 
-async function setStamp(athleteId: number, value: number | null) {
+async function setStamp(athleteId: string, value: number | null) {
 	await env.DB.prepare(
 		"UPDATE riders SET rechecked_at = ? WHERE athlete_id = ?",
 	)
@@ -91,9 +93,9 @@ beforeEach(async () => {
 
 describe("the run", () => {
 	it("stamps the chosen riders, counts them and sends one message each, spread over the hour", async () => {
-		for (let i = 0; i < 8; i++) await rider(FIRST + i);
-		await setStamp(FIRST, NOW - 5 * HOUR);
-		await setStamp(FIRST + 1, NOW - 21 * HOUR);
+		for (let i = 0; i < 8; i++) await rider(id(i));
+		await setStamp(id(), NOW - 5 * HOUR);
+		await setStamp(id(1), NOW - 21 * HOUR);
 
 		expect(await recheckRun(ctx)).toBe(6);
 
@@ -101,12 +103,12 @@ describe("the run", () => {
 		expect(messages).toHaveLength(6);
 		// Never checked first, then the longest ago.
 		expect(messages.map((m) => m.body.athleteId)).toEqual([
-			FIRST + 2,
-			FIRST + 3,
-			FIRST + 4,
-			FIRST + 5,
-			FIRST + 6,
-			FIRST + 7,
+			id(2),
+			id(3),
+			id(4),
+			id(5),
+			id(6),
+			id(7),
 		]);
 		expect(messages.map((m) => m.delaySeconds)).toEqual([
 			0, 550, 1100, 1650, 2200, 2750,
@@ -120,22 +122,22 @@ describe("the run", () => {
 			});
 			expect(await stampOf(m.body.athleteId)).toBe(NOW);
 		}
-		expect(await stampOf(FIRST)).toBe(NOW - 5 * HOUR);
+		expect(await stampOf(id())).toBe(NOW - 5 * HOUR);
 		// Never checked and connected 3 days ago: those 6 waited over 24 hours.
 		expect(await day()).toMatchObject({ sent: 6, over_24h: 6, runs_held: 0 });
 	});
 
 	it("carries the stamp before as `previous`", async () => {
-		await rider(FIRST);
-		await setStamp(FIRST, NOW - 21 * HOUR);
+		await rider(id());
+		await setStamp(id(), NOW - 21 * HOUR);
 		await recheckRun(ctx);
 		expect(sent().map((m) => m.body.previous)).toEqual([NOW - 21 * HOUR]);
 	});
 
 	it("holds while more than half of the day's reads are used", async () => {
-		await rider(FIRST);
-		await rider(FIRST + 1);
-		await setStamp(FIRST + 1, NOW - HOUR);
+		await rider(id());
+		await rider(id(1));
+		await setStamp(id(1), NOW - HOUR);
 		await env.DB.prepare(
 			"UPDATE strava_rate_limit SET observed_at = ?, read_daily = 501 WHERE id = 1",
 		)
@@ -143,7 +145,7 @@ describe("the run", () => {
 			.run();
 		expect(await recheckRun(ctx)).toBe(0);
 		expect(sent()).toEqual([]);
-		expect(await stampOf(FIRST)).toBeNull();
+		expect(await stampOf(id())).toBeNull();
 		expect(await day()).toMatchObject({ sent: 0, runs_held: 1, over_24h: 1 });
 		await recheckRun(ctx);
 		expect(await day()).toMatchObject({ runs_held: 2, over_24h: 1 });
@@ -155,13 +157,13 @@ describe("the run", () => {
 		)
 			.bind(DAY)
 			.run();
-		await rider(FIRST);
+		await rider(id());
 		await recheckRun(ctx);
 		expect(await day()).toMatchObject({ sent: 5, over_24h: 9 });
 	});
 
 	it("sends nothing when run a second time in the same hour", async () => {
-		for (let i = 0; i < 10; i++) await rider(FIRST + i);
+		for (let i = 0; i < 10; i++) await rider(id(i));
 		await recheckRun(ctx);
 		ctx.queue.sent.length = 0;
 		expect(await recheckRun(makeCtx({ now: NOW + 60 }))).toBe(0);
@@ -178,7 +180,7 @@ describe("the run", () => {
 // waiting hours.
 describe("by hand", () => {
 	it("checks every eligible rider at once, again and again, without delays", async () => {
-		for (let i = 0; i < 12; i++) await rider(FIRST + i);
+		for (let i = 0; i < 12; i++) await rider(id(i));
 		await env.DB.prepare(
 			"UPDATE strava_rate_limit SET observed_at = ?, read_daily = 501 WHERE id = 1",
 		)
@@ -195,14 +197,14 @@ describe("by hand", () => {
 // FR-014, FR-027, research R13.
 describe("who is eligible", () => {
 	it("takes a rider whose only recent activity is a run", async () => {
-		await seedRider(ctx, { athleteId: FIRST });
-		await evaluateChange(ctx, FIRST, {
+		await seedRider(ctx, { athleteId: id() });
+		await evaluateChange(ctx, id(), {
 			kind: "upsert",
 			records: [],
 			runs: [
 				{
-					strava_activity_id: 1,
-					athlete_id: FIRST,
+					strava_activity_id: "1",
+					athlete_id: id(),
 					start_date: iso(NOW - 5 * 24 * HOUR),
 					start_date_local: iso(NOW - 5 * 24 * HOUR),
 					distance_m: 8000,
@@ -212,40 +214,40 @@ describe("who is eligible", () => {
 			],
 		});
 		await recheckRun(ctx);
-		expect(sentIds()).toEqual([FIRST]);
+		expect(sentIds()).toEqual([id()]);
 	});
 
 	it("leaves out a rider whose newest activity is 31 days old, also from the run's size", async () => {
-		await rider(FIRST, 31 * 24 * HOUR);
-		await rider(FIRST + 1, 29 * 24 * HOUR);
+		await rider(id(), 31 * 24 * HOUR);
+		await rider(id(1), 29 * 24 * HOUR);
 		await recheckRun(ctx);
-		expect(sentIds()).toEqual([FIRST + 1]);
+		expect(sentIds()).toEqual([id(1)]);
 	});
 
 	it.each<[string, Parameters<typeof seedRider>[1]]>([
 		["needs to reconnect", { status: "needs_reconnect" }],
 		["is importing", { importStatus: "running" }],
 	])("leaves out a rider who %s", async (_label, options) => {
-		await rider(FIRST, 2 * 24 * HOUR, options);
+		await rider(id(), 2 * 24 * HOUR, options);
 		await recheckRun(ctx);
 		expect(sent()).toEqual([]);
 	});
 
 	it("takes a newly connected rider with a finished import at the next run (US4 scenario 4)", async () => {
-		await seedRider(ctx, { athleteId: FIRST });
-		await insertRide(FIRST, 1, 2 * HOUR);
+		await seedRider(ctx, { athleteId: id() });
+		await insertRide(id(), "1", 2 * HOUR);
 		await recheckRun(ctx);
-		expect(sentIds()).toEqual([FIRST]);
+		expect(sentIds()).toEqual([id()]);
 	});
 
 	it("counts a rider as waiting over 24 hours only when active for longer", async () => {
 		// Connected 3 days ago, never checked, but only a ride from 2 hours ago:
 		// back from a pause, not waiting.
 		await seedRider(makeCtx({ now: NOW - 3 * 24 * HOUR }), {
-			athleteId: FIRST,
+			athleteId: id(),
 		});
-		await insertRide(FIRST, 1, 2 * HOUR);
-		await rider(FIRST + 1);
+		await insertRide(id(), "1", 2 * HOUR);
+		await rider(id(1));
 		await recheckRun(ctx);
 		expect(await day()).toMatchObject({ over_24h: 1 });
 	});
@@ -260,24 +262,24 @@ describe("the fast lane", () => {
 		// them but after the others in the regular order: a run of one takes
 		// it only from the fast lane.
 		for (let i = 1; i <= 3; i++) {
-			await rider(FIRST + i);
-			await setStamp(FIRST + i, NOW - 2 * HOUR);
+			await rider(id(i));
+			await setStamp(id(i), NOW - 2 * HOUR);
 		}
-		await seedRider(ctx, { athleteId: FIRST });
+		await seedRider(ctx, { athleteId: id() });
 		await build();
-		await setStamp(FIRST, NOW - HOUR);
+		await setStamp(id(), NOW - HOUR);
 		const run = makeCtx({
 			now: NOW,
 			team: { ...ctx.team, recheckAllowance: 24 },
 		});
 		await recheckRun(run);
 		return run.queue.sent.some(
-			(m) => (m.body as RecheckRiderMessage).athleteId === FIRST,
+			(m) => (m.body as RecheckRiderMessage).athleteId === id(),
 		);
 	}
 
 	it("holds a rider with a ride from yesterday too slow to count", async () => {
-		expect(await fastLaneOf(() => insertRide(FIRST, 1, 24 * HOUR, SLOW))).toBe(
+		expect(await fastLaneOf(() => insertRide(id(), "1", 24 * HOUR, SLOW))).toBe(
 			true,
 		);
 	});
@@ -285,7 +287,7 @@ describe("the fast lane", () => {
 	it("holds one beside a reason that isn't fixable", async () => {
 		expect(
 			await fastLaneOf(() =>
-				insertRide(FIRST, 1, 24 * HOUR, { ...SLOW, is_flagged: 1 }),
+				insertRide(id(), "1", 24 * HOUR, { ...SLOW, is_flagged: 1 }),
 			),
 		).toBe(true);
 	});
@@ -293,16 +295,16 @@ describe("the fast lane", () => {
 	it.each<[string, () => Promise<void>]>([
 		[
 			"only reasons that aren't fixable",
-			() => insertRide(FIRST, 1, 24 * HOUR, { is_manual: 1 }),
+			() => insertRide(id(), "1", 24 * HOUR, { is_manual: 1 }),
 		],
-		["a ride 8 days old", () => insertRide(FIRST, 1, 8 * 24 * HOUR, SLOW)],
-		["a ride that counts", () => insertRide(FIRST, 1, 24 * HOUR)],
+		["a ride 8 days old", () => insertRide(id(), "1", 8 * 24 * HOUR, SLOW)],
+		["a ride that counts", () => insertRide(id(), "1", 24 * HOUR)],
 		[
 			"a deleted ride",
 			async () => {
-				await insertRide(FIRST, 1, 24 * HOUR, SLOW);
-				await insertRide(FIRST, 2, 2 * 24 * HOUR);
-				await evaluateChange(ctx, FIRST, { kind: "delete", activityIds: [1] });
+				await insertRide(id(), "1", 24 * HOUR, SLOW);
+				await insertRide(id(), "2", 2 * 24 * HOUR);
+				await evaluateChange(ctx, id(), { kind: "delete", activityIds: ["1"] });
 			},
 		],
 	])("doesn't hold a rider with %s", async (_label, build) => {
@@ -341,16 +343,16 @@ describe("the hourly cron", () => {
 	afterEach(() => vi.restoreAllMocks());
 
 	it("runs the re-check after recording usage", async () => {
-		await rider(FIRST);
+		await rider(id());
 		await handleScheduled(hourly(), ctx);
-		expect(sentIds()).toEqual([FIRST]);
+		expect(sentIds()).toEqual([id()]);
 		expect(
 			await env.DB.prepare("SELECT COUNT(*) AS n FROM usage_daily").first("n"),
 		).toBeGreaterThan(0);
 	});
 
 	it("still records usage when the run fails, and fails", async () => {
-		await rider(FIRST);
+		await rider(id());
 		await expect(
 			handleScheduled(hourly(), failing(/rechecked_at/)),
 		).rejects.toThrow("D1 down");
@@ -360,11 +362,11 @@ describe("the hourly cron", () => {
 	});
 
 	it("still runs when recording usage fails, and fails", async () => {
-		await rider(FIRST);
+		await rider(id());
 		const broken = failing(/usage_daily/);
 		await expect(handleScheduled(hourly(), broken)).rejects.toThrow("D1 down");
 		expect(
 			broken.queue.sent.map((m) => (m.body as RecheckRiderMessage).athleteId),
-		).toEqual([FIRST]);
+		).toEqual([id()]);
 	});
 });

@@ -159,7 +159,7 @@ export async function seed(
 		riders.flatMap((rider) =>
 			rider.rides.map((recipe) => ({
 				athleteId: rider.athleteId,
-				body: recipeToActivity(recipe, day, ctx.env.SEASON_START_DATE, 0),
+				body: recipeToActivity(recipe, day, ctx.env.SEASON_START_DATE, "0"),
 			})),
 		),
 	);

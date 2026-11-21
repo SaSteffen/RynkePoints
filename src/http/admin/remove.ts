@@ -18,7 +18,7 @@ export function handleRemoveConfirm(
 	request: Request,
 	ctx: Ctx,
 	i18n: I18n,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Response> {
 	const path = `/admin/riders/${athleteId}/remove`;
 	return adminPage(request, ctx, i18n, path, async ({ rider }) => {
@@ -48,7 +48,7 @@ export async function handleRemoveRider(
 	request: Request,
 	ctx: Ctx,
 	i18n: I18n,
-	athleteId: number,
+	athleteId: string,
 ): Promise<Response> {
 	const path = `/admin/riders/${athleteId}/remove`;
 	const administrator = await requireAdminPost(request, ctx, i18n, path);

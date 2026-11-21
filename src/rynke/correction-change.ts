@@ -1,3 +1,4 @@
+import { compareIds } from "../strava/id";
 // Corrections as organisers add or remove them (feature 014 research R8),
 // and the re-evaluation of their rider, in one batch. The evaluation itself
 // is `reevaluate.ts`'s.
@@ -44,14 +45,14 @@ export interface CorrectionInput {
 export type CorrectionChange =
 	| {
 			kind: "add-correction";
-			athleteId: number;
+			athleteId: string;
 			correction: CorrectionInput;
-			by: number;
+			by: string;
 	  }
 	| { kind: "remove-correction"; correctionId: number };
 
 export interface CorrectionResult {
-	athleteId: number;
+	athleteId: string;
 	rose: boolean;
 	/** The rider's new personal badges, catalog order (feature 013 R17). */
 	badges: string[];
@@ -102,7 +103,7 @@ async function storeCorrectionChange(
 	now: number,
 	news: BadgeNewsSwitch,
 ): Promise<CorrectionResult> {
-	let athleteId: number;
+	let athleteId: string;
 	let statement: D1PreparedStatement;
 	let edit: (state: RiderState) => void;
 	const extraReads: D1PreparedStatement[] = [];
@@ -128,7 +129,7 @@ async function storeCorrectionChange(
 	} else {
 		const { correctionId } = change;
 		const stored = await readCorrectionStatement(db, correctionId).first<{
-			athlete_id: number;
+			athlete_id: string;
 		}>();
 		if (!stored) throw new CorrectionRefused("correction_missing");
 		athleteId = stored.athlete_id;
@@ -196,10 +197,7 @@ export async function correctionChange(
 		result.badges.length > 0 ? [result.athleteId] : [],
 	);
 	const own = result.rose || result.badges.length > 0 ? [result.athleteId] : [];
-	await notifyRiders(
-		ctx,
-		[...new Set([...own, ...team])].sort((a, b) => a - b),
-	);
+	await notifyRiders(ctx, [...new Set([...own, ...team])].sort(compareIds));
 	return result;
 }
 

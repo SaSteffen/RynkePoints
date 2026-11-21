@@ -20,7 +20,7 @@ export const NOTIFY_MAX_ATTEMPTS = 4;
 /** Queues one `send-notification` per device of these riders. Never throws. */
 export async function notifyRiders(
 	ctx: Ctx,
-	athleteIds: number[],
+	athleteIds: string[],
 ): Promise<void> {
 	if (athleteIds.length === 0) return;
 	try {

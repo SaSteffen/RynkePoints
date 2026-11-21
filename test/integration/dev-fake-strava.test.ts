@@ -24,6 +24,7 @@ import { CONSENT_VERSION } from "../../src/consent";
 import { escapeHtml } from "../../src/http/html";
 import { clearSessionCookie } from "../../src/http/session";
 import { de } from "../../src/i18n/messages/de";
+import { compareIds, parseStravaJson } from "../../src/strava/id";
 import {
 	type AccessKeys,
 	accessKeys,
@@ -49,7 +50,7 @@ import { NOW } from "../support/fixtures";
 // stays underneath the dev entry's interceptor and fails the test otherwise.
 
 const LOCAL = "http://localhost:8789";
-const TINA = 990004;
+const TINA = "990004";
 const ALL_SCOPES = ["read", "activity:read", "activity:read_all"];
 
 let ctx: TestCtx;
@@ -61,7 +62,7 @@ function devCtx(): TestCtx {
 	return { ...makeCtx(), env: devEnv };
 }
 
-function rider(athleteId: number) {
+function rider(athleteId: string) {
 	const found = SAMPLE_RIDERS.find((r) => r.athleteId === athleteId);
 	if (!found) throw new Error(`no sample rider ${athleteId}`);
 	return found;
@@ -130,7 +131,7 @@ async function count(sql: string, ...params: unknown[]): Promise<number> {
 }
 
 /** The Overview, Rides and the badges, which split the old `/me` (feature 011). */
-async function mePage(athleteId: number): Promise<string> {
+async function mePage(athleteId: string): Promise<string> {
 	const cookies = await sessionCookie(ctx, athleteId);
 	let page = "";
 	for (const path of ["/me", "/me/rides", "/me/badges"]) {
@@ -249,13 +250,13 @@ describe("another team's samples (026 FR-050)", { timeout: 20_000 }, () => {
 		expect(page).toContain(escapeHtml("Tuuli TrainingDone"));
 		expect(page).not.toContain("Tina TrainingDone");
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id FROM riders ORDER BY athlete_id",
-		).all<{ athlete_id: number }>();
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders ORDER BY riders.athlete_id",
+		).all<{ athlete_id: string }>();
 		expect(results.map((r) => r.athlete_id)).toEqual(
 			EUROPE_SAMPLES.riders
 				.filter((r) => r.clubMember || r.guest)
 				.map((r) => r.athleteId)
-				.sort((a, b) => a - b),
+				.sort(compareIds),
 		);
 		expect(
 			await count("SELECT COUNT(*) AS n FROM riders WHERE organiser = 1"),
@@ -369,23 +370,23 @@ describe("every badge at /_dev/badges (013)", () => {
 
 // Seeding every sample rider again, as above.
 describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
-	const IDA = 990001;
-	const NORA = 990002;
-	const FIONA = 990003;
-	const VERA = 990005;
-	const REX = 990006;
-	const PAULA = 990007;
-	const OLLI = 990008;
-	const REMY = 990009;
-	const NOAH = 990010;
-	const OLGA = 990011;
+	const IDA = "990001";
+	const NORA = "990002";
+	const FIONA = "990003";
+	const VERA = "990005";
+	const REX = "990006";
+	const PAULA = "990007";
+	const OLLI = "990008";
+	const REMY = "990009";
+	const NOAH = "990010";
+	const OLGA = "990011";
 
 	async function seeded() {
 		expect((await get("/_dev/")).status).toBe(200);
 		await drain();
 	}
 
-	async function riderRow(athleteId: number) {
+	async function riderRow(athleteId: string) {
 		return env.DB.prepare(
 			"SELECT status, import_status, scope_read_all FROM riders WHERE athlete_id = ?",
 		)
@@ -397,7 +398,7 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 			}>();
 	}
 
-	async function balance(athleteId: number) {
+	async function balance(athleteId: string) {
 		return env.DB.prepare(
 			"SELECT training_rynke, training_without_virtual FROM rynke_balances WHERE athlete_id = ?",
 		)
@@ -406,7 +407,7 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 	}
 
 	/** Connect as `athleteId` through /_dev/ and the stand-in screen. */
-	async function connectAs(athleteId: number, scopes: string[]) {
+	async function connectAs(athleteId: string, scopes: string[]) {
 		const started = await post("/_dev/connect", [
 			["athleteId", String(athleteId)],
 		]);
@@ -428,12 +429,12 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 	it("stores every club member and the guest, nobody else", async () => {
 		await seeded();
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id FROM riders ORDER BY athlete_id",
-		).all<{ athlete_id: number }>();
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders ORDER BY riders.athlete_id",
+		).all<{ athlete_id: string }>();
 		expect(results.map((r) => r.athlete_id)).toEqual(
 			SAMPLE_RIDERS.filter((r) => r.athleteId !== NOAH)
 				.map((r) => r.athleteId)
-				.sort((a, b) => a - b),
+				.sort(compareIds),
 		);
 	});
 
@@ -477,8 +478,8 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 	it("flags Tina TrainingDone and Olga Organiser as the organisers (004 research R10)", async () => {
 		await seeded();
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id FROM riders WHERE organiser = 1 ORDER BY athlete_id",
-		).all<{ athlete_id: number }>();
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id FROM riders WHERE organiser = 1 ORDER BY riders.athlete_id",
+		).all<{ athlete_id: string }>();
 		expect(results.map((r) => r.athlete_id)).toEqual([TINA, OLGA]);
 		const res = await get("/organiser", await sessionCookie(ctx, OLGA));
 		expect(res.status).toBe(200);
@@ -526,7 +527,7 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 	// tour day.
 	it("gives each rider their own tour days, up to a pretended day (021)", async () => {
 		await seeded();
-		const tourBadge = async (athleteId: number, day: number) =>
+		const tourBadge = async (athleteId: string, day: number) =>
 			(await mePage(athleteId)).includes(
 				`<div popover id="badge-tour-de-paris-${day}"`,
 			);
@@ -651,10 +652,10 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 				"team-events-1",
 			]),
 		);
-		const page = await mePage(990012);
+		const page = await mePage("990012");
 		expect(page).toContain('<section class="badges"');
 		expect(page).toContain('data-category="technique"');
-		const personal = (await mePage(990002)).match(
+		const personal = (await mePage("990002")).match(
 			/<section id="badges-personal" class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
 		)?.[0];
 		expect(personal).not.toContain('<li class="badge-card" ');
@@ -662,7 +663,7 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 
 	it("shows Nick NearlyThere just short and Carla Complete done (013)", async () => {
 		await seeded();
-		const badgesOf = async (athleteId: number) => {
+		const badgesOf = async (athleteId: string) => {
 			const { results } = await env.DB.prepare(
 				"SELECT badge_id FROM rider_badges WHERE athlete_id = ?",
 			)
@@ -670,8 +671,8 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 				.all<{ badge_id: string }>();
 			return results.map((r) => r.badge_id).sort();
 		};
-		expect(await badgesOf(990013)).toEqual(["training-rynke-1"]);
-		const nick = await mePage(990013);
+		expect(await badgesOf("990013")).toEqual(["training-rynke-1"]);
+		const nick = await mePage("990013");
 		expect(nick).toContain("Noch 1 km");
 		expect(nick).toContain("Noch 10 m");
 
@@ -691,8 +692,8 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 		// A 200 km ride every day with 1,000 m: three stage days in a row, and
 		// September's climbing past 8,848 m (part F).
 		complete.push("surprise-stage-rider", "surprise-everesting");
-		expect(await badgesOf(990014)).toEqual(complete.sort());
-		const carla = await mePage(990014);
+		expect(await badgesOf("990014")).toEqual(complete.sort());
+		const carla = await mePage("990014");
 		const personal =
 			carla.match(
 				/<section id="badges-personal" class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
@@ -719,7 +720,7 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 				990015,
 			),
 		).toBe(2);
-		const page = await mePage(990015);
+		const page = await mePage("990015");
 		expect(page).toContain('data-category="run_length"');
 		expect(page).toContain("Ab 10\u00a0km");
 	});
@@ -765,7 +766,7 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 				990016,
 			),
 		).toBe(2);
-		const page = await mePage(990016);
+		const page = await mePage("990016");
 		expect(page).toContain('data-category="winter_february"');
 		// November and December count nothing before their days; January and
 		// February are over, so their cards show no bar.
@@ -792,7 +793,7 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 		for (const id of ["surprise-festive-500", "surprise-solstice"]) {
 			expect(earned.has(id)).toBe(false);
 		}
-		const page = await mePage(990017);
+		const page = await mePage("990017");
 		expect(page).toContain(escapeHtml(de["badges.surprise.easter.for"]));
 		expect(page).not.toContain(
 			escapeHtml(de["badges.surprise.festive-500.for"]),
@@ -801,7 +802,7 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 
 	it("shows every sample rider the team's badges and progress (013 US4)", async () => {
 		await seeded();
-		for (const athleteId of [990002, 990012]) {
+		for (const athleteId of ["990002", "990012"]) {
 			const res = await get("/me/badges", await sessionCookie(ctx, athleteId));
 			expect(res.status).toBe(200);
 			const page = await res.text();
@@ -816,7 +817,7 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 	it("enters the shared team events, recorded by Tina TrainingDone (014)", async () => {
 		await seeded();
 		const { results } = await env.DB.prepare(
-			`SELECT e.name, e.changed_by, COUNT(a.athlete_id) AS riders
+			`SELECT e.name, CAST(e.changed_by AS TEXT) AS changed_by, COUNT(a.athlete_id) AS riders
 			FROM team_events e JOIN attendances a ON a.event_id = e.event_id
 			WHERE e.name IN ('Sample team ride', 'Sample training weekend')
 			GROUP BY e.event_id ORDER BY e.name`,
@@ -890,8 +891,8 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 });
 
 describe("simulated Strava events (US3)", () => {
-	const FIONA = 990003;
-	const OLLI = 990008;
+	const FIONA = "990003";
+	const OLLI = "990008";
 
 	async function event(fields: [string, string][]) {
 		const res = await post("/_dev/events", fields);
@@ -905,21 +906,23 @@ describe("simulated Strava events (US3)", () => {
 		await drain();
 	}
 
-	async function training(athleteId: number): Promise<number> {
+	async function training(athleteId: string): Promise<number> {
 		return count(
 			"SELECT training_rynke AS n FROM rynke_balances WHERE athlete_id = ?",
 			athleteId,
 		);
 	}
 
-	async function newestFake(athleteId: number): Promise<number> {
-		return count(
-			"SELECT MAX(id) AS n FROM fake_strava_activities WHERE athlete_id = ?",
-			athleteId,
-		);
+	async function newestFake(athleteId: string): Promise<string> {
+		const id = await env.DB.prepare(
+			"SELECT CAST(MAX(id) AS TEXT) AS id FROM fake_strava_activities WHERE athlete_id = ?",
+		)
+			.bind(athleteId)
+			.first<string>("id");
+		return id ?? "";
 	}
 
-	async function stored(activityId: number): Promise<number> {
+	async function stored(activityId: string): Promise<number> {
 		return count(
 			"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id = ?",
 			activityId,
@@ -1105,11 +1108,13 @@ describe("simulated Strava events (US3)", () => {
 	});
 
 	it("drops a ride turned private for a rider without activity:read_all", async () => {
-		const id = await count(
-			`SELECT MIN(a.strava_activity_id) AS n FROM activities a
-			WHERE a.athlete_id = ? AND a.is_private = 0`,
-			OLLI,
-		);
+		const id =
+			(await env.DB.prepare(
+				`SELECT CAST(MIN(a.strava_activity_id) AS TEXT) AS id FROM activities a
+				WHERE a.athlete_id = ? AND a.is_private = 0`,
+			)
+				.bind(OLLI)
+				.first<string>("id")) ?? "";
 		expect(await stored(id)).toBe(1);
 		await event([
 			["athleteId", String(OLLI)],
@@ -1298,13 +1303,13 @@ describe("the overview and a rider's page (027 FR-051)", () => {
 			expect(page).toContain(button);
 		}
 		const shown = new Set(
-			[...page.matchAll(/<option value="(\d+)">/g)].map(([, id]) => Number(id)),
+			[...page.matchAll(/<option value="(\d+)">/g)].map(([, id]) => id),
 		);
 		const { results } = await env.DB.prepare(
-			"SELECT id FROM fake_strava_activities WHERE athlete_id = ?",
+			"SELECT CAST(id AS TEXT) AS id FROM fake_strava_activities WHERE athlete_id = ?",
 		)
 			.bind(TINA)
-			.all<{ id: number }>();
+			.all<{ id: string }>();
 		expect(shown).toEqual(new Set(results.map((r) => r.id)));
 		expect(page).toContain(`value="${TINA}"`);
 		expect(page).toContain('href="/_dev/"');
@@ -1334,12 +1339,12 @@ describe("links to Strava (008 research R9)", () => {
 		await drain();
 	});
 
-	async function fakeRides(athleteId: number) {
+	async function fakeRides(athleteId: string) {
 		const { results } = await env.DB.prepare(
-			"SELECT id, json_extract(body, '$.name') AS name FROM fake_strava_activities WHERE athlete_id = ?",
+			"SELECT CAST(id AS TEXT) AS id, json_extract(body, '$.name') AS name FROM fake_strava_activities WHERE athlete_id = ?",
 		)
 			.bind(athleteId)
-			.all<{ id: number; name: string }>();
+			.all<{ id: string; name: string }>();
 		return new Map(results.map((r) => [r.id, r.name]));
 	}
 
@@ -1352,7 +1357,7 @@ describe("links to Strava (008 research R9)", () => {
 		expect(hrefs.length).toBeGreaterThan(0);
 		const ids = await fakeRides(TINA);
 		for (const href of hrefs) {
-			const id = Number(href.match(/^\/_dev\/strava\/activities\/(\d+)$/)?.[1]);
+			const id = href.match(/^\/_dev\/strava\/activities\/(\d+)$/)?.[1] ?? "";
 			expect(ids.has(id)).toBe(true);
 		}
 	});
@@ -1438,11 +1443,15 @@ describe("behind the local gateway", () => {
 		).searchParams.get("flash");
 		expect(flash).toMatch(/answered 200/);
 		expect(posted).toHaveLength(1);
-		expect(JSON.parse(posted[0]?.body ?? "{}")).toMatchObject({
+		// Numbers with every digit, as Strava sends them (feature 042).
+		expect(
+			parseStravaJson(posted[0]?.body ?? "{}", ["object_id", "owner_id"]),
+		).toMatchObject({
 			object_type: "activity",
 			aspect_type: "create",
 			owner_id: TINA,
 		});
+		expect(posted[0]?.body).toContain(`"owner_id":${TINA}`);
 		// The gateway forwards it back later; the webhook wasn't called in-process.
 		expect(
 			ctx.queue.sent.filter(

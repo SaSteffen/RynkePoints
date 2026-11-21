@@ -36,7 +36,7 @@ describe("isCycling", () => {
 describe("toActivityRecord", () => {
 	it("maps the allow-listed fields", () => {
 		const activity = makeStravaActivity({
-			id: 7001,
+			id: "7001",
 			sport_type: "GravelRide",
 			start_date: "2026-10-05T07:30:00Z",
 			start_date_local: "2026-10-05T09:30:00Z",
@@ -51,7 +51,7 @@ describe("toActivityRecord", () => {
 			private: false,
 		});
 		expect(toActivityRecord(activity, ATHLETE_A, NOW)).toEqual({
-			strava_activity_id: 7001,
+			strava_activity_id: "7001",
 			athlete_id: ATHLETE_A,
 			sport_type: "GravelRide",
 			start_date: "2026-10-05T07:30:00Z",
@@ -191,9 +191,9 @@ describe("toRunRecord (feature 013 FR-020, research R11)", () => {
 		});
 
 	it("keeps outdoor runs and trail runs with only the runs columns", () => {
-		const activity = run({ id: 42 });
+		const activity = run({ id: "42" });
 		expect(toRunRecord(activity, ATHLETE_A, NOW)).toEqual({
-			strava_activity_id: 42,
+			strava_activity_id: "42",
 			athlete_id: ATHLETE_A,
 			start_date: activity.start_date,
 			start_date_local: activity.start_date_local,
@@ -244,9 +244,9 @@ describe("toSwimRecord (feature 013 FR-024, research R26)", () => {
 		});
 
 	it("keeps swims with only the swims columns", () => {
-		const activity = swim({ id: 43 });
+		const activity = swim({ id: "43" });
 		expect(toSwimRecord(activity, ATHLETE_A, NOW)).toEqual({
-			strava_activity_id: 43,
+			strava_activity_id: "43",
 			athlete_id: ATHLETE_A,
 			start_date: activity.start_date,
 			start_date_local: activity.start_date_local,

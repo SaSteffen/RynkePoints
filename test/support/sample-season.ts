@@ -107,7 +107,7 @@ export async function pageText(markup: string): Promise<string> {
 }
 
 /** The session cookie header of a seeded rider. */
-export async function riderCookie(athleteId: number): Promise<string> {
+export async function riderCookie(athleteId: string): Promise<string> {
 	const cookies = await sessionCookie(seasonCtx, athleteId);
 	return Object.entries(cookies)
 		.map(([k, v]) => `${k}=${v}`)

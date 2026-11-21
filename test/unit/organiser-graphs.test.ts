@@ -16,7 +16,7 @@ const window = {
 const TODAY = "2026-03-01";
 
 const rider = (
-	id: number,
+	id: string,
 	name: string,
 	status: GraphRider["status"] = "push",
 ): GraphRider => ({
@@ -28,7 +28,7 @@ const rider = (
 
 function view(
 	rows: {
-		athleteId: number;
+		athleteId: string;
 		days: DayEntry[];
 		virtualDays?: VirtualDayEntry[];
 	}[],
@@ -50,7 +50,7 @@ describe("organiserGraphsView", () => {
 		// The row already sums the day: 30 km of which 12.4 km virtual.
 		const { riders } = view([
 			{
-				athleteId: 1,
+				athleteId: "1",
 				days: [["2026-01-03", 30000.4, 3, 2505]],
 				virtualDays: [["2026-01-03", 12400.2]],
 			},
@@ -61,7 +61,7 @@ describe("organiserGraphsView", () => {
 	it("puts elevation from virtual and outdoor rides in the same figure", () => {
 		const { riders } = view([
 			{
-				athleteId: 1,
+				athleteId: "1",
 				days: [
 					["2026-01-03", 10000, 1, 100],
 					["2026-01-04", 10000, 1, 50],
@@ -77,13 +77,13 @@ describe("organiserGraphsView", () => {
 
 	it("totals the team over all agreed riders, densely", () => {
 		const { teamSum, agreedCount, lastDay } = view([
-			{ athleteId: 1, days: [["2026-01-02", 1000, 1, 10]] },
+			{ athleteId: "1", days: [["2026-01-02", 1000, 1, 10]] },
 			{
-				athleteId: 2,
+				athleteId: "2",
 				days: [["2026-01-02", 2000, 1, 20]],
 				virtualDays: [["2026-01-02", 500]],
 			},
-			{ athleteId: 3, days: [] },
+			{ athleteId: "3", days: [] },
 		]);
 		expect(agreedCount).toBe(3);
 		expect(lastDay).toBe(TODAY);
@@ -95,7 +95,7 @@ describe("organiserGraphsView", () => {
 	});
 
 	it("has no riders, zero agreed and empty sums when nobody agreed", () => {
-		const result = view([], [rider(1, "Ada"), rider(2, "Ben", "in")]);
+		const result = view([], [rider("1", "Ada"), rider("2", "Ben", "in")]);
 		expect(result.agreedCount).toBe(0);
 		expect(result.riders).toEqual([]);
 		expect(result.teamSum.outdoorM.every((v) => v === 0)).toBe(true);
@@ -104,11 +104,11 @@ describe("organiserGraphsView", () => {
 
 	it("keeps an agreed rider without rows, and lists who hasn't agreed by name only", () => {
 		const result = view(
-			[{ athleteId: 1, days: [] }],
-			[rider(1, "Ada"), rider(2, "Ben", "on_track")],
+			[{ athleteId: "1", days: [] }],
+			[rider("1", "Ada"), rider("2", "Ben", "on_track")],
 		);
 		expect(result.riders).toEqual([
-			expect.objectContaining({ id: 1, name: "Ada", days: [] }),
+			expect.objectContaining({ id: "1", name: "Ada", days: [] }),
 		]);
 		expect(result.notAgreed).toEqual([
 			{ name: "Ben", status: "on_track", requests: false },
@@ -119,7 +119,7 @@ describe("organiserGraphsView", () => {
 		const { riders } = view(
 			[
 				{
-					athleteId: 1,
+					athleteId: "1",
 					days: [
 						["2025-12-31", 1000, 1, 10],
 						["2026-07-01", 1000, 1, 10],
@@ -136,7 +136,7 @@ describe("organiserGraphsView", () => {
 	it("clamps a day past today to the last day, so the sums stay complete", () => {
 		const { riders, teamSum } = view([
 			{
-				athleteId: 1,
+				athleteId: "1",
 				days: [
 					["2026-03-01", 1000, 1, 10],
 					["2026-03-02", 500, 1, 5],
@@ -153,7 +153,7 @@ describe("organiserGraphsView", () => {
 			["2026-02-05", 50000.2, 5, 1000],
 		];
 		const { riders } = view([
-			{ athleteId: 1, days, virtualDays: [["2026-02-05", 50000.2]] },
+			{ athleteId: "1", days, virtualDays: [["2026-02-05", 50000.2]] },
 		]);
 		const sums = (riders[0]?.days ?? []).reduce(
 			(sum, [, outdoor, virtual, elevation]) => ({
@@ -183,7 +183,7 @@ describe("organiserGraphsView", () => {
 		const graphs = organiserGraphsView({
 			rows: [
 				{
-					athleteId: 1,
+					athleteId: "1",
 					days: [
 						["2026-09-15", 60000, 0, 4500],
 						["2027-01-02", 30000, 3, 1000],
@@ -191,7 +191,7 @@ describe("organiserGraphsView", () => {
 					virtualDays: [],
 				},
 			],
-			riders: [rider(1, "R1")],
+			riders: [rider("1", "R1")],
 			requests: new Map(),
 			window: {
 				seasonStart: "2026-09-01",
@@ -200,7 +200,7 @@ describe("organiserGraphsView", () => {
 			},
 			today: "2027-01-02",
 			group: null,
-			rides: new Map([[1, [["2026-09-15", 60000, 4500]]]]),
+			rides: new Map([["1", [["2026-09-15", 60000, 4500]]]]),
 		});
 		expect(graphs.firstDay).toBe("2026-09-01");
 		expect(graphs.windowStart).toBe("2027-01-01");

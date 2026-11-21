@@ -14,7 +14,7 @@ export function pushEndpoint(n: number, host = "fcm.googleapis.com"): string {
 
 /** Inserts a registration straight into D1; returns its `subscription_id`. */
 export async function seedSubscription(
-	athleteId: number,
+	athleteId: string,
 	endpoint: string,
 	createdAt = NOW,
 ): Promise<number> {

@@ -54,7 +54,7 @@ describe("worker wiring", () => {
 		const body: WorkMessage = {
 			kind: "activity-event",
 			athleteId: ATHLETE_A,
-			activityId: 7_400_001,
+			activityId: "7400001",
 			aspect: "create",
 			changed: [],
 		};

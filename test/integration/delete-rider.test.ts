@@ -30,6 +30,7 @@ import {
 	NOW,
 } from "../support/fixtures";
 import { pushEndpoint, seedSubscription } from "../support/push";
+import { stravaJson } from "../support/strava-json";
 
 const DEAUTHORIZED: DeleteRiderMessage = {
 	kind: "delete-rider",
@@ -134,7 +135,7 @@ describe("deauthorization webhook", () => {
 			new Request(`${ORIGIN}/strava/webhook/test-verify-token`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
+				body: stravaJson({
 					object_type: "athlete",
 					object_id: ATHLETE_A,
 					aspect_type: "update",
@@ -220,7 +221,7 @@ describe("delete-rider", () => {
 		await seedSubscription(ATHLETE_B, pushEndpoint(3));
 		await deauthorized();
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id, endpoint FROM push_subscriptions",
+			"SELECT CAST(athlete_id AS TEXT) AS athlete_id, endpoint FROM push_subscriptions",
 		).all();
 		expect(results).toEqual([
 			{ athlete_id: ATHLETE_B, endpoint: pushEndpoint(3) },

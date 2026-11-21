@@ -26,6 +26,7 @@ import {
 	evaluateAttendance,
 } from "../../src/rynke/team-events";
 import type { ActivityRecord } from "../../src/strava/activity";
+import { compareIds } from "../../src/strava/id";
 import { ATHLETE_A, NOW } from "./fixtures";
 import { CURRENT_RULES } from "./team-rules";
 
@@ -34,12 +35,12 @@ import { CURRENT_RULES } from "./team-rules";
 
 /** A stored activity in human units; a 2 h, 40 km ride on 2026-05-01. */
 export function activityRecord(
-	id: number,
+	id: string | number,
 	overrides: Partial<ActivityRecord> = {},
 ): ActivityRecord {
 	const start = overrides.start_date ?? "2026-05-01T08:00:00Z";
 	return {
-		strava_activity_id: id,
+		strava_activity_id: String(id),
 		athlete_id: ATHLETE_A,
 		sport_type: "Ride",
 		start_date: start,
@@ -61,7 +62,7 @@ export function activityRecord(
 
 export async function resultRows(athleteId = ATHLETE_A) {
 	const { results } = await env.DB.prepare(
-		"SELECT * FROM ride_results WHERE athlete_id = ? ORDER BY strava_activity_id",
+		"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id, CAST(overlaps_activity_id AS TEXT) AS overlaps_activity_id, CAST(strava_activity_id AS TEXT) AS strava_activity_id FROM ride_results WHERE athlete_id = ? ORDER BY strava_activity_id",
 	)
 		.bind(athleteId)
 		.all<Record<string, unknown>>();
@@ -69,7 +70,9 @@ export async function resultRows(athleteId = ATHLETE_A) {
 }
 
 export async function balanceRow(athleteId = ATHLETE_A) {
-	return env.DB.prepare("SELECT * FROM rynke_balances WHERE athlete_id = ?")
+	return env.DB.prepare(
+		"SELECT *, CAST(athlete_id AS TEXT) AS athlete_id FROM rynke_balances WHERE athlete_id = ?",
+	)
 		.bind(athleteId)
 		.first<Record<string, unknown>>();
 }
@@ -100,7 +103,7 @@ export async function insertEvent(
 /** Attendance written with plain SQL, as the maintainer does (R22). */
 export async function attendRaw(
 	eventId: number,
-	athleteIds: number[],
+	athleteIds: string[],
 ): Promise<void> {
 	await env.DB.batch(
 		athleteIds.map((athleteId) =>
@@ -114,7 +117,7 @@ export async function attendRaw(
 /** A participation report written with plain SQL (feature 019). */
 export async function reportRaw(
 	eventId: number,
-	athleteId: number,
+	athleteId: string,
 	at = NOW,
 ): Promise<void> {
 	await env.DB.prepare(
@@ -138,8 +141,8 @@ export async function storedAttendance(
 /** Every `attendances` row, for "no evaluation changes attendance" (FR-026). */
 export async function attendanceRows() {
 	const { results } = await env.DB.prepare(
-		"SELECT event_id, athlete_id FROM attendances ORDER BY event_id, athlete_id",
-	).all<{ event_id: number; athlete_id: number }>();
+		"SELECT event_id, CAST(athlete_id AS TEXT) AS athlete_id FROM attendances ORDER BY event_id, attendances.athlete_id",
+	).all<{ event_id: number; athlete_id: string }>();
 	return results;
 }
 
@@ -196,7 +199,7 @@ export async function expectConsistent(
 		rideFromRow,
 	);
 	expect(results.map((r) => r.activityId)).toEqual(
-		rides.map((r) => r.activityId).sort((a, b) => a - b),
+		rides.map((r) => r.activityId).sort(compareIds),
 	);
 
 	const counting = results.filter((r) => r.counts);

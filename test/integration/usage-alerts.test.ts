@@ -154,7 +154,7 @@ describe("what doesn't alert", () => {
 });
 
 describe("the usage alerts switch (scenarios 7 to 9, FR-039)", () => {
-	const switchOff = (athleteId: number) =>
+	const switchOff = (athleteId: string) =>
 		env.DB.prepare("UPDATE riders SET admin_alerts = 0 WHERE athlete_id = ?")
 			.bind(athleteId)
 			.run();

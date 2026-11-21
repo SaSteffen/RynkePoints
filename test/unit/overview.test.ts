@@ -62,7 +62,7 @@ function balance(training: number, team: number, outdoor: number): Balance {
 }
 
 function rider(
-	athleteId: number,
+	athleteId: string,
 	firstName: string,
 	b: Balance | null,
 	corrections: TeamRider["corrections"] = [],
@@ -77,18 +77,18 @@ function rider(
 	};
 }
 
-const QUALIFIED = rider(1, "Paula", balance(300, 30, 250));
-const ON_TRACK = rider(2, "Jonas", balance(200, 20, 150));
-const BEHIND = rider(3, "Jonas", balance(100, 20, 100), [
+const QUALIFIED = rider("1", "Paula", balance(300, 30, 250));
+const ON_TRACK = rider("2", "Jonas", balance(200, 20, 150));
+const BEHIND = rider("3", "Jonas", balance(100, 20, 100), [
 	{ date: "2026-02-01", training: 10, team: 0 },
 	{ date: "2026-03-01", training: -4, team: 2 },
 ]);
-const NO_BALANCE = rider(4, "Mira", null);
+const NO_BALANCE = rider("4", "Mira", null);
 const READ = [QUALIFIED, ON_TRACK, BEHIND, NO_BALANCE];
 
 describe("overviewRiders", () => {
 	const riders = overviewRiders(READ, CURRENT_RULES, RUNNING, TODAY);
-	const byId = (id: number) => riders.find((r) => r.athleteId === id);
+	const byId = (id: string) => riders.find((r) => r.athleteId === id);
 
 	it("gives each rider riderStatus's group", () => {
 		for (const r of READ) {
@@ -97,20 +97,20 @@ describe("overviewRiders", () => {
 			);
 		}
 		expect(riders.map((r) => [r.athleteId, r.status])).toContainEqual([
-			1,
+			"1",
 			"in",
 		]);
-		expect(byId(2)?.status).toBe("on_track");
-		expect(byId(3)?.status).toBe("push");
-		expect(byId(4)?.status).toBe("push");
+		expect(byId("2")?.status).toBe("on_track");
+		expect(byId("3")?.status).toBe("push");
+		expect(byId("4")?.status).toBe("push");
 	});
 
 	it("puts the ones missing the most first", () => {
-		expect(riders.map((r) => r.athleteId)).toEqual([4, 3, 2, 1]);
+		expect(riders.map((r) => r.athleteId)).toEqual(["4", "3", "2", "1"]);
 	});
 
 	it("takes the figures and missing amounts from the stored balance", () => {
-		expect(byId(3)).toMatchObject({
+		expect(byId("3")).toMatchObject({
 			firstName: "Jonas",
 			training: 100,
 			team: 20,
@@ -122,12 +122,12 @@ describe("overviewRiders", () => {
 				outdoor: { amount: 67, behind: false },
 			},
 		});
-		expect(byId(1)?.missing).toEqual({
+		expect(byId("1")?.missing).toEqual({
 			training: { amount: 0, behind: false },
 			team: { amount: 0, behind: false },
 			outdoor: { amount: 0, behind: false },
 		});
-		expect(byId(4)).toMatchObject({
+		expect(byId("4")).toMatchObject({
 			training: 0,
 			missing: {
 				training: { amount: 250, behind: true },
@@ -138,7 +138,7 @@ describe("overviewRiders", () => {
 	});
 
 	it("holds the breakdown, with corrections summed from the read", () => {
-		expect(byId(3)?.breakdown).toEqual({
+		expect(byId("3")?.breakdown).toEqual({
 			distanceRynke: 80,
 			elevationRynke: 15,
 			teamEvents: BEHIND.balance?.teamEvents,
@@ -146,8 +146,8 @@ describe("overviewRiders", () => {
 			virtualShare: 0,
 		});
 		// 300 Training, 250 of them outdoors: 50 virtual, 17 %.
-		expect(byId(1)?.breakdown.virtualShare).toBe(17);
-		expect(byId(4)?.breakdown).toMatchObject({
+		expect(byId("1")?.breakdown.virtualShare).toBe(17);
+		expect(byId("4")?.breakdown).toMatchObject({
 			distanceRynke: 0,
 			teamEvents: [],
 			virtualShare: 0,
@@ -157,7 +157,7 @@ describe("overviewRiders", () => {
 	// Review L-02: the same corrections as the balance counts.
 	it("sums only the corrections dated inside the window", () => {
 		const read = [
-			rider(5, "Lena", balance(100, 20, 100), [
+			rider("5", "Lena", balance(100, 20, 100), [
 				{ date: "2025-12-31", training: 40, team: 5 },
 				{ date: "2026-01-01", training: 10, team: 0 },
 				{ date: "2026-05-31", training: 0, team: 2 },
@@ -171,9 +171,9 @@ describe("overviewRiders", () => {
 	});
 
 	it("links the profile only for a shared first name (014 withProfileLinks)", () => {
-		expect(byId(2)?.profileLink).toBe("https://www.strava.com/athletes/2");
-		expect(byId(3)?.profileLink).toBe("https://www.strava.com/athletes/3");
-		expect(byId(1)?.profileLink).toBeNull();
+		expect(byId("2")?.profileLink).toBe("https://www.strava.com/athletes/2");
+		expect(byId("3")?.profileLink).toBe("https://www.strava.com/athletes/3");
+		expect(byId("1")?.profileLink).toBeNull();
 	});
 
 	it("has no even pace and no one on track once the deadline has passed", () => {
@@ -468,17 +468,17 @@ describe("the overview without Team Rynke", () => {
 		};
 	}
 
-	const PAULA = rider(1, "Paula", noTeamBalance(300, 250));
-	const JONAS = rider(2, "Jonas", noTeamBalance(150, 100), [
+	const PAULA = rider("1", "Paula", noTeamBalance(300, 250));
+	const JONAS = rider("2", "Jonas", noTeamBalance(150, 100), [
 		{ date: "2026-02-01", training: 10, team: 0 },
 		{ date: "2026-03-01", training: -4, team: 0 },
 	]);
-	const MIRA = rider(3, "Mira", null);
+	const MIRA = rider("3", "Mira", null);
 	const READ_NO_TEAM = [PAULA, JONAS, MIRA];
 
 	describe("overviewRiders", () => {
 		const riders = overviewRiders(READ_NO_TEAM, NO_TEAM, RUNNING, TODAY);
-		const byId = (id: number) => riders.find((r) => r.athleteId === id);
+		const byId = (id: string) => riders.find((r) => r.athleteId === id);
 
 		it("leaves out each rider's Team amount, missing, pace and events", () => {
 			for (const r of riders) {
@@ -495,7 +495,7 @@ describe("the overview without Team Rynke", () => {
 		});
 
 		it("keeps Training and outdoor Training as they are", () => {
-			expect(byId(2)).toMatchObject({
+			expect(byId("2")).toMatchObject({
 				training: 150,
 				outdoorTraining: 100,
 				missing: {
@@ -503,8 +503,11 @@ describe("the overview without Team Rynke", () => {
 					outdoor: { amount: 67, behind: false },
 				},
 			});
-			expect(byId(2)?.breakdown.corrections).toEqual({ training: 6, team: 0 });
-			expect(byId(3)?.missing).toMatchObject({
+			expect(byId("2")?.breakdown.corrections).toEqual({
+				training: 6,
+				team: 0,
+			});
+			expect(byId("3")?.missing).toMatchObject({
 				training: { amount: 250, behind: true },
 				outdoor: { amount: 167, behind: true },
 			});
@@ -512,14 +515,14 @@ describe("the overview without Team Rynke", () => {
 
 		it("groups and orders by Training and outdoor Training alone", () => {
 			// Jonas is above both even paces; with Team Rynke 0 would be behind.
-			expect(byId(2)?.status).toBe("on_track");
+			expect(byId("2")?.status).toBe("on_track");
 			expect(
 				overviewRiders(READ_NO_TEAM, CURRENT_RULES, RUNNING, TODAY).find(
-					(r) => r.athleteId === 2,
+					(r) => r.athleteId === "2",
 				)?.status,
 			).toBe("push");
-			expect(byId(1)?.status).toBe("in");
-			expect(riders.map((r) => r.athleteId)).toEqual([3, 2, 1]);
+			expect(byId("1")?.status).toBe("in");
+			expect(riders.map((r) => r.athleteId)).toEqual(["3", "2", "1"]);
 		});
 
 		it("is the founding team's with Team Rynke", () => {
@@ -657,14 +660,14 @@ describe("the overview without Training needed outdoors", () => {
 			qualified: b.trainingMissing === 0 && b.teamMissing === 0,
 		};
 	};
-	const VERA = rider(1, "Vera", allVirtual(300, 30));
-	const OLE = rider(2, "Ole", allVirtual(100, 20));
+	const VERA = rider("1", "Vera", allVirtual(300, 30));
+	const OLE = rider("2", "Ole", allVirtual(100, 20));
 
 	it("misses no outdoor Training and groups by the rest", () => {
 		const riders = overviewRiders([VERA, OLE], NONE, RUNNING, TODAY);
 		for (const r of riders) expect(r.missing.outdoor.amount).toBe(0);
-		expect(riders.find((r) => r.athleteId === 1)?.status).toBe("in");
-		expect(riders.find((r) => r.athleteId === 2)?.status).toBe("push");
+		expect(riders.find((r) => r.athleteId === "1")?.status).toBe("in");
+		expect(riders.find((r) => r.athleteId === "2")?.status).toBe("push");
 	});
 
 	it("shows no outdoor figure, reason or amount to go", () => {
@@ -718,15 +721,15 @@ describe("the results kept at the deadline", () => {
 	});
 	const QUALIFYING = balance(300, 30, 250);
 	const READ_KEPT = [
-		keep(rider(1, "Paula", QUALIFYING), true, 300, 30),
+		keep(rider("1", "Paula", QUALIFYING), true, 300, 30),
 		// Qualified then, below the thresholds now.
-		keep(rider(2, "Lena", balance(240, 20, 200)), true, 260, 26),
+		keep(rider("2", "Lena", balance(240, 20, 200)), true, 260, 26),
 		// Not then, qualifies now.
-		keep(rider(3, "Max", QUALIFYING), false, 240, 26),
+		keep(rider("3", "Max", QUALIFYING), false, 240, 26),
 		// A result of an earlier deadline is not this one's.
-		keep(rider(4, "Olga", QUALIFYING), true, 300, 30, "2025-05-31"),
+		keep(rider("4", "Olga", QUALIFYING), true, 300, 30, "2025-05-31"),
 		// Connected after the deadline: no result.
-		rider(5, "Nina", QUALIFYING),
+		rider("5", "Nina", QUALIFYING),
 	];
 	const body = (today: string, read = READ_KEPT, figures?: "percent") =>
 		overviewBody(
@@ -747,12 +750,12 @@ describe("the results kept at the deadline", () => {
 
 	it("reads only the results of this deadline", () => {
 		const riders = overviewRiders(READ_KEPT, CURRENT_RULES, RUNNING, AFTER);
-		const at = (id: number) =>
+		const at = (id: string) =>
 			riders.find((r) => r.athleteId === id)?.atDeadline;
-		expect(at(1)).toEqual({ qualified: true, training: 300, team: 30 });
-		expect(at(3)).toEqual({ qualified: false, training: 240, team: 26 });
-		expect(at(4)).toBeNull();
-		expect(at(5)).toBeNull();
+		expect(at("1")).toEqual({ qualified: true, training: 300, team: 30 });
+		expect(at("3")).toEqual({ qualified: false, training: 240, team: 26 });
+		expect(at("4")).toBeNull();
+		expect(at("5")).toBeNull();
 	});
 
 	it("lists who qualified at the deadline, and who changed since", () => {
@@ -785,7 +788,7 @@ describe("the results kept at the deadline", () => {
 	it("leaves Team out for a team without Team Rynke", () => {
 		const rules = { ...CURRENT_RULES, teamThreshold: null };
 		const html = overviewBody(
-			[keep(rider(2, "Lena", balance(240, 0, 200)), true, 260, 0)],
+			[keep(rider("2", "Lena", balance(240, 0, 200)), true, 260, 0)],
 			rules,
 			RUNNING,
 			AFTER,
@@ -801,7 +804,7 @@ describe("the results kept at the deadline", () => {
 	it("says nobody had qualified when no result did", () => {
 		const html = section(
 			body(AFTER, [
-				keep(rider(3, "Max", balance(240, 20, 200)), false, 240, 20),
+				keep(rider("3", "Max", balance(240, 20, 200)), false, 240, 20),
 			]),
 		);
 		expect(html).toContain(
@@ -813,7 +816,7 @@ describe("the results kept at the deadline", () => {
 	it("keeps the live list before the deadline and without results", () => {
 		expect(section(body(TODAY))).toContain("Training goal reached 🎯");
 		expect(section(body(TODAY))).not.toContain("at the deadline");
-		expect(section(body(AFTER, [rider(1, "Paula", QUALIFYING)]))).toContain(
+		expect(section(body(AFTER, [rider("1", "Paula", QUALIFYING)]))).toContain(
 			"Training goal reached 🎯",
 		);
 	});

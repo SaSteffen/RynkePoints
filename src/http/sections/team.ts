@@ -699,7 +699,7 @@ interface RideRanking {
 
 function rideRanking(
 	riders: readonly RideRider[],
-	viewerId: number,
+	viewerId: string,
 	figure: RideFigure,
 	range: DateRange,
 	ownRides: RideRider | undefined,

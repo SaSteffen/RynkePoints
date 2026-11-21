@@ -24,7 +24,7 @@ import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
 
 const ctx = makeCtx();
 
-async function viewerOf(athleteId: number): Promise<Viewer> {
+async function viewerOf(athleteId: string): Promise<Viewer> {
 	return readViewer(
 		request("/me", { cookies: await sessionCookie(ctx, athleteId) }),
 		ctx,
