@@ -8,9 +8,9 @@ user-invocable: true
 disable-model-invocation: false
 ---
 
-Every release raises the version in `package.json` and adds an entry at the top of
-`CHANGELOG` in `src/changelog.ts` (README "Releasing"). Release PR refuses to open
-while `develop` still has `main`'s version. Merging is always the user's: never run
+Every release raises the version in `package.json` and adds its release at the top
+of `CHANGELOG.md` (README "Releasing"). Release PR refuses to open while `develop`
+still has `main`'s version. Merging is always the user's: never run
 `gh pr merge`, and don't wait for checks. Open the pull request, give the link, and
 stop.
 
@@ -69,10 +69,11 @@ gh pr list --base main --head develop --state open --json url
    git switch --no-track -c chore/release-X.Y.Z origin/develop
    ```
 
-   - In `package.json`, set `"version": "X.Y.Z"`. Change nothing else, in no other
-     file: then CI runs only the changelog's and Settings' tests and no e2e.
-   - In `src/changelog.ts`, add `{ version: "X.Y.Z", changes: [ … ] }` as the first
-     element of `CHANGELOG`.
+   - In `package.json`, set `"version": "X.Y.Z"`.
+   - In `CHANGELOG.md`, add the release above the newest one, in the shape its
+     comment gives: a `## X.Y.Z` heading, a blank line, then one `- ` line per entry.
+   - Change nothing else, in no other file: then CI runs only the changelog's and
+     Settings' tests and no e2e.
    - Run `pnpm exec vitest run test/integration/changelog.test.ts test/integration/settings.test.ts`.
    - Commit as `chore(release): X.Y.Z`, push with `git push -u origin chore/release-X.Y.Z`,
      and open the pull request into `develop` with the same title. Its body is
@@ -105,5 +106,5 @@ gh pr list --base main --head develop --state open --json url
 ## Hotfixes
 
 A hotfix (`hotfix/<name>` from `main`) raises the patch number on its own branch:
-change `package.json` and `src/changelog.ts` there, in a `chore(release): X.Y.Z`
+change `package.json` and `CHANGELOG.md` there, in a `chore(release): X.Y.Z`
 commit. It goes into `main` through its own pull request, not through Release PR.

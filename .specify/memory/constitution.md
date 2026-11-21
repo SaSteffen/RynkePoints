@@ -312,7 +312,7 @@ public and maintained in English.
   language whatever language the rider picks. A team with its own set has it in its
   default language; every other team gets the common set, which is in English and
   isn't translated.
-- The changelog's entries (`src/changelog.ts`) are in English only, whatever language
+- The changelog's entries (`CHANGELOG.md`) are in English only, whatever language
   the rider picks, and the page says so; its headings and labels are catalog text.
   All other user-facing text MUST exist in every shipped locale.
 - Everything else MUST be in English: code, identifiers, comments, log messages,

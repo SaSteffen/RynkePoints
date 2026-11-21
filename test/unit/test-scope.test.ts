@@ -37,10 +37,7 @@ describe("testsFor", () => {
 		".github/workflows/ci.yml",
 		".github/actions/setup/action.yml",
 	])("runs all of them when %s changed", (path) => {
-		const scope = testsFor(
-			["README.md", "src/changelog.ts", path],
-			versionOnly,
-		);
+		const scope = testsFor(["README.md", "CHANGELOG.md", path], versionOnly);
 		expect(scope).toEqual({
 			tests: "all",
 			notice: `test and e2e run: ${path} changed.`,
@@ -48,16 +45,16 @@ describe("testsFor", () => {
 	});
 
 	it("runs only the changelog's for a version pull request", () => {
-		expect(
-			testsFor(["package.json", "src/changelog.ts"], versionOnly).tests,
-		).toBe("changelog");
-		expect(testsFor(["src/changelog.ts", "README.md"], unread).tests).toBe(
+		expect(testsFor(["package.json", "CHANGELOG.md"], versionOnly).tests).toBe(
+			"changelog",
+		);
+		expect(testsFor(["CHANGELOG.md", "README.md"], unread).tests).toBe(
 			"changelog",
 		);
 	});
 
 	it("runs all of them when package.json changed beyond its version", () => {
-		const scope = testsFor(["package.json", "src/changelog.ts"], () => false);
+		const scope = testsFor(["package.json", "CHANGELOG.md"], () => false);
 		expect(scope.tests).toBe("all");
 	});
 

@@ -87,7 +87,7 @@ jobs:
             | "- \(.title) (#\(.number))"
           ' "$RUNNER_TEMP/prs.json" > "$RUNNER_TEMP/body.md"
 
-          # Every release carries a new version (src/changelog.ts, README
+          # Every release carries a new version (CHANGELOG.md, README
           # "Releasing"). The titles say how far it should go at least: a breaking
           # change the major number, a feat the minor, anything else the patch.
           version() {
@@ -97,7 +97,7 @@ jobs:
           released=$(version main)
           next=$(version develop)
           if [ "$next" = "$released" ]; then
-            echo "::error::develop is still at version $released, like main. Raise it in package.json and add the release to src/changelog.ts first."
+            echo "::error::develop is still at version $released, like main. Raise it in package.json and add the release to CHANGELOG.md first."
             exit 1
           fi
           if grep -qE '^- [a-z]+(\([^)]*\))?!:' "$RUNNER_TEMP/body.md"; then

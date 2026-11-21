@@ -372,11 +372,11 @@ Merges into `develop` don't re-run them at all.
 
 On any pull request, the job `scope` skips `test` and `e2e` when every changed
 path is one no test reads: `docs/`, `specs/`, `.specify/`, `.claude/`, `content/`,
-Markdown files at the top level, `LICENSE`, and `.github/` except `ci.yml` and the
+Markdown files at the top level but `CHANGELOG.md`, `LICENSE`, and `.github/` except `ci.yml` and the
 setup action (`scripts/test-scope.mjs`). A skipped job passes its required check.
 `scope` isn't a required check either.
 A version pull request, which changes only the version in `package.json` and
-`src/changelog.ts`, runs just the changelog's and Settings' tests and no `e2e`.
+`CHANGELOG.md`, runs just the changelog's and Settings' tests and no `e2e`.
 
 On a pull request into `develop`, `e2e` runs Chromium and Europe in full, but
 Firefox and WebKit only for the tests tagged `@cross-browser` and the e2e files the
@@ -415,7 +415,7 @@ source of truth.
 Every release has a new [semver](https://semver.org/) version. Settings shows it
 and links to the changelog at `/changelog`. Before a release, open a pull request
 into `develop` that raises `version` in `package.json` and adds the release at
-the top of `src/changelog.ts`, in English, without naming a team. The Conventional
+the top of [CHANGELOG.md](CHANGELOG.md), in English, without naming a team. The Conventional
 Commits since the last release say how far to go: a breaking change (`feat!: …`)
 raises the major number, a `feat` the minor number, anything else the patch number.
 A hotfix raises the patch number on its own branch. **Release PR** stops when

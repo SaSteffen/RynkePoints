@@ -3,8 +3,9 @@
 // changes (deleted ones too) is documentation, specs, Claude Code skills, briefs or
 // GitHub settings that no test reads. Then both jobs are skipped, which their
 // required checks accept. A version pull request (only package.json's version and
-// src/changelog.ts) runs just the tests those touch, and no e2e. A change to ci.yml or the setup action still runs them,
-// and so does any doubt: when git fails, they run.
+// CHANGELOG.md) runs just the tests those touch, and no e2e. A change to ci.yml
+// or the setup action still runs them, and so does any doubt: when git fails,
+// they run.
 //
 // Run in CI on the pull request's merge commit, checked out with fetch-depth 2, so
 // HEAD^1 is the base branch's tip. Writes `tests=all|changelog|none` to $GITHUB_OUTPUT (or
@@ -21,13 +22,13 @@ const NO_TESTS = [
 	/^\.specify\//,
 	/^\.claude\//,
 	/^content\//,
-	/^[^/]+\.md$/, // README.md, CLAUDE.md, REQUIREMENTS.md
+	/^(?!CHANGELOG\.md$)[^/]+\.md$/, // README.md, CLAUDE.md; the app reads CHANGELOG.md
 	/^LICENSE$/,
 	/^\.github\/(?!workflows\/ci\.yml$|actions\/)/,
 ];
 
 /** What a version pull request changes (the `release` skill). */
-const VERSION_FILES = new Set(["package.json", "src/changelog.ts"]);
+const VERSION_FILES = new Set(["package.json", "CHANGELOG.md"]);
 
 /**
  * Which tests a pull request with these changed paths needs, and the notice
