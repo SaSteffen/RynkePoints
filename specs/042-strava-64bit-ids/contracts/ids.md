@@ -3,8 +3,8 @@
 ## Strava → app (responses)
 
 `GET /athlete/activities`, `GET /activities/{id}`, `POST /oauth/token` (its `athlete`): for every
-object with an `id`, the ID is `id_str` when it is a valid ID (data-model.md), else the exact
-digits of `id`. A response whose ID is neither is malformed (as a missing ID is today). Club IDs
+object with an `id`, the ID is the exact digits of `id` and must be a valid ID (data-model.md);
+`id_str` is ignored. A response whose ID isn't valid is malformed (as a missing ID is today). Club IDs
 (`GET /athlete/clubs`) are unchanged numbers.
 
 ## Strava → gateway → app (webhook events)
@@ -26,6 +26,5 @@ converted (messages from the previous version). `subscriptionId`, `page`, `after
 
 ## Fake Strava
 
-Answers and events as Strava: `id` a JSON number with the exact digits, `id_str` the same as text
-on activities and athletes (also the athlete nested in an activity and the one in the token
-answer), `object_id` and `owner_id` numbers only.
+Answers and events as Strava: `id`, `object_id` and `owner_id` JSON numbers with the exact
+digits. No `id_str`, so no part of the app can come to depend on it.

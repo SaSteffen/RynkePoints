@@ -2,8 +2,8 @@
 
 ## R1 — What Strava sends (checked 2026-11-21)
 
-**Decision**: Read `id_str` where it is a valid ID, else the exact digits of `id`. Webhook
-`object_id` and `owner_id` are read from their exact digits.
+**Decision** (maintainer, 2026-11-21): Read every ID from the exact digits of the number: `id` in
+responses, `object_id` and `owner_id` in webhook events. `id_str` is ignored.
 
 **Findings** (Strava's published API schema, `developers.strava.com/swagger/*.json`, and the
 changelog):
@@ -17,19 +17,18 @@ changelog):
 - Changelog 2026-11-13: "Add `id_str` to Activities and Athletes in case your app cannot handle
   64-bit integers."
 
-**Rationale**: `id_str` is what Strava recommends. The fallback to the exact digits of `id` makes
-the app independent of whether every response carries `id_str` yet, and the webhook needs the
-exact-digits reading anyway. With both, no live request is needed for correctness.
+**Rationale**: Strava's string form has a gap: webhook events have none, and the schema's examples
+leave it off some objects. The exact-digits reading is needed for the webhooks anyway; using it for
+every ID gives one way to read IDs, with no case that depends on `id_str` being present. JSON puts
+no limit on a number's size, so the digits Strava sends are the ID. `id` is in every response and
+event today, so no live request is needed.
 
 **Alternatives considered**:
 
-- `id_str` only: breaks on any response without it (nested athletes in the examples, older
-  cached answers).
-- Exact digits of `id` only: correct as well, but ignores Strava's recommendation for no saving;
-  the fallback costs one line.
-- A test request against the real Strava before building: not needed for correctness (above). The
-  maintainer can confirm `id_str` with one read-only request at any time; it isn't part of the
-  build or the tests (CLAUDE.md: no real Strava calls from tests).
+- `id_str` only: breaks on any response without it, and can't cover the webhooks.
+- `id_str` where present, else the exact digits of `id`: two ways of reading the same ID for no
+  gain in exactness.
+- A test request against the real Strava before building: not needed (above).
 
 ## R2 — Reading exact digits from JSON
 
@@ -111,8 +110,8 @@ read as a string. No data is rewritten.
 
 ## R7 — Fake Strava and samples
 
-**Decision**: The fake Strava keeps IDs as strings and writes them like Strava: `id` as a JSON
-number (R3) plus `id_str` on activities and athletes, numbers only in webhook events. Some sample
+**Decision**: The fake Strava keeps IDs as strings and writes them like Strava, as JSON numbers
+with the exact digits (R3), without `id_str` (R1). Some sample
 riders of each team, and the activities of one rider, get large IDs. Test fixtures keep their
 small IDs (as strings) and some tests gain large-ID cases; the D1 safety net (R5) covers every
 query with small IDs already.
@@ -128,5 +127,5 @@ D1, ordering).
 
 ## R9 — Consent
 
-**Decision**: No new consent version. `id_str` is the same value as `id`, which the app already
-reads and stores (constitution Principle I: no new scope, no new kind of request, no new data).
+**Decision**: No new consent version. The app reads the same `id` it already reads and stores,
+only without rounding (constitution Principle I: no new scope, no new kind of request, no new data).

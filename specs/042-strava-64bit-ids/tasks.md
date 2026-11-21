@@ -21,8 +21,9 @@ large-ID tests.
   `^[1-9][0-9]{0,18}$` "and at most 9223372036854775807" and refuses `0`, leading zeros,
   `9223372036854775808`, numbers, fractions; `toStravaId` also accepts a positive safe-integer
   number; `compareIds` orders `"9"` before `"10"` and `"9007199254740992"` before
-  `"9007199254740993"`; `parseStravaJson` keeps exact digits for the named keys and prefers a
-  valid `id_str`; `idJson` writes exact digits as a JSON number
+  `"9007199254740993"`; `parseStravaJson` keeps exact digits for the named keys and ignores
+  `id_str` (a different `id_str` doesn't change the ID); `idJson` writes exact digits as a JSON
+  number
 - [ ] T003 Implement `src/strava/id.ts` (`isStravaId`, `toStravaId`, `compareIds`,
   `parseStravaJson`, `idJson`, `idsJson`) until T002 passes
 - [ ] T004 Add the D1 guard to `test/setup.ts`: any result row (from `first`, `all`, `raw`,
@@ -43,7 +44,7 @@ large-ID tests.
 `9223372036854775807`.
 
 - [ ] T008 [P] [US1] Test in `test/unit/tokens.test.ts` (or the existing token exchange test): a
-  token answer with a large `athlete.id` (with and without `id_str`) yields the exact ID
+  token answer with a large `athlete.id` yields the exact ID
 - [ ] T009 [US1] Read the token answer with `parseStravaJson` in `src/strava/tokens.ts`
 - [ ] T010 [P] [US1] Test in the session tests: a cookie with a large athlete ID round-trips;
   a cookie of the previous version stays valid
@@ -65,8 +66,8 @@ large-ID tests.
 - [ ] T016 [US2] `src/http/webhook.ts` parses with `parseStravaJson`
 - [ ] T017 [P] [US2] Gateway test: an event with large IDs is accepted and forwarded unchanged
 - [ ] T018 [US2] `gateway/index.ts` `isStravaEvent` uses `parseStravaJson` and `isStravaId`
-- [ ] T019 [P] [US2] Client test: list and detail answers with a large `id`, with and without
-  `id_str`, give the exact ID; two IDs that differ beyond 2^53 stay apart
+- [ ] T019 [P] [US2] Client test: list and detail answers with a large `id` give the exact ID;
+  two IDs that differ beyond 2^53 stay apart
 - [ ] T020 [US2] `src/strava/client.ts` reads activity answers with `parseStravaJson` (clubs
   unchanged)
 - [ ] T021 [P] [US2] Message test: string IDs round-trip; a message with number IDs (previous
@@ -81,8 +82,7 @@ large-ID tests.
 
 ## Phase 6: User Story 4 — Everything keeps working (P1)
 
-- [ ] T024 [US4] Fake Strava writes Strava's format (`id` exact number, `id_str`, numbers only in
-  events) in `dev/fake-strava/api.ts`, `dev/fake-strava/events.ts`, `dev/fake-strava/tokens.ts`
+- [ ] T024 [US4] Fake Strava writes IDs as JSON numbers with exact digits, no `id_str`, in `dev/fake-strava/api.ts`, `dev/fake-strava/events.ts`, `dev/fake-strava/tokens.ts`
 - [ ] T025 [US4] Give some sample riders of every team and one rider's activities large IDs in
   `dev/fake-strava/samples.*.ts` / `seed.ts`; e2e still pass
 

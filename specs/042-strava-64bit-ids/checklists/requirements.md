@@ -31,5 +31,5 @@
 
 ## Notes
 
-- The feature is about Strava's API fields by nature: `id`, `id_str`, `object_id` and `owner_id`
+- The feature is about Strava's API fields by nature: `id`, `object_id` and `owner_id` (and `id_str`, which the app ignores)
   are named because they are what the requirement is about, not how it is built.

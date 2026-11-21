@@ -17,8 +17,5 @@ pnpm test:e2e    # fake mode, with sample riders whose IDs are above 2^53
 3. Delete the ride on the fake Strava; it disappears.
 4. Sign out and in again; disconnect; the rider and their rows are gone.
 
-## Optional: confirm `id_str` on the real Strava
-
-Not needed for correctness (research R1). The maintainer can, with their own token, read one page
-of their activities and check that each entry has an `id_str` equal to its `id`. Nothing in the
-build or the tests calls the real Strava.
+No request to the real Strava is needed: the app reads `id`, which every response and event has
+today (research R1).

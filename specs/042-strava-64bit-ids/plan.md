@@ -7,8 +7,8 @@
 ## Summary
 
 Activity and athlete IDs become decimal strings throughout the app, the gateway, the season album
-and the fake Strava. They are read from Strava exactly (`id_str`, else the exact digits of `id`;
-the exact digits of a webhook's `object_id` and `owner_id`), bound to D1 as text into the
+and the fake Strava. They are read from Strava exactly, from the digits of the number (`id`, and a
+webhook's `object_id` and `owner_id`; `id_str` is ignored, research R1), bound to D1 as text into the
 unchanged `INTEGER` columns and read back with `CAST(… AS TEXT)`. One module owns validation,
 numeric comparison and exact JSON reading and writing (research R2–R4). Work and sessions written
 by the previous version are accepted (R6). Some sample riders and fixtures get large IDs (R7).
@@ -41,7 +41,7 @@ mechanical outside `src/strava/id.ts`, the Strava readers, the webhook, the gate
 
 | Principle | Check | Result |
 |---|---|---|
-| I. Privacy and consent | Reads nothing new: `id_str` is the value of `id` (R9). Fixtures and samples stay synthetic | Pass |
+| I. Privacy and consent | Reads nothing new: the same `id`, without rounding (R9). Fixtures and samples stay synthetic | Pass |
 | II. Strava API | No new request, no polling change; webhook handlers still ack and enqueue only | Pass |
 | III. Rider-authored content | Nothing written to Strava | Pass |
 | IV. Serverless, minimal deps | Platform JSON features only, no dependency, no new resource | Pass |

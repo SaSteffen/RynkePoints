@@ -27,12 +27,23 @@ Today that would mean, for a new rider or a new ride with such an ID:
   don't match up.
 
 Strava now also sends `id_str`, the same ID as text, on activities and athletes, and recommends
-using it. Webhook events have no such field: their `object_id` and `owner_id` are numbers only.
+using it. Webhook events have no such field: their `object_id` and `owner_id` are numbers only,
+and the schema's examples don't carry `id_str` everywhere either. The app therefore reads every ID
+from the exact digits of the number, in one way for responses and events alike, and ignores
+`id_str`. JSON itself puts no limit on a number's size; only the usual way of reading it rounds.
 The database already stores whole numbers of the full 64-bit range exactly; only the way values
 cross into and out of the app rounds them.
 
 Nothing has broken yet. Existing IDs are far below the limit (activities around 10^10, athletes
 around 10^8).
+
+## Clarifications
+
+### Session 2026-11-21
+
+- Q: Read `id_str` where Strava sends it, or the 64-bit number everywhere? → A: The 64-bit number
+  everywhere, from its exact digits; `id_str` is ignored. Webhook events have no `id_str`, so the
+  exact reading is needed anyway, and one way for every ID leaves no gap where `id_str` is missing.
 
 **Terms**:
 
@@ -146,10 +157,9 @@ and process queue messages and session cookies written by the version before.
 
 - An ID in a webhook event that isn't a positive whole number (a fraction, an exponent, a
   negative, text, more than 64 bits): the event is refused as today.
-- Strava sends `id_str` and `id` with different values: the app trusts `id_str`, the field Strava
-  recommends.
-- Strava sends no `id_str` for an object (an older response, or a nested object without it): the
-  app uses the exact digits of `id`.
+- Strava sends `id_str`, or leaves it out: no difference, the app reads `id` only.
+- An `id` in a response from Strava that isn't a positive whole number of at most 64 bits: the
+  response is treated as malformed, as a response missing its `id` is today.
 - An ID in a web address or form (an organiser's link, a ride's page) that isn't a valid ID: the
   page answers as for an unknown rider or ride today.
 - A large ID shown in a page or link: shown with every digit, never in an exponent form or
@@ -168,9 +178,9 @@ and process queue messages and session cookies written by the version before.
 
 **Reading IDs from Strava**
 
-- **FR-001**: The system MUST take an activity's or athlete's ID from Strava exactly as sent: from
-  `id_str` where Strava sends it, else from the exact digits of `id`. It MUST NOT round an ID or
-  accept a rounded one.
+- **FR-001**: The system MUST take an activity's or athlete's ID from Strava exactly as sent, from
+  the exact digits of `id`. It MUST NOT round an ID or accept a rounded one, and it MUST NOT depend
+  on `id_str`.
 - **FR-002**: The system MUST take a webhook event's `object_id` and `owner_id` from the exact
   digits of the event as sent, both in the gateway and in a team's site. An event whose IDs are not
   positive whole numbers of at most 64 bits MUST be refused as today.
@@ -189,16 +199,16 @@ and process queue messages and session cookies written by the version before.
 
 **Testing**
 
-- **FR-008**: The fake Strava MUST send IDs the way Strava does (`id` as a number, `id_str` as
-  text on activities and athletes, numbers only in webhook events), and MUST be able to send large
-  IDs exactly.
+- **FR-008**: The fake Strava MUST send IDs as Strava does, as JSON numbers (`id`, `object_id`,
+  `owner_id`), and MUST send large IDs with their exact digits. It sends no `id_str`, so nothing
+  can come to depend on it.
 - **FR-009**: Some sample riders and some of their activities in every team's fake mode, and the
   test fixtures, MUST have large IDs, so that local runs, tests and end-to-end tests cover the
   large case alongside small IDs.
 
 **Rules of the project**
 
-- **FR-010**: The feature reads nothing new from Strava: `id_str` carries the same value as `id`.
+- **FR-010**: The feature reads nothing new from Strava: the same fields, read without rounding.
   The consent text and its version stay as they are (constitution Principle I).
 - **FR-011**: Nothing a rider or organiser sees changes, except where a large ID was wrong before.
 - **FR-012**: The behaviour is the same for every team; nothing in it is team data.
@@ -233,10 +243,9 @@ and process queue messages and session cookies written by the version before.
   (summary and detail) and every athlete (including the athlete in the token answer and the one
   nested in an activity) an `id` (64-bit integer) and an `id_str` (text). Webhook events document
   `object_id` and `owner_id` as "long integer" with no text variant. The examples in the schema
-  don't all show `id_str` yet (the athlete nested in an activity, for example), so the app doesn't
-  depend on it: it falls back to the exact digits of `id` (FR-001). A live request is therefore not
-  needed for correctness; one read-only request by the maintainer can confirm that `id_str` is
-  already sent.
+  don't all show `id_str` yet (the athlete nested in an activity, for example). The app reads `id`
+  only (FR-001, Clarifications), which every response and event has today, so no live request is
+  needed.
 - **Existing IDs**: Strava's notice speaks of how IDs are generated, so existing riders and
   activities keep their IDs. The app doesn't rely on it: an existing ID is handled exactly either
   way.
