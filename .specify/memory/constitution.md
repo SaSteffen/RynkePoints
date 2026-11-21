@@ -1,6 +1,17 @@
 <!--
 Sync Impact Report
-- Version change: 2.7.0 → 3.0.0
+- Version change: 3.0.0 → 3.1.0
+- Rationale: MINOR — the Language section gains a second exception to "every
+  shipped locale": the app's changelog entries are English only. The changelog
+  is for administrators for now, and mostly technical; the page's own headings
+  and labels stay catalog text in every locale.
+- Principles modified: none (Language section)
+- Sections added: none
+- Sections removed: none
+- Templates checked for alignment: .specify/templates/* — unchanged.
+- Follow-up TODOs: none.
+
+Previous: 2.7.0 → 3.0.0
 - Rationale: MAJOR — Principle III is redefined. Writing Rynke Points into
   Strava activity descriptions is no longer planned, so the rules for editing
   descriptions and the optional `activity:write` consent are gone: the app
@@ -300,7 +311,10 @@ public and maintained in English.
   `src/content/`) follows the team, not the rider's language, and MAY stay in one
   language whatever language the rider picks. A team with its own set has it in its
   default language; every other team gets the common set, which is in English and
-  isn't translated. All other user-facing text MUST exist in every shipped locale.
+  isn't translated.
+- The changelog's entries (`src/changelog.ts`) are in English only, whatever language
+  the rider picks, and the page says so; its headings and labels are catalog text.
+  All other user-facing text MUST exist in every shipped locale.
 - Everything else MUST be in English: code, identifiers, comments, log messages,
   database schema, API/JSON field names, test names, commit messages, and project
   documentation (README, specs, plans, tasks, this constitution).
@@ -327,4 +341,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 3.0.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-16
+**Version**: 3.1.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-21

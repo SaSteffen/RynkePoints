@@ -421,6 +421,11 @@ export const nl: Catalog = {
 	"settings.tour": "Rondleidingen",
 	"settings.tour.rider": "Rondleiding opnieuw tonen",
 	"settings.tour.organiser": "Orga-rondleiding opnieuw tonen",
+	"settings.about": "Over de app",
+	"changelog.version": "Versie {version}",
+	"changelog.title": "Wat is er nieuw",
+	"changelog.intro":
+		"Wat er in elke versie is veranderd. De items zijn in het Engels.",
 	"rynke.ride.why": "Waarom?",
 	"notifications.switch": "Meldingen op dit apparaat",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",

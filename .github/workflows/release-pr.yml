@@ -87,6 +87,38 @@ jobs:
             | "- \(.title) (#\(.number))"
           ' "$RUNNER_TEMP/prs.json" > "$RUNNER_TEMP/body.md"
 
+          # Every release carries a new version (src/changelog.ts, README
+          # "Releasing"). The titles say how far it should go at least: a breaking
+          # change the major number, a feat the minor, anything else the patch.
+          version() {
+            gh api "repos/$REPO/contents/package.json?ref=$1" --jq .content \
+              | base64 -d | jq -r .version
+          }
+          released=$(version main)
+          next=$(version develop)
+          if [ "$next" = "$released" ]; then
+            echo "::error::develop is still at version $released, like main. Raise it in package.json and add the release to src/changelog.ts first."
+            exit 1
+          fi
+          if grep -qE '^- [a-z]+(\([^)]*\))?!:' "$RUNNER_TEMP/body.md"; then
+            wanted=major
+          elif grep -qE '^- feat(\([^)]*\))?:' "$RUNNER_TEMP/body.md"; then
+            wanted=minor
+          else
+            wanted=patch
+          fi
+          IFS=. read -r a1 b1 _ <<< "$released"
+          IFS=. read -r a2 b2 _ <<< "$next"
+          if [ "$a2" != "$a1" ]; then bumped=major
+          elif [ "$b2" != "$b1" ]; then bumped=minor
+          else bumped=patch
+          fi
+          rank() { case "$1" in major) echo 3 ;; minor) echo 2 ;; *) echo 1 ;; esac; }
+          if [ "$(rank "$bumped")" -lt "$(rank "$wanted")" ]; then
+            echo "::warning::$released → $next is a $bumped bump, but the pull requests call for a $wanted one."
+          fi
+          { echo; echo "**Version**: $released → $next (the pull requests call for a $wanted bump)"; } >> "$RUNNER_TEMP/body.md"
+
           # When a sandbox is worth it (feature 027 FR-006, docs/sandboxes.md).
           cat >> "$RUNNER_TEMP/body.md" <<'EOF'
 

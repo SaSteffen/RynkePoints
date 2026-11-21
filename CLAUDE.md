@@ -113,7 +113,11 @@ and commit messages must follow
   names, badge hints): it follows the team, not the rider's language, German for
   Hamburg and the common English set for every other team, and isn't translated
   (feature 026 FR-025, feature 034 FR-014). Seasonal quote monkeys are team data
-  (`holidays` in `src/teams/<id>.ts`).
+  (`holidays` in `src/teams/<id>.ts`). The changelog's entries (`src/changelog.ts`)
+  are English only too, and shared by every team.
+- Every release raises the semver version in `package.json` and adds its entry at the
+  top of `src/changelog.ts`, in a pull request into `develop` before **Release PR**
+  (README "Releasing"); a test keeps the two equal.
 - No page, image or text of a team shows another team's name, place or art
   (feature 026 FR-023, `test/teams/no-other-team.test.ts`), and no rider's data
   crosses teams.

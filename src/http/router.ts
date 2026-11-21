@@ -13,6 +13,7 @@ import {
 import { handleUsageExport } from "./admin/usage-export";
 import { handleCallback, handleConnectForm, handleReconnect } from "./auth";
 import { handleCatchUp } from "./catch-up";
+import { handleChangelog } from "./changelog";
 import { handleConsent } from "./consent-gate";
 import { notFound } from "./errors";
 import { handleFetching } from "./fetching";
@@ -253,6 +254,8 @@ async function page(
 			return handleLanding(request, ctx, i18n);
 		case "/privacy":
 			return handlePrivacy(ctx, i18n);
+		case "/changelog":
+			return handleChangelog(ctx, i18n);
 		case "/connect":
 			return handleReconnect(request, ctx);
 		case "/auth/callback":

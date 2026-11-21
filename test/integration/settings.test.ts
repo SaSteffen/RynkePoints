@@ -1,5 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
+import { APP_VERSION } from "../../src/changelog";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
@@ -21,6 +22,7 @@ const GROUPS = [
 	["settings-consent", "me.consent.heading"],
 	["settings-rules", "rynke.rules.heading"],
 	["settings-tour", "settings.tour"],
+	["settings-about", "settings.about"],
 	["settings-account", "settings.account"],
 ] as const;
 
@@ -126,6 +128,17 @@ describe("GET /me/settings (011 FR-014)", () => {
 		await seedRider(ctx, { athleteId: ATHLETE_A });
 		const { html } = await riderPage(ctx, ATHLETE_A, path);
 		expect(html).toContain(`<title>${escapeHtml(title)}</title>`);
+	});
+
+	it("shows the app's version and links to the changelog", async () => {
+		const { group } = await settings();
+		const about = group["settings-about"];
+		expect(about).toContain(
+			`<p>${escapeHtml(de["changelog.version"].replace("{version}", APP_VERSION))}</p>`,
+		);
+		expect(about).toContain(
+			`<a class="button-outlined" href="/changelog">${escapeHtml(de["changelog.title"])}</a>`,
+		);
 	});
 
 	it("signs out with this device's endpoint and links to disconnecting", async () => {

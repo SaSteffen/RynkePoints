@@ -413,6 +413,11 @@ export const fi: Catalog = {
 	"settings.tour": "Esittelyt",
 	"settings.tour.rider": "Näytä esittely uudelleen",
 	"settings.tour.organiser": "Näytä Orga-esittely uudelleen",
+	"settings.about": "Tietoja sovelluksesta",
+	"changelog.version": "Versio {version}",
+	"changelog.title": "Mitä uutta",
+	"changelog.intro":
+		"Mitä kussakin versiossa on muuttunut. Merkinnät ovat englanniksi.",
 	"rynke.ride.why": "Miksi?",
 	"notifications.switch": "Ilmoitukset tällä laitteella",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",

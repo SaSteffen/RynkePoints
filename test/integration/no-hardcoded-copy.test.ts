@@ -75,6 +75,9 @@ function unmarkedText(page: string): string[] {
 		.replace(/<p class="privacy-controller">[\s\S]*?<\/p>/g, "")
 		// So is the team's name under the start page's coin (feature 026).
 		.replace(/<p class="team-name">[\s\S]*?<\/p>/g, "")
+		// The changelog's entries are English in every language (constitution,
+		// Language).
+		.replace(/<ul class="changelog-changes"[^>]*>[\s\S]*?<\/ul>/g, "")
 		// An event's weekday and month come from Intl like any formatted date
 		// (feature 019 contracts/pages.md).
 		.replace(

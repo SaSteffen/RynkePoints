@@ -1,3 +1,4 @@
+import { APP_VERSION } from "../../changelog";
 import { consentLabel } from "../../consent";
 import type { Ctx } from "../../ctx";
 import type { Consent } from "../../db/consents";
@@ -22,7 +23,8 @@ import { stepHref } from "../tour";
 // language, the notifications on this device, installing
 // the app, the connection to Strava with the granted permissions, the stored
 // consent (feature 004 FR-014), and signing out or leaving; the rules moved
-// here from the Overview (issue #92), and the tours start again here (#90). For a signed-in rider the language
+// here from the Overview (issue #92), the tours start again here (#90), and
+// the app's version links to its changelog. For a signed-in rider the language
 // switcher is only here (FR-016). The colour scheme moved to the header's
 // theme menu (feature 022 FR-016); the switch that turns the fun themes'
 // page-switch shows off on this device stays here, shown by `public/app.js`.
@@ -103,6 +105,12 @@ ${group(
 	i18n.t("settings.tour"),
 	html`<p><a class="button-outlined" href="${stepHref("rider", rider, 0, switches)}">${i18n.t("settings.tour.rider")}</a></p>
 ${rider.organiser ? html`<p><a class="button-outlined" href="${stepHref("organiser", rider, 0, switches)}">${i18n.t("settings.tour.organiser")}</a></p>` : null}`,
+)}
+${group(
+	"settings-about",
+	i18n.t("settings.about"),
+	html`<p>${i18n.t("changelog.version", { version: APP_VERSION })}</p>
+<p><a class="button-outlined" href="/changelog">${i18n.t("changelog.title")}</a></p>`,
 )}
 ${group(
 	"settings-account",

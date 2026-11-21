@@ -417,6 +417,11 @@ export const da: Catalog = {
 	"settings.tour": "Rundvisninger",
 	"settings.tour.rider": "Vis rundvisningen igen",
 	"settings.tour.organiser": "Vis Orga-rundvisningen igen",
+	"settings.about": "Om appen",
+	"changelog.version": "Version {version}",
+	"changelog.title": "Nyheder",
+	"changelog.intro":
+		"Hvad der er ændret i hver version. Punkterne er på engelsk.",
 	"rynke.ride.why": "Hvorfor?",
 	"notifications.switch": "Notifikationer på denne enhed",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",

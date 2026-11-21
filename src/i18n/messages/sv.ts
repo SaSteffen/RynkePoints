@@ -413,6 +413,11 @@ export const sv: Catalog = {
 	"settings.tour": "Rundturer",
 	"settings.tour.rider": "Visa rundturen igen",
 	"settings.tour.organiser": "Visa Orga-rundturen igen",
+	"settings.about": "Om appen",
+	"changelog.version": "Version {version}",
+	"changelog.title": "Nyheter",
+	"changelog.intro":
+		"Vad som har ändrats i varje version. Posterna är på engelska.",
 	"rynke.ride.why": "Varför?",
 	"notifications.switch": "Aviseringar på den här enheten",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",

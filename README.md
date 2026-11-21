@@ -404,6 +404,16 @@ source of truth.
 
 ### Releasing
 
+Every release has a new [semver](https://semver.org/) version. Settings shows it
+and links to the changelog at `/changelog`. Before a release, open a pull request
+into `develop` that raises `version` in `package.json` and adds the release at
+the top of `src/changelog.ts`, in English, without naming a team. The Conventional
+Commits since the last release say how far to go: a breaking change (`feat!: …`)
+raises the major number, a `feat` the minor number, anything else the patch number.
+A hotfix raises the patch number on its own branch. **Release PR** stops when
+`develop` still has `main`'s version, warns when the bump is smaller than the
+pull requests call for, and puts both versions in the description.
+
 ```bash
 gh pr create --base main --head develop --title "chore: release"
 ```

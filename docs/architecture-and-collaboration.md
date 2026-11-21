@@ -173,8 +173,9 @@ connecting to both would break the connection, and the app says so when they con
    `pr-source`. The branch must be up to date with `develop`. Ticking a **Sandboxes** box in the pull
    request deploys it to that team's sandbox.
 3. Merge it with a merge commit. No approval is required.
-4. Run the **Release PR** workflow, which opens a pull request from `develop` into `main`, with one
-   checkbox per sandbox, all off.
+4. Raise the version and add the release to the changelog, in a pull request into `develop` (README
+   "Releasing"). Then run the **Release PR** workflow, which opens a pull request from `develop` into
+   `main`, with one checkbox per sandbox, all off.
 5. Merge the release with a merge commit. CI then applies each team's database migrations and deploys
    its code.
 
