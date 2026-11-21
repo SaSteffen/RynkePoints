@@ -173,8 +173,12 @@ export async function seed(
 	// Non-members would only be turned away; their state is reached through
 	// "Connect as" (research R6).
 	const connected = riders.filter((r) => r.clubMember || r.guest);
+	// Sample riders are this team's alone, so the seed connects them without
+	// the gateway: asking the other teams (feature 044) would wait on teams
+	// that may be seeding themselves.
+	const alone: Ctx = { ...ctx, env: { ...ctx.env, STRAVA_RETURN_VIA: "" } };
 	for (const rider of connected) {
-		await connectThroughApp(ctx, origin, rider);
+		await connectThroughApp(alone, origin, rider);
 		// `/connect` only takes the current version (feature 029 research R11).
 		if (rider.consentVersion !== undefined) {
 			await db.batch([
