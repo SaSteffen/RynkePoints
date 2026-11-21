@@ -67,6 +67,7 @@ describe("POST /connect with the box ticked", () => {
 			state,
 			consentVersion: CONSENT_VERSION,
 			next: "/",
+			switchTeam: false,
 		});
 	});
 
@@ -84,6 +85,7 @@ describe("POST /connect with the box ticked", () => {
 			state,
 			consentVersion: CONSENT_VERSION,
 			next: stored,
+			switchTeam: false,
 		});
 		const raw = res.headers.get("Set-Cookie") ?? "";
 		expect(raw).toContain(
@@ -209,6 +211,7 @@ describe("GET /connect", () => {
 			state: params.get("state"),
 			consentVersion: 0,
 			next: "/",
+			switchTeam: false,
 		});
 	});
 
@@ -262,6 +265,7 @@ describe("STRAVA_RETURN_VIA", () => {
 			state: params.get("state"),
 			consentVersion: CONSENT_VERSION,
 			next: "/",
+			switchTeam: false,
 		});
 	});
 

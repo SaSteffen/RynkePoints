@@ -362,12 +362,10 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	},
 	{
 		athleteId: "991019",
-		firstName: "Britt BothClubs",
-		state:
-			"In both teams' Strava clubs: connecting shows the one-team-at-a-time notice once",
+		firstName: "Britt Steady",
+		state: "Five rides, each a little longer",
 		scopes: ALL_SCOPES,
 		clubMember: true,
-		otherClubMember: true,
 		behaviour: "normal",
 		rides: rides(5, (i) => ride(...slot(i), 40 + 5 * i, 260, 25)),
 	},

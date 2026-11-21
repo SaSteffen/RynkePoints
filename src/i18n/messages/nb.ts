@@ -920,6 +920,8 @@ export const nb: Catalog = {
 		"Varsler er frivillige og gjelder per enhet. Bare adressen push-tjenesten til enheten eller nettleseren gir den, lagres. Selve varselet er tomt: det det viser, henter enheten din rett fra RynkePoints. Adressen slettes når du slår av varsler, logger ut på den enheten eller slutter.",
 	"privacy.technical.logs":
 		"Serverlogger inneholder bare ID-er som utøver- og aktivitets-ID og typen feil, aldri tilgangsnøkler eller aktivitetsdata. RynkePoints lagrer ikke IP-adresser.",
+	"privacy.technical.oneTeam":
+		"På RynkePoints sykler du for ett lag om gangen. Når du kobler deg til, spør et lag derfor de andre lagene om du allerede sykler for ett av dem. Det får bare vite ja eller nei, aldri hvilket lag, og lagrer ikke svaret. Bytter du lag, sletter laget du forlater alt om deg.",
 	"privacy.visibility.heading": "Hvem ser hva",
 	"privacy.visibility.you":
 		"Du ser dine egne aktiviteter med titlene, Rynke-ene og merkene dine. Ingen andre ser titlene.",
@@ -1228,10 +1230,13 @@ export const nb: Catalog = {
 	"notice.blocked.title": "Du kan ikke være med på dette laget",
 	"notice.blocked.body":
 		"En administrator har fjernet deg fra dette laget. Vi beholder bare Strava-ID-en din, så du ikke kan koble til igjen.",
-	"notice.oneTeam.title": "Du er også med i et annet lags klubb",
-	"notice.oneTeam.body":
-		"På RynkePoints kan du være med på ett lag om gangen. Strava gir appen én tilkobling per person, så kobler du deg til et annet lag, avsluttes tilkoblingen til det første. Du er nå koblet til her.",
-	"notice.carryOn": "Fortsett",
+	"switchTeam.title": "Du sykler allerede for et annet lag",
+	"switchTeam.body":
+		"På RynkePoints sykler du for ett lag om gangen, og du sykler allerede for et annet lag her. Ingenting om deg er lagret på dette laget ennå.",
+	"switchTeam.cost":
+		"Bytter du til dette laget, sletter det andre laget turene, Rynke og merkene dine der. Dette laget teller sesongens turer på nytt etter sine egne regler.",
+	"switchTeam.switch": "Bytt til dette laget",
+	"switchTeam.stay": "Bli på laget mitt",
 	"organiser.graphs.heading": "Fremgang",
 	"organiser.graphs.title.outdoor": "Kilometer ute (km)",
 	"organiser.graphs.title.virtual": "Virtuelle kilometer (km)",

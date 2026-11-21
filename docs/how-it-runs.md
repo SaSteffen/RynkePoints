@@ -100,8 +100,11 @@ Each team's block in `wrangler.jsonc` declares these. Every Wrangler command nam
 events and passes each one to every team through its own queue, retrying each team separately for
 about 17 hours (the queue keeps a message 24 hours on the free plan), so a team that is down doesn't
 hold up the others. It also sends a rider coming back from
-Strava's sign-in on to their own team's domain, and only to domains on its fixed list. It reaches
-Hamburg through a service binding. The sequence diagrams are in
+Strava's sign-in on to their own team's domain, and only to domains on its fixed list. For a team
+it asks the other teams whether they hold a person, and as a rider or a guest, and has them let a
+rider go who switches teams ([feature 044](../specs/044-one-team-at-a-time/contracts/one-team.md)).
+It answers only for all other teams together, never naming one. It reaches Hamburg through a
+service binding. The sequence diagrams are in
 [Architecture and working together](architecture-and-collaboration.md#a-strava-event-through-the-gateway),
 and the move behind it is in [gateway-switch.md](gateway-switch.md).
 
@@ -131,6 +134,8 @@ sequenceDiagram
     T->>S: Exchange the code for tokens
     T->>S: Check the rider's clubs (not for a guest)
     Note over T: Refuse and keep nothing if the team is full,<br/>the rider is blocked, a required scope is missing,<br/>the consent doesn't match or they aren't a club member<br/>or on the guest list. After the exchange, a refusal<br/>withdraws the grant unless another team holds them
+    T->>G: A new rider: does another team hold them as a rider?
+    Note over T: If so, keep nothing and let them choose: stay,<br/>or switch, which goes through Strava again and<br/>has that team let them go first (feature 044)
     T->>T: Store the rider, the consent and the encrypted tokens
     T->>Q: import-page, page 1
     T-->>R: Signed in, waiting page until the first data arrives
@@ -460,6 +465,21 @@ Only administrators of their home team belong on a guest list, and the teams don
 data, so keeping it that way is the maintainer's job: whoever clears someone's administrator flag at
 home also takes their ID off every other team's guest list in the same sitting. A real Strava ID
 goes only into these commands, never into the repository.
+
+A person rides for one team at a time; being a guest elsewhere doesn't count
+([feature 044](../specs/044-one-team-at-a-time/spec.md)). A team that is about to let in a new
+person asks the other teams, through the gateway, whether one holds them as a rider. If one does,
+the person chooses: stay there, or switch, which deletes their data at the old team, without a
+block, before the new team stores them. Two sign-ins at two teams within the same seconds can still
+both get through. To find such a person, compare the riders who aren't guests across the teams,
+read only, and ask the person which team they ride for; they disconnect at the other one.
+
+```bash
+pnpm wrangler d1 execute DB --remote --env hamburg --json \
+  --command "SELECT athlete_id FROM riders WHERE guest = 0"
+pnpm wrangler d1 execute DB --remote --env europe --json \
+  --command "SELECT athlete_id FROM riders WHERE guest = 0"
+```
 
 ### One-time setup
 

@@ -241,6 +241,13 @@ export const RIDER_PAGES: RiderPage[] = [
 		status: 200,
 		fetch: get(`/notice/${id}`),
 	})),
+	// Feature 044: the choice of a person who rides for another team.
+	{
+		name: "/switch-team",
+		next: "/switch-team",
+		status: 200,
+		fetch: get("/switch-team"),
+	},
 	{ name: "/offline", next: "/me", status: 200, fetch: get("/offline") },
 	{ name: "404", next: "/nowhere", status: 404, fetch: get("/nowhere") },
 	{

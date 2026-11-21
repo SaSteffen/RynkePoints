@@ -27,12 +27,18 @@ beforeEach(resetDb);
 
 describe("POST /strava/held/<token>", () => {
 	it("answers none for nobody here", async () => {
-		expect(await (await ask(TOKEN)).json()).toEqual({ held: "none" });
+		expect(await (await ask(TOKEN)).json()).toEqual({
+			held: "none",
+			rider: false,
+		});
 	});
 
 	it("answers connected for a connected rider", async () => {
 		await seedRider(ctx);
-		expect(await (await ask(TOKEN)).json()).toEqual({ held: "connected" });
+		expect(await (await ask(TOKEN)).json()).toEqual({
+			held: "connected",
+			rider: true,
+		});
 	});
 
 	it("answers for an athlete ID past 2^53 exactly (feature 042)", async () => {
@@ -51,9 +57,13 @@ describe("POST /strava/held/<token>", () => {
 		expect(res.status).toBe(400);
 	});
 
-	it("answers connected for a guest alike", async () => {
+	// Feature 044 R2: a guest is held, but isn't a rider.
+	it("answers connected for a guest alike, but not as a rider", async () => {
 		await seedRider(ctx, { guest: true });
-		expect(await (await ask(TOKEN)).json()).toEqual({ held: "connected" });
+		expect(await (await ask(TOKEN)).json()).toEqual({
+			held: "connected",
+			rider: false,
+		});
 	});
 
 	it("answers reconnect for a rider whose connection is broken", async () => {
@@ -61,7 +71,10 @@ describe("POST /strava/held/<token>", () => {
 		await env.DB.prepare(
 			"UPDATE riders SET status = 'needs_reconnect', reconnect_requested_at = 1",
 		).run();
-		expect(await (await ask(TOKEN)).json()).toEqual({ held: "reconnect" });
+		expect(await (await ask(TOKEN)).json()).toEqual({
+			held: "reconnect",
+			rider: true,
+		});
 	});
 
 	it("is not found with a wrong token", async () => {

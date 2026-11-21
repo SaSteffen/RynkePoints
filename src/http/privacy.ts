@@ -17,7 +17,7 @@ import { html, htmlResponse, layout, pageLook, type SafeHtml } from "./html";
 // no rider data. Linked from every page's footer.
 
 /** The day the notice last changed in substance; shown on the page. */
-export const PRIVACY_UPDATED = "2026-11-19";
+export const PRIVACY_UPDATED = "2026-11-21";
 
 const STRAVA_PRIVACY_URL = "https://www.strava.com/legal/privacy";
 
@@ -50,6 +50,8 @@ const SECTIONS: [MessageId, MessageId[]][] = [
 			"privacy.technical.cookies",
 			"privacy.technical.push",
 			"privacy.technical.logs",
+			// One team at a time (feature 044 R8).
+			"privacy.technical.oneTeam",
 		],
 	],
 	[

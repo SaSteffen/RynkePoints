@@ -1,25 +1,31 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { CONSENT_VERSION } from "../../src/consent";
 import { getRider } from "../../src/db/riders";
 import { escapeHtml } from "../../src/http/html";
+import { readOAuthState } from "../../src/http/session";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
 import { approve, setCookies } from "../support/callback";
 import {
+	cookiePair,
+	listGuest,
 	makeCtx,
 	request,
 	resetDb,
 	seedRider,
 	sessionCookie,
 	type TestCtx,
+	withGateway,
 } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
-import { ATHLETE_A, OTHER_CLUB, TEAM_CLUB } from "../support/fixtures";
+import { ATHLETE_A, TEAM_CLUB } from "../support/fixtures";
 
-// FR-012: a rider who is also in another team's club learns, right after
-// connecting, that one team at a time works. Other teams' clubs are team data.
+// Feature 044: a person rides for one team at a time. A new person who rides
+// for another team chooses: stay there, or switch here, which has that team
+// let them go before this one stores anything (research R1, R3, R6).
+
+const PERSON = ATHLETE_A;
 
 let fake: FakeStrava;
 let ctx: TestCtx;
@@ -27,124 +33,233 @@ let ctx: TestCtx;
 beforeEach(async () => {
 	await resetDb();
 	fake = installFakeStrava();
-	ctx = makeCtx({ team: { ...hamburg, otherClubIds: [OTHER_CLUB.id] } });
+	ctx = withGateway(makeCtx());
+	fake.addAthlete({ id: PERSON, clubs: [TEAM_CLUB.id] });
 });
 
 afterEach(() => fake.restore());
 
-describe("GET /auth/callback for a rider in another team's club", () => {
-	it("connects a new rider and shows the one-team notice", async () => {
-		fake.addAthlete({ id: ATHLETE_A, clubs: [TEAM_CLUB.id, OTHER_CLUB.id] });
-		const res = await approve(ctx, fake, ATHLETE_A);
+/** Another team holds the person as a rider. */
+function ridesElsewhere(held: "connected" | "reconnect" = "connected") {
+	fake.held.set(PERSON, held);
+	fake.riders.add(PERSON);
+}
+
+async function pendingRevocations(): Promise<number[]> {
+	const { results } = await env.DB.prepare(
+		"SELECT athlete_id FROM pending_revocations",
+	).all<{ athlete_id: number }>();
+	return results.map((r) => r.athlete_id);
+}
+
+async function settled() {
+	await Promise.all(ctx.pending);
+}
+
+describe("a new person who rides for another team", () => {
+	it("is asked to choose, and nothing is kept", async () => {
+		ridesElsewhere();
+		const res = await approve(ctx, fake, PERSON);
 		expect(res.status).toBe(303);
-		expect(res.headers.get("Location")).toBe("/notice/one-team");
-		expect(setCookies(res).rp_session).toMatch(/^rp_session=[^;]+;/);
+		expect(res.headers.get("Location")).toBe("/switch-team");
+		expect(setCookies(res).rp_session).toBeUndefined();
+		expect(await getRider(env.DB, PERSON)).toBeNull();
+		expect(fake.letGo).toEqual([]);
+		await settled();
+		// The other team holds the grant: nothing revoked, nothing kept.
 		expect(fake.revocations).toEqual([]);
-		expect(await getRider(env.DB, ATHLETE_A)).not.toBeNull();
+		expect(await pendingRevocations()).toEqual([]);
 	});
 
-	it("finds the other club on a later page of the rider's clubs", async () => {
-		const many = Array.from({ length: 200 }, (_, i) => 900_000 + i);
-		fake.addAthlete({
-			id: ATHLETE_A,
-			clubs: [TEAM_CLUB.id, ...many, OTHER_CLUB.id],
-		});
-		const res = await approve(ctx, fake, ATHLETE_A);
-		expect(res.headers.get("Location")).toBe("/notice/one-team");
-	});
-
-	it("doesn't show it to a rider only in this team's club", async () => {
-		fake.addAthlete({ id: ATHLETE_A, clubs: [TEAM_CLUB.id] });
-		const res = await approve(ctx, fake, ATHLETE_A);
+	it("is let in after choosing to switch, once the other team let them go", async () => {
+		ridesElsewhere();
+		const res = await approve(
+			ctx,
+			fake,
+			PERSON,
+			undefined,
+			{},
+			{
+				switchTeam: true,
+			},
+		);
 		expect(res.status).toBe(302);
-		expect(res.headers.get("Location")).not.toMatch(/\/notice\//);
+		expect(res.headers.get("Location")).not.toMatch(/^\/(switch-team|notice)/);
+		expect(setCookies(res).rp_session).toMatch(/^rp_session=[^;]+;/);
+		expect(fake.letGo).toEqual([PERSON]);
+		expect(await getRider(env.DB, PERSON)).not.toBeNull();
+		expect(ctx.queue.sent.map((m) => m.body.kind)).toEqual(["import-page"]);
+		await settled();
+		expect(fake.revocations).toEqual([]);
 	});
 
-	it("doesn't show it again when a rider reconnects", async () => {
-		fake.addAthlete({ id: ATHLETE_A, clubs: [TEAM_CLUB.id, OTHER_CLUB.id] });
+	it("drops a token kept from the first pass once they switched (R5)", async () => {
+		// Their team held them only with a broken connection, so the first
+		// pass's token stays kept.
+		ridesElsewhere("reconnect");
+		await approve(ctx, fake, PERSON);
+		await settled();
+		expect(await pendingRevocations()).toEqual([PERSON]);
+		await approve(ctx, fake, PERSON, undefined, {}, { switchTeam: true });
+		expect(await pendingRevocations()).toEqual([]);
+		expect(fake.revocations).toEqual([]);
+	});
+
+	it("stays where they were when the let-go isn't confirmed", async () => {
+		ridesElsewhere();
+		fake.letGoFails = true;
+		const res = await approve(
+			ctx,
+			fake,
+			PERSON,
+			undefined,
+			{},
+			{
+				switchTeam: true,
+			},
+		);
+		expect(res.headers.get("Location")).toBe("/notice/strava-busy");
+		expect(setCookies(res).rp_session).toBeUndefined();
+		expect(await getRider(env.DB, PERSON)).toBeNull();
+		await settled();
+		expect(fake.revocations).toEqual([]);
+	});
+
+	it("is let in without a choice once no team holds them any more", async () => {
+		ridesElsewhere();
+		await approve(ctx, fake, PERSON);
+		fake.held.delete(PERSON);
+		fake.riders.delete(PERSON);
+		const res = await approve(ctx, fake, PERSON);
+		expect(res.status).toBe(302);
+		expect(await getRider(env.DB, PERSON)).not.toBeNull();
+		expect(fake.letGo).toEqual([]);
+	});
+});
+
+describe("everyone else", () => {
+	it("lets in a person no other team holds, without a choice", async () => {
+		const res = await approve(ctx, fake, PERSON);
+		expect(res.status).toBe(302);
+		expect(await getRider(env.DB, PERSON)).not.toBeNull();
+		expect(fake.gatewayCalls.map((c) => c.team)).toEqual(["hamburg"]);
+	});
+
+	it("lets in a person another team holds only as a guest", async () => {
+		fake.held.set(PERSON, "connected");
+		const res = await approve(ctx, fake, PERSON);
+		expect(res.status).toBe(302);
+		expect(await getRider(env.DB, PERSON)).not.toBeNull();
+		expect(fake.letGo).toEqual([]);
+	});
+
+	it("never asks about a person the team holds already", async () => {
 		await seedRider(ctx);
-		const res = await approve(ctx, fake, ATHLETE_A, undefined, {
-			...(await sessionCookie(ctx, ATHLETE_A)),
+		ridesElsewhere();
+		const res = await approve(ctx, fake, PERSON, undefined, {
+			...(await sessionCookie(ctx, PERSON)),
 		});
 		expect(res.status).toBe(302);
-		expect(res.headers.get("Location")).not.toMatch(/\/notice\//);
+		expect(fake.gatewayCalls).toEqual([]);
 	});
 
-	it("still turns away a rider only in the other team's club", async () => {
-		fake.addAthlete({ id: ATHLETE_A, clubs: [OTHER_CLUB.id] });
-		const res = await approve(ctx, fake, ATHLETE_A);
+	it("never asks about a guest", async () => {
+		await listGuest(ctx, PERSON);
+		ridesElsewhere();
+		const res = await approve(ctx, fake, PERSON);
+		expect(res.status).toBe(302);
+		expect(fake.gatewayCalls).toEqual([]);
+	});
+
+	it("asks nobody without a gateway", async () => {
+		ctx = makeCtx();
+		ridesElsewhere();
+		const res = await approve(ctx, fake, PERSON);
+		expect(res.status).toBe(302);
+		expect(await getRider(env.DB, PERSON)).not.toBeNull();
+		expect(fake.gatewayCalls).toEqual([]);
+	});
+
+	it("turns a new person away while the question has no answer", async () => {
+		fake.gatewayDown = true;
+		const res = await approve(ctx, fake, PERSON);
+		expect(res.headers.get("Location")).toBe("/notice/strava-busy");
+		expect(await getRider(env.DB, PERSON)).toBeNull();
+		await settled();
+		expect(fake.revocations).toEqual([]);
+	});
+
+	it("asks only after the club check", async () => {
+		fake.addAthlete({ id: PERSON, clubs: [] });
+		ridesElsewhere();
+		const res = await approve(ctx, fake, PERSON);
 		expect(res.headers.get("Location")).toBe("/notice/not-member");
 	});
 });
 
-// Feature 039 US2: Hamburg's and Europe's own team data side by side, each
-// naming the other's Strava club, not a stand-in club.
-describe("Hamburg's and Europe's clubs (feature 039)", () => {
-	const HAMBURG_CLUB = TEAM_CLUB.id;
-	const EUROPE_CLUB = 2292744;
-
-	function hamburgCtx(): TestCtx {
-		return makeCtx({ team: hamburg });
+describe("GET /switch-team", () => {
+	async function page() {
+		const res = await handleFetch(
+			request("/switch-team", { acceptLanguage: "en" }),
+			ctx,
+		);
+		expect(res.status).toBe(200);
+		return res.text();
 	}
 
-	function europeCtx(): TestCtx {
-		const base = makeCtx({ team: europe });
+	it("offers both choices and says what switching costs", async () => {
+		const html = await page();
+		const en = CATALOGS.en;
+		expect(html).toContain(`<h1>${escapeHtml(en["switchTeam.title"])}</h1>`);
+		expect(html).toContain(escapeHtml(en["switchTeam.cost"]));
+		expect(html).toContain('<form method="post" action="/connect">');
+		expect(html).toContain(
+			`<input type="hidden" name="consent" value="${CONSENT_VERSION}">`,
+		);
+		expect(html).toContain('<input type="hidden" name="switch" value="1">');
+		// A new person came from the start page: no section to return to.
+		expect(html.match(/name="next"/g)).toHaveLength(1);
+		expect(html).toContain(
+			`<button>${escapeHtml(en["switchTeam.switch"])}</button>`,
+		);
+		expect(html).toContain(
+			`<a class="button-outlined" href="/">${escapeHtml(en["switchTeam.stay"])}</a>`,
+		);
+	});
+});
+
+describe("POST /connect with switch=1", () => {
+	async function connect(form: Record<string, string>) {
+		const res = await handleFetch(
+			request("/connect", { method: "POST", form }),
+			ctx,
+		);
+		expect(res.status).toBe(302);
+		const location = new URL(res.headers.get("Location") ?? "");
+		const back = request("/auth/callback", {
+			cookies: cookiePair(res.headers.get("Set-Cookie") ?? ""),
+		});
 		return {
-			...base,
-			env: {
-				...base.env,
-				TEAM_ID: "europe",
-				STRAVA_CLUB_ID: String(EUROPE_CLUB),
-				STRAVA_EXTRA_CLUB_IDS: "",
-			},
+			prompt: location.searchParams.get("approval_prompt"),
+			state: await readOAuthState(back, ctx.env, ctx.now()),
 		};
 	}
 
-	it("shows a new Hamburg rider in both clubs the one-team notice once", async () => {
-		const app = hamburgCtx();
-		fake.addAthlete({ id: ATHLETE_A, clubs: [HAMBURG_CLUB, EUROPE_CLUB] });
-		const first = await approve(app, fake, ATHLETE_A);
-		expect(first.status).toBe(303);
-		expect(first.headers.get("Location")).toBe("/notice/one-team");
-		expect(fake.revocations).toEqual([]);
-		expect(await getRider(env.DB, ATHLETE_A)).not.toBeNull();
-
-		const again = await approve(app, fake, ATHLETE_A, undefined, {
-			...(await sessionCookie(app, ATHLETE_A)),
+	it("asks Strava not to show its screen again and marks the switch", async () => {
+		const { prompt, state } = await connect({
+			consent: String(CONSENT_VERSION),
+			switch: "1",
+			next: "/team",
 		});
-		expect(again.status).toBe(302);
-		expect(again.headers.get("Location")).not.toMatch(/\/notice\//);
+		expect(prompt).toBe("auto");
+		expect(state).toMatchObject({ switchTeam: true, next: "/team" });
 	});
 
-	it("shows the same rider the one-team notice on Europe's app", async () => {
-		const app = europeCtx();
-		fake.addAthlete({ id: ATHLETE_A, clubs: [HAMBURG_CLUB, EUROPE_CLUB] });
-		const res = await approve(app, fake, ATHLETE_A);
-		expect(res.headers.get("Location")).toBe("/notice/one-team");
-	});
-
-	it("turns away a rider only in Europe's club from Hamburg as a non-member", async () => {
-		fake.addAthlete({ id: ATHLETE_A, clubs: [EUROPE_CLUB] });
-		const res = await approve(hamburgCtx(), fake, ATHLETE_A);
-		expect(res.headers.get("Location")).toBe("/notice/not-member");
-		expect(await getRider(env.DB, ATHLETE_A)).toBeNull();
-	});
-});
-
-describe("GET /notice/one-team", () => {
-	it("explains one team at a time and carries on to the rider's home", async () => {
-		const res = await handleFetch(
-			request("/notice/one-team", { acceptLanguage: "en" }),
-			ctx,
-		);
-		const page = await res.text();
-		expect(res.status).toBe(200);
-		expect(page).toContain(
-			`<h1>${escapeHtml(CATALOGS.en["notice.oneTeam.title"])}</h1>`,
-		);
-		expect(page).toContain(
-			`<a class="button" href="/">${CATALOGS.en["notice.carryOn"]}</a>`,
-		);
-		expect(page).not.toContain(CATALOGS.en["notice.backToStart"]);
+	it("keeps Strava's screen and no switch without it", async () => {
+		const { prompt, state } = await connect({
+			consent: String(CONSENT_VERSION),
+		});
+		expect(prompt).toBe("force");
+		expect(state?.switchTeam).toBe(false);
 	});
 });

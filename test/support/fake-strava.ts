@@ -74,6 +74,15 @@ export interface FakeStrava {
 	 * `GATEWAY_ORIGIN`, which `withGateway` points a context at.
 	 */
 	held: Map<string, "connected" | "reconnect" | "none">;
+	/**
+	 * People another team holds as a rider, not a guest: the gateway's `rider`
+	 * (feature 044 R2). Set it with `held` to `connected` or `reconnect`.
+	 */
+	riders: Set<string>;
+	/** Every person the gateway was asked to let go (feature 044 R4). */
+	letGo: string[];
+	/** The gateway answers 503 to let-go requests. */
+	letGoFails: boolean;
 	/** The gateway answers 503. */
 	gatewayDown: boolean;
 	gatewayCalls: { team: string; athleteId: string; auth: string | null }[];
@@ -131,6 +140,9 @@ export function installFakeStrava(): FakeStrava {
 		revocations: [],
 		unexpected: [],
 		held: new Map(),
+		riders: new Set(),
+		letGo: [],
+		letGoFails: false,
 		gatewayDown: false,
 		gatewayCalls: [],
 		rateHeaders: {
@@ -366,7 +378,21 @@ export function installFakeStrava(): FakeStrava {
 					auth: request.headers.get("Authorization"),
 				});
 				if (fake.gatewayDown) return new Response("down", { status: 503 });
-				return json({ held: fake.held.get(athleteId) ?? "none" });
+				return json({
+					held: fake.held.get(athleteId) ?? "none",
+					rider: fake.riders.has(athleteId),
+				});
+			}
+			const letGo = /^\/teams\/([^/]+)\/let-go$/.exec(url.pathname);
+			if (url.origin === GATEWAY_ORIGIN && letGo && request.method === "POST") {
+				const { athleteId } = parseStravaJson(await request.text(), [
+					"athleteId",
+				]) as { athleteId: string };
+				fake.letGo.push(athleteId);
+				if (fake.gatewayDown || fake.letGoFails) {
+					return new Response("down", { status: 503 });
+				}
+				return json({ letGo: true });
 			}
 			if (url.origin !== "https://www.strava.com") {
 				fake.unexpected.push(url.href);

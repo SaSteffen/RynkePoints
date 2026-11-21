@@ -212,11 +212,17 @@ export interface OAuthState {
 	consentVersion: number;
 	/** Where the callback returns the rider (feature 011 research R9). */
 	next: string;
+	/**
+	 * The person chose to switch here from the team they ride for (feature
+	 * 044 R3).
+	 */
+	switchTeam: boolean;
 }
 
 /**
- * Signs `<state>:<consentVersion>:<next>`; the signed format reserves `.`, and
- * `next` is one of `safeNext()`'s paths, none of which contains `:`.
+ * Signs `<state>:<consentVersion>:<next>`, or `<state>:<consentVersion>:switch:<next>`
+ * for a switch (feature 044); the signed format reserves `.`, and `next` is
+ * one of `safeNext()`'s paths, none of which contains `:`.
  */
 export function createOAuthStateCookie(
 	state: string,
@@ -224,10 +230,11 @@ export function createOAuthStateCookie(
 	next: string,
 	now: number,
 	env: Keys,
+	switchTeam = false,
 ): Promise<string> {
 	return signedCookie(
 		OAUTH_STATE_COOKIE,
-		`${state}:${consentVersion}:${next}`,
+		`${state}:${consentVersion}:${switchTeam ? "switch:" : ""}${next}`,
 		OAUTH_STATE_MAX_AGE,
 		now,
 		env,
@@ -245,12 +252,13 @@ export async function readOAuthState(
 ): Promise<OAuthState | null> {
 	const value = (await readSigned(request, OAUTH_STATE_COOKIE, env, now))
 		?.value;
-	const parts = value?.match(/^([^:]*):(\d+)(?::(.*))?$/);
+	const parts = value?.match(/^([^:]*):(\d+)(?::(switch))?(?::(.*))?$/);
 	if (!parts) return null;
 	return {
 		state: parts[1] ?? "",
 		consentVersion: Number(parts[2]),
-		next: parts[3] || "/",
+		next: parts[4] || "/",
+		switchTeam: parts[3] === "switch",
 	};
 }
 

@@ -46,7 +46,7 @@ function cookieOf(setCookie: string): string {
 /**
  * Connects `rider` the way a browser would: the consent form, then Strava's
  * redirect back with a code for the rider's scopes. Throws if the app doesn't
- * end on `/me`, or on the one-team notice for an `otherClubMember`.
+ * end on `/me`.
  */
 export async function connectThroughApp(
 	ctx: Ctx,
@@ -88,10 +88,8 @@ export async function connectThroughApp(
 		ctx,
 	);
 	const landed = callback.headers.get("Location");
-	// A new rider has no rides yet, so lands on their own page; one also in
-	// another team's club may see the one-team-at-a-time notice first (039).
-	const notice = rider.otherClubMember && landed === "/notice/one-team";
-	if (landed !== "/me" && !notice) {
+	// A new rider has no rides yet, so lands on their own page.
+	if (landed !== "/me") {
 		throw new Error(
 			`Seeding ${rider.firstName} (${rider.athleteId}): the callback answered ${callback.status} to ${landed}`,
 		);

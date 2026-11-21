@@ -12,6 +12,7 @@ import {
 	seedRider,
 	sessionCookie,
 	type TestCtx,
+	withGateway,
 } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, OTHER_CLUB, TEAM_CLUB } from "../support/fixtures";
@@ -28,7 +29,7 @@ let ctx: TestCtx;
 beforeEach(async () => {
 	await resetDb();
 	fake = installFakeStrava();
-	ctx = makeCtx({ team: { ...hamburg, otherClubIds: [OTHER_CLUB.id] } });
+	ctx = makeCtx({ team: hamburg });
 });
 
 afterEach(() => fake.restore());
@@ -68,11 +69,18 @@ describe("a listed person's sign-in", () => {
 		expect((await get("/admin/riders")).status).toBe(200);
 	});
 
-	it("never shows the one-team notice", async () => {
-		fake.addAthlete({ id: GUEST, clubs: [OTHER_CLUB.id] });
+	// Feature 044 FR-001: a guest isn't a rider here, so riding for another
+	// team needs no choice.
+	it("never asks a guest who rides for another team to choose", async () => {
+		ctx = withGateway(ctx);
+		fake.addAthlete({ id: GUEST, clubs: [] });
+		fake.held.set(GUEST, "connected");
+		fake.riders.add(GUEST);
 		await listGuest(ctx, GUEST);
 		const res = await approve(ctx, fake, GUEST);
-		expect(res.headers.get("Location")).not.toBe("/notice/one-team");
+		expect(res.headers.get("Location")).not.toMatch(/^\/switch-team/);
+		expect((await getRider(env.DB, GUEST))?.guest).toBe(true);
+		expect(fake.letGo).toEqual([]);
 	});
 
 	it("keeps a listed person in the club a guest", async () => {
