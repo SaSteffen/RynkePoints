@@ -375,6 +375,8 @@ path is one no test reads: `docs/`, `specs/`, `.specify/`, `.claude/`, `content/
 Markdown files at the top level, `LICENSE`, and `.github/` except `ci.yml` and the
 setup action (`scripts/test-scope.mjs`). A skipped job passes its required check.
 `scope` isn't a required check either.
+A version pull request, which changes only the version in `package.json` and
+`src/changelog.ts`, runs just the changelog's and Settings' tests and no `e2e`.
 
 On a pull request into `develop`, `e2e` runs Chromium and Europe in full, but
 Firefox and WebKit only for the tests tagged `@cross-browser` and the e2e files the

@@ -25,9 +25,11 @@ concurrency:
 # change. already-checked, scope, playwright-image, deploy-gate, deploy and
 # deploy-gateway are not contexts and must never be added to them.
 jobs:
-  # On a pull request: tests=false when it only changes paths no test reads
-  # (scripts/test-scope.mjs). Then test and e2e are skipped, which their required
-  # checks accept. Skipped on pushes and dispatches, where the tests always run.
+  # On a pull request (scripts/test-scope.mjs): tests=none when it only changes
+  # paths no test reads, then test and e2e are skipped, which their required
+  # checks accept; tests=changelog for a version pull request, then test runs only
+  # the changelog's and Settings' tests and e2e is skipped. Skipped on pushes and
+  # dispatches, where the tests always run.
   scope:
     name: scope
     if: github.event_name == 'pull_request'
@@ -118,12 +120,12 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm typecheck
 
-  # Like e2e, skipped when scope found nothing the tests read; when scope was
-  # skipped or failed, they run.
+  # Skipped when scope found nothing the tests read; when scope was skipped or
+  # failed, everything runs.
   test:
     name: test
     needs: [already-checked, scope]
-    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' && needs.scope.outputs.tests != 'false' }}
+    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' && needs.scope.outputs.tests != 'none' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -131,7 +133,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
-      - run: pnpm test
+      - if: needs.scope.outputs.tests == 'changelog'
+        run: pnpm exec vitest run test/integration/changelog.test.ts test/integration/settings.test.ts
+      - if: needs.scope.outputs.tests != 'changelog'
+        run: pnpm test
 
   # The Playwright image matching the locked @playwright/test, for e2e's container.
   playwright-image:
@@ -165,7 +170,7 @@ jobs:
   e2e:
     name: e2e
     needs: [already-checked, scope, playwright-image]
-    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' && needs.scope.outputs.tests != 'false' && needs.playwright-image.result == 'success' }}
+    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' && needs.scope.outputs.tests != 'none' && needs.scope.outputs.tests != 'changelog' && needs.playwright-image.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:

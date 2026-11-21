@@ -67,7 +67,8 @@ and commit messages must follow
   and WebKit only for `@cross-browser` tests and changed e2e files
   (`scripts/e2e-scope.mjs`); PRs into `main` and the nightly `e2e-nightly.yml` run
   everything. A PR that only changes paths no test reads (docs, specs, skills,
-  GitHub settings; `scripts/test-scope.mjs`) skips `test` and `e2e`; a test that
+  GitHub settings; `scripts/test-scope.mjs`) skips `test` and `e2e`, and a version
+  PR runs only the changelog's and Settings' tests; a test that
   starts reading such a path must take it out of that list.
 - The seven check jobs' names are the required-check contexts. Renaming one means
   updating both `.github/rulesets/*.json` files in the same change.

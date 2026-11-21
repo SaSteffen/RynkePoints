@@ -69,7 +69,8 @@ gh pr list --base main --head develop --state open --json url
    git switch --no-track -c chore/release-X.Y.Z origin/develop
    ```
 
-   - In `package.json`, set `"version": "X.Y.Z"`.
+   - In `package.json`, set `"version": "X.Y.Z"`. Change nothing else, in no other
+     file: then CI runs only the changelog's and Settings' tests and no e2e.
    - In `src/changelog.ts`, add `{ version: "X.Y.Z", changes: [ … ] }` as the first
      element of `CHANGELOG`.
    - Run `pnpm exec vitest run test/integration/changelog.test.ts test/integration/settings.test.ts`.
