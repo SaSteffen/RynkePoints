@@ -82,7 +82,7 @@ describe("POST /logout/everywhere", () => {
 			ctx,
 		);
 		expect(await res.text()).toContain(
-			'<form method="post" action="/logout/everywhere"><button class="button-outlined">Überall abmelden</button></form>',
+			'<form method="post" action="/logout/everywhere"><button class="settings-row" aria-labelledby="settings-logout-everywhere" aria-describedby="settings-logout-everywhere-sub">',
 		);
 	});
 

@@ -1617,7 +1617,24 @@ Rynke Nacht Nachtfahrt Wald Pflaume Disco Glitzer
 Hoher Kontrast
 Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
-Sprache
+P
+Paula Paging
+Mit Strava verbunden
+Private Aktivitäten zählen mit.
+Berechtigungen auf Strava ändern
+Dieses Gerät
+Als App installieren
+Als App installieren
+Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
+Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
+Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
+Benachrichtigungen
+Dein Gerät meldet sich, sobald du neue Rynke oder Abzeichen bekommst – auch wenn die App zu ist.
+Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.
+Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.
+Dieser Browser kann keine Benachrichtigungen anzeigen.
+Das hat nicht geklappt. Versuch es bitte noch einmal.
+Sprache Deutsch
 Dansk
 Deutsch
 English
@@ -1628,27 +1645,14 @@ Nederlands
 Norsk bokmål
 Suomi
 Svenska
-Benachrichtigungen
-Dieses Gerät sagt dir Bescheid, wenn du neue Rynke hast, und was dir noch fehlt.
-Auf diesem Gerät an.
-Auf diesem Gerät aus.
-Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.
-Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.
-Dieser Browser kann keine Benachrichtigungen anzeigen.
-Das hat nicht geklappt. Versuch es bitte noch einmal.
+Farbschema
 Animationen
-Animationen beim Seitenwechsel in Konfetti und Disco
-App
-Als App installieren
-Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
-Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
-Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
-Strava-Verbindung
-Mit Strava verbunden
-Private Aktivitäten zählen mit.
-Berechtigungen auf Strava ändern
-Deine Zustimmung
-Zugestimmt am 06.10.2026 (Version 3.1).
+Gilt nur für dieses Gerät.
+Rynke und deine Daten
+Regeln Regel-Version 3, gültig seit dem 09.10.2026.
+Es zählt alles vom 01.01.2026 bis zum 30.06.2027.
+Die Regeln als PDF
+Deine Zustimmung Zugestimmt am 06.10.2026 (Version 3.1).
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
 Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
@@ -1667,18 +1671,12 @@ Aussteigen geht jederzeit: in den Einstellungen oder indem du RynkePoints auf St
 Gelöschte Daten bleiben noch bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters.
 Wir setzen nur notwendige Cookies: für die Anmeldung und deine Sprachwahl.
 Benachrichtigungen sind freiwillig, gelten pro Gerät und zeigen nur dir, wie viele Rynke neu sind und was dir noch fehlt. Sie laufen über den Dienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die er deinem Gerät gibt, und löschen sie, wenn du sie ausschaltest, dich abmeldest oder gehst.
-Regeln
-Regel-Version 3, gültig seit dem 09.10.2026.
-Es zählt alles vom 01.01.2026 bis zum 30.06.2027.
-Die Regeln als PDF
-Rundgang
 Rundgang noch mal zeigen
 Über die App
-Version x.y.z
-Was ist neu
+Was ist neu Version x.y.z
 Konto
-Abmelden
-Überall abmelden
+Abmelden Auf diesem Gerät
+Überall abmelden Auf allen Geräten, auch diesem
 Verbindung trennen und deine Daten löschen
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
 Neu hier? Wir zeigen dir kurz, wo du was findest.
@@ -1716,7 +1714,24 @@ Rynke Night Night Ride Forest Plum Disco Sparkle
 High contrast
 High contrast light High contrast dark
 Applies to this device only.
-Language
+P
+Paula Paging
+Connected to Strava
+Private activities count too.
+Change permissions on Strava
+This device
+Install as an app
+Install as an app
+As an app on your iPhone: in Safari, tap &quot;Share&quot; and then &quot;Add to Home Screen&quot;.
+As an app with Firefox: tap the menu ⋮ and then &quot;Install&quot; or &quot;Add to Home screen&quot;.
+As an app on your Mac: in Safari, choose &quot;File&quot; &gt; &quot;Add to Dock&quot;.
+Notifications
+Your device lets you know as soon as you get new Rynke or badges, even when the app is closed.
+Your device blocks notifications for RynkePoints. You can allow them in your browser&#39;s or device&#39;s settings.
+On an iPhone, notifications only work once RynkePoints is on your home screen. Then open it from there.
+This browser can&#39;t show notifications.
+That didn&#39;t work. Please try again.
+Language English
 Dansk
 Deutsch
 English
@@ -1727,27 +1742,14 @@ Nederlands
 Norsk bokmål
 Suomi
 Svenska
-Notifications
-This device lets you know when you have new Rynke, and what you still need.
-On for this device.
-Off for this device.
-Your device blocks notifications for RynkePoints. You can allow them in your browser&#39;s or device&#39;s settings.
-On an iPhone, notifications only work once RynkePoints is on your home screen. Then open it from there.
-This browser can&#39;t show notifications.
-That didn&#39;t work. Please try again.
+Colour scheme
 Animations
-Animations when switching sections in Confetti and Disco
-App
-Install as an app
-As an app on your iPhone: in Safari, tap &quot;Share&quot; and then &quot;Add to Home Screen&quot;.
-As an app with Firefox: tap the menu ⋮ and then &quot;Install&quot; or &quot;Add to Home screen&quot;.
-As an app on your Mac: in Safari, choose &quot;File&quot; &gt; &quot;Add to Dock&quot;.
-Strava connection
-Connected to Strava
-Private activities count too.
-Change permissions on Strava
-Your consent
-Agreed on 06/10/2026 (version 3.1).
+Applies to this device only.
+Rynke and your data
+Rules Rules version 3, in effect since 09/10/2026.
+Everything from 01/01/2026 to 30/06/2027 counts.
+The rules as PDF (in German)
+Your consent Agreed on 06/10/2026 (version 3.1).
 We don&#39;t read GPS tracks, maps, photos or health data.
 We only read the key figures of your rides, runs and swims, such as distance, time and elevation, and turn them into Rynke and badges.
 The team sees your Rynke and, in the ranking, your sessions, kilometres and elevation, without your name. The organisers see them with your first name, plus your kilometres and elevation per day. Administrators see your first name and connection state.
@@ -1764,18 +1766,12 @@ You can leave at any time: in Settings, or by removing RynkePoints on Strava. We
 Deleted data stays in our hosting provider&#39;s backups for up to 7 days.
 We only set necessary cookies: for signing in and your language choice.
 Notifications are optional, per device, and show only you how many Rynke are new and what you still need. They pass through the push service of your device&#39;s or browser&#39;s maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address it gives your device, and delete it when you turn them off, sign out or leave.
-Rules
-Rules version 3, in effect since 09/10/2026.
-Everything from 01/01/2026 to 30/06/2027 counts.
-The rules as PDF (in German)
-Tours
 Show the tour again
 About the app
-Version x.y.z
-What&#39;s new
+What&#39;s new Version x.y.z
 Account
-Sign out
-Sign out everywhere
+Sign out On this device
+Sign out everywhere On every device, this one too
 Disconnect and delete your data
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Privacy and contact
 New here? Let us show you where everything is.
@@ -7725,7 +7721,24 @@ Rynke Nacht Nachtfahrt Wald Pflaume Disco Glitzer
 Hoher Kontrast
 Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
-Sprache
+P
+Paula Paging
+Mit Strava verbunden
+Private Aktivitäten zählen mit.
+Berechtigungen auf Strava ändern
+Dieses Gerät
+Als App installieren
+Als App installieren
+Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
+Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
+Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
+Benachrichtigungen
+Dein Gerät meldet sich, sobald du neue Rynke oder Abzeichen bekommst – auch wenn die App zu ist.
+Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.
+Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.
+Dieser Browser kann keine Benachrichtigungen anzeigen.
+Das hat nicht geklappt. Versuch es bitte noch einmal.
+Sprache Deutsch
 Dansk
 Deutsch
 English
@@ -7736,27 +7749,14 @@ Nederlands
 Norsk bokmål
 Suomi
 Svenska
-Benachrichtigungen
-Dieses Gerät sagt dir Bescheid, wenn du neue Rynke hast, und was dir noch fehlt.
-Auf diesem Gerät an.
-Auf diesem Gerät aus.
-Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.
-Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.
-Dieser Browser kann keine Benachrichtigungen anzeigen.
-Das hat nicht geklappt. Versuch es bitte noch einmal.
+Farbschema
 Animationen
-Animationen beim Seitenwechsel in Konfetti und Disco
-App
-Als App installieren
-Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
-Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
-Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
-Strava-Verbindung
-Mit Strava verbunden
-Private Aktivitäten zählen mit.
-Berechtigungen auf Strava ändern
-Deine Zustimmung
-Zugestimmt am 06.10.2026 (Version 3.1).
+Gilt nur für dieses Gerät.
+Rynke und deine Daten
+Regeln Regel-Version 3, gültig seit dem 09.10.2026.
+Es zählt alles vom 01.01.2026 bis zum 30.06.2027.
+Die Regeln als PDF
+Deine Zustimmung Zugestimmt am 06.10.2026 (Version 3.1).
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
 Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
@@ -7775,18 +7775,12 @@ Aussteigen geht jederzeit: in den Einstellungen oder indem du RynkePoints auf St
 Gelöschte Daten bleiben noch bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters.
 Wir setzen nur notwendige Cookies: für die Anmeldung und deine Sprachwahl.
 Benachrichtigungen sind freiwillig, gelten pro Gerät und zeigen nur dir, wie viele Rynke neu sind und was dir noch fehlt. Sie laufen über den Dienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die er deinem Gerät gibt, und löschen sie, wenn du sie ausschaltest, dich abmeldest oder gehst.
-Regeln
-Regel-Version 3, gültig seit dem 09.10.2026.
-Es zählt alles vom 01.01.2026 bis zum 30.06.2027.
-Die Regeln als PDF
-Rundgang
 Rundgang noch mal zeigen
 Über die App
-Version x.y.z
-Was ist neu
+Was ist neu Version x.y.z
 Konto
-Abmelden
-Überall abmelden
+Abmelden Auf diesem Gerät
+Überall abmelden Auf allen Geräten, auch diesem
 Verbindung trennen und deine Daten löschen
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
 11 von 12
@@ -7825,7 +7819,24 @@ Rynke Night Night Ride Forest Plum Disco Sparkle
 High contrast
 High contrast light High contrast dark
 Applies to this device only.
-Language
+P
+Paula Paging
+Connected to Strava
+Private activities count too.
+Change permissions on Strava
+This device
+Install as an app
+Install as an app
+As an app on your iPhone: in Safari, tap &quot;Share&quot; and then &quot;Add to Home Screen&quot;.
+As an app with Firefox: tap the menu ⋮ and then &quot;Install&quot; or &quot;Add to Home screen&quot;.
+As an app on your Mac: in Safari, choose &quot;File&quot; &gt; &quot;Add to Dock&quot;.
+Notifications
+Your device lets you know as soon as you get new Rynke or badges, even when the app is closed.
+Your device blocks notifications for RynkePoints. You can allow them in your browser&#39;s or device&#39;s settings.
+On an iPhone, notifications only work once RynkePoints is on your home screen. Then open it from there.
+This browser can&#39;t show notifications.
+That didn&#39;t work. Please try again.
+Language English
 Dansk
 Deutsch
 English
@@ -7836,27 +7847,14 @@ Nederlands
 Norsk bokmål
 Suomi
 Svenska
-Notifications
-This device lets you know when you have new Rynke, and what you still need.
-On for this device.
-Off for this device.
-Your device blocks notifications for RynkePoints. You can allow them in your browser&#39;s or device&#39;s settings.
-On an iPhone, notifications only work once RynkePoints is on your home screen. Then open it from there.
-This browser can&#39;t show notifications.
-That didn&#39;t work. Please try again.
+Colour scheme
 Animations
-Animations when switching sections in Confetti and Disco
-App
-Install as an app
-As an app on your iPhone: in Safari, tap &quot;Share&quot; and then &quot;Add to Home Screen&quot;.
-As an app with Firefox: tap the menu ⋮ and then &quot;Install&quot; or &quot;Add to Home screen&quot;.
-As an app on your Mac: in Safari, choose &quot;File&quot; &gt; &quot;Add to Dock&quot;.
-Strava connection
-Connected to Strava
-Private activities count too.
-Change permissions on Strava
-Your consent
-Agreed on 06/10/2026 (version 3.1).
+Applies to this device only.
+Rynke and your data
+Rules Rules version 3, in effect since 09/10/2026.
+Everything from 01/01/2026 to 30/06/2027 counts.
+The rules as PDF (in German)
+Your consent Agreed on 06/10/2026 (version 3.1).
 We don&#39;t read GPS tracks, maps, photos or health data.
 We only read the key figures of your rides, runs and swims, such as distance, time and elevation, and turn them into Rynke and badges.
 The team sees your Rynke and, in the ranking, your sessions, kilometres and elevation, without your name. The organisers see them with your first name, plus your kilometres and elevation per day. Administrators see your first name and connection state.
@@ -7873,18 +7871,12 @@ You can leave at any time: in Settings, or by removing RynkePoints on Strava. We
 Deleted data stays in our hosting provider&#39;s backups for up to 7 days.
 We only set necessary cookies: for signing in and your language choice.
 Notifications are optional, per device, and show only you how many Rynke are new and what you still need. They pass through the push service of your device&#39;s or browser&#39;s maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address it gives your device, and delete it when you turn them off, sign out or leave.
-Rules
-Rules version 3, in effect since 09/10/2026.
-Everything from 01/01/2026 to 30/06/2027 counts.
-The rules as PDF (in German)
-Tours
 Show the tour again
 About the app
-Version x.y.z
-What&#39;s new
+What&#39;s new Version x.y.z
 Account
-Sign out
-Sign out everywhere
+Sign out On this device
+Sign out everywhere On every device, this one too
 Disconnect and delete your data
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Privacy and contact
 11 of 12
@@ -7923,7 +7915,24 @@ Rynke Nacht Nachtfahrt Wald Pflaume Disco Glitzer
 Hoher Kontrast
 Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
-Sprache
+P
+Paula Paging
+Mit Strava verbunden
+Private Aktivitäten zählen mit.
+Berechtigungen auf Strava ändern
+Dieses Gerät
+Als App installieren
+Als App installieren
+Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
+Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
+Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
+Benachrichtigungen
+Dein Gerät meldet sich, sobald du neue Rynke oder Abzeichen bekommst – auch wenn die App zu ist.
+Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.
+Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.
+Dieser Browser kann keine Benachrichtigungen anzeigen.
+Das hat nicht geklappt. Versuch es bitte noch einmal.
+Sprache Deutsch
 Dansk
 Deutsch
 English
@@ -7934,27 +7943,14 @@ Nederlands
 Norsk bokmål
 Suomi
 Svenska
-Benachrichtigungen
-Dieses Gerät sagt dir Bescheid, wenn du neue Rynke hast, und was dir noch fehlt.
-Auf diesem Gerät an.
-Auf diesem Gerät aus.
-Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.
-Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.
-Dieser Browser kann keine Benachrichtigungen anzeigen.
-Das hat nicht geklappt. Versuch es bitte noch einmal.
+Farbschema
 Animationen
-Animationen beim Seitenwechsel in Konfetti und Disco
-App
-Als App installieren
-Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
-Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
-Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
-Strava-Verbindung
-Mit Strava verbunden
-Private Aktivitäten zählen mit.
-Berechtigungen auf Strava ändern
-Deine Zustimmung
-Zugestimmt am 06.10.2026 (Version 3.1).
+Gilt nur für dieses Gerät.
+Rynke und deine Daten
+Regeln Regel-Version 3, gültig seit dem 09.10.2026.
+Es zählt alles vom 01.01.2026 bis zum 30.06.2027.
+Die Regeln als PDF
+Deine Zustimmung Zugestimmt am 06.10.2026 (Version 3.1).
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
 Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
@@ -7973,18 +7969,12 @@ Aussteigen geht jederzeit: in den Einstellungen oder indem du RynkePoints auf St
 Gelöschte Daten bleiben noch bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters.
 Wir setzen nur notwendige Cookies: für die Anmeldung und deine Sprachwahl.
 Benachrichtigungen sind freiwillig, gelten pro Gerät und zeigen nur dir, wie viele Rynke neu sind und was dir noch fehlt. Sie laufen über den Dienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die er deinem Gerät gibt, und löschen sie, wenn du sie ausschaltest, dich abmeldest oder gehst.
-Regeln
-Regel-Version 3, gültig seit dem 09.10.2026.
-Es zählt alles vom 01.01.2026 bis zum 30.06.2027.
-Die Regeln als PDF
-Rundgang
 Rundgang noch mal zeigen
 Über die App
-Version x.y.z
-Was ist neu
+Was ist neu Version x.y.z
 Konto
-Abmelden
-Überall abmelden
+Abmelden Auf diesem Gerät
+Überall abmelden Auf allen Geräten, auch diesem
 Verbindung trennen und deine Daten löschen
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
 12 von 12
@@ -8023,7 +8013,24 @@ Rynke Night Night Ride Forest Plum Disco Sparkle
 High contrast
 High contrast light High contrast dark
 Applies to this device only.
-Language
+P
+Paula Paging
+Connected to Strava
+Private activities count too.
+Change permissions on Strava
+This device
+Install as an app
+Install as an app
+As an app on your iPhone: in Safari, tap &quot;Share&quot; and then &quot;Add to Home Screen&quot;.
+As an app with Firefox: tap the menu ⋮ and then &quot;Install&quot; or &quot;Add to Home screen&quot;.
+As an app on your Mac: in Safari, choose &quot;File&quot; &gt; &quot;Add to Dock&quot;.
+Notifications
+Your device lets you know as soon as you get new Rynke or badges, even when the app is closed.
+Your device blocks notifications for RynkePoints. You can allow them in your browser&#39;s or device&#39;s settings.
+On an iPhone, notifications only work once RynkePoints is on your home screen. Then open it from there.
+This browser can&#39;t show notifications.
+That didn&#39;t work. Please try again.
+Language English
 Dansk
 Deutsch
 English
@@ -8034,27 +8041,14 @@ Nederlands
 Norsk bokmål
 Suomi
 Svenska
-Notifications
-This device lets you know when you have new Rynke, and what you still need.
-On for this device.
-Off for this device.
-Your device blocks notifications for RynkePoints. You can allow them in your browser&#39;s or device&#39;s settings.
-On an iPhone, notifications only work once RynkePoints is on your home screen. Then open it from there.
-This browser can&#39;t show notifications.
-That didn&#39;t work. Please try again.
+Colour scheme
 Animations
-Animations when switching sections in Confetti and Disco
-App
-Install as an app
-As an app on your iPhone: in Safari, tap &quot;Share&quot; and then &quot;Add to Home Screen&quot;.
-As an app with Firefox: tap the menu ⋮ and then &quot;Install&quot; or &quot;Add to Home screen&quot;.
-As an app on your Mac: in Safari, choose &quot;File&quot; &gt; &quot;Add to Dock&quot;.
-Strava connection
-Connected to Strava
-Private activities count too.
-Change permissions on Strava
-Your consent
-Agreed on 06/10/2026 (version 3.1).
+Applies to this device only.
+Rynke and your data
+Rules Rules version 3, in effect since 09/10/2026.
+Everything from 01/01/2026 to 30/06/2027 counts.
+The rules as PDF (in German)
+Your consent Agreed on 06/10/2026 (version 3.1).
 We don&#39;t read GPS tracks, maps, photos or health data.
 We only read the key figures of your rides, runs and swims, such as distance, time and elevation, and turn them into Rynke and badges.
 The team sees your Rynke and, in the ranking, your sessions, kilometres and elevation, without your name. The organisers see them with your first name, plus your kilometres and elevation per day. Administrators see your first name and connection state.
@@ -8071,18 +8065,12 @@ You can leave at any time: in Settings, or by removing RynkePoints on Strava. We
 Deleted data stays in our hosting provider&#39;s backups for up to 7 days.
 We only set necessary cookies: for signing in and your language choice.
 Notifications are optional, per device, and show only you how many Rynke are new and what you still need. They pass through the push service of your device&#39;s or browser&#39;s maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address it gives your device, and delete it when you turn them off, sign out or leave.
-Rules
-Rules version 3, in effect since 09/10/2026.
-Everything from 01/01/2026 to 30/06/2027 counts.
-The rules as PDF (in German)
-Tours
 Show the tour again
 About the app
-Version x.y.z
-What&#39;s new
+What&#39;s new Version x.y.z
 Account
-Sign out
-Sign out everywhere
+Sign out On this device
+Sign out everywhere On every device, this one too
 Disconnect and delete your data
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Privacy and contact
 12 of 12

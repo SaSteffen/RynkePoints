@@ -93,3 +93,57 @@ export const PLUS = icon('<path d="M12 5v14M5 12h14"/>');
 export const PALETTE = icon(
 	'<path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4.1-4-7.6-9-7.6z"/><circle cx="7.5" cy="11" r="1.2" fill="currentColor"/><circle cx="10.5" cy="7" r="1.2" fill="currentColor"/><circle cx="15" cy="7.2" r="1.2" fill="currentColor"/>',
 );
+
+// The Settings rows' icons (the settings redesign canvas).
+
+/** A phone with an arrow down into it, for installing the app. */
+export const INSTALL = icon(
+	'<rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v6.5"/><path d="M9 10.5l3 3 3-3"/><path d="M10 18h4"/>',
+);
+
+export const BELL = icon(
+	'<path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+);
+
+/** The globe, for the language. */
+export const LANGUAGE = icon(
+	'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/>',
+);
+
+/** Two sparkles, for the page-switch shows. */
+export const SPARKLE = icon(
+	'<path d="M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9z"/><path d="M18.5 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>',
+);
+
+/** A book, for the rules. */
+export const BOOK = icon(
+	'<path d="M5 19.5v-15A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5A1.5 1.5 0 0 0 6.5 21H19"/><path d="M9 7.5h6"/><path d="M9 11h4"/>',
+);
+
+/** A shield with a tick, for the consent. */
+export const SHIELD = icon(
+	'<path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M8.8 12.2l2.2 2.2 4.2-4.4"/>',
+);
+
+/** A compass, for the tours. */
+export const COMPASS = icon(
+	'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+);
+
+/** A clock turning back, for what's new. */
+export const HISTORY = icon(
+	'<path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 3.5V8h4.5"/><path d="M12 8v4.5l3 2"/>',
+);
+
+export const SIGN_OUT = icon(
+	'<path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l-4-4 4-4"/><path d="M6 12h10"/>',
+);
+
+/** A screen and a phone, for every device. */
+export const DEVICES = icon(
+	'<rect x="2.5" y="5" width="13" height="10" rx="1.5"/><path d="M6 19h6"/><rect x="17.5" y="8" width="4.5" height="11" rx="1.2"/>',
+);
+
+export const TRASH = icon(
+	'<path d="M4 7h16"/><path d="M9 7V4.5h6V7"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v5.5"/><path d="M14 11v5.5"/>',
+);

@@ -372,9 +372,7 @@ export const fr: Catalog = {
 	"push.rise.team": "+{n} Rynke d'équipe",
 	"notifications.heading": "Notifications",
 	"notifications.explain":
-		"Cet appareil te prévient quand tu as de nouveaux Rynke, et de ce qu'il te manque.",
-	"notifications.on": "Activées sur cet appareil.",
-	"notifications.off": "Désactivées sur cet appareil.",
+		"Ton appareil te prévient dès que tu reçois de nouveaux Rynke ou badges, même quand l'app est fermée.",
 	"notifications.blocked":
 		"Ton appareil bloque les notifications de RynkePoints. Tu peux les autoriser dans les réglages de ton navigateur ou de ton appareil.",
 	"notifications.needsHomeScreen":
@@ -424,14 +422,14 @@ export const fr: Catalog = {
 	"theme.name.disco": "Disco",
 	"theme.name.contrast-light": "Contraste élevé clair",
 	"theme.name.contrast-dark": "Contraste élevé sombre",
-	"settings.app": "Application",
-	"settings.strava": "Connexion Strava",
 	"settings.account": "Compte",
+	"settings.device": "Cet appareil",
+	"settings.data": "Les Rynke et tes données",
+	"settings.strava.broken": "Connexion interrompue",
+	"settings.logout.here": "Sur cet appareil",
 	"settings.logoutEverywhere": "Se déconnecter partout",
+	"settings.logoutEverywhere.sub": "Sur tous les appareils, celui-ci aussi",
 	"settings.shows": "Animations",
-	"settings.shows.on":
-		"Animations au changement de section dans Confetti et Disco",
-	"settings.tour": "Visites guidées",
 	"settings.tour.rider": "Revoir la visite",
 	"settings.tour.organiser": "Revoir la visite Orga",
 	"settings.about": "À propos de l'application",

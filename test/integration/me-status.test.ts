@@ -86,9 +86,8 @@ describe("GET /me for a connected rider", () => {
 		const late = makeCtx({ now: Date.parse("2026-10-06T23:30:00Z") / 1000 });
 		await seedRider(late, { consentVersion: CONSENT_VERSION });
 		const { page } = await getSettings();
-		expect(page).toContain("<h2>Deine Zustimmung</h2>");
 		expect(page).toMatch(
-			/<p>Zugestimmt am 07\.10\.2026 \(Version\u00a03\)\.<\/p>\n<p>Wir lesen keine GPS-Spuren, .*<br>Wir lesen nur .*<\/p>\n<p>Das Team sieht deine Rynke und im Ranking .*<\/p>\n<p class="reference-note">Verbindlich ist die .*<\/p>\n<details class="more">.*\n<p>Von jeder Radfahrt lesen wir nur Namen, /,
+			/<span class="settings-title">Deine Zustimmung<\/span><span class="settings-sub">Zugestimmt am 07\.10\.2026 \(Version\u00a03\)\.<\/span><\/span><\/summary>\n<div class="settings-panel">\n<p>Wir lesen keine GPS-Spuren, .*<br>Wir lesen nur .*<\/p>\n<p>Das Team sieht deine Rynke und im Ranking .*<\/p>\n<p class="reference-note">Verbindlich ist die .*<\/p>\n<details class="more">.*\n<p>Von jeder Radfahrt lesen wir nur Namen, /,
 		);
 		expect(page).not.toContain("noch keine Zustimmung");
 	});
@@ -149,7 +148,7 @@ describe("GET /me for a connected rider", () => {
 			'<input type="hidden" name="next" value="/me/settings">',
 		);
 		expect(page).toMatch(
-			/<form method="post" action="\/logout"><input type="hidden" name="push_endpoint" value=""><button class="button-outlined">Abmelden<\/button><\/form>/,
+			/<form method="post" action="\/logout"><input type="hidden" name="push_endpoint" value=""><button class="settings-row" aria-labelledby="settings-logout" aria-describedby="settings-logout-sub">\n[\s\S]*?<span class="settings-title" id="settings-logout">Abmelden<\/span>[\s\S]*?<\/button><\/form>/,
 		);
 	});
 
@@ -162,7 +161,8 @@ describe("GET /me for a connected rider", () => {
 			escapeHtml(de["consent.organisers"]),
 			escapeHtml(de["consent.team"]),
 			escapeHtml(de["me.scope.readAll"]),
-			`<a class="danger" href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
+			'<a class="settings-row" href="/me/disconnect">',
+			`<span class="settings-title">${escapeHtml(de["me.disconnect.button"])}</span>`,
 		]) {
 			expect(page).toContain(shown);
 		}

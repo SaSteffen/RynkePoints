@@ -681,6 +681,7 @@ for (const [way, userAgent] of Object.entries(MANUAL_INSTALL)) {
 				page.locator(`#app-prompt [data-install="${way}"]`),
 			).toBeVisible();
 			await page.goto("/me/settings");
+			await page.locator("#settings-app summary").click();
 			await expect(
 				page.locator(`#settings-app [data-install="${way}"]`),
 			).toBeVisible();

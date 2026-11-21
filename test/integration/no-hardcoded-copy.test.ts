@@ -71,6 +71,9 @@ function unmarkedText(page: string): string[] {
 		.replace(/<span class="ride-name">[\s\S]*?<\/span>/g, "")
 		// So are riders' first names (feature 014 Story 2).
 		.replace(/<span class="rider-name">[\s\S]*?<\/span>/g, "")
+		// And the initial and name on Settings' Strava card.
+		.replace(/<span class="settings-avatar"[^>]*>[^<]*<\/span>/g, "")
+		.replace(/<h2 class="settings-name"[^>]*>[^<]*<\/h2>/g, "")
 		// The controller's name and address are settings, not copy (feature 017).
 		.replace(/<p class="privacy-controller">[\s\S]*?<\/p>/g, "")
 		// So is the team's name under the start page's coin (feature 026).

@@ -891,7 +891,7 @@ describe("STYLE", () => {
 		const MEDIUM = "(min-width:840px)";
 		for (const page of [
 			"main:has(>.team-grid)",
-			"main:has(>.settings-grid)",
+			"main:has(>.settings-page)",
 			"main:has(>.events)",
 			"main:has(>section.organiser>ul.organiser-events)",
 		]) {
@@ -909,8 +909,9 @@ describe("STYLE", () => {
 				"grid-row": "1/-1",
 			});
 		}
-		expect(declsOf(".settings-grid", MEDIUM).columns).toBe("2");
-		expect(declsOf(".settings-group")["break-inside"]).toBe("avoid");
+		expect(declsOf(".settings-page", MEDIUM)["grid-template-columns"]).toBe(
+			"repeat(2,minmax(0,1fr))",
+		);
 		// Both labels of an event button share one cell, so hovering never
 		// widens it and wraps it away from the pointer in a narrower card.
 		expect(declsOf(".event-button>.event-next")["grid-area"]).toBe("1/1");

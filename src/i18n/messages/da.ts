@@ -357,9 +357,7 @@ export const da: Catalog = {
 	"push.rise.team": "+{n} Team-Rynke",
 	"notifications.heading": "Notifikationer",
 	"notifications.explain":
-		"Denne enhed giver dig besked, når du har nye Rynke, og hvad du mangler.",
-	"notifications.on": "Til på denne enhed.",
-	"notifications.off": "Fra på denne enhed.",
+		"Din enhed giver besked, så snart du får nye Rynke eller badges – også når appen er lukket.",
 	"notifications.blocked":
 		"Din enhed blokerer notifikationer fra RynkePoints. Du kan tillade dem i indstillingerne for din browser eller enhed.",
 	"notifications.needsHomeScreen":
@@ -407,14 +405,14 @@ export const da: Catalog = {
 	"theme.name.disco": "Disco",
 	"theme.name.contrast-light": "Høj kontrast lys",
 	"theme.name.contrast-dark": "Høj kontrast mørk",
-	"settings.app": "App",
-	"settings.strava": "Strava-forbindelse",
 	"settings.account": "Konto",
+	"settings.device": "Denne enhed",
+	"settings.data": "Rynke og dine data",
+	"settings.strava.broken": "Forbindelsen er afbrudt",
+	"settings.logout.here": "På denne enhed",
 	"settings.logoutEverywhere": "Log ud overalt",
+	"settings.logoutEverywhere.sub": "På alle enheder, også denne",
 	"settings.shows": "Animationer",
-	"settings.shows.on":
-		"Animationer ved skift mellem afsnit i Konfetti og Disco",
-	"settings.tour": "Rundvisninger",
 	"settings.tour.rider": "Vis rundvisningen igen",
 	"settings.tour.organiser": "Vis Orga-rundvisningen igen",
 	"settings.about": "Om appen",
