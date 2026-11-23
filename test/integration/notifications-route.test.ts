@@ -213,6 +213,20 @@ describe("GET /me/notification-text for an alert (feature 025 FR-036)", () => {
 		expect((await text()).body?.body).toContain("80\u00a0%");
 	});
 
+	it("says runs were cut off for a CPU alert (User Story 6, FR-044)", async () => {
+		await makeAdmin();
+		await fired("cpu_cut_off", 80);
+		expect((await text()).body).toEqual({
+			title: expect.any(String),
+			body: CATALOGS.de["notification.usage.cpuWarning"],
+			url: "/admin",
+		});
+		await fired("cpu_cut_off", 95);
+		expect((await text()).body?.body).toBe(
+			CATALOGS.de["notification.usage.cpuCritical"],
+		);
+	});
+
 	it("is over after 15 minutes", async () => {
 		await makeAdmin();
 		await fired("strava_read_daily", 80, NOW - 15 * 60 - 1);

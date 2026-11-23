@@ -14,6 +14,7 @@ import {
 import { totalWaitingStatement } from "../../db/strava-work";
 import {
 	readCloudflareFigures,
+	readCpuDays,
 	readSourceStates,
 	type SourceState,
 	type TeamCountRecord,
@@ -26,10 +27,18 @@ import type { I18n } from "../../i18n/i18n";
 import {
 	CLOUDFLARE_ALLOWANCES,
 	CLOUDFLARE_LIMITS,
+	daysBefore,
 	historyStart,
 	isRecordedAllowance,
 	utcDay,
 } from "../../usage/allowances";
+import {
+	CPU_LIMIT_MS,
+	type CpuDay,
+	type CpuLevel,
+	cpuLevel,
+	notifiesThisTeam,
+} from "../../usage/cpu";
 import {
 	connectedFigure,
 	drainEstimateSeconds,
@@ -301,9 +310,96 @@ ${days.map(row)}</tbody>
 `;
 }
 
-/** How many figures need a look, so nobody has to read them all (SC-001). */
-function summary(i18n: I18n, figures: readonly Figure[]): SafeHtml {
-	const marked = figures.filter((f) => f.level !== "ok").length;
+/** The days the CPU table shows, today included (FR-042). */
+const CPU_DAYS = 30;
+
+/** Per day: this team, the other teams together, the gateway. */
+interface CpuRow {
+	day: string;
+	own: CpuDay | null;
+	others: CpuDay | null;
+	shared: CpuDay | null;
+}
+
+/** The days' records by owner, other teams added up, newest first. */
+function cpuRows(days: readonly CpuDay[], self: string): CpuRow[] {
+	const rows = new Map<string, CpuRow>();
+	for (const record of days) {
+		let row = rows.get(record.day);
+		if (!row) {
+			row = { day: record.day, own: null, others: null, shared: null };
+			rows.set(record.day, row);
+		}
+		if (record.owner === self) row.own = record;
+		else if (record.owner === SHARED) row.shared = record;
+		else if (row.others === null) row.others = { ...record };
+		else {
+			row.others.runs += record.runs;
+			row.others.cutOff += record.cutOff;
+			row.others.p99Us = Math.max(row.others.p99Us, record.p99Us);
+		}
+	}
+	return [...rows.values()].sort((a, b) => b.day.localeCompare(a.day));
+}
+
+function levelMark(i18n: I18n, level: CpuLevel): SafeHtml | null {
+	return level === "ok"
+		? null
+		: html` <span class="usage-mark usage-mark-${level}">${i18n.t(`admin.level.${level}`)}</span>`;
+}
+
+/**
+ * The Workers' CPU time (feature 025 User Story 6): per day and owner, the
+ * slowest 1 in 100 runs' CPU time beside the limit, and the runs cut off out of
+ * all runs, marked by FR-043. No other team is named (feature 026 FR-023).
+ */
+function cpuSection(
+	i18n: I18n,
+	rows: readonly CpuRow[],
+	available: boolean,
+): SafeHtml {
+	const ms = (us: number) =>
+		i18n.t("admin.cpu.ms", {
+			n: i18n.formatNumber(us / 1000, { fractionDigits: 1 }),
+		});
+	const cell = (record: CpuDay | null) =>
+		record === null
+			? html`<td>–</td>`
+			: html`<td>${i18n.t("admin.cpu.cell", {
+					slowest: ms(record.p99Us),
+					cut: whole(i18n, record.cutOff),
+					runs: whole(i18n, record.runs),
+				})}${levelMark(i18n, cpuLevel(record.runs, record.cutOff))}</td>`;
+	return html`<section class="card usage-source" id="cpu">
+<h2>${i18n.t("admin.cpu.heading")}</h2>
+<p class="usage-detail">${i18n.t("admin.cpu.intro", { limit: i18n.t("admin.cpu.ms", { n: whole(i18n, CPU_LIMIT_MS) }) })}</p>
+${available ? null : html`<p class="notice notice-error" role="alert">${i18n.t("admin.cpu.unavailable")}</p>`}${
+	rows.length === 0
+		? html`<p class="usage-detail">${i18n.t("admin.cpu.none")}</p>`
+		: html`<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
+<thead><tr><th scope="col">${i18n.t("admin.history.day")}</th><th scope="col">${i18n.t("admin.history.team")}</th><th scope="col">${i18n.t("admin.teams.other")}</th><th scope="col">${i18n.t("admin.teams.shared")}</th></tr></thead>
+<tbody>
+${rows.map(
+	(
+		row,
+	) => html`<tr><th scope="row">${i18n.formatDate(`${row.day}T00:00:00Z`)}</th>${cell(row.own)}${cell(row.others)}${cell(row.shared)}</tr>
+`,
+)}</tbody>
+</table></div></div>`
+}</section>
+`;
+}
+
+/**
+ * How many figures need a look, so nobody has to read them all (SC-001), and
+ * today's CPU marks of this team's Worker and the gateway (FR-044).
+ */
+function summary(
+	i18n: I18n,
+	figures: readonly Figure[],
+	cpuMarked: number,
+): SafeHtml {
+	const marked = figures.filter((f) => f.level !== "ok").length + cpuMarked;
 	return marked === 0
 		? html`<p class="notice" role="status">${i18n.t("admin.summary.ok")}</p>
 `
@@ -388,21 +484,41 @@ export function handleAdminUsage(
 		const now = ctx.now();
 		const today = utcDay(now);
 		const peers = usagePeers(ctx.env);
-		const [usage, cloudflare, counts, devices, states, recheckDays, active] =
-			await Promise.all([
-				readStravaUsage(db),
-				readCloudflareFigures(db),
-				db.batch([
-					connectedCountStatement(db),
-					totalWaitingStatement(db),
-					usageHistoryStatement(db, historyStart(today)),
-					teamCountsStatement(db, historyStart(today)),
-				]),
-				subscriptionIdsOfRiders(db, [rider.athleteId]),
-				peers.length > 0 ? readSourceStates(db) : new Map(),
-				readRecheckDays(db),
-				countActiveRiders(db, now),
-			]);
+		const [
+			usage,
+			cloudflare,
+			counts,
+			devices,
+			states,
+			recheckDays,
+			active,
+			cpuDays,
+		] = await Promise.all([
+			readStravaUsage(db),
+			readCloudflareFigures(db),
+			db.batch([
+				connectedCountStatement(db),
+				totalWaitingStatement(db),
+				usageHistoryStatement(db, historyStart(today)),
+				teamCountsStatement(db, historyStart(today)),
+			]),
+			subscriptionIdsOfRiders(db, [rider.athleteId]),
+			readSourceStates(db),
+			readRecheckDays(db),
+			countActiveRiders(db, now),
+			readCpuDays(db, daysBefore(today, CPU_DAYS - 1)),
+		]);
+		const cpu = cpuRows(cpuDays, ctx.team.id);
+		const cpuMarked = cpuDays.filter(
+			(d) =>
+				d.day === today &&
+				notifiesThisTeam(d.owner, ctx.team.id) &&
+				cpuLevel(d.runs, d.cutOff) !== "ok",
+		).length;
+		const cpuState = states.get("cloudflare-cpu");
+		const cpuAvailable =
+			cpuState?.lastFailureAt == null ||
+			(cpuState.lastSuccessAt ?? 0) > cpuState.lastFailureAt;
 		const count = (i: number) =>
 			(counts[i]?.results[0] as { n: number } | undefined)?.n ?? 0;
 		const teamRecords = teamCountRecords(counts[3]?.results ?? []);
@@ -456,7 +572,7 @@ export function handleAdminUsage(
 		);
 		const firstDay = records[0]?.day;
 		const item = (figure: Figure) => figureItem(i18n, figure, history, teams);
-		return html`${adminSwitch(i18n, "usage")}${summary(i18n, [...strava, ...account])}${teamNotices(i18n, teams.peers, states)}${overviewSection(i18n, [...strava, ...account], teams)}${
+		return html`${adminSwitch(i18n, "usage")}${summary(i18n, [...strava, ...account], cpuMarked)}${teamNotices(i18n, teams.peers, states)}${overviewSection(i18n, [...strava, ...account], teams)}${
 			devices.length === 0
 				? html`<p class="notice">${i18n.tHtml("admin.alerts.noDevice", {
 						settings: html`<a href="/me/settings">${i18n.t("nav.settings")}</a>`,
@@ -495,7 +611,7 @@ ${account.map(item)}${missing.map(
 `,
 )}</ul>
 </section>
-${alertsSwitch(i18n, rider)}`;
+${cpuSection(i18n, cpu, cpuAvailable)}${alertsSwitch(i18n, rider)}`;
 	});
 }
 

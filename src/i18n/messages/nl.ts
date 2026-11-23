@@ -1251,6 +1251,14 @@ export const nl: Catalog = {
 		other: "{n} rondes aangehouden",
 	},
 	"admin.recheck.listOrder": "volgorde van de lijst",
+	"admin.cpu.heading": "CPU-tijd van de Workers",
+	"admin.cpu.intro":
+		"Elke run van een Worker (een pagina, een batch uit de wachtrij, een geplande run) mag {limit} CPU-tijd gebruiken. Per dag: hoeveel de traagste 1 op 100 runs nodig hadden, en hoeveel runs Cloudflare heeft afgebroken. Cloudflare vergeeft een enkele overschrijding; afgebroken runs zijn fouten.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} van {runs} afgebroken",
+	"admin.cpu.none": "Nog geen CPU-cijfers vastgelegd.",
+	"admin.cpu.unavailable":
+		"De CPU-cijfers van Cloudflare konden de laatste keer niet worden opgehaald. De tabel toont de dagen die tot nu toe zijn vastgelegd.",
 	"admin.waiting.heading": "Wachten op het Strava-budget",
 	"admin.waiting.body": {
 		one: "{n} item wacht, klaar over ongeveer {time}.",
@@ -1317,6 +1325,10 @@ export const nl: Catalog = {
 	"admin.remove.leaveLink": "Mijn gegevens wissen",
 	"notification.usage.warning": "{allowance}: {percent} %",
 	"notification.usage.critical": "Kritiek: {allowance} op {percent} %",
+	"notification.usage.cpuWarning":
+		"Cloudflare heeft vandaag runs afgebroken, meestal door te veel CPU-tijd.",
+	"notification.usage.cpuCritical":
+		"Kritiek: Cloudflare heeft vandaag meer dan 1 op 100 runs afgebroken.",
 	"notice.blocked.title": "Je kunt niet meedoen in dit team",
 	"notice.blocked.body":
 		"Een beheerder heeft je uit dit team verwijderd. We bewaren alleen je Strava-ID, zodat je niet opnieuw kunt verbinden.",

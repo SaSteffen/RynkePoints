@@ -226,6 +226,16 @@ const COLUMNS: Record<string, string[]> = {
 		"over_24h",
 		"runs_held",
 	],
+	// Feature 025 User Story 6: Workers' CPU time per day and owner, no rider
+	// identifiers.
+	usage_cpu_daily: [
+		"day",
+		"owner",
+		"runs",
+		"cut_off",
+		"cpu_p99_us",
+		"recorded_at",
+	],
 	blocked_athletes: ["athlete_id"],
 	removal_log: ["id", "removed_at", "administrator_id"],
 	// Feature 041: the guest list holds IDs only; a withdrawal keeps the

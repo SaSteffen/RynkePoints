@@ -8,12 +8,13 @@ import {
 	sourceSuccessStatement,
 	type TeamCountRecord,
 	type UsageRecord,
+	upsertCpuDayStatement,
 	upsertTeamCountStatement,
 	upsertUsageStatement,
 } from "../db/usage";
 import { TEAMS } from "../teams";
 import type { TeamData } from "../teams/types";
-import { checkAlerts } from "./alerts";
+import { checkAlerts, checkCpuAlerts } from "./alerts";
 import {
 	ATHLETE_CAPACITY,
 	CLOUDFLARE_ALLOWANCES,
@@ -21,6 +22,12 @@ import {
 	utcDay,
 } from "./allowances";
 import { type CloudflareResult, fetchCloudflareUsage } from "./cloudflare";
+import {
+	type CpuResult,
+	cpuLevel,
+	fetchCpuUsage,
+	notifiesThisTeam,
+} from "./cpu";
 import { currentStrava } from "./figures";
 import {
 	exchangeToken,
@@ -159,14 +166,34 @@ function peerConnected(
 	return stored.get(peer.id)?.connected ?? 0;
 }
 
+/** The CPU days to store, and whether the query answered (FR-041, FR-045). */
+function cpuStatements(
+	db: D1Database,
+	cpu: CpuResult,
+	now: number,
+): D1PreparedStatement[] {
+	if (cpu.kind !== "ok") {
+		console.warn(`Cloudflare CPU figures unavailable: ${cpu.reason}`);
+		return [sourceFailureStatement(db, now, "cloudflare-cpu")];
+	}
+	return [
+		...cpu.days.map((record) => upsertCpuDayStatement(db, record, now)),
+		sourceSuccessStatement(db, now, "cloudflare-cpu"),
+	];
+}
+
 export async function recordUsage(ctx: Ctx): Promise<void> {
 	const db = ctx.env.DB;
 	const now = ctx.now();
 	const day = utcDay(now);
-	const [usage, connected, cloudflare, peers] = await Promise.all([
+	const allTeams = TEAMS.map((team) =>
+		team.id === ctx.team.id ? ctx.team : team,
+	);
+	const [usage, connected, cloudflare, cpu, peers] = await Promise.all([
 		readStravaUsage(db),
 		connectedCountStatement(db).first<number>("n"),
 		fetchCloudflareUsage(ctx.env, now),
+		fetchCpuUsage(ctx.env, now, allTeams),
 		pullPeers(ctx, day),
 	]);
 	const strava = currentStrava(usage, now);
@@ -237,6 +264,7 @@ export async function recordUsage(ctx: Ctx): Promise<void> {
 	} else {
 		console.warn(`Cloudflare usage unavailable: ${cloudflare.reason}`);
 	}
+	teamStatements.push(...cpuStatements(db, cpu, now));
 	await db.batch([
 		...records.map((record) => upsertUsageStatement(db, ctx.env, record)),
 		...corrections.map((record) =>
@@ -249,6 +277,17 @@ export async function recordUsage(ctx: Ctx): Promise<void> {
 	]);
 	try {
 		await checkAlerts(ctx, records);
+		if (cpu.kind === "ok") {
+			await checkCpuAlerts(
+				ctx,
+				day,
+				cpu.days
+					.filter(
+						(d) => d.day === day && notifiesThisTeam(d.owner, ctx.team.id),
+					)
+					.map((d) => cpuLevel(d.runs, d.cutOff)),
+			);
+		}
 	} catch (err) {
 		const name = err instanceof Error ? err.name : "unknown error";
 		console.error(`Usage alerts failed: ${name}`);

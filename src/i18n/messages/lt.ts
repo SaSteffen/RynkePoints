@@ -1273,6 +1273,14 @@ export const lt: Catalog = {
 		other: "{n} paleidimų sulaikyta",
 	},
 	"admin.recheck.listOrder": "sąrašo tvarka",
+	"admin.cpu.heading": "Workerių procesoriaus laikas",
+	"admin.cpu.intro":
+		"Kiekvienas workerio paleidimas (puslapis, eilės paketas, suplanuotas paleidimas) gali naudoti {limit} procesoriaus laiko. Kas dieną: kiek prireikė lėčiausiam 1 iš 100 paleidimų ir kiek paleidimų Cloudflare nutraukė. Cloudflare atleidžia pavienius viršijimus, o nutraukti paleidimai yra klaidos.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · nutraukta {cut} iš {runs}",
+	"admin.cpu.none": "Procesoriaus laiko duomenų dar neužfiksuota.",
+	"admin.cpu.unavailable":
+		"Paskutinį kartą nepavyko gauti Cloudflare procesoriaus laiko duomenų. Lentelėje rodomos iki šiol užfiksuotos dienos.",
 	"admin.waiting.heading": "Laukiama Strava biudžeto",
 	"admin.waiting.body": {
 		one: "Laukia {n} užduotis, liko maždaug {time}.",
@@ -1355,6 +1363,10 @@ export const lt: Catalog = {
 	"admin.remove.leaveLink": "Ištrinti mano duomenis",
 	"notification.usage.warning": "{allowance}: {percent} %",
 	"notification.usage.critical": "Kritinis: {allowance} – {percent} %",
+	"notification.usage.cpuWarning":
+		"Šiandien Cloudflare nutraukė paleidimų, dažniausiai dėl per didelio procesoriaus laiko.",
+	"notification.usage.cpuCritical":
+		"Kritinis: šiandien Cloudflare nutraukė daugiau nei 1 iš 100 paleidimų.",
 	"notice.blocked.title": "Negali dalyvauti šioje komandoje",
 	"notice.blocked.body":
 		"Administratorius tave pašalino iš šios komandos. Pasiliekame tik tavo Strava ID, kad negalėtum vėl prisijungti.",

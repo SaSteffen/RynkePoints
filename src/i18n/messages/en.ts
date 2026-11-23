@@ -1234,6 +1234,14 @@ export const en: Catalog = {
 	"admin.recheck.over24h": "Waited over 24\u00a0h",
 	"admin.recheck.runsHeld": { one: "{n} run held", other: "{n} runs held" },
 	"admin.recheck.listOrder": "list order",
+	"admin.cpu.heading": "Workers' CPU time",
+	"admin.cpu.intro":
+		"Each run of a Worker (a page, a queue batch, a scheduled run) may use {limit} of CPU. Per day: how much the slowest 1 in 100 runs needed, and how many runs Cloudflare cut off. Cloudflare forgives the odd overrun; runs cut off are failures.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} of {runs} cut off",
+	"admin.cpu.none": "No CPU figures recorded yet.",
+	"admin.cpu.unavailable":
+		"Cloudflare's CPU figures couldn't be fetched last time. The table shows the days recorded so far.",
 	"admin.waiting.heading": "Waiting for the Strava budget",
 	"admin.waiting.body": {
 		one: "{n} item is waiting, done in about {time}.",
@@ -1299,6 +1307,10 @@ export const en: Catalog = {
 	"admin.remove.leaveLink": "Delete my data",
 	"notification.usage.warning": "{allowance}: {percent}\u00a0%",
 	"notification.usage.critical": "Critical: {allowance} at {percent}\u00a0%",
+	"notification.usage.cpuWarning":
+		"Cloudflare cut off runs today, mostly for using too much CPU time.",
+	"notification.usage.cpuCritical":
+		"Critical: Cloudflare cut off more than 1 in 100 runs today.",
 	"notice.blocked.title": "You can't take part in this team",
 	"notice.blocked.body":
 		"An administrator removed you from this team. We only keep your Strava ID, so you can't connect again.",

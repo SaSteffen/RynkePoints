@@ -1230,6 +1230,14 @@ export const da: Catalog = {
 		other: "{n} kørsler holdt tilbage",
 	},
 	"admin.recheck.listOrder": "listens rækkefølge",
+	"admin.cpu.heading": "Workernes CPU-tid",
+	"admin.cpu.intro":
+		"Hver afvikling af en worker (en side, en portion fra køen, en planlagt afvikling) må bruge {limit} CPU-tid. Pr. dag: hvor meget de langsomste 1 ud af 100 afviklinger brugte, og hvor mange afviklinger Cloudflare afbrød. Cloudflare tilgiver enkelte overskridelser; afbrudte afviklinger er fejl.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} af {runs} afbrudt",
+	"admin.cpu.none": "Endnu ingen CPU-tal registreret.",
+	"admin.cpu.unavailable":
+		"Cloudflares CPU-tal kunne ikke hentes sidste gang. Tabellen viser de dage, der er registreret indtil nu.",
 	"admin.waiting.heading": "Venter på Strava-budgettet",
 	"admin.waiting.body": {
 		one: "{n} post venter, færdig om cirka {time}.",
@@ -1296,6 +1304,10 @@ export const da: Catalog = {
 	"admin.remove.leaveLink": "Slet mine data",
 	"notification.usage.warning": "{allowance}: {percent} %",
 	"notification.usage.critical": "Kritisk: {allowance} på {percent} %",
+	"notification.usage.cpuWarning":
+		"Cloudflare afbrød afviklinger i dag, oftest på grund af for meget CPU-tid.",
+	"notification.usage.cpuCritical":
+		"Kritisk: Cloudflare afbrød i dag mere end 1 ud af 100 afviklinger.",
 	"notice.blocked.title": "Du kan ikke være med på dette hold",
 	"notice.blocked.body":
 		"En administrator har fjernet dig fra dette hold. Vi beholder kun dit Strava-ID, så du ikke kan forbinde igen.",

@@ -1292,6 +1292,14 @@ export const fr: Catalog = {
 		other: "{n} passages suspendus",
 	},
 	"admin.recheck.listOrder": "ordre de la liste",
+	"admin.cpu.heading": "Temps CPU des Workers",
+	"admin.cpu.intro":
+		"Chaque exécution d'un Worker (une page, un lot de la file, une exécution planifiée) peut utiliser {limit} de CPU. Par jour\u00a0: le temps qu'ont pris les exécutions les plus lentes (1 sur 100), et le nombre d'exécutions interrompues par Cloudflare. Cloudflare tolère un dépassement occasionnel\u00a0; une exécution interrompue est un échec.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} sur {runs} interrompues",
+	"admin.cpu.none": "Aucun chiffre CPU enregistré pour l'instant.",
+	"admin.cpu.unavailable":
+		"Les chiffres CPU de Cloudflare n'ont pas pu être récupérés la dernière fois. Le tableau montre les jours déjà enregistrés.",
 	"admin.waiting.heading": "En attente du budget Strava",
 	"admin.waiting.body": {
 		one: "{n} élément en attente, terminé dans environ {time}.",
@@ -1371,6 +1379,10 @@ export const fr: Catalog = {
 	"admin.remove.leaveLink": "Supprimer mes données",
 	"notification.usage.warning": "{allowance}\u00a0: {percent} %",
 	"notification.usage.critical": "Critique\u00a0: {allowance} à {percent} %",
+	"notification.usage.cpuWarning":
+		"Cloudflare a interrompu des exécutions aujourd'hui, surtout pour trop de temps CPU.",
+	"notification.usage.cpuCritical":
+		"Critique\u00a0: Cloudflare a interrompu plus d'une exécution sur 100 aujourd'hui.",
 	"notice.blocked.title": "Tu ne peux pas participer à cette équipe",
 	"notice.blocked.body":
 		"Un administrateur t'a retiré·e de cette équipe. Nous gardons seulement ton identifiant Strava, pour que tu ne puisses pas te reconnecter.",
