@@ -1138,10 +1138,11 @@ export const lt: Catalog = {
 	"nav.admin": "Administravimas",
 	"admin.switch.label": "Administravimo rodiniai",
 	"admin.switch.usage": "Naudojimas",
-	"admin.switch.riders": "Dviratininkai",
-	"admin.switch.roles": "Vaidmenys",
+	"admin.switch.riders": "Dviratininkai ir vaidmenys",
 	"admin.roles.hint":
-		"Orga mato visus dviratininkus pagal vardą: Rynke, ko trūksta, kilometrus ir aukštį per dieną bei pataisymus. Administratoriai visada yra ir Orgoje, be to, prižiūri programėlę: naudojimą, dviratininkus ir vaidmenis.",
+		"Orga mato visų dviratininkų treniruočių skaičius ir Rynke. Administratoriai visada yra ir Orgoje, be to, prižiūri programėlę: naudojimą, dviratininkus ir vaidmenis.",
+	"admin.roles.hint.events":
+		"Orga mato visų dviratininkų treniruočių skaičius ir Rynke, kuria renginius ir pažymi, kas dalyvavo. Administratoriai visada yra ir Orgoje, be to, prižiūri programėlę: naudojimą, dviratininkus ir vaidmenis.",
 	"admin.roles.admins": "Administratoriai",
 	"admin.roles.orga": "Orga",
 	"admin.roles.you": "Tu",
@@ -1152,24 +1153,24 @@ export const lt: Catalog = {
 		"Tavo paties vaidmenį gali pakeisti tik kitas administratorius.",
 	"admin.roles.onlyAdmin":
 		"Be tavęs nėra kitų administratorių. Tavo paties vaidmenį gali pakeisti tik kitas administratorius.",
-	"admin.roles.orgaNote":
-		"Administratoriai nurodyti aukščiau ir čia nekartojami.",
+	"admin.roles.orgaNote": "Administratoriai taip pat turi Orgos teises.",
 	"admin.roles.orgaNone": "Nieko, išskyrus administratorius.",
-	"admin.roles.give.heading": "Suteikti vaidmenį",
-	"admin.roles.give.button": "Suteikti vaidmenį",
-	"admin.roles.give.note":
-		"Čia rodomi tik dviratininkai, kurie dalijasi savo duomenimis su komanda.",
-	"admin.roles.give.none": "Visi čia jau turi vaidmenį.",
+	"admin.roles.without.heading": "Be vaidmens",
+	"admin.roles.without.note":
+		"Čia rodomi tik dviratininkai, kurie dalijasi savo duomenimis su komanda: {listed}. Dar laukiama sutikimo: {waiting}. Užblokuoti: {blocked}.",
+	"admin.roles.without.empty": "Visi čia jau turi vaidmenį.",
 	"admin.roles.search": "Rasti dviratininką",
 	"admin.roles.searchNone": "Nieko nerasta.",
-	"admin.roles.sheet.title": "Vaidmuo: {name}",
 	"admin.roles.sheet.note":
 		"{name} gaus žinutę kitą kartą atidarius programėlę.",
+	"admin.roles.sheet.role": "Vaidmuo",
 	"admin.roles.choice.none": "Jokio",
 	"admin.roles.choice.none.text": "Mato tai, ką mato visi dviratininkai.",
 	"admin.roles.choice.orga": "Orga",
 	"admin.roles.choice.orga.text":
-		"Mato visus dviratininkus pagal vardą, jų Rynke, ko jiems trūksta, kilometrus ir aukštį per dieną, ir taiso Rynke.",
+		"Mato visų dviratininkų treniruočių skaičius ir Rynke.",
+	"admin.roles.choice.orga.text.events":
+		"Mato visų dviratininkų treniruočių skaičius ir Rynke, kuria renginius ir pažymi, kas dalyvavo.",
 	"admin.roles.choice.admin": "Administratorius",
 	"admin.roles.choice.admin.text":
 		"Viskas, ką turi Orga, ir dar programėlės naudojimas, dviratininkų pašalinimas ir vaidmenų keitimas.",
@@ -1322,8 +1323,6 @@ export const lt: Catalog = {
 	"admin.history.gap": "Nieko neužfiksuota",
 	"admin.history.ridersNote":
 		"Prisijungę dviratininkai yra šios komandos, todėl visas skaičius yra jos.",
-	"admin.riders.counts":
-		"Sąraše: {listed}. Ne sąraše, nes dar nesutiko: {unlisted}. Užblokuoti: {blocked}.",
 	"admin.riders.none": "Dar nė vienas dviratininkas nesutiko.",
 	"admin.riders.status": "Ryšys",
 	"admin.riders.status.connected": "Prisijungęs",
@@ -1337,6 +1336,10 @@ export const lt: Catalog = {
 	"admin.riders.remove": "Pašalinti",
 	"admin.riders.guests.heading": "Svečiai",
 	"admin.riders.guest": "Svečias",
+	"admin.riders.attention.import": "Importas dar vyksta",
+	"admin.riders.guest.since": "Prisijungė {date}",
+	"admin.riders.guests.note":
+		"Svečiams čia vaidmuo neskiriamas; Keisti rodo jų ryšį ir Pašalinti.",
 	"admin.remove.title": "Pašalinti {name}?",
 	"admin.remove.explain":
 		"To nebus galima atšaukti. Visi jo duomenys ištrinami, o Strava prieiga atšaukiama. Jis nebegalės prisijungti prie šios komandos, net būdamas klube: jo Strava ID lieka blokuojamųjų sąraše.",

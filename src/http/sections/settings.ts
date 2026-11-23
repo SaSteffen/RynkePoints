@@ -143,7 +143,7 @@ async function orgaRow(
 	const link =
 		rider.administrator && !rider.guest
 			? html`
-<p><a href="/admin/roles">${i18n.t("settings.orga.link")}</a></p>`
+<p><a href="/admin/riders">${i18n.t("settings.orga.link")}</a></p>`
 			: null;
 	return opens(
 		"settings-orga",

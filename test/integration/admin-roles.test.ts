@@ -12,7 +12,8 @@ import {
 } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
 
-// Admin › Rollen (feature 043 US1–US4, US6; contracts/http-routes.md): own
+// Changing roles (feature 043 US1–US4, US6; contracts/http-routes.md), from
+// Admin › Rider und Rollen since feature 045: own
 // administrators give and take Orga and Admin; nobody changes their own role;
 // guests look but don't change. Synthetic riders only.
 
@@ -101,36 +102,29 @@ beforeEach(async () => {
 	});
 });
 
-describe("the Rollen page", () => {
-	it("is the third admin view", async () => {
-		const page = await (await get("/admin", ADMIN)).text();
-		expect(page).toContain('href="/admin/roles"');
-		expect(page).toContain(escapeHtml(de["admin.switch.roles"]));
+describe("the old Rollen address (feature 045 research R1, R2)", () => {
+	it.each([
+		["", "/admin/riders"],
+		[
+			`?done=orga&athlete=${RIDER}&from=none`,
+			`/admin/riders?done=orga&athlete=${RIDER}&from=none`,
+		],
+		["?error=self", "/admin/riders?error=roleSelf"],
+		["?error=unknown", "/admin/riders?error=roleUnknown"],
+	])("forwards %s to Rider und Rollen", async (query, location) => {
+		const res = await get(`/admin/roles${query}`, ADMIN);
+		expect(res.status).toBe(301);
+		expect(res.headers.get("Location")).toBe(location);
 	});
 
-	it("lists administrators, the Orga and riders without a role", async () => {
-		const res = await get("/admin/roles", ADMIN);
-		expect(res.status).toBe(200);
-		const page = await res.text();
-		const admins = section(page, de["admin.roles.admins"]);
-		expect(admins).toContain("Ada");
-		expect(admins).toContain(escapeHtml(de["admin.roles.you"]));
-		expect(admins).not.toContain(escapeHtml(de["admin.roles.change"]));
-		expect(admins).toContain(escapeHtml(de["admin.roles.onlyAdmin"]));
-		const orga = section(page, de["admin.roles.orga"]);
-		expect(orga).toContain("Olga");
-		expect(orga).not.toContain("Ada");
-		expect(orga).toContain(`data-athlete="${ORGA}"`);
-		const give = section(page, de["admin.roles.give.heading"]);
-		expect(give).toContain("Fiona");
-		expect(give).toContain(`data-athlete="${RIDER}"`);
-		for (const name of ["Quirin", "Uwe"]) expect(page).not.toContain(name);
-		expect(page).toContain('<dialog class="role-sheet"');
+	it("is no admin view of its own any more", async () => {
+		const page = await (await get("/admin", ADMIN)).text();
+		expect(page).not.toContain('class="segmented" href="/admin/roles"');
 	});
 
 	it("shows since when once a role was set in the app", async () => {
 		await setRole(RIDER, "orga");
-		const page = await (await get("/admin/roles", ADMIN)).text();
+		const page = await (await get("/admin/riders", ADMIN)).text();
 		const date = new Intl.DateTimeFormat("de-DE", {
 			timeZone: "Europe/Berlin",
 			day: "2-digit",
@@ -148,7 +142,7 @@ describe("giving the Orga role (US1)", () => {
 		const res = await setRole(RIDER, "orga");
 		expect(res.status).toBe(303);
 		expect(res.headers.get("Location")).toBe(
-			`/admin/roles?done=orga&athlete=${RIDER}&from=none`,
+			`/admin/riders?done=orga&athlete=${RIDER}&from=none`,
 		);
 		expect(await row(RIDER)).toEqual({
 			organiser: 1,
@@ -171,7 +165,7 @@ describe("giving the Orga role (US1)", () => {
 
 	it("shows a notice with Rückgängig", async () => {
 		const page = await (
-			await get(`/admin/roles?done=orga&athlete=${RIDER}&from=none`, ADMIN)
+			await get(`/admin/riders?done=orga&athlete=${RIDER}&from=none`, ADMIN)
 		).text();
 		expect(page).toContain(
 			escapeHtml(de["admin.roles.done.orga"].replace("{name}", "Fiona")),
@@ -194,7 +188,7 @@ describe("taking a role away (US3)", () => {
 	it("takes the Orga role", async () => {
 		const res = await setRole(ORGA, "none");
 		expect(res.headers.get("Location")).toBe(
-			`/admin/roles?done=none&athlete=${ORGA}&from=orga`,
+			`/admin/riders?done=none&athlete=${ORGA}&from=orga`,
 		);
 		expect(await row(ORGA)).toMatchObject({
 			organiser: 0,
@@ -217,7 +211,7 @@ describe("taking a role away (US3)", () => {
 			role_seen: 2,
 		});
 		const page = await (
-			await get("/admin/roles?done=orga&athlete=900011&from=admin", ADMIN)
+			await get("/admin/riders?done=orga&athlete=900011&from=admin", ADMIN)
 		).text();
 		expect(page).toContain(
 			escapeHtml(de["admin.roles.done.notAdmin"].replace("{name}", "Anna")),
@@ -235,7 +229,7 @@ describe("refusals (US4, US6)", () => {
 	it("refuses a change of one's own role", async () => {
 		const before = await allRows();
 		const res = await setRole(ADMIN, "none");
-		expect(res.headers.get("Location")).toBe("/admin/roles?error=self");
+		expect(res.headers.get("Location")).toBe("/admin/riders?error=roleSelf");
 		expect(await allRows()).toEqual(before);
 	});
 
@@ -244,7 +238,9 @@ describe("refusals (US4, US6)", () => {
 		async (athlete) => {
 			const before = await allRows();
 			const res = await setRole(athlete, "orga");
-			expect(res.headers.get("Location")).toBe("/admin/roles?error=unknown");
+			expect(res.headers.get("Location")).toBe(
+				"/admin/riders?error=roleUnknown",
+			);
 			expect(await allRows()).toEqual(before);
 		},
 	);
@@ -271,17 +267,7 @@ describe("refusals (US4, US6)", () => {
 		expect(await allRows()).toEqual(before);
 	});
 
-	it("shows a guest the lists without controls", async () => {
-		const res = await get("/admin/roles", GUEST);
-		expect(res.status).toBe(200);
-		const page = await res.text();
-		expect(page).toContain("Olga");
-		expect(page).not.toContain(escapeHtml(de["admin.roles.change"]));
-		expect(page).not.toContain(escapeHtml(de["admin.roles.give.heading"]));
-		expect(page).not.toContain("role-sheet");
-	});
-
 	it("refuses the page to a rider", async () => {
-		expect((await get("/admin/roles", RIDER)).status).toBe(403);
+		expect((await get("/admin/riders", RIDER)).status).toBe(403);
 	});
 });

@@ -1147,10 +1147,11 @@ export const de = {
 	"nav.admin": "Admin",
 	"admin.switch.label": "Admin-Ansichten",
 	"admin.switch.usage": "Nutzung",
-	"admin.switch.riders": "Rider",
-	"admin.switch.roles": "Rollen",
+	"admin.switch.riders": "Rider und Rollen",
 	"admin.roles.hint":
-		"Die Orga sieht alle Rider mit Vornamen: Rynke, was fehlt, Kilometer und Höhenmeter pro Tag und Korrekturen. Admins sind immer auch in der Orga und betreiben dazu die App: Nutzung, Rider und Rollen.",
+		"Die Orga sieht Trainingszahlen und Rynke aller Rider. Admins sind immer auch in der Orga und betreiben dazu die App: Nutzung, Rider und Rollen.",
+	"admin.roles.hint.events":
+		"Die Orga sieht Trainingszahlen und Rynke aller Rider, legt Termine an und trägt ein, wer da war. Admins sind immer auch in der Orga und betreiben dazu die App: Nutzung, Rider und Rollen.",
 	"admin.roles.admins": "Admins",
 	"admin.roles.orga": "Orga",
 	"admin.roles.you": "Du",
@@ -1161,24 +1162,24 @@ export const de = {
 		"Deine eigene Rolle kann nur jemand anderes mit Admin-Rolle ändern.",
 	"admin.roles.onlyAdmin":
 		"Außer dir ist niemand Admin. Deine eigene Rolle kann nur jemand anderes mit Admin-Rolle ändern.",
-	"admin.roles.orgaNote":
-		"Admins stehen oben und sind hier nicht noch einmal aufgeführt.",
+	"admin.roles.orgaNote": "Admins haben ebenfalls Orga-Rechte.",
 	"admin.roles.orgaNone": "Niemand außer den Admins.",
-	"admin.roles.give.heading": "Rolle geben",
-	"admin.roles.give.button": "Rolle geben",
-	"admin.roles.give.note":
-		"Hier stehen nur Rider, die ihre Daten mit dem Team teilen.",
-	"admin.roles.give.none": "Alle hier haben schon eine Rolle.",
+	"admin.roles.without.heading": "Ohne Rolle",
+	"admin.roles.without.note":
+		"Hier stehen nur Rider, die ihre Daten mit dem Team teilen: {listed}. Zustimmung steht noch aus: {waiting}. Gesperrt: {blocked}.",
+	"admin.roles.without.empty": "Alle hier haben schon eine Rolle.",
 	"admin.roles.search": "Rider finden",
 	"admin.roles.searchNone": "Niemand gefunden.",
-	"admin.roles.sheet.title": "Rolle für {name}",
 	"admin.roles.sheet.note":
 		"{name} bekommt beim nächsten Öffnen der App eine Nachricht.",
+	"admin.roles.sheet.role": "Rolle",
 	"admin.roles.choice.none": "Keine",
 	"admin.roles.choice.none.text": "Sieht, was alle Rider sehen.",
 	"admin.roles.choice.orga": "Orga",
 	"admin.roles.choice.orga.text":
-		"Sieht alle Rider mit Vornamen, ihre Rynke, was ihnen fehlt, Kilometer und Höhenmeter pro Tag, und korrigiert Rynke.",
+		"Sieht Trainingszahlen und Rynke aller Rider.",
+	"admin.roles.choice.orga.text.events":
+		"Sieht Trainingszahlen und Rynke aller Rider, legt Termine an und trägt ein, wer da war.",
 	"admin.roles.choice.admin": "Admin",
 	"admin.roles.choice.admin.text":
 		"Alles aus der Orga, dazu die Nutzung der App, Rider entfernen und Rollen ändern.",
@@ -1312,8 +1313,6 @@ export const de = {
 	"admin.history.gap": "Nichts aufgezeichnet",
 	"admin.history.ridersNote":
 		"Verbundene Rider sind die eigenen des Teams, also zählt der ganze Wert für dieses Team.",
-	"admin.riders.counts":
-		"Aufgeführt: {listed}. Nicht aufgeführt, weil ihre Zustimmung noch aussteht: {unlisted}. Gesperrt: {blocked}.",
 	"admin.riders.none": "Noch niemand hat zugestimmt.",
 	"admin.riders.status": "Verbindung",
 	"admin.riders.status.connected": "Verbunden",
@@ -1327,6 +1326,10 @@ export const de = {
 	"admin.riders.remove": "Entfernen",
 	"admin.riders.guests.heading": "Gäste",
 	"admin.riders.guest": "Gast",
+	"admin.riders.attention.import": "Import läuft noch",
+	"admin.riders.guest.since": "Verbunden am {date}",
+	"admin.riders.guests.note":
+		"Gäste bekommen hier keine Rolle; Ändern zeigt ihre Verbindung und Entfernen.",
 	"admin.remove.title": "{name} entfernen?",
 	"admin.remove.explain":
 		"Das lässt sich nicht rückgängig machen. Alle Daten werden gelöscht und der Strava-Zugang widerrufen. Eine erneute Verbindung mit diesem Team ist nicht mehr möglich, auch nicht bei Mitgliedschaft im Club: Die Strava-ID bleibt auf der Sperrliste.",

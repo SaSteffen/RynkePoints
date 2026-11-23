@@ -40,11 +40,6 @@ export const GAUGE = icon(
 	'<path d="M4 18a9 9 0 1 1 16 0"/><path d="m12 14 4-5"/><circle cx="12" cy="14" r="1.5"/>',
 );
 
-/** A key, for the roles (feature 043). */
-export const KEY = icon(
-	'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M14.5 8.5l2 2"/>',
-);
-
 /** A rising line, for the usage history (feature 025). */
 export const TREND = icon('<path d="M4 19h16"/><path d="m5 15 5-5 3 3 6-7"/>');
 

@@ -105,8 +105,15 @@ describe("a team's sample guest (feature 041)", () => {
 			"en",
 			await riderCookie(admin?.athleteId ?? "0"),
 		);
-		const [team, guests] = markup.split("<h2>Guests</h2>");
-		expect(team).not.toContain(guest?.firstName);
-		expect(guests).toContain(`<h3>${guest?.firstName}</h3>`);
+		// Feature 045: Gäste is a section of Rider und Rollen.
+		const start = markup.indexOf("<h2>Guests</h2>");
+		expect(start).toBeGreaterThan(-1);
+		const end = markup.indexOf("</section>", start);
+		const guests = markup.slice(start, end);
+		const rest = markup.slice(0, start) + markup.slice(end);
+		expect(rest).not.toContain(guest?.firstName);
+		expect(guests).toContain(
+			`<span class="settings-title">${guest?.firstName}<span class="settings-chip">Guest</span></span>`,
+		);
 	});
 });

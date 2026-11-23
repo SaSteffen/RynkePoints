@@ -1102,10 +1102,11 @@ export const da: Catalog = {
 	"nav.admin": "Admin",
 	"admin.switch.label": "Admin-visninger",
 	"admin.switch.usage": "Forbrug",
-	"admin.switch.riders": "Ryttere",
-	"admin.switch.roles": "Roller",
+	"admin.switch.riders": "Ryttere og roller",
 	"admin.roles.hint":
-		"Orga ser alle ryttere med fornavn: Rynke, hvad der mangler, kilometer og højdemeter pr. dag og rettelser. Admins er altid også med i Orga og driver desuden appen: forbrug, ryttere og roller.",
+		"Orga ser træningstal og Rynke for alle ryttere. Admins er altid også med i Orga og driver desuden appen: forbrug, ryttere og roller.",
+	"admin.roles.hint.events":
+		"Orga ser træningstal og Rynke for alle ryttere, opretter arrangementer og noterer, hvem der var med. Admins er altid også med i Orga og driver desuden appen: forbrug, ryttere og roller.",
 	"admin.roles.admins": "Admins",
 	"admin.roles.orga": "Orga",
 	"admin.roles.you": "Dig",
@@ -1115,22 +1116,22 @@ export const da: Catalog = {
 	"admin.roles.ownNote": "Kun en anden admin kan ændre din egen rolle.",
 	"admin.roles.onlyAdmin":
 		"Ud over dig er ingen admin. Kun en anden admin kan ændre din egen rolle.",
-	"admin.roles.orgaNote": "Admins står øverst og er ikke gentaget her.",
+	"admin.roles.orgaNote": "Admins har også Orga-rettigheder.",
 	"admin.roles.orgaNone": "Ingen ud over admins.",
-	"admin.roles.give.heading": "Giv en rolle",
-	"admin.roles.give.button": "Giv en rolle",
-	"admin.roles.give.note":
-		"Her står kun ryttere, der deler deres data med holdet.",
-	"admin.roles.give.none": "Alle her har allerede en rolle.",
+	"admin.roles.without.heading": "Uden rolle",
+	"admin.roles.without.note":
+		"Her står kun ryttere, der deler deres data med holdet: {listed}. Mangler stadig at sige ja: {waiting}. Blokeret: {blocked}.",
+	"admin.roles.without.empty": "Alle her har allerede en rolle.",
 	"admin.roles.search": "Find rytter",
 	"admin.roles.searchNone": "Ingen fundet.",
-	"admin.roles.sheet.title": "Rolle for {name}",
 	"admin.roles.sheet.note": "{name} får en besked, næste gang appen åbnes.",
+	"admin.roles.sheet.role": "Rolle",
 	"admin.roles.choice.none": "Ingen",
 	"admin.roles.choice.none.text": "Ser det, alle ryttere ser.",
 	"admin.roles.choice.orga": "Orga",
-	"admin.roles.choice.orga.text":
-		"Ser alle ryttere med fornavn, deres Rynke, hvad de mangler, kilometer og højdemeter pr. dag, og retter Rynke.",
+	"admin.roles.choice.orga.text": "Ser træningstal og Rynke for alle ryttere.",
+	"admin.roles.choice.orga.text.events":
+		"Ser træningstal og Rynke for alle ryttere, opretter arrangementer og noterer, hvem der var med.",
 	"admin.roles.choice.admin": "Admin",
 	"admin.roles.choice.admin.text":
 		"Alt fra Orga plus appens forbrug, at fjerne ryttere og at ændre roller.",
@@ -1263,8 +1264,6 @@ export const da: Catalog = {
 	"admin.history.gap": "Intet registreret",
 	"admin.history.ridersNote":
 		"Forbundne ryttere er dette holds egne, så hele tallet er holdets.",
-	"admin.riders.counts":
-		"På listen: {listed}. Ikke på listen, fordi de ikke har sagt ja endnu: {unlisted}. Blokeret: {blocked}.",
 	"admin.riders.none": "Ingen rytter har sagt ja endnu.",
 	"admin.riders.status": "Forbindelse",
 	"admin.riders.status.connected": "Forbundet",
@@ -1278,6 +1277,10 @@ export const da: Catalog = {
 	"admin.riders.remove": "Fjern",
 	"admin.riders.guests.heading": "Gæster",
 	"admin.riders.guest": "Gæst",
+	"admin.riders.attention.import": "Import kører stadig",
+	"admin.riders.guest.since": "Forbundet den {date}",
+	"admin.riders.guests.note":
+		"Gæster får ingen rolle her; Ændr viser deres forbindelse og Fjern.",
 	"admin.remove.title": "Fjern {name}?",
 	"admin.remove.explain":
 		"Det kan ikke fortrydes. Alle rytterens data slettes, og Strava-adgangen tilbagekaldes. Rytteren kan ikke forbinde til dette hold igen, heller ikke som klubmedlem: Strava-ID'et bliver på blokeringslisten.",

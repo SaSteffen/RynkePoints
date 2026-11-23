@@ -374,3 +374,41 @@ describe("the last own administrator (feature 043 FR-014)", () => {
 		});
 	});
 });
+
+// Feature 045 US3: removing from Admin › Rider und Rollen, through the dialog.
+describe("from Rider und Rollen", () => {
+	beforeEach(seedTarget);
+
+	async function tab(query = "") {
+		return (
+			await handleFetch(
+				request(`/admin/riders${query}`, {
+					cookies: await sessionCookie(ctx, ADMIN),
+				}),
+				ctx,
+			)
+		).text();
+	}
+
+	it("opens the confirmation at the dialog's Entfernen address", async () => {
+		expect(await tab()).toContain(`data-remove="${PATH(TARGET)}"`);
+		const res = await confirmPage(TARGET);
+		expect(res.status).toBe(200);
+		const page = await res.text();
+		expect(page).toContain(
+			`<a class="segmented" href="/admin/riders" aria-current="true">`,
+		);
+		expect(page).toContain(escapeHtml(de["admin.switch.riders"]));
+		expect(page).toContain(
+			`<a class="button-outlined" href="/admin/riders">${escapeHtml(de["admin.remove.cancel"])}</a>`,
+		);
+	});
+
+	it("ends on the tab with the notice and without the rider", async () => {
+		const res = await remove(TARGET);
+		expect(res.headers.get("Location")).toBe("/admin/riders?done=removed");
+		const page = await tab("?done=removed");
+		expect(page).toContain(escapeHtml(de["admin.remove.done.removed"]));
+		expect(page).not.toContain("Synthetica");
+	});
+});

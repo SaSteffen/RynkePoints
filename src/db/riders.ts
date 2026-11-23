@@ -1,6 +1,7 @@
 import { decryptToken, encryptToken } from "../crypto/encrypt";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
 import { idJson, idsJson } from "../strava/id";
+import { blockedCountStatement } from "./blocked";
 import {
 	type GivenConsent,
 	recordConsentStatement,
@@ -515,19 +516,24 @@ export async function setAdminAlerts(
 		.run();
 }
 
-export interface OverviewRider {
+/**
+ * A row of Admin › Rider und Rollen (feature 045 data-model.md): the first name,
+ * the role's date and the connection facts, nothing else (025 FR-019).
+ */
+export interface AdminRiderRow {
 	athleteId: string;
 	firstName: string;
+	since: number | null;
 	status: RiderStatus;
 	connectedAt: number;
 	membershipCheckedAt: number;
 	importStatus: ImportStatus;
 }
 
-const OVERVIEW_COLUMNS = `CAST(athlete_id AS TEXT) AS athlete_id, first_name, status, connected_at,
-	membership_checked_at, import_status`;
+const ADMIN_ROW_COLUMNS = `CAST(athlete_id AS TEXT) AS athlete_id, first_name, status,
+	connected_at, membership_checked_at, import_status`;
 
-type OverviewRow = Pick<
+type AdminRow = Pick<
 	RiderRow,
 	| "athlete_id"
 	| "first_name"
@@ -535,51 +541,73 @@ type OverviewRow = Pick<
 	| "connected_at"
 	| "membership_checked_at"
 	| "import_status"
->;
+> & { organiser?: number; administrator?: number; role_since?: number | null };
 
-function toOverviewRiders(rows: unknown[] | undefined): OverviewRider[] {
-	return ((rows ?? []) as OverviewRow[]).map((r) => ({
+function toAdminRow(r: AdminRow): AdminRiderRow {
+	return {
 		athleteId: r.athlete_id,
 		firstName: r.first_name,
+		since: r.role_since ?? null,
 		status: r.status,
 		connectedAt: r.connected_at,
 		membershipCheckedAt: r.membership_checked_at,
 		importStatus: r.import_status,
-	}));
+	};
 }
 
 /**
- * The rider overview (025 FR-018, FR-038): riders with a recorded consent of any
- * version, and how many others there are, filtered inside SQL; then the guests
- * apart (041 FR-008), the only list that shows them. Selects only what the rows
- * show, so nothing else can reach the page (FR-019).
+ * Admin › Rider und Rollen (feature 045 research R3): the listed riders (never
+ * guests) as own administrators, organisers who aren't administrators and
+ * riders without a role; the guests apart (041 FR-008); and only counts of the
+ * riders who haven't agreed and of the block list (025 FR-031, FR-038). One
+ * batch, each list by first name.
  */
-export async function readRiderOverview(db: D1Database): Promise<{
-	riders: OverviewRider[];
+export async function readRidersAndRoles(db: D1Database): Promise<{
+	admins: AdminRiderRow[];
+	orga: AdminRiderRow[];
+	none: AdminRiderRow[];
+	guests: AdminRiderRow[];
 	unlisted: number;
-	guests: OverviewRider[];
+	blocked: number;
 }> {
-	const listed = SHARED_RIDER_IDS;
-	const [rows, unlisted, guests] = await db.batch([
+	const [listed, guests, unlisted, blocked] = await db.batch([
 		db.prepare(
-			`SELECT ${OVERVIEW_COLUMNS}
-			FROM riders WHERE athlete_id IN (${listed})
+			`SELECT ${ADMIN_ROW_COLUMNS}, organiser, administrator, role_since
+			FROM riders WHERE guest = 0 AND athlete_id IN (${SHARED_RIDER_IDS})
+			ORDER BY first_name COLLATE NOCASE, riders.athlete_id`,
+		),
+		db.prepare(
+			`SELECT ${ADMIN_ROW_COLUMNS}
+			FROM riders WHERE guest = 1
 			ORDER BY first_name COLLATE NOCASE, riders.athlete_id`,
 		),
 		db.prepare(
 			`SELECT COUNT(*) AS n FROM riders
-			WHERE athlete_id NOT IN (${listed}) AND guest = 0`,
+			WHERE guest = 0 AND athlete_id NOT IN (${SHARED_RIDER_IDS})`,
 		),
-		db.prepare(
-			`SELECT ${OVERVIEW_COLUMNS}
-			FROM riders WHERE guest = 1
-			ORDER BY first_name COLLATE NOCASE, riders.athlete_id`,
-		),
+		blockedCountStatement(db),
 	]);
+	const lists = {
+		admins: [] as AdminRiderRow[],
+		orga: [] as AdminRiderRow[],
+		none: [] as AdminRiderRow[],
+	};
+	for (const r of (listed?.results ?? []) as AdminRow[]) {
+		const list =
+			r.administrator === 1
+				? lists.admins
+				: r.organiser === 1
+					? lists.orga
+					: lists.none;
+		list.push(toAdminRow(r));
+	}
+	const count = (result: D1Result | undefined) =>
+		(result?.results[0] as { n: number } | undefined)?.n ?? 0;
 	return {
-		riders: toOverviewRiders(rows?.results),
-		unlisted: (unlisted?.results[0] as { n: number } | undefined)?.n ?? 0,
-		guests: toOverviewRiders(guests?.results),
+		...lists,
+		guests: ((guests?.results ?? []) as AdminRow[]).map(toAdminRow),
+		unlisted: count(unlisted),
+		blocked: count(blocked),
 	};
 }
 
@@ -696,54 +724,6 @@ export async function letGoRider(
 		.prepare("DELETE FROM riders WHERE athlete_id = ? AND guest = 0")
 		.bind(athleteId)
 		.run();
-}
-
-/** A role holder or candidate on Admin › Rollen (feature 043 FR-002). */
-export interface RoleEntry {
-	athleteId: string;
-	firstName: string;
-	since: number | null;
-}
-
-/**
- * Rollen's lists (feature 043 FR-002, research R8): the team's listed riders
- * (never guests) as own administrators, organisers who aren't administrators,
- * and riders without a role, each by first name.
- */
-export async function readRoles(db: D1Database): Promise<{
-	admins: RoleEntry[];
-	orga: RoleEntry[];
-	none: RoleEntry[];
-}> {
-	const { results } = await db
-		.prepare(
-			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, first_name, organiser,
-				administrator, role_since
-			FROM riders WHERE guest = 0 AND athlete_id IN (${SHARED_RIDER_IDS})
-			ORDER BY first_name COLLATE NOCASE, riders.athlete_id`,
-		)
-		.all<{
-			athlete_id: string;
-			first_name: string;
-			organiser: number;
-			administrator: number;
-			role_since: number | null;
-		}>();
-	const lists = { admins: [], orga: [], none: [] } as Record<
-		"admins" | "orga" | "none",
-		RoleEntry[]
-	>;
-	for (const r of results) {
-		const entry = {
-			athleteId: r.athlete_id,
-			firstName: r.first_name,
-			since: r.role_since,
-		};
-		if (r.administrator === 1) lists.admins.push(entry);
-		else if (r.organiser === 1) lists.orga.push(entry);
-		else lists.none.push(entry);
-	}
-	return lists;
 }
 
 /** The written flags of each role (data-model.md). */
