@@ -28,9 +28,12 @@ export interface Rider {
 	reconnectRequestedAt: number | null;
 	/** FR-013 field set the rider's activities were last read with (R20). */
 	figuresVersion: number;
-	/** Set by the maintainer only; the app never writes it (004 FR-002, R2). */
+	/**
+	 * Orga: set in Admin › Rollen or by the maintainer (feature 043); every
+	 * administrator and guest counts as one.
+	 */
 	organiser: boolean;
-	/** Set by the maintainer only, like `organiser` (feature 025 FR-002). */
+	/** Admin, set the same way (feature 025 FR-002, feature 043). */
 	administrator: boolean;
 	/** The administrator's own switch for Cloudflare's alerts (025 FR-039). */
 	adminAlerts: boolean;
@@ -49,6 +52,13 @@ export interface Rider {
 	onGuestList: boolean;
 	/** Only a session cookie with this epoch is signed in (issue #314). */
 	sessionEpoch: number;
+	/** When the role was last set in the app; null when set by hand (043 R2). */
+	roleSince: number | null;
+	/** The role code before the first unseen change; null: no card (043 R3). */
+	roleSeen: number | null;
+	/** The first name of the administrator behind the latest change. */
+	roleChangedBy: string | null;
+	roleChangedAt: number | null;
 }
 
 export interface Credentials {
@@ -78,6 +88,10 @@ export interface RiderRow {
 	guest: number;
 	on_guest_list: number;
 	session_epoch: number;
+	role_since: number | null;
+	role_seen: number | null;
+	role_changed_by: string | null;
+	role_changed_at: number | null;
 }
 
 export interface RiderGrant {
@@ -101,7 +115,10 @@ export function riderStatement(db: D1Database, athleteId: string) {
 		.bind(athleteId);
 }
 
-/** A guest is an organiser and an administrator of the team (041 FR-004). */
+/**
+ * A guest is an organiser and an administrator of the team (041 FR-004), and
+ * every administrator is an organiser too (feature 043 FR-007).
+ */
 export function toRider(row: RiderRow): Rider {
 	const guest = row.guest === 1;
 	return {
@@ -116,7 +133,7 @@ export function toRider(row: RiderRow): Rider {
 		importStatus: row.import_status,
 		reconnectRequestedAt: row.reconnect_requested_at,
 		figuresVersion: row.figures_version,
-		organiser: row.organiser === 1 || guest,
+		organiser: row.organiser === 1 || row.administrator === 1 || guest,
 		administrator: row.administrator === 1 || guest,
 		adminAlerts: row.admin_alerts === 1,
 		onboardedAt: row.onboarded_at,
@@ -125,7 +142,36 @@ export function toRider(row: RiderRow): Rider {
 		guest,
 		onGuestList: row.on_guest_list === 1,
 		sessionEpoch: row.session_epoch,
+		roleSince: row.role_since,
+		roleSeen: row.role_seen,
+		roleChangedBy: row.role_changed_by,
+		roleChangedAt: row.role_changed_at,
 	};
+}
+
+/** A rider's one role (feature 043 FR-007, data-model.md). */
+export type Role = "none" | "orga" | "admin";
+
+export const ROLES: readonly Role[] = ["none", "orga", "admin"];
+
+/** The role as `role_seen` stores it: none 0, Orga 1, Admin 2. */
+export function roleCode(role: Role): number {
+	return ROLES.indexOf(role);
+}
+
+export function roleFromCode(code: number): Role | null {
+	return ROLES[code] ?? null;
+}
+
+export function isRole(value: unknown): value is Role {
+	return ROLES.includes(value as Role);
+}
+
+export function roleOf(
+	rider: Pick<Rider, "organiser" | "administrator">,
+): Role {
+	if (rider.administrator) return "admin";
+	return rider.organiser ? "orga" : "none";
 }
 
 export async function getRider(
@@ -544,16 +590,26 @@ export async function readRiderOverview(db: D1Database): Promise<{
 export async function listedRider(
 	db: D1Database,
 	athleteId: string,
-): Promise<{ firstName: string; guest: boolean } | null> {
+): Promise<{
+	firstName: string;
+	guest: boolean;
+	administrator: boolean;
+} | null> {
 	const listed = SHARED_RIDER_IDS;
 	const row = await db
 		.prepare(
-			`SELECT first_name, guest FROM riders WHERE athlete_id = ?
+			`SELECT first_name, guest, administrator FROM riders WHERE athlete_id = ?
 			AND (athlete_id IN (${listed}) OR guest = 1)`,
 		)
 		.bind(athleteId)
-		.first<{ first_name: string; guest: number }>();
-	return row ? { firstName: row.first_name, guest: row.guest === 1 } : null;
+		.first<{ first_name: string; guest: number; administrator: number }>();
+	return row
+		? {
+				firstName: row.first_name,
+				guest: row.guest === 1,
+				administrator: row.administrator === 1,
+			}
+		: null;
 }
 
 type CredentialEnv = Pick<Env, "DB" | "TOKEN_ENCRYPTION_KEY">;
@@ -640,4 +696,161 @@ export async function letGoRider(
 		.prepare("DELETE FROM riders WHERE athlete_id = ? AND guest = 0")
 		.bind(athleteId)
 		.run();
+}
+
+/** A role holder or candidate on Admin › Rollen (feature 043 FR-002). */
+export interface RoleEntry {
+	athleteId: string;
+	firstName: string;
+	since: number | null;
+}
+
+/**
+ * Rollen's lists (feature 043 FR-002, research R8): the team's listed riders
+ * (never guests) as own administrators, organisers who aren't administrators,
+ * and riders without a role, each by first name.
+ */
+export async function readRoles(db: D1Database): Promise<{
+	admins: RoleEntry[];
+	orga: RoleEntry[];
+	none: RoleEntry[];
+}> {
+	const { results } = await db
+		.prepare(
+			`SELECT CAST(athlete_id AS TEXT) AS athlete_id, first_name, organiser,
+				administrator, role_since
+			FROM riders WHERE guest = 0 AND athlete_id IN (${SHARED_RIDER_IDS})
+			ORDER BY first_name COLLATE NOCASE, riders.athlete_id`,
+		)
+		.all<{
+			athlete_id: string;
+			first_name: string;
+			organiser: number;
+			administrator: number;
+			role_since: number | null;
+		}>();
+	const lists = { admins: [], orga: [], none: [] } as Record<
+		"admins" | "orga" | "none",
+		RoleEntry[]
+	>;
+	for (const r of results) {
+		const entry = {
+			athleteId: r.athlete_id,
+			firstName: r.first_name,
+			since: r.role_since,
+		};
+		if (r.administrator === 1) lists.admins.push(entry);
+		else if (r.organiser === 1) lists.orga.push(entry);
+		else lists.none.push(entry);
+	}
+	return lists;
+}
+
+/** The written flags of each role (data-model.md). */
+const ROLE_FLAGS: Record<Role, [organiser: number, administrator: number]> = {
+	none: [0, 0],
+	orga: [1, 0],
+	admin: [1, 1],
+};
+
+/**
+ * Sets a listed rider's role (feature 043 FR-008, data-model.md "Role
+ * change"). Keeps where the rider's unseen card started, so an undo leaves no
+ * card. Writes nothing when the role is already `role`.
+ */
+export async function setRole(
+	db: D1Database,
+	athleteId: string,
+	role: Role,
+	by: Pick<Rider, "firstName">,
+	now: number,
+): Promise<{ result: "changed" | "same"; from: Role } | { result: "unknown" }> {
+	const current = await db
+		.prepare(
+			`SELECT organiser, administrator FROM riders
+			WHERE athlete_id = ? AND guest = 0 AND athlete_id IN (${SHARED_RIDER_IDS})`,
+		)
+		.bind(athleteId)
+		.first<{ organiser: number; administrator: number }>();
+	if (current === null) return { result: "unknown" };
+	const from = roleOf({
+		organiser: current.organiser === 1,
+		administrator: current.administrator === 1,
+	});
+	if (from === role) return { result: "same", from };
+	const [organiser, administrator] = ROLE_FLAGS[role];
+	await db
+		.prepare(
+			`UPDATE riders SET organiser = ?, administrator = ?, role_since = ?,
+				role_seen = COALESCE(role_seen, ?), role_changed_by = ?,
+				role_changed_at = ?
+			WHERE athlete_id = ?`,
+		)
+		.bind(
+			organiser,
+			administrator,
+			now,
+			roleCode(from),
+			by.firstName,
+			now,
+			athleteId,
+		)
+		.run();
+	return { result: "changed", from };
+}
+
+/** A rider's first name for Rollen's notice; null for no such team rider. */
+export async function roleRiderName(
+	db: D1Database,
+	athleteId: string,
+): Promise<string | null> {
+	return db
+		.prepare("SELECT first_name FROM riders WHERE athlete_id = ? AND guest = 0")
+		.bind(athleteId)
+		.first<string>("first_name");
+}
+
+/** Clears the rider's role card (feature 043 FR-019, research R3). */
+export async function clearRoleCard(
+	db: D1Database,
+	athleteId: string,
+): Promise<void> {
+	await db
+		.prepare(
+			`UPDATE riders SET role_seen = NULL, role_changed_by = NULL,
+				role_changed_at = NULL WHERE athlete_id = ?`,
+		)
+		.bind(athleteId)
+		.run();
+}
+
+/** How many own administrators the team has (feature 043 FR-014). */
+export async function ownAdministratorCount(db: D1Database): Promise<number> {
+	return (
+		(await db
+			.prepare(
+				"SELECT COUNT(*) AS n FROM riders WHERE administrator = 1 AND guest = 0",
+			)
+			.first<number>("n")) ?? 0
+	);
+}
+
+/**
+ * Who is in the Orga, for Settings (feature 043 FR-021): own administrators,
+ * then organisers, by first name; guests left out.
+ */
+export async function orgaNames(
+	db: D1Database,
+): Promise<{ firstName: string; admin: boolean }[]> {
+	const { results } = await db
+		.prepare(
+			`SELECT first_name, administrator FROM riders
+			WHERE guest = 0 AND (organiser = 1 OR administrator = 1)
+			ORDER BY administrator DESC, first_name COLLATE NOCASE, riders.athlete_id`,
+		)
+		.all<{ first_name: string; administrator: number }>();
+	return results.map((r) => ({
+		firstName: r.first_name,
+		admin: r.administrator === 1,
+	}));
 }

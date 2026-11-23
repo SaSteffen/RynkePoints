@@ -12,7 +12,7 @@ import { adminPage, adminSwitch, whole } from "./access";
 // tokens, and the athlete ID only in the remove link's address (research R6).
 
 const DONE_CODES = ["removed"] as const;
-const ERROR_CODES = ["self", "unknown"] as const;
+const ERROR_CODES = ["self", "unknown", "lastAdmin"] as const;
 
 function resultNotice(url: URL, i18n: I18n): SafeHtml | null {
 	const done = url.searchParams.get("done");

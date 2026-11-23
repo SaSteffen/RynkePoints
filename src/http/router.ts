@@ -5,6 +5,7 @@ import { resolveLocale } from "../i18n/resolve";
 import { hasEvents } from "../teams";
 import { handleRemoveConfirm, handleRemoveRider } from "./admin/remove";
 import { handleAdminRiders } from "./admin/riders";
+import { handleAdminRoles, handleSetRole } from "./admin/roles";
 import {
 	handleAdminAlerts,
 	handleAdminRefresh,
@@ -54,6 +55,7 @@ import {
 } from "./pwa";
 import { handleReady } from "./ready";
 import { redirect } from "./redirect";
+import { handleRoleCard } from "./role-card";
 import { handleRunDaily } from "./run-daily";
 import { handleBadges } from "./sections/badges";
 import { handleEvents, handleReport, handleWithdraw } from "./sections/events";
@@ -197,6 +199,8 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleNotifications(request, ctx);
 			case "/me/tour":
 				return handleTour(request, ctx, i18n);
+			case "/me/role-card":
+				return handleRoleCard(request, ctx, i18n);
 			case "/logout":
 				return handleLogout(request, ctx, i18n);
 			case "/logout/everywhere":
@@ -205,6 +209,8 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleAdminAlerts(request, ctx, i18n);
 			case "/admin/refresh":
 				return handleAdminRefresh(request, ctx, i18n);
+			case "/admin/roles":
+				return handleSetRole(request, ctx, i18n);
 			case "/organiser/events":
 				return handleCreateEvent(request, ctx, i18n);
 			case "/organiser/requests":
@@ -297,6 +303,8 @@ async function page(
 			return redirect("/admin", 301);
 		case "/admin/riders":
 			return handleAdminRiders(request, ctx, i18n);
+		case "/admin/roles":
+			return handleAdminRoles(request, ctx, i18n);
 	}
 	const removal = path.match(ADMIN_REMOVE);
 	if (removal) {

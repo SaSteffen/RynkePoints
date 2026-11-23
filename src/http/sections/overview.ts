@@ -23,6 +23,7 @@ import {
 	renderWaiting,
 } from "../rider-sections";
 import { buildRiderView } from "../rider-view";
+import { renderRoleCard } from "../role-card";
 import { shellPage } from "../shell";
 import { exampleRiderView } from "../tour-example";
 
@@ -146,8 +147,11 @@ export function handleOverview(
 				? renderFetching(fetchingText, readyPollSeconds(ctx.env))
 				: null;
 			// One grid holds it all: two columns on wider screens (contracts/pages.md).
+			const roleCard = example
+				? null
+				: await renderRoleCard(request, ctx, i18n, rider);
 			const body = html`<div class="overview-grid">
-<section class="hero">
+${roleCard}<section class="hero">
 ${heroCoin()}
 <div>
 <p class="greeting">${i18n.t("me.greeting", { firstName: rider.firstName })}</p>

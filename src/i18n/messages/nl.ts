@@ -1122,6 +1122,75 @@ export const nl: Catalog = {
 	"admin.switch.label": "Beheerweergaven",
 	"admin.switch.usage": "Gebruik",
 	"admin.switch.riders": "Renners",
+	"admin.switch.roles": "Rollen",
+	"admin.roles.hint":
+		"De Orga ziet alle renners met voornaam: Rynke, wat er ontbreekt, kilometers en hoogtemeters per dag en correcties. Admins zitten altijd ook in de Orga en beheren daarnaast de app: gebruik, renners en rollen.",
+	"admin.roles.admins": "Admins",
+	"admin.roles.orga": "Orga",
+	"admin.roles.you": "Jij",
+	"admin.roles.change": "Wijzigen",
+	"admin.roles.adminSince": "Admin sinds {date}",
+	"admin.roles.orgaSince": "In de Orga sinds {date}",
+	"admin.roles.ownNote": "Alleen een andere admin kan je eigen rol wijzigen.",
+	"admin.roles.onlyAdmin":
+		"Behalve jij is niemand admin. Alleen een andere admin kan je eigen rol wijzigen.",
+	"admin.roles.orgaNote": "Admins staan bovenaan en worden hier niet herhaald.",
+	"admin.roles.orgaNone": "Niemand behalve de admins.",
+	"admin.roles.give.heading": "Rol geven",
+	"admin.roles.give.button": "Rol geven",
+	"admin.roles.give.note":
+		"Hier staan alleen renners die hun gegevens met het team delen.",
+	"admin.roles.give.none": "Iedereen hier heeft al een rol.",
+	"admin.roles.search": "Renner zoeken",
+	"admin.roles.searchNone": "Niemand gevonden.",
+	"admin.roles.sheet.title": "Rol voor {name}",
+	"admin.roles.sheet.note":
+		"{name} krijgt een bericht bij het volgende openen van de app.",
+	"admin.roles.choice.none": "Geen",
+	"admin.roles.choice.none.text": "Ziet wat alle renners zien.",
+	"admin.roles.choice.orga": "Orga",
+	"admin.roles.choice.orga.text":
+		"Ziet alle renners met voornaam, hun Rynke, wat ze missen, kilometers en hoogtemeters per dag, en corrigeert Rynke.",
+	"admin.roles.choice.admin": "Admin",
+	"admin.roles.choice.admin.text":
+		"Alles wat de Orga heeft, plus het gebruik van de app, renners verwijderen en rollen wijzigen.",
+	"admin.roles.cancel": "Annuleren",
+	"admin.roles.save": "Opslaan",
+	"admin.roles.done.orga": "{name} zit nu in de Orga.",
+	"admin.roles.done.admin": "{name} is nu admin.",
+	"admin.roles.done.notAdmin": "{name} is geen admin meer.",
+	"admin.roles.done.none": "{name} zit niet meer in de Orga.",
+	"admin.roles.undo": "Ongedaan maken",
+	"admin.roles.error.self":
+		"Alleen een andere admin kan je eigen rol wijzigen.",
+	"admin.roles.error.unknown":
+		"Deze persoon is hier niet meer. Er is niets gewijzigd.",
+	"admin.remove.error.lastAdmin":
+		"Dit is de enige admin van het team. Eerst moet iemand anders admin worden.",
+	"role.card.orga.title": "Je zit nu in de Orga",
+	"role.card.orga.body":
+		"{by} heeft je op {date} aan de Orga toegevoegd. Het Orga-tabblad is nieuw; de rondleiding laat zien wat erin zit.",
+	"role.card.orga.consent":
+		"De renners hebben ermee ingestemd dat de Orga hun gegevens ziet. Doorgeven hoort daar niet bij.",
+	"role.card.admin.title": "Je bent nu admin",
+	"role.card.admin.body":
+		"{by} heeft je op {date} admin gemaakt. Onder Admin zie je het gebruik van de app en alle renners met hun koppeling, en geef je de rollen. Daarmee zit je ook in de Orga.",
+	"role.card.notAdmin.title": "Je bent geen admin meer",
+	"role.card.notAdmin.body":
+		"{by} heeft je op {date} de adminrol afgenomen. Je zit nog steeds in de Orga.",
+	"role.card.none.title": "Je zit niet meer in de Orga",
+	"role.card.none.body":
+		"{by} heeft je op {date} uit de Orga gehaald. Je ziet renners niet meer met naam.",
+	"role.card.none.events": "Je evenementen vind je weer onder Evenementen.",
+	"role.card.tour": "Rondleiding starten",
+	"role.card.orgaTour": "Orga-rondleiding starten",
+	"role.card.later": "Later",
+	"role.card.ok": "Begrepen",
+	"settings.orga.title": "Wie zit er in de Orga",
+	"settings.orga.admin": "{name} (admin)",
+	"settings.orga.text":
+		"Zij zien je Rynke, kilometers en hoogtemeters met je voornaam. Admins beheren daarnaast de app. Komt er iemand bij, dan staat dat hier.",
+	"settings.orga.link": "Leden wijzigen",
 	"admin.allowance.strava_read_15m": "Strava-leesverzoeken per 15 minuten",
 	"admin.allowance.strava_all_15m": "Strava-verzoeken per 15 minuten",
 	"admin.allowance.strava_read_daily": "Strava-leesverzoeken per dag",

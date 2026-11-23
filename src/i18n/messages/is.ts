@@ -1112,6 +1112,75 @@ export const is: Catalog = {
 	"admin.switch.label": "Stjórnunaryfirlit",
 	"admin.switch.usage": "Notkun",
 	"admin.switch.riders": "Hjólreiðamenn",
+	"admin.switch.roles": "Hlutverk",
+	"admin.roles.hint":
+		"Orga sér alla hjólreiðamenn með fornafni: Rynke, hvað vantar, kílómetra og hækkun á dag og leiðréttingar. Stjórnendur eru alltaf líka í Orga og sjá auk þess um appið: notkun, hjólreiðamenn og hlutverk.",
+	"admin.roles.admins": "Stjórnendur",
+	"admin.roles.orga": "Orga",
+	"admin.roles.you": "Þú",
+	"admin.roles.change": "Breyta",
+	"admin.roles.adminSince": "Stjórnandi frá {date}",
+	"admin.roles.orgaSince": "Í Orga frá {date}",
+	"admin.roles.ownNote":
+		"Aðeins annar stjórnandi getur breytt þínu eigin hlutverki.",
+	"admin.roles.onlyAdmin":
+		"Enginn annar en þú er stjórnandi. Aðeins annar stjórnandi getur breytt þínu eigin hlutverki.",
+	"admin.roles.orgaNote": "Stjórnendur eru efst og eru ekki endurteknir hér.",
+	"admin.roles.orgaNone": "Enginn fyrir utan stjórnendur.",
+	"admin.roles.give.heading": "Gefa hlutverk",
+	"admin.roles.give.button": "Gefa hlutverk",
+	"admin.roles.give.note":
+		"Hér eru aðeins hjólreiðamenn sem deila gögnum sínum með liðinu.",
+	"admin.roles.give.none": "Allir hér eru þegar með hlutverk.",
+	"admin.roles.search": "Finna hjólreiðamann",
+	"admin.roles.searchNone": "Enginn fannst.",
+	"admin.roles.sheet.title": "Hlutverk fyrir {name}",
+	"admin.roles.sheet.note": "{name} fær skilaboð næst þegar appið er opnað.",
+	"admin.roles.choice.none": "Ekkert",
+	"admin.roles.choice.none.text": "Sér það sem allir hjólreiðamenn sjá.",
+	"admin.roles.choice.orga": "Orga",
+	"admin.roles.choice.orga.text":
+		"Sér alla hjólreiðamenn með fornafni, Rynke þeirra, hvað vantar, kílómetra og hækkun á dag, og leiðréttir Rynke.",
+	"admin.roles.choice.admin": "Stjórnandi",
+	"admin.roles.choice.admin.text":
+		"Allt sem Orga hefur, auk notkunar appsins, að fjarlægja hjólreiðamenn og breyta hlutverkum.",
+	"admin.roles.cancel": "Hætta við",
+	"admin.roles.save": "Vista",
+	"admin.roles.done.orga": "{name} er nú í Orga.",
+	"admin.roles.done.admin": "{name} er nú stjórnandi.",
+	"admin.roles.done.notAdmin": "{name} er ekki lengur stjórnandi.",
+	"admin.roles.done.none": "{name} er ekki lengur í Orga.",
+	"admin.roles.undo": "Afturkalla",
+	"admin.roles.error.self":
+		"Aðeins annar stjórnandi getur breytt þínu eigin hlutverki.",
+	"admin.roles.error.unknown":
+		"Þessi manneskja er ekki lengur hér. Engu var breytt.",
+	"admin.remove.error.lastAdmin":
+		"Þetta er eini stjórnandi liðsins. Einhver annar þarf fyrst að verða stjórnandi.",
+	"role.card.orga.title": "Þú ert nú í Orga",
+	"role.card.orga.body":
+		"{by} bætti þér í Orga {date}. Orga-flipinn er nýr; kynningin sýnir þér hvað er í honum.",
+	"role.card.orga.consent":
+		"Hjólreiðamennirnir samþykktu að Orga sjái gögnin þeirra. Að deila þeim áfram er ekki hluti af því.",
+	"role.card.admin.title": "Þú ert nú stjórnandi",
+	"role.card.admin.body":
+		"{by} gerði þig að stjórnanda {date}. Undir Stjórnandi sérðu notkun appsins og alla hjólreiðamenn með tengingu sinni, og þú gefur hlutverkin. Þar með ertu líka í Orga.",
+	"role.card.notAdmin.title": "Þú ert ekki lengur stjórnandi",
+	"role.card.notAdmin.body":
+		"{by} tók af þér stjórnandahlutverkið {date}. Þú ert áfram í Orga.",
+	"role.card.none.title": "Þú ert ekki lengur í Orga",
+	"role.card.none.body":
+		"{by} tók þig úr Orga {date}. Þú sérð hjólreiðamenn ekki lengur með nafni.",
+	"role.card.none.events": "Viðburðina þína finnur þú aftur undir Viðburðir.",
+	"role.card.tour": "Hefja kynninguna",
+	"role.card.orgaTour": "Hefja Orga-kynninguna",
+	"role.card.later": "Seinna",
+	"role.card.ok": "Skilið",
+	"settings.orga.title": "Hver er í Orga",
+	"settings.orga.admin": "{name} (stjórnandi)",
+	"settings.orga.text":
+		"Þau sjá Rynke, kílómetra og hækkun þína með fornafni þínu. Stjórnendur sjá auk þess um appið. Ef einhver bætist við kemur það fram hér.",
+	"settings.orga.link": "Breyta meðlimum",
 	"admin.allowance.strava_read_15m": "Strava-lestrar á 15 mínútum",
 	"admin.allowance.strava_all_15m": "Strava-beiðnir á 15 mínútum",
 	"admin.allowance.strava_read_daily": "Strava-lestrar á dag",
