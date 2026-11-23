@@ -1109,6 +1109,74 @@ export const fi: Catalog = {
 	"admin.switch.label": "Ylläpitonäkymät",
 	"admin.switch.usage": "Käyttö",
 	"admin.switch.riders": "Ajajat",
+	"admin.switch.roles": "Roolit",
+	"admin.roles.hint":
+		"Orga näkee kaikki ajajat etunimellä: Rynket, mitä puuttuu, kilometrit ja nousumetrit päivittäin sekä korjaukset. Adminit ovat aina myös Orgassa ja ylläpitävät lisäksi sovellusta: käyttö, ajajat ja roolit.",
+	"admin.roles.admins": "Adminit",
+	"admin.roles.orga": "Orga",
+	"admin.roles.you": "Sinä",
+	"admin.roles.change": "Muuta",
+	"admin.roles.adminSince": "Admin {date} alkaen",
+	"admin.roles.orgaSince": "Orgassa {date} alkaen",
+	"admin.roles.ownNote": "Vain toinen admin voi muuttaa omaa rooliasi.",
+	"admin.roles.onlyAdmin":
+		"Sinun lisäksesi kukaan ei ole admin. Vain toinen admin voi muuttaa omaa rooliasi.",
+	"admin.roles.orgaNote": "Adminit ovat ylempänä, eikä heitä toisteta tässä.",
+	"admin.roles.orgaNone": "Ei ketään adminien lisäksi.",
+	"admin.roles.give.heading": "Anna rooli",
+	"admin.roles.give.button": "Anna rooli",
+	"admin.roles.give.note":
+		"Tässä näkyvät vain ajajat, jotka jakavat tietonsa tiimin kanssa.",
+	"admin.roles.give.none": "Kaikilla tässä on jo rooli.",
+	"admin.roles.search": "Etsi ajaja",
+	"admin.roles.searchNone": "Ketään ei löytynyt.",
+	"admin.roles.sheet.title": "Rooli: {name}",
+	"admin.roles.sheet.note":
+		"{name} saa viestin, kun sovellus avataan seuraavan kerran.",
+	"admin.roles.choice.none": "Ei roolia",
+	"admin.roles.choice.none.text": "Näkee sen, minkä kaikki ajajat näkevät.",
+	"admin.roles.choice.orga": "Orga",
+	"admin.roles.choice.orga.text":
+		"Näkee kaikki ajajat etunimellä, heidän Rynkensä, mitä heiltä puuttuu, kilometrit ja nousumetrit päivittäin, ja korjaa Rynkejä.",
+	"admin.roles.choice.admin": "Admin",
+	"admin.roles.choice.admin.text":
+		"Kaikki Organ oikeudet sekä sovelluksen käyttö, ajajien poistaminen ja roolien muuttaminen.",
+	"admin.roles.cancel": "Peruuta",
+	"admin.roles.save": "Tallenna",
+	"admin.roles.done.orga": "{name} on nyt Orgassa.",
+	"admin.roles.done.admin": "{name} on nyt admin.",
+	"admin.roles.done.notAdmin": "{name} ei ole enää admin.",
+	"admin.roles.done.none": "{name} ei ole enää Orgassa.",
+	"admin.roles.undo": "Peru",
+	"admin.roles.error.self": "Vain toinen admin voi muuttaa omaa rooliasi.",
+	"admin.roles.error.unknown":
+		"Tätä henkilöä ei ole enää täällä. Mitään ei muutettu.",
+	"admin.remove.error.lastAdmin":
+		"Tämä on tiimin ainoa admin. Jonkun muun on ensin tultava adminiksi.",
+	"role.card.orga.title": "Olet nyt Orgassa",
+	"role.card.orga.body":
+		"{by} lisäsi sinut Orgaan {date}. Orga-välilehti on uusi; esittely näyttää, mitä siellä on.",
+	"role.card.orga.consent":
+		"Ajajat ovat suostuneet siihen, että Orga näkee heidän tietonsa. Eteenpäin antaminen ei kuulu siihen.",
+	"role.card.admin.title": "Olet nyt admin",
+	"role.card.admin.body":
+		"{by} teki sinusta adminin {date}. Adminin alla näet sovelluksen käytön ja kaikki ajajat yhteyksineen, ja annat roolit. Olet siten myös Orgassa.",
+	"role.card.notAdmin.title": "Et ole enää admin",
+	"role.card.notAdmin.body":
+		"{by} poisti admin-roolisi {date}. Olet yhä Orgassa.",
+	"role.card.none.title": "Et ole enää Orgassa",
+	"role.card.none.body":
+		"{by} poisti sinut Orgasta {date}. Et enää näe ajajia nimeltä.",
+	"role.card.none.events": "Tapahtumasi löydät taas kohdasta Tapahtumat.",
+	"role.card.tour": "Aloita esittely",
+	"role.card.orgaTour": "Aloita Orga-esittely",
+	"role.card.later": "Myöhemmin",
+	"role.card.ok": "Selvä",
+	"settings.orga.title": "Ketkä ovat Orgassa",
+	"settings.orga.admin": "{name} (admin)",
+	"settings.orga.text":
+		"He näkevät Rynkesi, kilometrisi ja nousumetrisi etunimelläsi. Adminit myös ylläpitävät sovellusta. Jos joku tulee lisää, se näkyy tässä.",
+	"settings.orga.link": "Muuta jäseniä",
 	"admin.allowance.strava_read_15m": "Strava-lukuja 15 minuutissa",
 	"admin.allowance.strava_all_15m": "Strava-pyyntöjä 15 minuutissa",
 	"admin.allowance.strava_read_daily": "Strava-lukuja päivässä",

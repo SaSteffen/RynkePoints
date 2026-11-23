@@ -260,6 +260,10 @@ describe("riders", () => {
 			onGuestList: false,
 			// No cookie from before a disconnect signs them in (issue #314).
 			sessionEpoch: NOW,
+			roleSince: null,
+			roleSeen: null,
+			roleChangedBy: null,
+			roleChangedAt: null,
 		});
 	});
 

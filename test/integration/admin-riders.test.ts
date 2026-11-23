@@ -121,7 +121,8 @@ describe("the consent filter (FR-038)", () => {
 			}),
 			ctx,
 		);
-		expect(team.status).toBe(403);
+		// An administrator is in the Orga (feature 043 FR-007).
+		expect(team.status).toBe(200);
 	});
 });
 

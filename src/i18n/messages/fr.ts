@@ -1159,6 +1159,76 @@ export const fr: Catalog = {
 	"admin.switch.label": "Vues admin",
 	"admin.switch.usage": "Utilisation",
 	"admin.switch.riders": "Cyclistes",
+	"admin.switch.roles": "Rôles",
+	"admin.roles.hint":
+		"L'Orga voit tous les cyclistes par leur prénom : Rynke, ce qui manque, kilomètres et dénivelé par jour, et corrections. Les admins sont toujours aussi dans l'Orga et gèrent en plus l'application : utilisation, cyclistes et rôles.",
+	"admin.roles.admins": "Admins",
+	"admin.roles.orga": "Orga",
+	"admin.roles.you": "Toi",
+	"admin.roles.change": "Modifier",
+	"admin.roles.adminSince": "Admin depuis le {date}",
+	"admin.roles.orgaSince": "Dans l'Orga depuis le {date}",
+	"admin.roles.ownNote": "Seul un autre admin peut modifier ton propre rôle.",
+	"admin.roles.onlyAdmin":
+		"Personne d'autre que toi n'est admin. Seul un autre admin peut modifier ton propre rôle.",
+	"admin.roles.orgaNote":
+		"Les admins figurent plus haut et ne sont pas répétés ici.",
+	"admin.roles.orgaNone": "Personne en dehors des admins.",
+	"admin.roles.give.heading": "Donner un rôle",
+	"admin.roles.give.button": "Donner un rôle",
+	"admin.roles.give.note":
+		"Seuls les cyclistes qui partagent leurs données avec l'équipe apparaissent ici.",
+	"admin.roles.give.none": "Tout le monde ici a déjà un rôle.",
+	"admin.roles.search": "Trouver un cycliste",
+	"admin.roles.searchNone": "Personne trouvé.",
+	"admin.roles.sheet.title": "Rôle de {name}",
+	"admin.roles.sheet.note":
+		"{name} recevra un message à la prochaine ouverture de l'application.",
+	"admin.roles.choice.none": "Aucun",
+	"admin.roles.choice.none.text": "Voit ce que voient tous les cyclistes.",
+	"admin.roles.choice.orga": "Orga",
+	"admin.roles.choice.orga.text":
+		"Voit tous les cyclistes par leur prénom, leurs Rynke, ce qui leur manque, kilomètres et dénivelé par jour, et corrige les Rynke.",
+	"admin.roles.choice.admin": "Admin",
+	"admin.roles.choice.admin.text":
+		"Tout ce qu'a l'Orga, plus l'utilisation de l'application, le retrait de cyclistes et le changement de rôles.",
+	"admin.roles.cancel": "Annuler",
+	"admin.roles.save": "Enregistrer",
+	"admin.roles.done.orga": "{name} est maintenant dans l'Orga.",
+	"admin.roles.done.admin": "{name} est maintenant admin.",
+	"admin.roles.done.notAdmin": "{name} n'est plus admin.",
+	"admin.roles.done.none": "{name} n'est plus dans l'Orga.",
+	"admin.roles.undo": "Annuler",
+	"admin.roles.error.self":
+		"Seul un autre admin peut modifier ton propre rôle.",
+	"admin.roles.error.unknown":
+		"Cette personne n'est plus là. Rien n'a été modifié.",
+	"admin.remove.error.lastAdmin":
+		"C'est le seul admin de l'équipe. Quelqu'un d'autre doit d'abord devenir admin.",
+	"role.card.orga.title": "Tu es maintenant dans l'Orga",
+	"role.card.orga.body":
+		"{by} t'a ajouté·e à l'Orga le {date}. L'onglet Orga est nouveau ; la visite te montre ce qu'il contient.",
+	"role.card.orga.consent":
+		"Les cyclistes ont accepté que l'Orga voie leurs données. Les transmettre n'en fait pas partie.",
+	"role.card.admin.title": "Tu es maintenant admin",
+	"role.card.admin.body":
+		"{by} t'a donné le rôle d'admin le {date}. Sous Admin, tu vois l'utilisation de l'application et tous les cyclistes avec leur connexion, et tu donnes les rôles. Tu es donc aussi dans l'Orga.",
+	"role.card.notAdmin.title": "Tu n'es plus admin",
+	"role.card.notAdmin.body":
+		"{by} t'a retiré le rôle d'admin le {date}. Tu restes dans l'Orga.",
+	"role.card.none.title": "Tu n'es plus dans l'Orga",
+	"role.card.none.body":
+		"{by} t'a retiré·e de l'Orga le {date}. Tu ne vois plus les cyclistes par leur nom.",
+	"role.card.none.events": "Tes événements sont de nouveau sous Événements.",
+	"role.card.tour": "Commencer la visite",
+	"role.card.orgaTour": "Commencer la visite Orga",
+	"role.card.later": "Plus tard",
+	"role.card.ok": "Compris",
+	"settings.orga.title": "Qui est dans l'Orga",
+	"settings.orga.admin": "{name} (admin)",
+	"settings.orga.text":
+		"Ils voient tes Rynke, kilomètres et dénivelé avec ton prénom. Les admins gèrent aussi l'application. Si quelqu'un s'ajoute, ce sera indiqué ici.",
+	"settings.orga.link": "Modifier les membres",
 	"admin.allowance.strava_read_15m": "Lectures Strava par 15 minutes",
 	"admin.allowance.strava_all_15m": "Requêtes Strava par 15 minutes",
 	"admin.allowance.strava_read_daily": "Lectures Strava par jour",

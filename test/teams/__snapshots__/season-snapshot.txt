@@ -11413,7 +11413,7 @@ Team
 Du
 Fahrten
 Abzeichen
-Termine
+5 Orga
 Admin
 Einst. Einstellungen
 --- /me/rides 200
@@ -11483,7 +11483,7 @@ Team
 Du
 Fahrten
 Abzeichen
-Termine
+5 Orga
 Admin
 Einst. Einstellungen
 --- /me/badges 200
@@ -11810,7 +11810,7 @@ Team
 Du
 Fahrten
 Abzeichen
-Termine
+5 Orga
 Admin
 Einst. Einstellungen
 --- /team 200
@@ -11909,7 +11909,7 @@ Alle
 40 Trainingsrynke 0 Teamrynke 0
 · · · 1 weitere hinter dir · · ·
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
-1 von 12
+1 von 11
 Team: wie das ganze Team dasteht und wo du in der Rangliste stehst. Die Rangliste gibt es auch nach Fahrten, Kilometern und Höhenmetern, für die Saison, den Monat oder die Woche.
 Weiter
 Überspringen
@@ -11925,7 +11925,7 @@ Team
 Du
 Fahrten
 Abzeichen
-Termine
+5 Orga
 Admin
 Einst. Einstellungen
 === 990019 Gesa Gast

@@ -1105,6 +1105,74 @@ export const nb: Catalog = {
 	"admin.switch.label": "Admin-visninger",
 	"admin.switch.usage": "Bruk",
 	"admin.switch.riders": "Ryttere",
+	"admin.switch.roles": "Roller",
+	"admin.roles.hint":
+		"Orga ser alle ryttere med fornavn: Rynke, hva som mangler, kilometer og høydemeter per dag og rettelser. Admins er alltid også med i Orga og driver i tillegg appen: bruk, ryttere og roller.",
+	"admin.roles.admins": "Admins",
+	"admin.roles.orga": "Orga",
+	"admin.roles.you": "Deg",
+	"admin.roles.change": "Endre",
+	"admin.roles.adminSince": "Admin siden {date}",
+	"admin.roles.orgaSince": "I Orga siden {date}",
+	"admin.roles.ownNote": "Bare en annen admin kan endre din egen rolle.",
+	"admin.roles.onlyAdmin":
+		"Ingen andre enn deg er admin. Bare en annen admin kan endre din egen rolle.",
+	"admin.roles.orgaNote": "Admins står øverst og gjentas ikke her.",
+	"admin.roles.orgaNone": "Ingen utenom admins.",
+	"admin.roles.give.heading": "Gi en rolle",
+	"admin.roles.give.button": "Gi en rolle",
+	"admin.roles.give.note":
+		"Her står bare ryttere som deler dataene sine med laget.",
+	"admin.roles.give.none": "Alle her har allerede en rolle.",
+	"admin.roles.search": "Finn rytter",
+	"admin.roles.searchNone": "Ingen funnet.",
+	"admin.roles.sheet.title": "Rolle for {name}",
+	"admin.roles.sheet.note": "{name} får en melding neste gang appen åpnes.",
+	"admin.roles.choice.none": "Ingen",
+	"admin.roles.choice.none.text": "Ser det alle ryttere ser.",
+	"admin.roles.choice.orga": "Orga",
+	"admin.roles.choice.orga.text":
+		"Ser alle ryttere med fornavn, Rynke, hva de mangler, kilometer og høydemeter per dag, og retter Rynke.",
+	"admin.roles.choice.admin": "Admin",
+	"admin.roles.choice.admin.text":
+		"Alt Orga har, pluss appens bruk, å fjerne ryttere og å endre roller.",
+	"admin.roles.cancel": "Avbryt",
+	"admin.roles.save": "Lagre",
+	"admin.roles.done.orga": "{name} er nå med i Orga.",
+	"admin.roles.done.admin": "{name} er nå admin.",
+	"admin.roles.done.notAdmin": "{name} er ikke lenger admin.",
+	"admin.roles.done.none": "{name} er ikke lenger med i Orga.",
+	"admin.roles.undo": "Angre",
+	"admin.roles.error.self": "Bare en annen admin kan endre din egen rolle.",
+	"admin.roles.error.unknown":
+		"Denne personen er ikke her lenger. Ingenting ble endret.",
+	"admin.remove.error.lastAdmin":
+		"Dette er lagets eneste admin. Noen andre må bli admin først.",
+	"role.card.orga.title": "Du er nå med i Orga",
+	"role.card.orga.body":
+		"{by} tok deg med i Orga {date}. Orga-fanen er ny; omvisningen viser deg hva som er der.",
+	"role.card.orga.consent":
+		"Rytterne har sagt ja til at Orga ser dataene deres. Å gi dem videre hører ikke med.",
+	"role.card.admin.title": "Du er nå admin",
+	"role.card.admin.body":
+		"{by} gjorde deg til admin {date}. Under Admin ser du appens bruk og alle ryttere med tilkoblingen sin, og du gir rollene. Dermed er du også med i Orga.",
+	"role.card.notAdmin.title": "Du er ikke lenger admin",
+	"role.card.notAdmin.body":
+		"{by} tok admin-rollen din {date}. Du er fortsatt med i Orga.",
+	"role.card.none.title": "Du er ikke lenger med i Orga",
+	"role.card.none.body":
+		"{by} tok deg ut av Orga {date}. Du ser ikke lenger ryttere med navn.",
+	"role.card.none.events":
+		"Arrangementene dine finner du igjen under Arrangementer.",
+	"role.card.tour": "Start omvisningen",
+	"role.card.orgaTour": "Start Orga-omvisningen",
+	"role.card.later": "Senere",
+	"role.card.ok": "Skjønner",
+	"settings.orga.title": "Hvem er med i Orga",
+	"settings.orga.admin": "{name} (admin)",
+	"settings.orga.text":
+		"De ser Rynke, kilometer og høydemeter med fornavnet ditt. Admins driver i tillegg appen. Kommer noen til, står det her.",
+	"settings.orga.link": "Endre medlemmer",
 	"admin.allowance.strava_read_15m": "Strava-lesinger per 15 minutter",
 	"admin.allowance.strava_all_15m": "Strava-forespørsler per 15 minutter",
 	"admin.allowance.strava_read_daily": "Strava-lesinger per dag",

@@ -5551,6 +5551,63 @@ function badgeShare(signal) {
 	}
 }
 
+/**
+ * Admin › Rollen (feature 043 research R5, R8): each "Ändern" / "Rolle geben"
+ * fills the one choice dialog with its rider and current role and opens it;
+ * the search hides the riders without a role whose name doesn't match.
+ */
+function adminRoles(signal) {
+	const sheet = document.querySelector("dialog.role-sheet");
+	if (!sheet || typeof sheet.showModal !== "function") return;
+	const on = { signal };
+	const title = sheet.querySelector("#role-sheet-title");
+	const note = sheet.querySelector("[data-role-note]");
+	const athlete = sheet.querySelector("input[name=athlete]");
+	for (const button of document.querySelectorAll("[data-role-open]")) {
+		button.addEventListener(
+			"click",
+			() => {
+				title.textContent = button.dataset.title;
+				note.textContent = button.dataset.note;
+				athlete.value = button.dataset.athlete;
+				for (const radio of sheet.querySelectorAll("input[name=role]")) {
+					radio.checked = radio.value === button.dataset.role;
+				}
+				sheet.showModal();
+			},
+			on,
+		);
+	}
+	sheet
+		.querySelector("[data-role-cancel]")
+		?.addEventListener("click", () => sheet.close(), on);
+	sheet.addEventListener(
+		"click",
+		(event) => {
+			if (event.target === sheet) sheet.close();
+		},
+		on,
+	);
+	const search = document.querySelector("[data-role-search]");
+	const none = document.querySelector("[data-role-search-none]");
+	const rows = [
+		...(search?.parentElement?.querySelectorAll("li[data-name]") ?? []),
+	];
+	search?.addEventListener(
+		"input",
+		() => {
+			const needle = search.value.trim().toLowerCase();
+			let shown = 0;
+			for (const row of rows) {
+				row.hidden = needle !== "" && !row.dataset.name.includes(needle);
+				if (!row.hidden) shown += 1;
+			}
+			if (none) none.hidden = shown > 0;
+		},
+		on,
+	);
+}
+
 function enhance(signal) {
 	lazyRides(signal);
 	installSettings(signal);
@@ -5568,6 +5625,7 @@ function enhance(signal) {
 	organiserRiders(signal);
 	organiserGraphs(signal);
 	usageGraphs(signal);
+	adminRoles(signal);
 }
 
 const registered = registerWorker();

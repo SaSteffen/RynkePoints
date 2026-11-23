@@ -5,7 +5,7 @@ import type { I18n } from "../../i18n/i18n";
 import type { AllowanceId } from "../../usage/allowances";
 import { forbidden } from "../errors";
 import { html, type SafeHtml } from "../html";
-import { GAUGE, PEOPLE } from "../icons";
+import { GAUGE, KEY, PEOPLE } from "../icons";
 import { isSameOrigin } from "../session";
 import { type ShellViewer, shellPage } from "../shell";
 import { readViewer, riderConsentState } from "../viewer";
@@ -56,7 +56,7 @@ export async function requireAdminPost(
 	return viewer.rider;
 }
 
-export type AdminView = "usage" | "riders";
+export type AdminView = "usage" | "riders" | "roles";
 
 /** The switch between the views, like Orga's. */
 export function adminSwitch(i18n: I18n, current: AdminView): SafeHtml {
@@ -65,6 +65,7 @@ export function adminSwitch(i18n: I18n, current: AdminView): SafeHtml {
 	return html`<nav class="organiser-switch" aria-label="${i18n.t("admin.switch.label")}">
 ${segment("usage", "/admin", GAUGE)}
 ${segment("riders", "/admin/riders", PEOPLE)}
+${segment("roles", "/admin/roles", KEY)}
 </nav>
 `;
 }

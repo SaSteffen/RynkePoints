@@ -9,6 +9,7 @@ import type { TeamData } from "../teams/types";
 import { forbidden } from "./errors";
 import { html, type SafeHtml } from "./html";
 import { redirect } from "./redirect";
+import { cardReplacesInvitation } from "./role-card";
 import { isSameOrigin } from "./session";
 import type { SectionId } from "./shell";
 import type { TourTarget } from "./tour-targets";
@@ -323,6 +324,8 @@ export function tourHint(
 	}
 	const pending = pendingTour(rider);
 	if (pending === null) return null;
+	// The role card on Du stands in for the organiser tour's start (043 R6).
+	if (pending === "organiser" && cardReplacesInvitation(rider)) return null;
 	const first = tourSteps(pending, rider, team)[0];
 	if (!first) return null;
 	if (first.path === page) return stepCard(i18n, rider, pending, 0, page, team);
