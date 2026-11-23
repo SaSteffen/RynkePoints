@@ -191,7 +191,9 @@ describe("an administrator", () => {
 
 describe("the Admin tab (T007)", () => {
 	const hasTab = async (athleteId: string) =>
-		(await (await get("/team", athleteId)).text()).includes('<a href="/admin"');
+		(await (await get("/team", athleteId)).text()).includes(
+			'<a href="/admin/riders"',
+		);
 
 	it("shows only for administrators", async () => {
 		expect(await hasTab(ADMIN)).toBe(true);
@@ -207,14 +209,16 @@ describe("the Admin tab (T007)", () => {
 			.bind(ADMIN)
 			.run();
 		const page = await (await get("/team", ADMIN)).text();
-		expect(page).toContain('<a href="/admin"');
+		expect(page).toContain('<a href="/admin/riders"');
 		expect(page).toContain('<a href="/organiser/riders"');
 	});
 
 	it("is current on the admin pages", async () => {
-		expect(await (await get("/admin", ADMIN)).text()).toContain(
-			'<a href="/admin" aria-current="page"',
-		);
+		for (const path of ["/admin", "/admin/riders"]) {
+			expect(await (await get(path, ADMIN)).text(), path).toContain(
+				'<a href="/admin/riders" aria-current="page"',
+			);
+		}
 	});
 });
 

@@ -74,9 +74,12 @@ beforeEach(async () => {
 });
 
 describe("the tab (US1)", () => {
-	it("is the second of two admin views", async () => {
+	it("is the first of two admin views", async () => {
 		const text = await page();
-		expect(text.match(/class="segmented"/g)).toHaveLength(2);
+		expect(text.match(/class="segmented" href="[^"]*"/g)).toEqual([
+			'class="segmented" href="/admin/riders"',
+			'class="segmented" href="/admin"',
+		]);
 		expect(text).toContain(
 			`<a class="segmented" href="/admin/riders" aria-current="true">`,
 		);
