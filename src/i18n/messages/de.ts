@@ -700,7 +700,7 @@ export const de = {
 		"Fahrten {n}, typisch {typical}\u00a0km",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
-	// names of a team with its own are in src/content/badge-names/; the
+	// names of a team with its own are in teams/<id>/badge-names.<locale>.ts; the
 	// common ones are the badge.name.<id> messages at the end.
 	"badges.heading": "Abzeichen",
 	"badges.personal.newest": "Deine Abzeichen",

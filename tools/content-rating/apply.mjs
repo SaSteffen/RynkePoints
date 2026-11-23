@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const DEFAULT_PHRASES = "src/content/phrases/hamburg.de.ts";
+const DEFAULT_PHRASES = "teams/hamburg/phrases.de.ts";
 const quotesPath = process.argv[2] ?? DEFAULT_PHRASES;
 const roundDir = join(here, "rounds", process.argv[3] ?? "current");
 const additionsPath = process.argv[4] ?? join(roundDir, "additions.json");

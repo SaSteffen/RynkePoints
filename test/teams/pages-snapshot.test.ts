@@ -3,9 +3,9 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { readOnly } from "../../album/guard";
 import { loadAlbum } from "../../album/load";
 import { renderAlbum } from "../../album/render";
-import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples.hamburg";
 import { APP_VERSION } from "../../src/changelog";
 import { TEAMS } from "../../src/teams";
+import { SAMPLE_RIDERS } from "../../teams/hamburg/samples";
 import { NOW } from "../support/fixtures";
 import PINNED_VARS from "../support/pinned.json";
 import {

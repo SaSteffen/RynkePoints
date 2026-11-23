@@ -78,7 +78,7 @@ made and built the same way, with `"seasonal": true`. `pnpm badge-build` lists
 them apart, in `SEASONAL_MONKEYS`, so they never join the regular rotation.
 
 Which team shows them, and when, is team data: `holidays` in
-`src/teams/<id>.ts`. Each holiday names a set of seasonal `monkeys` (one or
+`teams/<id>/team.ts`. Each holiday names a set of seasonal `monkeys` (one or
 more), a window `from` and `to` (both days included, German time) and a `kind`:
 
 - A day is a fixed `"MM-DD"`, or `{ anchor: "first-advent" | "easter", offset }`,

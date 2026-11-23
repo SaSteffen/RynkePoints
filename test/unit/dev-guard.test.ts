@@ -15,25 +15,30 @@ import worker, {
 import { makeCtx, type TestCtx, tableCounts } from "../support/ctx";
 
 // FR-009: the fake Strava can't reach production (specs/006-local-frontend-dev
-// research R9). Layer 1: nothing under src/ imports dev/, album/ (the season
-// album Worker, feature 021 research R12) or tools/ (local content tools), and production still deploys
-// src/index.ts. Layer 2: the dev entry refuses to run without the
+// research R9). Layer 1: nothing under src/, nor the team data under teams/,
+// imports dev/, album/ (the season album Worker, feature 021 research R12),
+// tools/ (local content tools) or a team's sample riders (teams/<id>/samples.ts,
+// which only the fake Strava reads), and production still deploys src/index.ts. Layer 2: the dev entry refuses to run without the
 // fake-mode marker, and answers only local hosts.
 
 declare global {
 	interface ImportMeta {
 		glob(
-			pattern: string,
+			pattern: string | string[],
 			options: { query: "?raw"; import: "default"; eager: true },
 		): Record<string, string>;
 	}
 }
 
-const SOURCES = import.meta.glob("../../src/**/*.ts", {
-	query: "?raw",
-	import: "default",
-	eager: true,
-});
+// The app's sources: src/ and every team's data, which src/teams/ imports.
+const SOURCES = import.meta.glob(
+	["../../src/**/*.ts", "../../teams/*/*.ts", "!../../teams/*/samples.ts"],
+	{
+		query: "?raw",
+		import: "default",
+		eager: true,
+	},
+);
 const WRANGLER = import.meta.glob("../../wrangler.jsonc", {
 	query: "?raw",
 	import: "default",
@@ -46,21 +51,25 @@ const IMPORT_SPECIFIERS =
 /**
  * A relative or absolute path with a `dev`, `album`, `tools` or `gateway`
  * segment (the Strava gateway Worker, feature 026 release 3), e.g.
- * `../../dev/worker`.
+ * `../../dev/worker`, or a team's sample riders, e.g. `./samples`.
  */
 function reachesDev(specifier: string): boolean {
 	return (
 		/^[./]/.test(specifier) &&
-		/(^|\/)(dev|album|tools|gateway)(\/|$)/.test(specifier)
+		(/(^|\/)(dev|album|tools|gateway)(\/|$)/.test(specifier) ||
+			/(^|\/)samples(\.ts)?$/.test(specifier))
 	);
 }
 
 describe("layer 1: production never bundles dev/, album/, tools/ or gateway/", () => {
-	it("finds the app's source files", () => {
-		expect(Object.keys(SOURCES).length).toBeGreaterThanOrEqual(30);
+	it("finds the app's source files and the team data, not the samples", () => {
+		const files = Object.keys(SOURCES);
+		expect(files.length).toBeGreaterThanOrEqual(30);
+		expect(files).toContain("../../teams/hamburg/team.ts");
+		expect(files.some((file) => file.endsWith("/samples.ts"))).toBe(false);
 	});
 
-	it("has no src/ file importing from dev/, album/, tools/ or gateway/", () => {
+	it("has no app file importing from dev/, album/, tools/, gateway/ or samples", () => {
 		const offenders = Object.entries(SOURCES).flatMap(([file, text]) =>
 			[...text.matchAll(IMPORT_SPECIFIERS)]
 				.map((m) => m[1] ?? "")
@@ -79,6 +88,8 @@ describe("layer 1: production never bundles dev/, album/, tools/ or gateway/", (
 			"../album",
 			"../../tools/content-rating/server.mjs",
 			"../../gateway/index",
+			"../../teams/hamburg/samples",
+			"./samples",
 		]) {
 			expect(reachesDev(specifier)).toBe(true);
 		}
@@ -87,6 +98,7 @@ describe("layer 1: production never bundles dev/, album/, tools/ or gateway/", (
 			"./albums",
 			"./toolsbar",
 			"./gateways",
+			"./samples-table",
 			"../strava/client",
 			"cloudflare:test",
 		]) {
@@ -94,7 +106,7 @@ describe("layer 1: production never bundles dev/, album/, tools/ or gateway/", (
 		}
 	});
 
-	it("has no src/ file reading a sandbox's settings (027 FR-013)", () => {
+	it("has no app file reading a sandbox's settings (027 FR-013)", () => {
 		const vars =
 			/\b(SANDBOX_HOST|ACCESS_TEAM_DOMAIN|ACCESS_AUD|SANDBOX_COMMIT|SANDBOX_SOURCE)\b/;
 		const offenders = Object.entries(SOURCES)

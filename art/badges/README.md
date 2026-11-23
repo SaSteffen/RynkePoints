@@ -116,17 +116,18 @@ changes changes no file. Commit the originals, `public/badges/` and
 ## A team's own pictures
 
 A few shared pictures show Hamburg (`teamSpecificBadges` in
-`src/teams/hamburg.ts`); every other team needs its own take of them (feature
-026 FR-024). Its scenes are in `teams/<team>/badges.json`: the badge id and a
+`teams/hamburg/team.ts`); every other team needs its own take of them (feature
+026 FR-024). Its scenes are in its team folder, in
+`teams/<team>/art/badges/badges.json`: the badge id and a
 scene, using the shared prompt, reference and snippets. Their ids on the
 command line are `<team>/<badge>`:
 
 ```bash
-pnpm badge-art europe/running-100      # into teams/europe/originals/
+pnpm badge-art europe/running-100      # into teams/europe/art/badges/originals/
 pnpm badge-build europe/running-100    # into public/teams/europe/badges/
 ```
 
-The team's `art.badges` in `src/teams/<team>.ts` names each picture, e.g.
+The team's `art.badges` in `teams/<team>/team.ts` names each picture, e.g.
 `"/teams/europe/badges/running-100.svg"`; until then it says `"placeholder"`
 and the badge shows the neutral picture.
 

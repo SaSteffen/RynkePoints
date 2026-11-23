@@ -7,8 +7,8 @@ import {
 } from "../../src/http/tour-example";
 import { riderStatus } from "../../src/rynke/pace";
 import { currentRules } from "../../src/rynke/rules";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 import { CURRENT_RULES } from "../support/team-rules";
 
 // The tour's examples (feature 020 FR-006, FR-013): worked out by the rules

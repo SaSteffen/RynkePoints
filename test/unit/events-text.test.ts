@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { eventsText, type NoEventsId } from "../../src/i18n/events-text";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 
 // Feature 039 research R7, contracts/messages.md: a team without events reads
 // the `.noEvents` variant of the texts that mention them.

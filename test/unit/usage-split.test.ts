@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { parseJsonc } from "../../scripts/team-check.mjs";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
 import type { CloudflarePart } from "../../src/usage/cloudflare";
 import {
 	GATEWAY_WORKER,
@@ -10,6 +8,8 @@ import {
 	SHARED,
 	splitDay,
 } from "../../src/usage/split";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 
 // Cloudflare's figures split by team (feature 026 FR-040), as pure logic.
 

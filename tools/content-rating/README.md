@@ -10,7 +10,7 @@ must not import it.
 node tools/content-rating/server.mjs [phrases file] [round]
 ```
 
-- `phrases file` defaults to `src/content/phrases/hamburg.de.ts`; `round`
+- `phrases file` defaults to `teams/hamburg/phrases.de.ts`; `round`
   defaults to `current`.
 - Open http://localhost:8790 and mark each phrase keep or cut, with an optional
   note.

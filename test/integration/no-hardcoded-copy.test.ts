@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
+import { escapeHtml } from "../../src/http/html";
+import { MEDALS } from "../../src/http/sections/team";
+import { CATALOGS, type Catalog } from "../../src/i18n/catalogs";
+import { de } from "../../src/i18n/messages/de";
+import { BADGE_NAMES } from "../../teams/hamburg/badge-names.de";
 import {
 	QUOTES_ON_TRACK,
 	QUOTES_PUSH,
 	SEASON_QUOTES_ON_TRACK,
 	SEASON_QUOTES_PUSH,
-} from "../../src/content/phrases/hamburg.de";
-import { escapeHtml } from "../../src/http/html";
-import { MEDALS } from "../../src/http/sections/team";
-import { CATALOGS, type Catalog } from "../../src/i18n/catalogs";
-import { de } from "../../src/i18n/messages/de";
+} from "../../teams/hamburg/phrases.de";
 import { makeCtx, resetDb } from "../support/ctx";
 import { mapMessage } from "../support/messages";
 import { RIDER_PAGES, seedPageRiders } from "../support/pages";

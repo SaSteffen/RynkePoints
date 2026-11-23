@@ -10,7 +10,7 @@ lang: de
 Maintainers: this handout is informational only. The specification
 specs/003-rynke-evaluation/spec.md is authoritative; if the two differ, fix this
 file (FR-019). The front matter names the rules version in effect: raise it
-with every new version in src/teams/hamburg.ts. Render it with `pnpm docs:pdf` and commit
+with every new version in teams/hamburg/team.ts. Render it with `pnpm docs:pdf` and commit
 public/rynke-punkte.pdf: the app links riders to that PDF.
 -->
 

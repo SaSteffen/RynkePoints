@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Renders each team's rules handout to the PDF its team data links to
-# (feature 026 FR-022): the founding team's German docs/rynke-punkte.md to
-# public/rynke-punkte.pdf, Europe's English docs/teams/europe/rynke-points.md to
+# (feature 026 FR-022): the founding team's German teams/hamburg/rynke-punkte.md to
+# public/rynke-punkte.pdf, Europe's English teams/europe/rynke-points.md to
 # public/teams/europe/rynke-points.pdf. pandoc turns each into a standalone HTML
 # page, and a headless Chrome/Chromium prints that page to PDF. The PDFs are
 # committed and the app serves them as static assets, so the rider page links to
@@ -11,10 +11,10 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-# Source and PDF per team, matching `rulesHandout` in src/teams/<id>.ts.
+# Source and PDF per team, matching `rulesHandout` in teams/<id>/team.ts.
 handouts=(
-	"docs/rynke-punkte.md:public/rynke-punkte.pdf"
-	"docs/teams/europe/rynke-points.md:public/teams/europe/rynke-points.pdf"
+	"teams/hamburg/rynke-punkte.md:public/rynke-punkte.pdf"
+	"teams/europe/rynke-points.md:public/teams/europe/rynke-points.pdf"
 )
 
 if ! command -v pandoc >/dev/null; then

@@ -21,8 +21,8 @@ import type {
 	DayEntry,
 	OwnDayEntry,
 } from "../../src/rynke/summary";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 
 // Feature 034 contracts/hint-candidates.md: the hints in reach, from synthetic
 // riders' figures only.

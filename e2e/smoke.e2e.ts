@@ -5,7 +5,7 @@ import { test as base } from "./test";
 // Smoke tests in every browser (chromium, firefox, webkit): each page loads
 // without a script error, fits a small phone, a phone and a desktop without sideways
 // scrolling, and the parts `public/app.js` drives show up. The riders are the
-// fake mode's synthetic samples (dev/fake-strava/samples.ts).
+// fake mode's synthetic samples (teams/<id>/samples.ts).
 
 /** Fails the test on any uncaught error or `console.error` in the page. */
 const test = base.extend<{ errors: string[] }>({

@@ -82,7 +82,7 @@
 				// named in the app; "" for none.
 				"STRAVA_EXTRA_CLUB_IDS": "2372209",
 				// Changing any of the three season dates raises the team's rules version
-				// (src/teams/<id>.ts, issue #19).
+				// (teams/<id>/team.ts, issue #19).
 				"SEASON_START_DATE": "2026-09-01",
 				// First day a ride can count for qualifying; on or after the season start,
 				// on or before the deadline (feature 040).
@@ -169,7 +169,7 @@
 			]
 		},
 		// Team Rynkeby Europe (feature 026), `--env europe`. Placeholders until release 4
-		// (src/teams/europe.ts `placeholders`): the resource IDs, club IDs, dates and
+		// (teams/europe/team.ts `placeholders`): the resource IDs, club IDs, dates and
 		// controller.
 		"europe": {
 			"name": "rynke-points-europe",
@@ -292,7 +292,7 @@
 				"STRAVA_CLUB_ID": "1088689",
 				"STRAVA_EXTRA_CLUB_IDS": "2372209",
 				// Changing any of the three season dates raises the team's rules version
-				// (src/teams/<id>.ts, issue #19).
+				// (teams/<id>/team.ts, issue #19).
 				"SEASON_START_DATE": "2026-09-01",
 				"QUALIFICATION_START_DATE": "2026-09-01",
 				"QUALIFICATION_DEADLINE": "2027-06-30",

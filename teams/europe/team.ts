@@ -1,6 +1,6 @@
-import type { RynkeRules } from "../rynke/rules";
-import { hamburg } from "./hamburg";
-import type { TeamData } from "./types";
+import type { RynkeRules } from "../../src/rynke/rules";
+import type { TeamData } from "../../src/teams/types";
+import { hamburg } from "../hamburg/team";
 
 // Europe's own Rynke rules (feature 039, decided with Team Europe on
 // 2026-11-17): the founding team's version 3 values, written out, plus a
@@ -82,7 +82,7 @@ export const europe: TeamData = {
 	eventKinds: [],
 	colours: hamburg.colours,
 	art: {
-		// art/coin/europe/, copied by pnpm coin-art.
+		// teams/europe/art/coin/, copied by pnpm coin-art.
 		coin: {
 			front: "/teams/europe/coin/rynke-coin-front.svg",
 			back: "/teams/europe/coin/rynke-coin-back.svg",
@@ -97,7 +97,7 @@ export const europe: TeamData = {
 			maskable512: "/teams/europe/icons/icon-maskable-512.png",
 		},
 		// Its own take of each badge with the founding team's motifs
-		// (art/badges/teams/europe/, pnpm badge-build).
+		// (teams/europe/art/badges/, pnpm badge-build).
 		badges: Object.fromEntries(
 			hamburg.art.teamSpecificBadges.map((id) => [
 				id,

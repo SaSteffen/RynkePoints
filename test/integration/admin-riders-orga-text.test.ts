@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
-import { europe } from "../../src/teams/europe";
+import { europe } from "../../teams/europe/team";
 import {
 	makeCtx,
 	request,

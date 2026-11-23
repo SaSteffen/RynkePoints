@@ -1,19 +1,24 @@
 #!/usr/bin/env node
 // Traces each team's Rynke coin artwork into the SVGs the app and print use
-// (issue: coin artwork). The founding team's, in art/coin/:
+// (issue: coin artwork). Each team's coin is in its team folder,
+// teams/<id>/art/coin/; the founding team's:
 //
-//   art/coin/originals/rynke-coin-front.jpeg  -> public/coin/rynke-coin-front.svg
-//   art/coin/originals/rynke-coin-back.jpeg   -> public/coin/rynke-coin-back.svg
-//   art/coin/reference/rynke-coin-line-drawing.jpeg
-//                                             -> art/coin/rynke-coin-line-front.svg
-//                                                art/coin/rynke-coin-line-back.svg
+//   teams/hamburg/art/coin/originals/rynke-coin-front.jpeg
+//                                     -> public/coin/rynke-coin-front.svg
+//   teams/hamburg/art/coin/originals/rynke-coin-back.jpeg
+//                                     -> public/coin/rynke-coin-back.svg
+//   teams/hamburg/art/coin/reference/rynke-coin-line-drawing.jpeg
+//                                     -> teams/hamburg/art/coin/rynke-coin-line-front.svg
+//                                        teams/hamburg/art/coin/rynke-coin-line-back.svg
+//
+// Team Europe's colour SVGs stay beside their originals and are copied to
+// public/teams/europe/coin/, where only Europe's team data points (feature 026
+// research R14).
+//
+// The hero portraits are shared, since they show only the character:
+//
 //   art/coin/originals/rynke-coin-hero-<n>.png -> public/coin/rynke-coin-hero-<n>.svg
 //                                                (art/coin/hero/README.md)
-//
-// Team Europe's, in art/coin/europe/, stay beside their originals and are
-// copied to public/teams/europe/coin/, where only Europe's team data points
-// (feature 026 research R14). It shares the portraits, which show only the
-// character.
 //
 // The full-colour originals are snapped to their own palettes (the back needs
 // the Elbe, sky, glass and brick the shared coin palette doesn't have), and a
@@ -142,14 +147,14 @@ const EU_STARS = [
 // outside it (the dimension lines) is dropped, and an oval coin ends up round.
 const TEAMS = [
 	{
-		art: "art/coin",
+		art: "teams/hamburg/art/coin",
 		appOut: "public/coin",
 		backColours: BACK_COLOURS,
 		lineCoins: { front: [688, 672, 576, 576], back: [1921, 657, 584, 584] },
 	},
 	{
-		art: "art/coin/europe",
-		appOut: "art/coin/europe",
+		art: "teams/europe/art/coin",
+		appOut: "teams/europe/art/coin",
 		publicOut: "public/teams/europe/coin",
 		backColours: EUROPE_BACK_COLOURS,
 		backOverlay: EU_STARS,

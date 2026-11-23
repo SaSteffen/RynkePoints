@@ -117,8 +117,10 @@ queue, so no rider's data is readable from another team
 ([026](specs/026-second-team/spec.md)). The same code serves every team:
 
 - **Team data**: everything that differs between teams is data, in
-  `src/teams/<id>.ts` (rules, colours, art, phrases, badge names, languages) and in
-  the team's block of `wrangler.jsonc` (club, dates, switches, contact).
+  `teams/<id>/team.ts` (rules, colours, art, phrases, badge names, languages) and in
+  the team's block of `wrangler.jsonc` (club, dates, switches, contact). The rest of
+  what a team owns sits beside it in `teams/<id>/`: own phrases and badge names,
+  synthetic sample riders, coin and badge originals, and the rules handout's source.
   `node scripts/team-check.mjs` checks both halves. A team still holding another
   team's values is never deployed (`--deployable <id>`).
 - **Strava gateway** (`gateway/`): Strava allows one webhook subscription and one
@@ -327,7 +329,7 @@ Occasional tasks, each described at the top of its script:
 | `pnpm catch-up <since>` | re-reads every rider's rides since a moment, e.g. after moving the webhook ([gateway switch](docs/gateway-switch.md)) |
 | `pnpm season:album` | season album PDFs into `season-albums/` (`--local`: from `pnpm dev`'s sample season) |
 | `pnpm strava:review` | material for Strava's Developer Program form |
-| `pnpm docs:pdf` | renders the rules handout `docs/rynke-punkte.md` to PDF |
+| `pnpm docs:pdf` | renders each team's rules handout (`teams/<id>/rynke-p*.md`) to PDF |
 
 ## Contributing
 

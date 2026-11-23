@@ -1,6 +1,6 @@
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 import { assertValidRules, currentRules } from "../rynke/rules";
-import { europe } from "./europe";
-import { hamburg } from "./hamburg";
 import type { TeamData } from "./types";
 
 // The team registry (feature 026 research R1). A deployment serves the team its

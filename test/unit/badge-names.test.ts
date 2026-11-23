@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { BADGES } from "../../src/badges/catalog";
-import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
 import { de } from "../../src/i18n/messages/de";
 import { en } from "../../src/i18n/messages/en";
+import { BADGE_NAMES } from "../../teams/hamburg/badge-names.de";
 
 // German-only badge names (feature 013 FR-041, research R20,
 // contracts/badge-messages.md): one per badge of the catalog.

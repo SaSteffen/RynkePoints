@@ -681,7 +681,7 @@ export const lt: Catalog = {
 		"Treniruotės: {n}, tipinis {typical} km",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
-	// names of a team with its own are in src/content/badge-names/; the
+	// names of a team with its own are in teams/<id>/badge-names.<locale>.ts; the
 	// common ones are the badge.name.<id> messages at the end.
 	"badges.heading": "Ženkleliai",
 	"badges.personal.newest": "Tavo ženkleliai",

@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { TEAMS } from "../../src/teams";
 
-// FR-016 (feature 026 contracts/team-data.md › No team names in code): outside
-// src/teams/, no source file under src/ names a registered team, by its ID or
-// its display name, in a string literal. Team-specific behaviour comes from a
-// field of TeamData or a var. Not names: a team's own content sets
-// (src/content/*/<id>.<locale>.ts, team data like src/teams/), and paths under
-// a team's art folder `/teams/<id>/`, which only that team's data points to.
-// The catalogs are checked message by message.
+// FR-016 (feature 026 contracts/team-data.md › No team names in code): no
+// source file under src/ names a registered team, by its ID or its display
+// name, in a string literal. Team-specific behaviour comes from a field of
+// TeamData or a var. A team's data and own content sets live outside src/, in
+// teams/<id>/. Not names: paths under a team's art folder `/teams/<id>/`,
+// which only that team's data points to. The catalogs are checked message by
+// message.
 
 declare global {
 	interface ImportMeta {
@@ -28,16 +28,7 @@ const SOURCES = import.meta.glob("../../src/**/*.ts", {
 const IDS = TEAMS.map((team) => team.id);
 const NAMES = TEAMS.map((team) => team.name);
 
-function isOwnContent(file: string): boolean {
-	return IDS.some((id) =>
-		new RegExp(`/src/content/[^/]+/${id}\\.[a-z]+\\.ts$`).test(file),
-	);
-}
-
-const exempt = (file: string) =>
-	file.includes("/src/teams/") ||
-	file.includes("/src/i18n/messages/") ||
-	isOwnContent(file);
+const exempt = (file: string) => file.includes("/src/i18n/messages/");
 
 /** The source without comments; `//` after `:` (a URL) isn't one. */
 function withoutComments(source: string): string {
@@ -62,7 +53,7 @@ describe("no team names in code (FR-016)", () => {
 		expect(IDS.length).toBeGreaterThanOrEqual(2);
 	});
 
-	it("names no team in a string literal outside src/teams/", () => {
+	it("names no team in a string literal", () => {
 		const found: string[] = [];
 		for (const [file, source] of Object.entries(SOURCES)) {
 			if (exempt(file)) continue;

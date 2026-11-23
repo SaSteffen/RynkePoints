@@ -42,7 +42,10 @@ Until a value arrives, team data may hold Hamburg's value as a placeholder
 
 ## 2. Team data (one pull request)
 
-1. `src/teams/<id>.ts`: copy `src/teams/europe.ts` and fill it in. Register it in
+Everything the team owns goes into its folder `teams/<id>/`, like `teams/europe/`.
+The pictures and PDFs the app serves are made from it into `public/teams/<id>/`.
+
+1. `teams/<id>/team.ts`: copy `teams/europe/team.ts` and fill it in. Register it in
    `src/teams/index.ts`. Every field still copied from another team goes into
    `placeholders`. Its `cloudflare` field names the team's Worker, database ID and,
    once known (`wrangler queues list`), its queue IDs, so each team's admin view can
@@ -54,14 +57,16 @@ Until a value arrives, team data may hold Hamburg's value as a placeholder
    `node scripts/team-check.mjs` names anything missing. Then run `pnpm types`.
 3. Local development: `"dev:<id>": "node scripts/dev.mjs <id>"` in `package.json`, a
    `dev` target with its own ports in team data, and synthetic sample riders in
-   `dev/fake-strava/samples.<id>.ts` ([contracts/dev-commands.md](../specs/026-second-team/contracts/dev-commands.md)).
+   `teams/<id>/samples.ts`, registered in `dev/fake-strava/sample-sets.ts`
+   ([contracts/dev-commands.md](../specs/026-second-team/contracts/dev-commands.md)).
 4. One team at a time (feature 044) needs no team data: the gateway's `TEAMS` list
    decides who is asked whether they hold a person.
 5. Ride re-check (feature 036): `recheckAllowance` is the team's checks per day. All
    teams together have 300; split them evenly, so a third team means lowering the
    others' (`team-check` refuses a sum above 300).
-6. The Rynke explanation for riders: `docs/teams/<id>/rynke-punkte.md`, from the team's
-   own values (FR-022).
+6. The Rynke explanation for riders: `teams/<id>/rynke-points.md`, from the team's
+   own values (FR-022), rendered by `pnpm docs:pdf` (add it to
+   `scripts/docs-pdf.sh`) into `public/teams/<id>/rynke-points.pdf`.
 7. `node scripts/team-check.mjs` passes. `pnpm dev:<id>` shows the team with synthetic
    riders.
 

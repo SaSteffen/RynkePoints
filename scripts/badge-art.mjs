@@ -30,7 +30,7 @@
 // the two pictures of Rynke in the fun themes' page-switch shows, from
 // art/shows/ (art/shows/README.md). Their ids work like badge ids here. A
 // team's own take of a badge with another team's motifs, from
-// art/badges/teams/<team>/, has the id <team>/<badge>, e.g. europe/running-100.
+// teams/<team>/art/badges/, has the id <team>/<badge>, e.g. europe/running-100.
 //
 // Other options: --profile <dir> (default ~/.cache/rynkepoints/gemini-profile),
 // --browser chrome|chromium (default chrome), --timeout <seconds> per image
@@ -41,6 +41,7 @@
 // badges per run (default 10).
 import {
 	copyFileSync,
+	existsSync,
 	mkdirSync,
 	readdirSync,
 	readFileSync,
@@ -161,7 +162,7 @@ const items = SETS.flatMap(({ dir, list, key, check }) => {
 	}));
 });
 // A team's own takes of badges whose shared picture shows another team's
-// motifs (feature 026 FR-024), art/badges/teams/<team>/: the shared badge's
+// motifs (feature 026 FR-024), teams/<team>/art/badges/: the shared badge's
 // group, prompt and snippets with the team's scene; the id is <team>/<badge>.
 const shared = JSON.parse(readFileSync(root("art/badges/badges.json"), "utf8"));
 const badgeTemplate = readFileSync(
@@ -169,7 +170,7 @@ const badgeTemplate = readFileSync(
 	"utf8",
 ).trim();
 for (const team of teamArtDirs()) {
-	const dir = `art/badges/teams/${team}`;
+	const dir = `teams/${team}/art/badges`;
 	const data = JSON.parse(readFileSync(root(`${dir}/badges.json`), "utf8"));
 	const found = validateTeamBadges(data, shared);
 	problems.push(...found.map((p) => `${dir}: ${p}`));
@@ -187,15 +188,11 @@ for (const team of teamArtDirs()) {
 	}
 }
 
-/** The teams with their own badge scenes under art/badges/teams/. */
+/** The teams with their own badge scenes, in teams/<team>/art/badges/. */
 function teamArtDirs() {
-	try {
-		return readdirSync(root("art/badges/teams")).filter(
-			(f) => !f.startsWith("."),
-		);
-	} catch {
-		return [];
-	}
+	return readdirSync(root("teams")).filter(
+		(f) => !f.startsWith(".") && existsSync(root(`teams/${f}/art/badges`)),
+	);
 }
 const ids = new Set();
 for (const { id } of items) {
