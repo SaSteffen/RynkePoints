@@ -28,6 +28,13 @@ replaces.
 - Q: Can administrators turn alerts off? → A: Yes, one switch covers all usage alerts:
   Strava, Cloudflare and connected riders. Each administrator sets it for themselves.
 
+### Session 2026-11-23
+
+- Q: Can the view show whether the Workers are near their CPU limit? → A: Yes, as User
+  Story 6. The limit is per run, not per day, so it isn't an allowance with a
+  percentage: the view counts the runs Cloudflare cut off against all runs, and shows
+  the slowest runs' CPU time beside the limit as a plain figure.
+
 ## Context
 
 The app may soon serve a second team (issue #236): one Strava app, one Cloudflare
@@ -217,6 +224,46 @@ check in the same period sends nothing.
 
 ---
 
+### User Story 6 - Are the Workers near their CPU limit? (Priority: P2)
+
+On Cloudflare's free plan each run of a Worker (a page, a queue batch, a cron run) may
+use 10 ms of CPU. A run that goes over is cut off and fails, and Cloudflare stops
+forgiving a Worker that goes over regularly. An administrator sees, per day, how many
+runs of this team's Worker, the other teams' and the gateway were cut off, out of how
+many, and how much CPU the slowest runs used, so they see the limit coming before
+pages start failing.
+
+**Why this priority**: A cut-off run is a failed page or a retried job, and nothing
+else in the view shows it. It reads the same Cloudflare source as Story 1.
+
+**Independent Test**: With a synthetic Cloudflare answer, record two days with runs,
+cut-off runs and CPU times for each Worker, then open the view and check the table, the
+marks and the alert.
+
+**Acceptance Scenarios**:
+
+1. **Given** Cloudflare reports runs and CPU times for each Worker, **When** the view
+   opens, **Then** a table shows per day, newest first, for this team, the other teams
+   together and the gateway: the CPU time the slowest 1 in 100 runs reached, and the
+   runs cut off out of all runs.
+2. **Given** a day with no run cut off, **When** the view opens, **Then** that day
+   carries no mark, whatever the slowest runs' CPU time.
+3. **Given** a day with runs cut off, but no more than 1 in 100, **When** the view
+   opens, **Then** that Worker's value is marked as a warning; above 1 in 100, as
+   critical.
+4. **Given** this team's Worker or the gateway has a marked value today, **When** the
+   hourly recording runs, **Then** the administrators get one notification per level
+   and day, saying runs were cut off and opening the view; the summary at the top
+   counts it.
+5. **Given** another team's Worker has a marked value, **When** the recording runs,
+   **Then** the view marks it, but this team's administrators get no notification:
+   that team's own do.
+6. **Given** Cloudflare's CPU figures can't be fetched, **When** the view opens,
+   **Then** the rest of the view is unchanged and the table keeps the days already
+   recorded.
+
+---
+
 ### Edge Cases
 
 - A Strava figure is old because no call was made in the current period: the figure
@@ -364,6 +411,25 @@ check in the same period sends nothing.
   they don't have to wait for the next run. It records and alerts exactly as the hourly
   run does, within FR-016 and FR-035.
 
+**CPU time (User Story 6)**
+
+- **FR-041**: The hourly recording MUST keep, per UTC day and Worker owner (this team,
+  each other team, the gateway): the runs, the runs Cloudflare cut off for going over
+  a limit, and the CPU time the slowest 1 in 100 runs reached. Today's values are
+  replaced on each recording, yesterday's corrected, like the other Cloudflare figures.
+  Workers of no team (such as a sandbox) are left out.
+- **FR-042**: The view MUST show the last 30 recorded days of FR-041 in one table,
+  newest first, with the CPU limit beside it. Other teams appear together as one
+  owner, without their names (feature 026 FR-023).
+- **FR-043**: A value MUST be marked as a warning when any run was cut off that day,
+  and as critical when more than 1 in 100 were. The slowest runs' CPU time MUST NOT be
+  marked on its own, since Cloudflare forgives occasional overruns.
+- **FR-044**: When this team's Worker or the gateway gets a mark, administrators MUST
+  get one notification per level and day, under the switch of FR-039. It holds no
+  rider data and opens the view. Today's marks count in the summary.
+- **FR-045**: The CPU figures MUST come from a query of their own, so that their
+  failure never makes the other Cloudflare figures unavailable.
+
 **General**
 
 - **FR-025**: All text MUST live in the catalogs, in every shipped language (FR-028 of
@@ -390,6 +456,8 @@ check in the same period sends nothing.
 - **Block list entry**: One Strava athlete ID blocked from a team, and nothing else.
 - **Alert state**: For each allowance and period, the highest level already notified. It
   holds no rider data.
+- **Daily CPU record**: One day's runs, cut-off runs and slowest runs' CPU time for one
+  Worker owner. It holds no rider data.
 
 ## Success Criteria *(mandatory)*
 
@@ -412,6 +480,9 @@ check in the same period sends nothing.
 - **SC-009**: An administrator with notifications on learns within about an hour that a
   daily allowance crossed 80 % or 95 %, and gets exactly one notification per level and
   period, unless it's a Cloudflare allowance and they turned those alerts off.
+- **SC-010**: An administrator with notifications on learns within about an hour that
+  this team's Worker or the gateway had a run cut off, and sees for each of the last
+  30 days how close the slowest runs came to the CPU limit.
 
 ## Assumptions
 
@@ -447,6 +518,7 @@ check in the same period sends nothing.
   on (feature 010). Usage alerts have one switch of their own (FR-039).
 - **Out of scope**: Email alerts, alerts when figures can't be fetched, automatic slowing
   of work, per-rider usage, rate limit changes, changing rules or settings from the view,
-  CPU time and billing.
+  billing. CPU time per Worker was added later as User Story 6; which page or job is
+  heavy stays out, since Cloudflare reports per Worker only.
 - **Strava review**: New pages get screenshots in the review script (feature 004)
   since it fails on an unlisted page; they use synthetic riders only.
