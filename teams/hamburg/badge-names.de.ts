@@ -1,6 +1,6 @@
 // Team Rynkeby Hamburg's own badge names (feature 013 FR-041, research R20;
 // feature 026 FR-052). They stay German in every app language, so they live
-// beside the catalogs rather than in them, like phrases/hamburg.de.ts. One name
+// in the team's folder rather than in the catalogs, beside phrases.de.ts. One name
 // per badge of src/badges/catalog.ts, in catalog order.
 
 import type { BadgeId } from "../../src/badges/catalog";

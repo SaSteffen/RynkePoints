@@ -7,7 +7,7 @@ import { test as base } from "./test";
 // on one period, the readout agrees with the table, and dark mode recolours
 // the lines. Chart.js draws on a canvas, so the state is read through its
 // API (`Chart.getChart`), not from pixels. The riders are the fake mode's
-// synthetic samples (dev/fake-strava/samples.ts).
+// synthetic samples (teams/<id>/samples.ts).
 
 /** Fails the test on any uncaught error or `console.error` in the page. */
 const test = base.extend<{ errors: string[] }>({
