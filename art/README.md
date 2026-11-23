@@ -1,6 +1,7 @@
 # Art: illustration originals
 
-(The team's coin designs and their tracing are in [`coin/`](coin/README.md),
+(Each team's coin designs are in its team folder, `teams/<id>/art/coin/`, and
+their tracing and the shared hero portraits in [`coin/`](coin/README.md),
 the badge pictures in [`badges/`](badges/README.md), the Team page's quote
 monkeys in [`quotes/`](quotes/README.md) and Rynke in the fun themes'
 page-switch shows in [`shows/`](shows/README.md). Badges, quote monkeys and

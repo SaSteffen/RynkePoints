@@ -8,8 +8,8 @@ import {
 } from "../../src/badges/catalog";
 import { progressOf } from "../../src/badges/evaluate";
 import { buildBadgeSection, listedFor } from "../../src/badges/view";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 
 // Feature 039 US5 (research R9): a team without events lists no badge that only
 // recorded events earn; a team with events lists every badge, the same array

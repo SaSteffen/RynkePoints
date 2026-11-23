@@ -3,7 +3,7 @@
 // beside the catalogs rather than in them, like phrases/hamburg.de.ts. One name
 // per badge of src/badges/catalog.ts, in catalog order.
 
-import type { BadgeId } from "../../badges/catalog";
+import type { BadgeId } from "../../src/badges/catalog";
 
 export const BADGE_NAMES: Record<BadgeId, string> = {
 	// Distanz

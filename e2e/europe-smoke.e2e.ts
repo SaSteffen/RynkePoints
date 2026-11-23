@@ -1,12 +1,12 @@
 import { expect } from "@playwright/test";
-import { hamburg } from "../src/teams/hamburg";
+import { hamburg } from "../teams/hamburg/team";
 import { signIn, skipTours } from "./sign-in";
 import { test } from "./test";
 
 // Team Europe's smoke test (feature 026 US8, T057), in Chromium only: the app
 // in fake mode with `--env europe` on its own server (`pnpm
 // test:e2e:server:europe`, https://europe.localhost:8798) and Europe's
-// synthetic sample riders (dev/fake-strava/samples.europe.ts).
+// synthetic sample riders (teams/europe/samples.ts).
 
 /** A Europe sample rider with rides, a reached target and the organiser role. */
 const RIDER = "Tuuli TrainingDone";

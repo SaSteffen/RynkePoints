@@ -1,7 +1,7 @@
-import { BADGE_NAMES } from "../content/badge-names/hamburg.de";
-import { HAMBURG_PHRASES } from "../content/phrases/hamburg.de";
-import type { RynkeRules } from "../rynke/rules";
-import type { TeamData } from "./types";
+import type { RynkeRules } from "../../src/rynke/rules";
+import type { TeamData } from "../../src/teams/types";
+import { BADGE_NAMES } from "./badge-names.de";
+import { HAMBURG_PHRASES } from "./phrases.de";
 
 // The founding team's data: today's values, moved here from the modules that
 // held them (feature 026 T038). The rule functions take this history as an

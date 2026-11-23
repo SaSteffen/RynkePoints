@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { RynkeRules } from "../../src/rynke/rules";
 import { hasEvents, hasTeamRynke } from "../../src/teams";
-import { hamburg } from "../../src/teams/hamburg";
 import type { TeamData } from "../../src/teams/types";
+import { hamburg } from "../../teams/hamburg/team";
 
 // Whether a team has Team Rynke and events (feature 039 contracts/team-data.md):
 // code asks only these two, never the team's id. Synthetic teams are built

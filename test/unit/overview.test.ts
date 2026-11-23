@@ -14,7 +14,7 @@ import { createI18n } from "../../src/i18n/i18n";
 import { riderStatus } from "../../src/rynke/pace";
 import type { CountingWindow, RynkeRules } from "../../src/rynke/rules";
 import type { Balance } from "../../src/rynke/tally";
-import { hamburg } from "../../src/teams/hamburg";
+import { hamburg } from "../../teams/hamburg/team";
 import { CURRENT_RULES } from "../support/team-rules";
 
 // The organiser overview's figures and groups (016 US4, FR-030–FR-035,

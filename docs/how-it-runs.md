@@ -55,7 +55,7 @@ flowchart TB
 | Pages | HTML rendered in the Worker, static assets from `public/`, an installable PWA with Web Push | No front-end framework to keep up to date |
 | Language | TypeScript, with few dependencies: Chart.js for charts, pdf-lib and mp4-muxer for shared badges and the season album | A small bundle and little upkeep |
 | Strava | One [Strava API](https://developers.strava.com/docs/) application for every team, read only; its webhook and sign-in run through the gateway | Strava allows one subscription and one callback domain per application |
-| Teams | `src/teams/<id>.ts` plus the team's `env` block in `wrangler.jsonc`, checked by `scripts/team-check.mjs` | Adding a team means adding data, not code |
+| Teams | `teams/<id>/team.ts` plus the team's `env` block in `wrangler.jsonc`, checked by `scripts/team-check.mjs` | Adding a team means adding data, not code |
 | Local development | `pnpm dev`: every team at once against a fake Strava with synthetic riders | Nobody needs real Strava access or real data |
 | Tests | Vitest inside the Workers runtime; Playwright in Chromium, Firefox and WebKit | Test-first is a project principle |
 | Code quality | Biome (lint and format), `tsc`, Conventional Commits through commitlint and lefthook | The same checks run locally and in CI |

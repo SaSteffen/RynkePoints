@@ -10,14 +10,14 @@ lang: en
 Maintainers: this handout is informational only. The specification
 specs/003-rynke-evaluation/spec.md is authoritative; if the two differ, fix this
 file (FR-019). For now it is an English translation of Hamburg's
-docs/rynke-punkte.md with this team's name (spec 026 task T082), and this team's
+teams/hamburg/rynke-punkte.md with this team's name (spec 026 task T082), and this team's
 own rules since feature 039: no Team Rynke, team events or Tour de Paris days,
 and since rules version 5 (2026-11-19) the minimum for kilometre Rynke, 25 km
 outdoors and 1 km on virtual rides, and since rules version 6 (2026-11-20) an
 average of up to 50 km/h on virtual rides. It names the training season (1
 September to 31 August) and the qualification period (1 January to 30 June)
 apart. The front matter names the rules version in effect: raise it with every new
-version in src/teams/europe.ts. Keep the rest in step with Hamburg's. Render
+version in teams/europe/team.ts. Keep the rest in step with Hamburg's. Render
 it with `pnpm docs:pdf` and commit public/teams/europe/rynke-points.pdf: the app
 links riders to that PDF.
 -->

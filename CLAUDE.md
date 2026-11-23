@@ -43,9 +43,12 @@ bindings; tests get the same bindings locally through Miniflare. Each team is an
 `env` block, Hamburg first: every Wrangler command names one with
 `--env hamburg` or `--env europe`, and one without fails on purpose (its top level
 holds no team).
-What differs between teams is team data, in `src/teams/<id>.ts` plus that block,
+What differs between teams is team data, in `teams/<id>/team.ts` plus that block,
 never a branch in code (feature 026 contracts/team-data.md);
-`node scripts/team-check.mjs` checks both. The Strava gateway has its own
+`node scripts/team-check.mjs` checks both. Everything else a team owns is in its
+folder `teams/<id>/` too: own phrases and badge names, sample riders, coin and badge
+originals, the rules handout's source. The served pictures and PDFs those make stay
+under `public/` (Hamburg's at the top, every other team's in `public/teams/<id>/`). The Strava gateway has its own
 `gateway/wrangler.jsonc`.
 
 Commits go through git hooks (`lefthook.yml`): Biome and `tsc` run on every commit,
@@ -112,11 +115,11 @@ and commit messages must follow
   activities or descriptions (Principle III).
 - Rider-facing text belongs in the catalogs under `src/i18n/messages/`, in all ten
   languages (German is the key source), never inline in pages or logic (FR-028).
-  The exception is team content under `src/content/` (the monkey's quotes, badge
-  names, badge hints): it follows the team, not the rider's language, German for
+  The exception is team content (the monkey's quotes, badge names, badge hints, in
+  `teams/<id>/` or, shared, `src/content/`): it follows the team, not the rider's language, German for
   Hamburg and the common English set for every other team, and isn't translated
   (feature 026 FR-025, feature 034 FR-014). Seasonal quote monkeys are team data
-  (`holidays` in `src/teams/<id>.ts`). The changelog's entries (`CHANGELOG.md`)
+  (`holidays` in `teams/<id>/team.ts`). The changelog's entries (`CHANGELOG.md`)
   are English only too, and shared by every team.
 - Every release raises the semver version in `package.json` and adds its entry at the
   top of `CHANGELOG.md`, in a pull request into `develop` before **Release PR**

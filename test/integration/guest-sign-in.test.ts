@@ -2,7 +2,7 @@ import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { getRider } from "../../src/db/riders";
 import { handleFetch } from "../../src/index";
-import { hamburg } from "../../src/teams/hamburg";
+import { hamburg } from "../../teams/hamburg/team";
 import { approve, SCOPES_ALL } from "../support/callback";
 import {
 	listGuest,

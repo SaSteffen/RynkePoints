@@ -1,4 +1,4 @@
-import type { PhraseSet, Season } from "../types";
+import type { PhraseSet, Season } from "../../src/content/types";
 
 // Team Rynkeby Hamburg's own phrases for the Team page (feature 016 FR-020–FR-025,
 // feature 026 FR-025). They stay German in every app language, so they live

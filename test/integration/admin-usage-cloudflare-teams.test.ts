@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch, handleScheduled } from "../../src/index";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
 import { GATEWAY_WORKER } from "../../src/usage/split";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 import {
 	makeCtx,
 	request,

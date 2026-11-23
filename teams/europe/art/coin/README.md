@@ -1,6 +1,8 @@
 # Art: the Rynke coin, Team Europe
 
-Team Europe's coin designs. The files mirror Hamburg's in [`art/coin/`](../README.md).
+Team Europe's coin designs. The files mirror Hamburg's in
+[`teams/hamburg/art/coin/`](../../../hamburg/art/coin/README.md); how they're traced is in
+[`art/coin/`](../../../../art/coin/README.md).
 
 | File | What it is |
 | --- | --- |
@@ -17,8 +19,8 @@ Team Europe's coin designs. The files mirror Hamburg's in [`art/coin/`](../READM
   `rynke-coin-line-back.svg` (its circles are slightly oval; the script makes them round)
 
 The colour SVGs stay here, and `pnpm coin-art` copies them to
-[`public/teams/europe/coin/`](../../../public/teams/europe/coin/), where only Europe's
-team data (`src/teams/europe.ts`) points (feature 026 research R14).
+[`public/teams/europe/coin/`](../../../../public/teams/europe/coin/), where only Europe's
+team data (`teams/europe/team.ts`) points (feature 026 research R14).
 
 The front has the same fixes as Hamburg's. The back has its own palette, and the
 European flag's stars are drawn in code because they're too small to trace.

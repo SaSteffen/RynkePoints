@@ -678,7 +678,7 @@ export const nl: Catalog = {
 	"organiser.overview.sessions.typical": "Sessies {n}, typisch {typical} km",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
-	// names of a team with its own are in src/content/badge-names/; the
+	// names of a team with its own are in teams/<id>/badge-names.<locale>.ts; the
 	// common ones are the badge.name.<id> messages at the end.
 	"badges.heading": "Badges",
 	"badges.personal.newest": "Je badges",

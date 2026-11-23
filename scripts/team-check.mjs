@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Checks every registered team's data (feature 026 contracts/team-data.md,
-// FR-021, FR-053): both halves, the typed module in src/teams/<id>.ts and the
+// FR-021, FR-053): both halves, the typed module in teams/<id>/team.ts and the
 // team's block of wrangler.jsonc, `env.<id>`. Prints one line per problem and
 // exits 1 if there is any. `pnpm lint` runs it.
 //

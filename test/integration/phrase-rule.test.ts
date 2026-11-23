@@ -1,14 +1,14 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
-import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
 import { COMMON_EN } from "../../src/content/phrases/common.en";
-import { HAMBURG_PHRASES } from "../../src/content/phrases/hamburg.de";
 import type { PhraseSet } from "../../src/content/types";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS, type Locale } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 import { teamFor } from "../../src/teams";
 import type { TeamData } from "../../src/teams/types";
+import { BADGE_NAMES } from "../../teams/hamburg/badge-names.de";
+import { HAMBURG_PHRASES } from "../../teams/hamburg/phrases.de";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { ATHLETE_A } from "../support/fixtures";
 import { riderPage, seedBalance } from "../support/rider-view";

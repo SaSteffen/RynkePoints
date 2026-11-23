@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { Phrases, Season } from "../../src/content/types";
+import { pickQuote, quoteId, seasonOf } from "../../src/http/sections/team";
 import {
 	HAMBURG_PHRASES,
 	QUOTES_ON_TRACK,
 	QUOTES_PUSH,
 	SEASON_QUOTES_ON_TRACK,
 	SEASON_QUOTES_PUSH,
-} from "../../src/content/phrases/hamburg.de";
-import type { Phrases, Season } from "../../src/content/types";
-import { pickQuote, quoteId, seasonOf } from "../../src/http/sections/team";
+} from "../../teams/hamburg/phrases.de";
 
 // The Team page's two German quote lists and their season lists (016
 // FR-020–FR-025, research R10): pins the committed lists and the season rule.

@@ -14,7 +14,7 @@ import { STYLESHEET_PATH } from "../../src/http/stylesheet";
 import { THEMES } from "../../src/http/themes";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
-import { hamburg } from "../../src/teams/hamburg";
+import { hamburg } from "../../teams/hamburg/team";
 
 // Any team's look will do here; tests/teams/ checks each team's own.
 const look: PageLook = {

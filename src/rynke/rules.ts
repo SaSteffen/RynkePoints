@@ -1,6 +1,6 @@
 // The Rynke rules' shape and the pure functions around them (research R8,
 // FR-012, FR-023). The values are team data: each team's rule history lives in
-// `src/teams/<id>.ts` (feature 026 research R15), with the note on raising
+// `teams/<id>/team.ts` (feature 026 research R15), with the note on raising
 // `version` beside it.
 
 import {

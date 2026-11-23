@@ -4,7 +4,7 @@ import {
 	type RynkeRules,
 	rulesFingerprint,
 } from "../../src/rynke/rules";
-import { hamburg } from "../../src/teams/hamburg";
+import { hamburg } from "../../teams/hamburg/team";
 import { CURRENT_RULES } from "../support/team-rules";
 
 // The minimum ride length is an optional rule value (feature 039 research R1):

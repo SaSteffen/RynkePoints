@@ -7,7 +7,7 @@ import {
 	type SampleSet,
 	slot,
 	type TeamEventRecipe,
-} from "./samples";
+} from "../../dev/fake-strava/samples";
 
 // Hamburg's sample riders (feature 026 FR-050), one per state of the rider page
 // plus about 25 ordinary seasons: athlete IDs "990001"–"990099".

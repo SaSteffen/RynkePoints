@@ -9,8 +9,6 @@ import {
 	vi,
 } from "vitest";
 import { answerStrava } from "../../dev/fake-strava/api";
-import { EUROPE_SAMPLES } from "../../dev/fake-strava/samples.europe";
-import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples.hamburg";
 import { encodeAccess } from "../../dev/fake-strava/tokens";
 import { forgetAccessKeys } from "../../dev/sandbox-access";
 import {
@@ -25,6 +23,8 @@ import { escapeHtml } from "../../src/http/html";
 import { clearSessionCookie } from "../../src/http/session";
 import { de } from "../../src/i18n/messages/de";
 import { compareIds, parseStravaJson } from "../../src/strava/id";
+import { EUROPE_SAMPLES } from "../../teams/europe/samples";
+import { SAMPLE_RIDERS } from "../../teams/hamburg/samples";
 import {
 	type AccessKeys,
 	accessKeys,

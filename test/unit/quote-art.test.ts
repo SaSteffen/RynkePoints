@@ -8,8 +8,8 @@ import {
 	SEASONAL_MONKEYS,
 } from "../../src/http/quote-monkeys";
 import { quoteArt, quoteId } from "../../src/http/sections/team";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 
 // Which picture of Rynke says the Team page's quote (Quote Monkey draft,
 // option B): one of the quote monkeys from `pnpm badge-build`, or the rider

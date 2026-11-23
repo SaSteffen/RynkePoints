@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import data from "../../art/quotes/monkeys.json";
 import { holidaysOn } from "../../src/http/holidays";
 import { TEAMS } from "../../src/teams";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 
 // Each team's holidays with a seasonal quote monkey (feature 035
 // contracts/team-holidays.md): team data, never a branch in code.

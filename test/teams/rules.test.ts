@@ -13,9 +13,9 @@ import {
 	seasonEnd,
 } from "../../src/rynke/rules";
 import { teamFor } from "../../src/teams";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
 import type { TeamData } from "../../src/teams/types";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A } from "../support/fixtures";
 import { makeRide } from "../support/rides";
@@ -178,7 +178,7 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 // cron re-evaluates only riders stored with another one; the season start
 // leaves rides and badges out, the window's dates mark rides as counting or
 // not. So a change of any of these dates in a team's Wrangler block raises
-// that team's rules version (src/teams/<id>.ts), then updates its entry here.
+// that team's rules version (teams/<id>/team.ts), then updates its entry here.
 const DATES_OF_VERSION: Record<
 	string,
 	{ version: number; dates: Record<string, string> }

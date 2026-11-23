@@ -1,6 +1,5 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
-import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
 import {
 	advanceTeamBadgeNoticesStatement,
 	seedTeamBadgeNoticesStatement,
@@ -11,6 +10,7 @@ import { countingWindow } from "../../src/rynke/rules";
 import { teamEventChange } from "../../src/rynke/team-event-change";
 import { compareIds } from "../../src/strava/id";
 import { teamBadgeNews } from "../../src/work/team-badge-news";
+import { BADGE_NAMES } from "../../teams/hamburg/badge-names.de";
 import {
 	makeCtx,
 	request,

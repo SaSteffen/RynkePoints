@@ -6,7 +6,7 @@ import {
 	type SampleRider,
 	type SampleSet,
 	slot,
-} from "./samples";
+} from "../../dev/fake-strava/samples";
 
 // Team Europe's sample riders (feature 026 FR-050): the same states as
 // Hamburg's, with first names from the team's countries (Denmark, Norway,

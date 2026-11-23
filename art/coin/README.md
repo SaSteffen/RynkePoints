@@ -1,28 +1,27 @@
 # Art: the Rynke coin
 
-The team's own coin designs, and the SVGs the app traces from them. Team Europe's
-are in [`europe/`](europe/README.md).
+Each team's coin designs, and the SVGs the app traces from them, are in its team
+folder: Hamburg's in [`teams/hamburg/art/coin/`](../../teams/hamburg/art/coin/README.md),
+Team Europe's in [`teams/europe/art/coin/`](../../teams/europe/art/coin/README.md).
+This folder holds what every team shares: Rynke's portraits for the hero coin.
 
 | File | What it is |
 | --- | --- |
-| `originals/rynke-coin-front.jpeg` | Front, full colour: Training Rynke, the orangutan on his bike, "RYNKE-COIN · TEAM RYNKEBY HAMBURG" |
-| `originals/rynke-coin-back.jpeg` | Back, full colour: Hamburg to Paris, Elbphilharmonie and cranes, the Elbe, the climb, the Eiffel Tower |
-| `reference/rynke-coin-line-drawing.jpeg` | Line drawing of both sides with the coin's size (Ø 40 mm, 3 mm): design draft V1 |
-| `reference/rynke-coin-photo.jpeg` | A rendering of the struck coin, both sides: how it looks in enamel and gold |
-| `rynke-coin-line-front.svg`, `rynke-coin-line-back.svg` | The line drawing traced, ink only on transparent paper: for print and the coin maker |
 | `originals/rynke-coin-hero-<n>.png` | Rynke's portraits for the Du page's hero coin ([`hero/`](hero/README.md)) |
 | `reference/rynke-hero-reference.png` | Four badge pictures of the character: the reference for those portraits |
 | `hero/prompt.txt` | The prompt the portraits were made with |
 
-`pnpm coin-art` (`scripts/coin-art.mjs`) traces them:
+`pnpm coin-art` (`scripts/coin-art.mjs`) traces every team's coin and the
+portraits:
 
-- `originals/rynke-coin-front.jpeg` → `public/coin/rynke-coin-front.svg`
-- `originals/rynke-coin-back.jpeg` → `public/coin/rynke-coin-back.svg`
-- `reference/rynke-coin-line-drawing.jpeg` → the two line SVGs here
+- each team's `originals/rynke-coin-front.jpeg` and `rynke-coin-back.jpeg` → the
+  coin the app shows (Hamburg's in `public/coin/`, every other team's in
+  `public/teams/<id>/coin/`)
+- each team's `reference/rynke-coin-line-drawing.jpeg` → the two line SVGs beside it
 - `originals/rynke-coin-hero-<n>.png` → `public/coin/rynke-coin-hero-<n>.svg`
   (each portrait in a coin frame drawn in code)
 
-Commit the originals and the SVGs together; to change the coin, replace an
+Commit the originals and the SVGs together; to change a coin, replace an
 original and run the script again. Like `pnpm illustrations` it needs
 ImageMagick and potrace on the `PATH`, and uses the same tracer
 (`scripts/trace.mjs`).
@@ -30,8 +29,9 @@ ImageMagick and potrace on the `PATH`, and uses the same tracer
 ## Colours and fixes
 
 The front snaps to the coin palette (`--rp-coin-*` in `src/http/style.ts`):
-cream, yellow, gold, fur, muzzle, ink. The back has its own: the coin's sky,
-glass, Elbe water and brick, a quay grey, yellow, gold and ink.
+cream, yellow, gold, fur, muzzle, ink. Each team's back has its own palette;
+Hamburg's: the coin's sky, glass, Elbe water and brick, a quay grey, yellow,
+gold and ink.
 
 The generated front is corrected after snapping (`FIXES` in the script, each a
 box, and if needed a ring, in the original's pixels): "TEAM RYNKEBY HAMBURG"
