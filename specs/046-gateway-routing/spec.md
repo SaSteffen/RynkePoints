@@ -147,6 +147,44 @@ none, and riders must be told before it starts.
 2. **Given** a rider who accepted the consent before this feature, **When** it goes live, **Then**
    they are not asked again.
 
+---
+
+### User Story 5 - The maintainers see whether routing misses events (Priority: P1)
+
+Before routing goes live, the gateway runs it as a trial: it works out which teams each event
+would go to, but still sends it to every team, marked with whether that team was chosen. Each team
+counts the events about people it holds that came marked "not chosen": each one is an event
+routing would have lost. Administrators see that count, day by day, in the admin usage view. Once
+it has stayed at zero long enough, the maintainers switch routing on.
+
+Once routing is live, a missed event can't be seen when it happens: the team that wasn't sent it
+never hears of it. The admin usage view then shows what can be seen: how many events went to every
+team because the copy didn't know the athlete, how many a team received and dropped, how often the
+daily full list had to correct the copy, and how many rides the daily ride re-check (feature 036)
+found that no event had brought.
+
+**Why this priority**: The whole feature rests on "a gap never loses an event". Without numbers,
+nobody knows whether that holds, and a lost event is a ride that silently doesn't count.
+
+**Independent Test**: In fake mode, run the trial with a copy missing a rider of one team, upload
+a ride for them, and check that their team's would-be misses show one. Then switch routing on,
+drop a report, and check the full list's correction and the re-check's find show up.
+
+**Acceptance Scenarios**:
+
+1. **Given** the trial, **When** a team receives an event marked "not chosen" about a person it
+   holds, **Then** it processes the event as usual and counts one would-be miss for that day.
+2. **Given** the trial, **When** a team receives an event marked "chosen" about a person it doesn't
+   hold, **Then** it drops it as today and counts one would-be wasted delivery.
+3. **Given** routing is live, **When** an administrator opens the admin usage view, **Then** they
+   see for the last 30 days, per day: events sent by the copy, events sent to every team, events
+   their team dropped, corrections by their team's full list, and rides the re-check found.
+4. **Given** a correction by a full list that added a person the copy had listed under other teams
+   only, **When** it is counted, **Then** it counts as a possible miss, shown apart from the other
+   corrections.
+5. **Given** any of these figures, **When** they are stored, shown or logged, **Then** they are
+   counts only, never an athlete, activity or name.
+
 ### Edge Cases
 
 - **An athlete listed under a team that no longer holds them** (they left, and the report failed):
@@ -236,10 +274,36 @@ none, and riders must be told before it starts.
 
 - **FR-017**: Local development MUST run the local gateway with routing and its own copy, so it
   mirrors production. Tests and local development MUST NOT read or write a production copy.
-- **FR-018**: Routing MUST go live only after the move to Cloudflare's Workers paid plan. Until
-  then, gateway and teams may carry the code, but no team is routing.
+- **FR-018**: Routing MUST go live only after the move to Cloudflare's Workers paid plan, and only
+  after the trial (FR-020) showed no would-be miss for 14 days in a row. Until then, gateway and
+  teams may carry the code and run the trial, but every event goes to every team. Switching
+  between trial and routing MUST be one setting of the gateway, so going back to the trial needs
+  no deployment of a team.
 - **FR-019**: The maintainer documentation for the gateway MUST say how routing falls back, how to
   check which teams are routing, and how to empty the copy, which only brings back the broadcast.
+
+**Observability**
+
+- **FR-020**: In the trial, the gateway MUST choose the teams for each event as FR-001 says, send
+  the event to every team anyway, and tell each team whether it was chosen. A team MUST count, per
+  day, events about a person it holds that came "not chosen" (would-be misses), and events about a
+  person it doesn't hold that came "chosen" (would-be wasted deliveries). Processing MUST NOT
+  depend on the mark.
+- **FR-021**: With routing live, the gateway MUST count per day the events sent by the copy and the
+  events sent to every team because the copy didn't list the athlete or couldn't be read. Each team
+  MUST count per day the events it received and dropped because it doesn't hold the athlete.
+- **FR-022**: The gateway MUST count, per team and day, the entries a full list added to and
+  removed from that team's part of the copy. An added entry for an athlete the copy listed under
+  other teams only MUST count as a possible miss.
+- **FR-023**: Each team MUST count per day the rides its daily ride re-check (feature 036) stored
+  that no event had brought. Counting MUST start before the trial, so there is a baseline of what
+  Strava itself loses.
+- **FR-024**: The admin usage view MUST show these figures for the last 30 days, with each team's
+  own figures under its name and every other team's as "another team", as the view already does
+  (feature 026). A day with a would-be miss or a possible miss MUST be marked as needing attention.
+  The gateway's figures MUST reach the teams the way the view already gets other teams' figures.
+- **FR-025**: These figures MUST be counts only: no athlete, activity, name or team-holding
+  detail is stored, shown or logged with them. Counts older than 30 days MUST be deleted.
 
 ### Key Entities
 
@@ -249,6 +313,9 @@ none, and riders must be told before it starts.
   routing.
 - **Report**: from one team, about one athlete: held or no longer held. Kept by the team until the
   gateway accepts it.
+- **Daily delivery counts**: per day, and per team where it applies: would-be misses and wasted
+  deliveries (trial), events sent by the copy and to every team, events dropped, full-list
+  additions, removals and possible misses, rides found by the re-check. Counts only, kept 30 days.
 
 ## Success Criteria *(mandatory)*
 
@@ -265,6 +332,10 @@ none, and riders must be told before it starts.
   rider's team as fast as before.
 - **SC-005**: The privacy notice on every team's site, in all ten languages, describes the copy
   before any team routes.
+- **SC-006**: Before routing goes live, the trial has run for at least 14 days with zero would-be
+  misses on every team. Afterwards, rides found by the re-check stay at the baseline measured
+  before the trial, and the share of events sent to every team stays below 1% on days without a
+  new team.
 
 ## Assumptions
 
@@ -277,6 +348,10 @@ none, and riders must be told before it starts.
   it needs a privacy-notice update, not a consent revision.
 - The paid plan comes with the third team (decided 2026-11-19). The copy fits the free plan too;
   waiting is the maintainer's decision, not a technical limit.
+- Once routing is live, a missed event is invisible at the moment it happens. The trial is the
+  only exact miss rate; afterwards the full list's possible misses and the re-check's finds are
+  the signals. 14 days of trial covers two weekends of normal riding.
+- No push or mail alerts: the attention mark in the admin usage view is enough for now.
 - Out of scope: answering the team question from the copy, showing the copy to anyone, routing
   anything other than Strava's webhook events (sign-ins already go to the right team), and using
   the copy for statistics.
