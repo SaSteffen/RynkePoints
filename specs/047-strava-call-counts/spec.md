@@ -39,8 +39,10 @@ passes on events and makes no Strava calls of its own.
   - **Ride re-check**: the daily look for rides no event brought (feature 036).
   - **One-time re-read**: reading every rider's season again after the app
     gained a figure.
-  - **Leaving**: a rider leaves, or an admin removes them, and the app gives
-    their Strava access back.
+  - **Leaving**: a rider leaves, an admin removes them, the club check finds
+    they left the club, a guest is taken off the list or a reconnect never came,
+    and the app gives their Strava access back; also the daily retry of an
+    access that couldn't be given back yet.
   - **Disconnect report**: Strava reports that a person disconnected, and the
     app confirms it with Strava before deleting anyone.
   - **Unassigned**: a call made outside every action above. There should be
