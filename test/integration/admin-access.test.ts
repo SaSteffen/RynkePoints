@@ -217,3 +217,31 @@ describe("the Admin tab (T007)", () => {
 		);
 	});
 });
+
+// Feature 045 research R1: the old Rollen address forwards everyone alike;
+// Rider und Rollen then applies its own checks, and old notices still show.
+describe("the old Rollen address", () => {
+	it.each([
+		["a visitor", null],
+		["a rider", RIDER],
+		["an administrator", ADMIN],
+	])("forwards %s to /admin/riders", async (_who, athleteId) => {
+		const res = await get("/admin/roles", athleteId);
+		expect(res.status).toBe(301);
+		expect(res.headers.get("Location")).toBe("/admin/riders");
+	});
+
+	it("leads on to the checks of Rider und Rollen", async () => {
+		const visitor = await get("/admin/riders", null);
+		expect(visitor.headers.get("Location")).toBe("/");
+		await expectForbidden(await get("/admin/riders", RIDER));
+	});
+
+	it.each([
+		["?done=removed", CATALOGS.de["admin.remove.done.removed"]],
+		["?error=lastAdmin", CATALOGS.de["admin.remove.error.lastAdmin"]],
+	])("keeps an old Rider-tab link's notice %s", async (query, text) => {
+		const page = await (await get(`/admin/riders${query}`, ADMIN)).text();
+		expect(page).toContain(escapeHtml(text).split("{leave}")[0]);
+	});
+});

@@ -1121,10 +1121,11 @@ export const nl: Catalog = {
 	"nav.admin": "Beheer",
 	"admin.switch.label": "Beheerweergaven",
 	"admin.switch.usage": "Gebruik",
-	"admin.switch.riders": "Renners",
-	"admin.switch.roles": "Rollen",
+	"admin.switch.riders": "Renners en rollen",
 	"admin.roles.hint":
-		"De Orga ziet alle renners met voornaam: Rynke, wat er ontbreekt, kilometers en hoogtemeters per dag en correcties. Admins zitten altijd ook in de Orga en beheren daarnaast de app: gebruik, renners en rollen.",
+		"De Orga ziet de trainingscijfers en Rynke van alle renners. Admins zitten altijd ook in de Orga en beheren daarnaast de app: gebruik, renners en rollen.",
+	"admin.roles.hint.events":
+		"De Orga ziet de trainingscijfers en Rynke van alle renners, maakt evenementen aan en noteert wie er was. Admins zitten altijd ook in de Orga en beheren daarnaast de app: gebruik, renners en rollen.",
 	"admin.roles.admins": "Admins",
 	"admin.roles.orga": "Orga",
 	"admin.roles.you": "Jij",
@@ -1134,23 +1135,24 @@ export const nl: Catalog = {
 	"admin.roles.ownNote": "Alleen een andere admin kan je eigen rol wijzigen.",
 	"admin.roles.onlyAdmin":
 		"Behalve jij is niemand admin. Alleen een andere admin kan je eigen rol wijzigen.",
-	"admin.roles.orgaNote": "Admins staan bovenaan en worden hier niet herhaald.",
+	"admin.roles.orgaNote": "Admins hebben ook Orga-rechten.",
 	"admin.roles.orgaNone": "Niemand behalve de admins.",
-	"admin.roles.give.heading": "Rol geven",
-	"admin.roles.give.button": "Rol geven",
-	"admin.roles.give.note":
-		"Hier staan alleen renners die hun gegevens met het team delen.",
-	"admin.roles.give.none": "Iedereen hier heeft al een rol.",
+	"admin.roles.without.heading": "Zonder rol",
+	"admin.roles.without.note":
+		"Hier staan alleen renners die hun gegevens met het team delen: {listed}. Akkoord nog niet gegeven: {waiting}. Geblokkeerd: {blocked}.",
+	"admin.roles.without.empty": "Iedereen hier heeft al een rol.",
 	"admin.roles.search": "Renner zoeken",
 	"admin.roles.searchNone": "Niemand gevonden.",
-	"admin.roles.sheet.title": "Rol voor {name}",
 	"admin.roles.sheet.note":
 		"{name} krijgt een bericht bij het volgende openen van de app.",
+	"admin.roles.sheet.role": "Rol",
 	"admin.roles.choice.none": "Geen",
 	"admin.roles.choice.none.text": "Ziet wat alle renners zien.",
 	"admin.roles.choice.orga": "Orga",
 	"admin.roles.choice.orga.text":
-		"Ziet alle renners met voornaam, hun Rynke, wat ze missen, kilometers en hoogtemeters per dag, en corrigeert Rynke.",
+		"Ziet de trainingscijfers en Rynke van alle renners.",
+	"admin.roles.choice.orga.text.events":
+		"Ziet de trainingscijfers en Rynke van alle renners, maakt evenementen aan en noteert wie er was.",
 	"admin.roles.choice.admin": "Admin",
 	"admin.roles.choice.admin.text":
 		"Alles wat de Orga heeft, plus het gebruik van de app, renners verwijderen en rollen wijzigen.",
@@ -1283,8 +1285,6 @@ export const nl: Catalog = {
 	"admin.history.gap": "Niets geregistreerd",
 	"admin.history.ridersNote":
 		"Verbonden renners zijn van dit team zelf, dus het hele cijfer is zijn aantal.",
-	"admin.riders.counts":
-		"In de lijst: {listed}. Niet in de lijst, omdat ze nog niet akkoord gingen: {unlisted}. Geblokkeerd: {blocked}.",
 	"admin.riders.none": "Nog geen renner is akkoord gegaan.",
 	"admin.riders.status": "Verbinding",
 	"admin.riders.status.connected": "Verbonden",
@@ -1298,6 +1298,10 @@ export const nl: Catalog = {
 	"admin.riders.remove": "Verwijderen",
 	"admin.riders.guests.heading": "Gasten",
 	"admin.riders.guest": "Gast",
+	"admin.riders.attention.import": "Import loopt nog",
+	"admin.riders.guest.since": "Verbonden op {date}",
+	"admin.riders.guests.note":
+		"Gasten krijgen hier geen rol; Wijzigen toont hun verbinding en Verwijderen.",
 	"admin.remove.title": "{name} verwijderen?",
 	"admin.remove.explain":
 		"Dit kan niet ongedaan worden gemaakt. Al hun gegevens worden gewist en hun Strava-toegang ingetrokken. Ze kunnen niet meer met dit team verbinden, ook niet zolang ze in de club zitten: hun Strava-ID blijft op de blokkeerlijst.",

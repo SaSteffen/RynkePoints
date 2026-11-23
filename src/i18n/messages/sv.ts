@@ -1106,10 +1106,11 @@ export const sv: Catalog = {
 	"nav.admin": "Admin",
 	"admin.switch.label": "Admin-vyer",
 	"admin.switch.usage": "Användning",
-	"admin.switch.riders": "Cyklister",
-	"admin.switch.roles": "Roller",
+	"admin.switch.riders": "Cyklister och roller",
 	"admin.roles.hint":
-		"Orga ser alla cyklister med förnamn: Rynke, vad som saknas, kilometer och höjdmeter per dag och rättelser. Admins är alltid också med i Orga och sköter dessutom appen: användning, cyklister och roller.",
+		"Orga ser träningssiffror och Rynke för alla cyklister. Admins är alltid också med i Orga och sköter dessutom appen: användning, cyklister och roller.",
+	"admin.roles.hint.events":
+		"Orga ser träningssiffror och Rynke för alla cyklister, skapar aktiviteter och för in vem som var där. Admins är alltid också med i Orga och sköter dessutom appen: användning, cyklister och roller.",
 	"admin.roles.admins": "Admins",
 	"admin.roles.orga": "Orga",
 	"admin.roles.you": "Du",
@@ -1119,23 +1120,24 @@ export const sv: Catalog = {
 	"admin.roles.ownNote": "Bara en annan admin kan ändra din egen roll.",
 	"admin.roles.onlyAdmin":
 		"Ingen utom du är admin. Bara en annan admin kan ändra din egen roll.",
-	"admin.roles.orgaNote": "Admins står överst och upprepas inte här.",
+	"admin.roles.orgaNote": "Admins har också Orga-behörighet.",
 	"admin.roles.orgaNone": "Ingen utöver admins.",
-	"admin.roles.give.heading": "Ge en roll",
-	"admin.roles.give.button": "Ge en roll",
-	"admin.roles.give.note":
-		"Här står bara cyklister som delar sina data med laget.",
-	"admin.roles.give.none": "Alla här har redan en roll.",
+	"admin.roles.without.heading": "Utan roll",
+	"admin.roles.without.note":
+		"Här står bara cyklister som delar sina data med laget: {listed}. Har inte godkänt än: {waiting}. Blockerade: {blocked}.",
+	"admin.roles.without.empty": "Alla här har redan en roll.",
 	"admin.roles.search": "Hitta cyklist",
 	"admin.roles.searchNone": "Ingen hittades.",
-	"admin.roles.sheet.title": "Roll för {name}",
 	"admin.roles.sheet.note":
 		"{name} får ett meddelande nästa gång appen öppnas.",
+	"admin.roles.sheet.role": "Roll",
 	"admin.roles.choice.none": "Ingen",
 	"admin.roles.choice.none.text": "Ser det alla cyklister ser.",
 	"admin.roles.choice.orga": "Orga",
 	"admin.roles.choice.orga.text":
-		"Ser alla cyklister med förnamn, deras Rynke, vad de saknar, kilometer och höjdmeter per dag, och rättar Rynke.",
+		"Ser träningssiffror och Rynke för alla cyklister.",
+	"admin.roles.choice.orga.text.events":
+		"Ser träningssiffror och Rynke för alla cyklister, skapar aktiviteter och för in vem som var där.",
 	"admin.roles.choice.admin": "Admin",
 	"admin.roles.choice.admin.text":
 		"Allt som Orga har, plus appens användning, att ta bort cyklister och att ändra roller.",
@@ -1267,8 +1269,6 @@ export const sv: Catalog = {
 	"admin.history.gap": "Inget registrerat",
 	"admin.history.ridersNote":
 		"Anslutna cyklister är lagets egna, så hela siffran är lagets.",
-	"admin.riders.counts":
-		"På listan: {listed}. Inte på listan, eftersom de inte har godkänt än: {unlisted}. Blockerade: {blocked}.",
 	"admin.riders.none": "Ingen cyklist har godkänt än.",
 	"admin.riders.status": "Anslutning",
 	"admin.riders.status.connected": "Ansluten",
@@ -1282,6 +1282,10 @@ export const sv: Catalog = {
 	"admin.riders.remove": "Ta bort",
 	"admin.riders.guests.heading": "Gäster",
 	"admin.riders.guest": "Gäst",
+	"admin.riders.attention.import": "Import pågår fortfarande",
+	"admin.riders.guest.since": "Ansluten {date}",
+	"admin.riders.guests.note":
+		"Gäster får ingen roll här; Ändra visar deras anslutning och Ta bort.",
 	"admin.remove.title": "Ta bort {name}?",
 	"admin.remove.explain":
 		"Det går inte att ångra. Alla cyklistens uppgifter raderas och Strava-åtkomsten återkallas. Cyklisten kan inte ansluta till det här laget igen, inte ens som klubbmedlem: Strava-ID:t blir kvar på spärrlistan.",

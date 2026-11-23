@@ -31,7 +31,7 @@ async function settings(athleteId: string) {
 }
 
 const row = escapeHtml(de["settings.orga.title"]);
-const link = 'href="/admin/roles"';
+const link = 'href="/admin/riders"';
 
 beforeEach(async () => {
 	await resetDb();
@@ -60,7 +60,7 @@ describe("Wer in der Orga ist", () => {
 		expect(page).not.toContain(link);
 	});
 
-	it("links an own administrator to Rollen", async () => {
+	it("links an own administrator to Rider und Rollen", async () => {
 		const page = await settings(ATHLETE_C);
 		expect(page).toContain(row);
 		expect(page).toContain(link);

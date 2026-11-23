@@ -2,11 +2,12 @@ import { expect } from "@playwright/test";
 import { signIn, skipTours } from "./sign-in";
 import { test } from "./test";
 
-// Admin › Rollen (feature 043 quickstart §1–2): the choice dialog gives a role,
-// "Rückgängig" takes it back, so the shared fake team ends as it started.
-// The riders are the fake mode's synthetic samples. The browsers share one
-// fake team and run at once, so each gives the role to its own rider, and
-// none of these riders is one the smoke test removes.
+// Admin › Rider und Rollen (feature 045 quickstart §2): "Ändern" opens the one
+// dialog with the rider's facts, gives a role, "Rückgängig" takes it back, so
+// the shared fake team ends as it started. The riders are the fake mode's
+// synthetic samples. The browsers share one fake team and run at once, so
+// each gives the role to its own rider, and none of these riders is one the
+// smoke test removes.
 
 const RIDER: Record<string, string> = {
 	chromium: "Greta",
@@ -16,18 +17,28 @@ const RIDER: Record<string, string> = {
 
 test("an administrator gives the Orga role and undoes it", async ({ page }) => {
 	await signIn(page, "Alex Admin");
-	await page.goto("/admin/roles");
+	await page.goto("/admin/riders");
 	await skipTours(page);
 
 	const rider = RIDER[test.info().project.name] ?? "Greta";
-	const give = page.locator(".roles-give");
-	await give.getByRole("searchbox").fill(rider.toLowerCase());
-	await expect(give.locator("li[data-name]:visible")).toHaveCount(1);
-	await give.getByRole("button", { name: "Rolle geben" }).click();
+	await page.getByRole("searchbox").fill(rider.toLowerCase());
+	const visible = page.locator("li[data-name]:visible");
+	await expect(visible).toHaveCount(1);
+	await visible.getByRole("button", { name: "Ändern" }).click();
 
 	const sheet = page.locator("dialog.role-sheet");
 	await expect(sheet).toBeVisible();
-	await expect(sheet.getByRole("heading")).toHaveText(`Rolle für ${rider}`);
+	await expect(sheet.getByRole("heading", { level: 2 })).toHaveText(rider);
+	await expect(sheet.locator(".rider-facts dt")).toHaveText([
+		"Verbindung",
+		"Verbunden am",
+		"Mitgliedschaft zuletzt geprüft",
+		"Import",
+	]);
+	await expect(sheet.getByRole("link", { name: "Entfernen" })).toHaveAttribute(
+		"href",
+		/^\/admin\/riders\/\d+\/remove$/,
+	);
 	await expect(sheet.getByRole("radio", { name: /^Keine/ })).toBeChecked();
 	await sheet.getByRole("radio", { name: /^Orga/ }).check();
 	await sheet.getByRole("button", { name: "Speichern" }).click();
@@ -39,13 +50,13 @@ test("an administrator gives the Orga role and undoes it", async ({ page }) => {
 		`${rider} ist nicht mehr in der Orga.`,
 	);
 	await expect(
-		page.locator(`.roles-give li[data-name='${rider.toLowerCase()}']`),
+		page.locator(`li[data-name='${rider.toLowerCase()}']`),
 	).toHaveCount(1);
 });
 
 test("Abbrechen closes the dialog without a change", async ({ page }) => {
 	await signIn(page, "Alex Admin");
-	await page.goto("/admin/roles");
+	await page.goto("/admin/riders");
 	await skipTours(page);
 	await page
 		.locator("li[data-name='olga organiser']")

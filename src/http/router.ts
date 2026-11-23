@@ -5,7 +5,7 @@ import { resolveLocale } from "../i18n/resolve";
 import { hasEvents } from "../teams";
 import { handleRemoveConfirm, handleRemoveRider } from "./admin/remove";
 import { handleAdminRiders } from "./admin/riders";
-import { handleAdminRoles, handleSetRole } from "./admin/roles";
+import { handleOldRolesAddress, handleSetRole } from "./admin/roles";
 import {
 	handleAdminAlerts,
 	handleAdminRefresh,
@@ -304,7 +304,8 @@ async function page(
 		case "/admin/riders":
 			return handleAdminRiders(request, ctx, i18n);
 		case "/admin/roles":
-			return handleAdminRoles(request, ctx, i18n);
+			// Rollen merged into `/admin/riders` (feature 045 research R1).
+			return handleOldRolesAddress(request);
 	}
 	const removal = path.match(ADMIN_REMOVE);
 	if (removal) {

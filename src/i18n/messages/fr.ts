@@ -1158,10 +1158,11 @@ export const fr: Catalog = {
 	"nav.admin": "Admin",
 	"admin.switch.label": "Vues admin",
 	"admin.switch.usage": "Utilisation",
-	"admin.switch.riders": "Cyclistes",
-	"admin.switch.roles": "Rôles",
+	"admin.switch.riders": "Cyclistes et rôles",
 	"admin.roles.hint":
-		"L'Orga voit tous les cyclistes par leur prénom : Rynke, ce qui manque, kilomètres et dénivelé par jour, et corrections. Les admins sont toujours aussi dans l'Orga et gèrent en plus l'application : utilisation, cyclistes et rôles.",
+		"L'Orga voit les chiffres d'entraînement et les Rynke de tous les cyclistes. Les admins sont toujours aussi dans l'Orga et gèrent en plus l'application : utilisation, cyclistes et rôles.",
+	"admin.roles.hint.events":
+		"L'Orga voit les chiffres d'entraînement et les Rynke de tous les cyclistes, crée des événements et note qui était là. Les admins sont toujours aussi dans l'Orga et gèrent en plus l'application : utilisation, cyclistes et rôles.",
 	"admin.roles.admins": "Admins",
 	"admin.roles.orga": "Orga",
 	"admin.roles.you": "Toi",
@@ -1171,24 +1172,24 @@ export const fr: Catalog = {
 	"admin.roles.ownNote": "Seul un autre admin peut modifier ton propre rôle.",
 	"admin.roles.onlyAdmin":
 		"Personne d'autre que toi n'est admin. Seul un autre admin peut modifier ton propre rôle.",
-	"admin.roles.orgaNote":
-		"Les admins figurent plus haut et ne sont pas répétés ici.",
+	"admin.roles.orgaNote": "Les admins ont aussi les droits de l'Orga.",
 	"admin.roles.orgaNone": "Personne en dehors des admins.",
-	"admin.roles.give.heading": "Donner un rôle",
-	"admin.roles.give.button": "Donner un rôle",
-	"admin.roles.give.note":
-		"Seuls les cyclistes qui partagent leurs données avec l'équipe apparaissent ici.",
-	"admin.roles.give.none": "Tout le monde ici a déjà un rôle.",
+	"admin.roles.without.heading": "Sans rôle",
+	"admin.roles.without.note":
+		"Seuls les cyclistes qui partagent leurs données avec l'équipe figurent ici\u00a0: {listed}. Accord encore en attente\u00a0: {waiting}. Bloqués\u00a0: {blocked}.",
+	"admin.roles.without.empty": "Tout le monde ici a déjà un rôle.",
 	"admin.roles.search": "Trouver un cycliste",
 	"admin.roles.searchNone": "Personne trouvé.",
-	"admin.roles.sheet.title": "Rôle de {name}",
 	"admin.roles.sheet.note":
 		"{name} recevra un message à la prochaine ouverture de l'application.",
+	"admin.roles.sheet.role": "Rôle",
 	"admin.roles.choice.none": "Aucun",
 	"admin.roles.choice.none.text": "Voit ce que voient tous les cyclistes.",
 	"admin.roles.choice.orga": "Orga",
 	"admin.roles.choice.orga.text":
-		"Voit tous les cyclistes par leur prénom, leurs Rynke, ce qui leur manque, kilomètres et dénivelé par jour, et corrige les Rynke.",
+		"Voit les chiffres d'entraînement et les Rynke de tous les cyclistes.",
+	"admin.roles.choice.orga.text.events":
+		"Voit les chiffres d'entraînement et les Rynke de tous les cyclistes, crée des événements et note qui était là.",
 	"admin.roles.choice.admin": "Admin",
 	"admin.roles.choice.admin.text":
 		"Tout ce qu'a l'Orga, plus l'utilisation de l'application, le retrait de cyclistes et le changement de rôles.",
@@ -1338,8 +1339,6 @@ export const fr: Catalog = {
 	"admin.history.gap": "Rien d'enregistré",
 	"admin.history.ridersNote":
 		"Les cyclistes connectés sont ceux de cette équipe, donc tout le chiffre lui revient.",
-	"admin.riders.counts":
-		"Listés\u00a0: {listed}. Non listés, car pas encore d'accord\u00a0: {unlisted}. Bloqués\u00a0: {blocked}.",
 	"admin.riders.none": "Aucun·e cycliste n'a encore donné son accord.",
 	"admin.riders.status": "Connexion",
 	"admin.riders.status.connected": "Connecté·e",
@@ -1353,6 +1352,10 @@ export const fr: Catalog = {
 	"admin.riders.remove": "Retirer",
 	"admin.riders.guests.heading": "Invités",
 	"admin.riders.guest": "Invité·e",
+	"admin.riders.attention.import": "Import encore en cours",
+	"admin.riders.guest.since": "Connecté·e le {date}",
+	"admin.riders.guests.note":
+		"Les invités n'ont pas de rôle ici\u00a0; Modifier montre leur connexion et Retirer.",
 	"admin.remove.title": "Retirer {name}\u00a0?",
 	"admin.remove.explain":
 		"Impossible d'annuler. Toutes ses données sont supprimées et son accès Strava révoqué. La personne ne peut plus se connecter à cette équipe, même en restant au club\u00a0: son identifiant Strava reste sur la liste de blocage.",

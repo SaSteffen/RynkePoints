@@ -1111,10 +1111,11 @@ export const is: Catalog = {
 	"nav.admin": "Stjórnun",
 	"admin.switch.label": "Stjórnunaryfirlit",
 	"admin.switch.usage": "Notkun",
-	"admin.switch.riders": "Hjólreiðamenn",
-	"admin.switch.roles": "Hlutverk",
+	"admin.switch.riders": "Hjólreiðamenn og hlutverk",
 	"admin.roles.hint":
-		"Orga sér alla hjólreiðamenn með fornafni: Rynke, hvað vantar, kílómetra og hækkun á dag og leiðréttingar. Stjórnendur eru alltaf líka í Orga og sjá auk þess um appið: notkun, hjólreiðamenn og hlutverk.",
+		"Orga sér æfingatölur og Rynke allra hjólreiðamanna. Stjórnendur eru alltaf líka í Orga og sjá auk þess um appið: notkun, hjólreiðamenn og hlutverk.",
+	"admin.roles.hint.events":
+		"Orga sér æfingatölur og Rynke allra hjólreiðamanna, stofnar viðburði og skráir hverjir mættu. Stjórnendur eru alltaf líka í Orga og sjá auk þess um appið: notkun, hjólreiðamenn og hlutverk.",
 	"admin.roles.admins": "Stjórnendur",
 	"admin.roles.orga": "Orga",
 	"admin.roles.you": "Þú",
@@ -1125,22 +1126,23 @@ export const is: Catalog = {
 		"Aðeins annar stjórnandi getur breytt þínu eigin hlutverki.",
 	"admin.roles.onlyAdmin":
 		"Enginn annar en þú er stjórnandi. Aðeins annar stjórnandi getur breytt þínu eigin hlutverki.",
-	"admin.roles.orgaNote": "Stjórnendur eru efst og eru ekki endurteknir hér.",
+	"admin.roles.orgaNote": "Stjórnendur hafa líka réttindi Orga.",
 	"admin.roles.orgaNone": "Enginn fyrir utan stjórnendur.",
-	"admin.roles.give.heading": "Gefa hlutverk",
-	"admin.roles.give.button": "Gefa hlutverk",
-	"admin.roles.give.note":
-		"Hér eru aðeins hjólreiðamenn sem deila gögnum sínum með liðinu.",
-	"admin.roles.give.none": "Allir hér eru þegar með hlutverk.",
+	"admin.roles.without.heading": "Án hlutverks",
+	"admin.roles.without.note":
+		"Hér eru aðeins hjólreiðamenn sem deila gögnum sínum með liðinu: {listed}. Eiga enn eftir að samþykkja: {waiting}. Lokað á: {blocked}.",
+	"admin.roles.without.empty": "Allir hér eru þegar með hlutverk.",
 	"admin.roles.search": "Finna hjólreiðamann",
 	"admin.roles.searchNone": "Enginn fannst.",
-	"admin.roles.sheet.title": "Hlutverk fyrir {name}",
 	"admin.roles.sheet.note": "{name} fær skilaboð næst þegar appið er opnað.",
+	"admin.roles.sheet.role": "Hlutverk",
 	"admin.roles.choice.none": "Ekkert",
 	"admin.roles.choice.none.text": "Sér það sem allir hjólreiðamenn sjá.",
 	"admin.roles.choice.orga": "Orga",
 	"admin.roles.choice.orga.text":
-		"Sér alla hjólreiðamenn með fornafni, Rynke þeirra, hvað vantar, kílómetra og hækkun á dag, og leiðréttir Rynke.",
+		"Sér æfingatölur og Rynke allra hjólreiðamanna.",
+	"admin.roles.choice.orga.text.events":
+		"Sér æfingatölur og Rynke allra hjólreiðamanna, stofnar viðburði og skráir hverjir mættu.",
 	"admin.roles.choice.admin": "Stjórnandi",
 	"admin.roles.choice.admin.text":
 		"Allt sem Orga hefur, auk notkunar appsins, að fjarlægja hjólreiðamenn og breyta hlutverkum.",
@@ -1274,8 +1276,6 @@ export const is: Catalog = {
 	"admin.history.gap": "Ekkert skráð",
 	"admin.history.ridersNote":
 		"Tengdir hjólreiðamenn eru þessa liðs, svo öll talan er liðsins.",
-	"admin.riders.counts":
-		"Á lista: {listed}. Ekki á lista, því þeir hafa ekki samþykkt enn: {unlisted}. Lokað á: {blocked}.",
 	"admin.riders.none": "Enginn hjólreiðamaður hefur samþykkt enn.",
 	"admin.riders.status": "Tenging",
 	"admin.riders.status.connected": "Tengt",
@@ -1289,6 +1289,10 @@ export const is: Catalog = {
 	"admin.riders.remove": "Fjarlægja",
 	"admin.riders.guests.heading": "Gestir",
 	"admin.riders.guest": "Gestur",
+	"admin.riders.attention.import": "Innflutningur enn í gangi",
+	"admin.riders.guest.since": "Tengt {date}",
+	"admin.riders.guests.note":
+		"Gestir fá ekkert hlutverk hér; Breyta sýnir tengingu þeirra og Fjarlægja.",
 	"admin.remove.title": "Fjarlægja {name}?",
 	"admin.remove.explain":
 		"Þetta er ekki hægt að afturkalla. Öllum gögnum viðkomandi er eytt og Strava-aðgangurinn afturkallaður. Viðkomandi getur ekki tengst þessu liði aftur, ekki einu sinni sem klúbbfélagi: Strava-auðkennið verður áfram á bannlistanum.",

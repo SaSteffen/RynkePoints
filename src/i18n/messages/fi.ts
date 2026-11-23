@@ -1108,10 +1108,11 @@ export const fi: Catalog = {
 	"nav.admin": "Ylläpito",
 	"admin.switch.label": "Ylläpitonäkymät",
 	"admin.switch.usage": "Käyttö",
-	"admin.switch.riders": "Ajajat",
-	"admin.switch.roles": "Roolit",
+	"admin.switch.riders": "Ajajat ja roolit",
 	"admin.roles.hint":
-		"Orga näkee kaikki ajajat etunimellä: Rynket, mitä puuttuu, kilometrit ja nousumetrit päivittäin sekä korjaukset. Adminit ovat aina myös Orgassa ja ylläpitävät lisäksi sovellusta: käyttö, ajajat ja roolit.",
+		"Orga näkee kaikkien ajajien harjoitusluvut ja Rynket. Adminit ovat aina myös Orgassa ja ylläpitävät lisäksi sovellusta: käyttö, ajajat ja roolit.",
+	"admin.roles.hint.events":
+		"Orga näkee kaikkien ajajien harjoitusluvut ja Rynket, luo tapahtumia ja merkitsee, kuka oli paikalla. Adminit ovat aina myös Orgassa ja ylläpitävät lisäksi sovellusta: käyttö, ajajat ja roolit.",
 	"admin.roles.admins": "Adminit",
 	"admin.roles.orga": "Orga",
 	"admin.roles.you": "Sinä",
@@ -1121,23 +1122,24 @@ export const fi: Catalog = {
 	"admin.roles.ownNote": "Vain toinen admin voi muuttaa omaa rooliasi.",
 	"admin.roles.onlyAdmin":
 		"Sinun lisäksesi kukaan ei ole admin. Vain toinen admin voi muuttaa omaa rooliasi.",
-	"admin.roles.orgaNote": "Adminit ovat ylempänä, eikä heitä toisteta tässä.",
+	"admin.roles.orgaNote": "Admineilla on myös Organ oikeudet.",
 	"admin.roles.orgaNone": "Ei ketään adminien lisäksi.",
-	"admin.roles.give.heading": "Anna rooli",
-	"admin.roles.give.button": "Anna rooli",
-	"admin.roles.give.note":
-		"Tässä näkyvät vain ajajat, jotka jakavat tietonsa tiimin kanssa.",
-	"admin.roles.give.none": "Kaikilla tässä on jo rooli.",
+	"admin.roles.without.heading": "Ilman roolia",
+	"admin.roles.without.note":
+		"Tässä ovat vain ajajat, jotka jakavat tietonsa tiimin kanssa: {listed}. Hyväksyntä vielä puuttuu: {waiting}. Estetty: {blocked}.",
+	"admin.roles.without.empty": "Kaikilla tässä on jo rooli.",
 	"admin.roles.search": "Etsi ajaja",
 	"admin.roles.searchNone": "Ketään ei löytynyt.",
-	"admin.roles.sheet.title": "Rooli: {name}",
 	"admin.roles.sheet.note":
 		"{name} saa viestin, kun sovellus avataan seuraavan kerran.",
+	"admin.roles.sheet.role": "Rooli",
 	"admin.roles.choice.none": "Ei roolia",
 	"admin.roles.choice.none.text": "Näkee sen, minkä kaikki ajajat näkevät.",
 	"admin.roles.choice.orga": "Orga",
 	"admin.roles.choice.orga.text":
-		"Näkee kaikki ajajat etunimellä, heidän Rynkensä, mitä heiltä puuttuu, kilometrit ja nousumetrit päivittäin, ja korjaa Rynkejä.",
+		"Näkee kaikkien ajajien harjoitusluvut ja Rynket.",
+	"admin.roles.choice.orga.text.events":
+		"Näkee kaikkien ajajien harjoitusluvut ja Rynket, luo tapahtumia ja merkitsee, kuka oli paikalla.",
 	"admin.roles.choice.admin": "Admin",
 	"admin.roles.choice.admin.text":
 		"Kaikki Organ oikeudet sekä sovelluksen käyttö, ajajien poistaminen ja roolien muuttaminen.",
@@ -1270,8 +1272,6 @@ export const fi: Catalog = {
 	"admin.history.gap": "Ei kirjauksia",
 	"admin.history.ridersNote":
 		"Yhdistetyt ajajat ovat tämän tiimin omia, joten koko luku on tiimin.",
-	"admin.riders.counts":
-		"Listalla: {listed}. Ei listalla, koska ei ole vielä hyväksynyt: {unlisted}. Estetty: {blocked}.",
 	"admin.riders.none": "Kukaan ajaja ei ole vielä hyväksynyt.",
 	"admin.riders.status": "Yhteys",
 	"admin.riders.status.connected": "Yhdistetty",
@@ -1285,6 +1285,10 @@ export const fi: Catalog = {
 	"admin.riders.remove": "Poista",
 	"admin.riders.guests.heading": "Vieraat",
 	"admin.riders.guest": "Vieras",
+	"admin.riders.attention.import": "Tuonti on vielä käynnissä",
+	"admin.riders.guest.since": "Yhdistetty {date}",
+	"admin.riders.guests.note":
+		"Vieraat eivät saa täällä roolia; Muuta näyttää heidän yhteytensä ja Poista.",
 	"admin.remove.title": "Poistetaanko {name}?",
 	"admin.remove.explain":
 		"Tätä ei voi perua. Kaikki ajajan tiedot poistetaan ja Strava-pääsy perutaan. Ajaja ei voi enää yhdistää tähän tiimiin, ei edes klubin jäsenenä: Strava-tunnus jää estolistalle.",

@@ -5552,26 +5552,58 @@ function badgeShare(signal) {
 }
 
 /**
- * Admin › Rollen (feature 043 research R5, R8): each "Ändern" / "Rolle geben"
- * fills the one choice dialog with its rider and current role and opens it;
- * the search hides the riders without a role whose name doesn't match.
+ * Admin › Rider und Rollen (feature 045 research R4, R5, R8): each "Ändern"
+ * fills the one dialog with its rider's name, facts (the row's template),
+ * current role and removal address, and opens it; a guest's row has no role,
+ * so the role part and "Speichern" stay hidden. The search hides every row
+ * whose name doesn't match.
  */
 function adminRoles(signal) {
+	const on = { signal };
+	const search = document.querySelector("[data-role-search]");
+	const none = document.querySelector("[data-role-search-none]");
+	const rows = [...document.querySelectorAll("li[data-name]")];
+	search?.addEventListener(
+		"input",
+		() => {
+			const needle = search.value.trim().toLowerCase();
+			let shown = 0;
+			for (const row of rows) {
+				row.hidden = needle !== "" && !row.dataset.name.includes(needle);
+				if (!row.hidden) shown += 1;
+			}
+			if (none) none.hidden = shown > 0;
+		},
+		on,
+	);
 	const sheet = document.querySelector("dialog.role-sheet");
 	if (!sheet || typeof sheet.showModal !== "function") return;
-	const on = { signal };
 	const title = sheet.querySelector("#role-sheet-title");
+	const facts = sheet.querySelector("[data-facts]");
+	const part = sheet.querySelector("[data-role-part]");
+	const save = sheet.querySelector("[data-role-save]");
 	const note = sheet.querySelector("[data-role-note]");
 	const athlete = sheet.querySelector("input[name=athlete]");
+	const remove = sheet.querySelector("[data-role-remove]");
+	const radios = [...sheet.querySelectorAll("input[name=role]")];
 	for (const button of document.querySelectorAll("[data-role-open]")) {
 		button.addEventListener(
 			"click",
 			() => {
+				const { role } = button.dataset;
 				title.textContent = button.dataset.title;
-				note.textContent = button.dataset.note;
-				athlete.value = button.dataset.athlete;
-				for (const radio of sheet.querySelectorAll("input[name=role]")) {
-					radio.checked = radio.value === button.dataset.role;
+				const template = button
+					.closest("li")
+					?.querySelector("template[data-facts]");
+				facts.replaceChildren(template?.content.cloneNode(true) ?? "");
+				remove.href = button.dataset.remove;
+				if (part) part.hidden = role === undefined;
+				if (save) save.hidden = role === undefined;
+				if (note) note.textContent = button.dataset.note;
+				if (athlete) athlete.value = button.dataset.athlete;
+				for (const radio of radios) {
+					radio.disabled = role === undefined;
+					radio.checked = radio.value === role;
 				}
 				sheet.showModal();
 			},
@@ -5585,24 +5617,6 @@ function adminRoles(signal) {
 		"click",
 		(event) => {
 			if (event.target === sheet) sheet.close();
-		},
-		on,
-	);
-	const search = document.querySelector("[data-role-search]");
-	const none = document.querySelector("[data-role-search-none]");
-	const rows = [
-		...(search?.parentElement?.querySelectorAll("li[data-name]") ?? []),
-	];
-	search?.addEventListener(
-		"input",
-		() => {
-			const needle = search.value.trim().toLowerCase();
-			let shown = 0;
-			for (const row of rows) {
-				row.hidden = needle !== "" && !row.dataset.name.includes(needle);
-				if (!row.hidden) shown += 1;
-			}
-			if (none) none.hidden = shown > 0;
 		},
 		on,
 	);

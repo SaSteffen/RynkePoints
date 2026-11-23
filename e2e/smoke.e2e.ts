@@ -642,14 +642,15 @@ test("an administrator uses the admin pages", async ({ page, browserName }) => {
 
 	const rider = REMOVED_RIDER[browserName];
 	await page.goto("/admin/riders");
-	const card = page.locator(".admin-rider").filter({ hasText: rider });
+	const row = page.locator(`li[data-name='${rider.toLowerCase()}']`);
 	// Already gone when CI retries this test.
-	if ((await card.count()) > 0) {
-		await card.locator("a.danger").click();
+	if ((await row.count()) > 0) {
+		await row.getByRole("button", { name: "Ändern" }).click();
+		await page.locator("dialog.role-sheet a.sheet-remove").click();
 		await page.locator("form button.danger").click();
 		await expect(page).toHaveURL(/\/admin\/riders\?done=removed$/);
 	}
-	await expect(card).toHaveCount(0);
+	await expect(row).toHaveCount(0);
 
 	await signIn(page, rider);
 	await expect(page).toHaveURL(/\/notice\/blocked$/);
