@@ -924,6 +924,9 @@ export const sv: Catalog = {
 		"Serverloggar innehåller bara id:n som idrottar- och aktivitets-ID och typen av fel, aldrig åtkomstnycklar eller aktivitetsdata. RynkePoints sparar inga IP-adresser.",
 	"privacy.technical.oneTeam":
 		"På RynkePoints cyklar du för ett lag i taget. När du ansluter frågar ett lag därför de andra lagen om du redan cyklar för ett av dem. Det får bara veta ja eller nej, aldrig vilket lag, och sparar inte svaret. Byter du lag raderar laget du lämnar allt om dig.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Alla lag delar en anslutning till Strava, och Strava skickar sina meddelanden om dina aktiviteter till en gemensam adress. Den skickar varje meddelande bara vidare till det lag eller de lag du hör till. För det sparar den ditt Strava-idrottar-ID tillsammans med dessa lag, och inget annat. Det lagras i EU, bara de som underhåller RynkePoints kan se det, och det raderas när du lämnar, senast en dag senare.",
 	"privacy.visibility.heading": "Vem ser vad",
 	"privacy.visibility.you":
 		"Du ser dina egna aktiviteter med titlar, dina Rynke och dina märken. Ingen annan ser titlarna.",
@@ -1243,6 +1246,21 @@ export const sv: Catalog = {
 	"admin.cpu.none": "Inga CPU-siffror registrerade ännu.",
 	"admin.cpu.unavailable":
 		"Cloudflares CPU-siffror kunde inte hämtas senast. Tabellen visar de dagar som registrerats hittills.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Gateway-routning",
+	"admin.routing.note":
+		"De senaste 30 dagarna. Under provkörningen får varje lag fortfarande varje meddelande; en hotande förlust är ett meddelande om någon i laget som routningen inte skulle ha skickat hit. Kasserade: meddelanden om någon som laget inte har. En dag markeras vid hotande eller möjlig förlust, eller när mer än 1\u00a0% av meddelandena gick till alla lag medan alla lag routade.",
+	"admin.routing.none": "Inga siffror än.",
+	"admin.routing.copy": "Skickat enligt kopian",
+	"admin.routing.everyone": "Skickat till alla lag",
+	"admin.routing.missed": "Hotande förluster",
+	"admin.routing.wasted": "Skickat i onödan",
+	"admin.routing.dropped": "Kasserade",
+	"admin.routing.corrections": "Rättelser från listan",
+	"admin.routing.possible": "Möjliga förluster",
+	"admin.routing.found": "Hittat av den nya kontrollen",
+	"admin.routing.others": "Andra lag",
+	"admin.summary.routing": "Dagar med varning i gateway-routningen: {n}",
 	"admin.waiting.heading": "Väntar på Strava-budgeten",
 	"admin.waiting.body": {
 		one: "{n} post väntar, klart om ungefär {time}.",

@@ -16316,7 +16316,7 @@ Norsk bokmål
 Suomi
 Svenska
 Datenschutz
-Stand: 21.11.2026
+Stand: 23.11.2026
 Verbindlich ist die englische Fassung
 dieses Textes.
 Hier steht, welche Daten RynkePoints verarbeitet, wozu, wer sie sieht, wie lange sie gespeichert werden und welche Rechte du hast.
@@ -16346,6 +16346,7 @@ Cookies: „rp_session“ hält dich angemeldet, bis 180 Tage nach deinem letzte
 Benachrichtigungen sind freiwillig und gelten pro Gerät. Gespeichert wird nur die Adresse, die der Push-Dienst deines Geräts oder Browsers vergibt. Die Benachrichtigung selbst ist leer: Was sie anzeigt, holt dein Gerät direkt bei RynkePoints. Die Adresse wird gelöscht, wenn du Benachrichtigungen ausschaltest, dich auf dem Gerät abmeldest oder gehst.
 Server-Protokolle enthalten nur Kennungen wie Athleten- und Aktivitäts-IDs und die Art eines Fehlers, nie Zugangsschlüssel oder Aktivitätsdaten. IP-Adressen speichert RynkePoints nicht.
 Bei RynkePoints fährst du immer für ein Team. Deshalb fragt ein Team beim Verbinden die anderen Teams, ob du schon für eines von ihnen fährst. Es erfährt nur ja oder nein, nie welches Team, und speichert die Antwort nicht. Wechselst du das Team, löscht das Team, das du verlässt, alles über dich.
+Alle Teams teilen sich eine Verbindung zu Strava, und Strava schickt seine Meldungen zu deinen Aktivitäten an eine gemeinsame Adresse. Sie gibt jede Meldung nur an das Team oder die Teams weiter, zu denen du gehörst. Dafür speichert sie deine Strava-Athleten-ID zusammen mit diesen Teams, sonst nichts. Gespeichert wird in der EU, sehen können das nur die Leute, die RynkePoints betreuen, und gelöscht wird es, wenn du gehst, spätestens einen Tag später.
 Wer was sieht
 Du siehst deine eigenen Aktivitäten mit Titel, deine Rynke und deine Abzeichen. Die Titel sieht sonst niemand.
 Das übrige Team sieht deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter und an welchen Tagen und zu welcher Stunde du aktiv bist zählen ohne Namen zu den Teamsummen und Team-Abzeichen.
@@ -16392,7 +16393,7 @@ Norsk bokmål
 Suomi
 Svenska
 Privacy
-Last updated: 21/11/2026
+Last updated: 23/11/2026
 This explains which data RynkePoints processes, what for, who sees it, how long it is kept and what your rights are.
 Who is responsible, and how to reach us
 Responsible for the processing of data in RynkePoints is:
@@ -16420,6 +16421,7 @@ Cookies: “rp_session” keeps you signed in, until 180 days after your last vi
 Notifications are optional and per device. Only the address your device&#39;s or browser&#39;s push service gives it is stored. The notification itself is empty: what it shows, your device fetches straight from RynkePoints. The address is deleted when you turn notifications off, sign out on that device or leave.
 Server logs hold only identifiers such as athlete and activity IDs and the kind of an error, never access keys or activity data. RynkePoints doesn&#39;t store IP addresses.
 On RynkePoints you ride for one team at a time. So when you connect, a team asks the other teams whether you already ride for one of them. It learns only yes or no, never which team, and doesn&#39;t store the answer. If you switch teams, the team you leave deletes everything about you.
+All teams share one connection to Strava, and Strava sends its messages about your activities to one shared address. It passes each message on only to the team or teams you belong to. For that, it keeps your Strava athlete ID together with those teams, and nothing else. It is stored in the EU, only the people who maintain RynkePoints can see it, and it is deleted when you leave, at the latest a day later.
 Who sees what
 You see your own activities with their titles, your Rynke and your badges. Nobody else sees the titles.
 Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation, and on which days and at what hour you are active, count towards the team sums and team badges, without your name.

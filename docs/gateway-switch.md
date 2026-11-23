@@ -146,3 +146,68 @@ at most 30 days.
 `pnpm dev` runs every team behind a local gateway on `http://localhost:8791`, with the same
 paths: sign-ins come back through `/auth/return/<team>`, and simulated events from a team's
 `/_dev/` go to the gateway's webhook.
+It runs with routing on (below) and its own copy under `.wrangler/fake-state-gateway`. Teams
+route only after their first full list: trigger each team's daily run
+(`curl "http://localhost:8789/__scheduled?cron=17+3+*+*+*"`, the same on Europe's port)
+to start it.
+
+# Gateway routing
+
+Feature 046 (`specs/046-gateway-routing/`). The gateway keeps a copy of which teams hold
+which athletes, and sends each event only to those teams. The copy holds athlete IDs and
+team IDs only, in one Durable Object (`RoutingCopy`) in the EU jurisdiction, created by the
+gateway's deploy. Nothing shows it: no page, admin view or gateway answer. Only the
+maintainers with access to the Cloudflare account can reach it.
+
+## The setting
+
+`ROUTING` in `gateway/wrangler.jsonc`, changed by a pull request that touches only
+`gateway/`, which redeploys only the gateway:
+
+| Value | What the gateway does |
+|---|---|
+| `off` (shipped) | Sends every event to every team, as before. Keeps no copy: reports are answered `404`, and the first full list empties the copy. |
+| `trial` | Chooses the teams for each event, but still sends it to every team, marked chosen or not. Teams count would-be misses. |
+| `on` | Sends each event only to the chosen teams. |
+
+Going live:
+
+1. With the privacy notice live on every team, set `trial`. Within a day every team has sent
+   its full list.
+2. Watch Admin › Usage › **Gateway routing** on every team for at least 14 days in a row
+   without a would-be miss (no day with the warning mark for a would-be miss).
+3. After the move to the Workers paid plan, set `on`.
+
+Going back to `trial` or `off` is the same one setting; no team needs a deploy.
+
+## How it falls back
+
+An event goes to every team the copy lists for its athlete, plus every team that isn't
+routing. It goes to **every** team when:
+
+- the copy doesn't list the athlete for any team (a new rider whose report hasn't arrived, a
+  person nobody holds any more);
+- the copy can't be read, or doesn't answer within a second.
+
+A team routes only while its last full list (its daily run, `17 3 * * *`) is at most
+48 hours old. A team that never sent one, or whose daily run failed for two days, gets every
+event. A report that fails is retried by the team's queue; the next full list corrects the
+copy anyway.
+
+The team question and let-go (`/teams/<id>/held`, `/teams/<id>/let-go`) never read the copy:
+they always ask the teams.
+
+## Which teams are routing
+
+The gateway's logs don't name athletes. In Admin › Usage › **Gateway routing**, "Sent to every
+team" stays above zero while some team isn't routing or the copy misses athletes; the day's
+warning mark appears when more than 1 % of events went to every team while every team was
+routing. A team's daily run that fails to hand over its list shows in its logs as
+`Full list not taken: …`.
+
+## Emptying the copy
+
+Set `ROUTING` to `off` and deploy the gateway. The next full list from any team (at the
+latest the next daily run) empties the whole copy and every team's list date. Emptying only
+brings back the broadcast: every event goes to every team again. Setting `trial` or `on`
+again rebuilds the copy from the teams' next full lists.

@@ -927,6 +927,9 @@ export const en: Catalog = {
 		"Server logs hold only identifiers such as athlete and activity IDs and the kind of an error, never access keys or activity data. RynkePoints doesn't store IP addresses.",
 	"privacy.technical.oneTeam":
 		"On RynkePoints you ride for one team at a time. So when you connect, a team asks the other teams whether you already ride for one of them. It learns only yes or no, never which team, and doesn't store the answer. If you switch teams, the team you leave deletes everything about you.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"All teams share one connection to Strava, and Strava sends its messages about your activities to one shared address. It passes each message on only to the team or teams you belong to. For that, it keeps your Strava athlete ID together with those teams, and nothing else. It is stored in the EU, only the people who maintain RynkePoints can see it, and it is deleted when you leave, at the latest a day later.",
 	"privacy.visibility.heading": "Who sees what",
 	"privacy.visibility.you":
 		"You see your own activities with their titles, your Rynke and your badges. Nobody else sees the titles.",
@@ -1242,6 +1245,21 @@ export const en: Catalog = {
 	"admin.cpu.none": "No CPU figures recorded yet.",
 	"admin.cpu.unavailable":
 		"Cloudflare's CPU figures couldn't be fetched last time. The table shows the days recorded so far.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Gateway routing",
+	"admin.routing.note":
+		"The last 30 days. In the trial every team still gets every event; a would-be miss is an event about someone the team holds that routing wouldn't have sent it. Dropped: events about someone the team doesn't hold. A day is marked for a would-be or possible miss, or when more than 1\u00a0% of events went to every team while every team was routing.",
+	"admin.routing.none": "No figures yet.",
+	"admin.routing.copy": "Sent by the copy",
+	"admin.routing.everyone": "Sent to every team",
+	"admin.routing.missed": "Would-be misses",
+	"admin.routing.wasted": "Would-be wasted",
+	"admin.routing.dropped": "Dropped",
+	"admin.routing.corrections": "List corrections",
+	"admin.routing.possible": "Possible misses",
+	"admin.routing.found": "Found by the re-check",
+	"admin.routing.others": "Other teams",
+	"admin.summary.routing": "Gateway routing days with a warning: {n}",
 	"admin.waiting.heading": "Waiting for the Strava budget",
 	"admin.waiting.body": {
 		one: "{n} item is waiting, done in about {time}.",

@@ -17,7 +17,7 @@ import { html, htmlResponse, layout, pageLook, type SafeHtml } from "./html";
 // no rider data. Linked from every page's footer.
 
 /** The day the notice last changed in substance; shown on the page. */
-export const PRIVACY_UPDATED = "2026-11-21";
+export const PRIVACY_UPDATED = "2026-11-23";
 
 const STRAVA_PRIVACY_URL = "https://www.strava.com/legal/privacy";
 
@@ -52,6 +52,8 @@ const SECTIONS: [MessageId, MessageId[]][] = [
 			"privacy.technical.logs",
 			// One team at a time (feature 044 R8).
 			"privacy.technical.oneTeam",
+			// What the shared gateway keeps for routing (feature 046 FR-014).
+			"privacy.technical.gateway",
 		],
 	],
 	[
