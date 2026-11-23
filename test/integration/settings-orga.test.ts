@@ -31,7 +31,9 @@ async function settings(athleteId: string) {
 }
 
 const row = escapeHtml(de["settings.orga.title"]);
-const link = 'href="/admin/riders"';
+// The row's own link, not the Admin tab in the navigation, which goes to the
+// same page.
+const link = `<a href="/admin/riders">${escapeHtml(de["settings.orga.link"])}</a>`;
 
 beforeEach(async () => {
 	await resetDb();
