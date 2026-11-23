@@ -7,7 +7,8 @@ import type { TeamData } from "./types";
 // minimum ride length of 25 km, only a third of the Training Rynke needed from
 // outside virtual rides, and no Team Rynke: no threshold, and no team event
 // earns any (research R2). Raise `version` and set `effectiveDate` in the
-// same change as any change of a value or of rule logic, and keep the previous
+// same change as any change of a value, of rule logic or of the season or
+// qualification dates in wrangler.jsonc (issue #19), and keep the previous
 // object in `rules`: every stored result records its version, the daily cron
 // re-evaluates riders stored with another one, and the rider page explains a
 // stored result with the rules of its version.

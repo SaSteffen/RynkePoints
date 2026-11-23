@@ -10,7 +10,9 @@ import type { TeamData } from "./types";
 // The Rynke rules (research R8, FR-012, FR-023, moved from src/rynke/rules.ts).
 // Raise `version` and set `effectiveDate` in the same change as any change of a
 // value or of rule logic: every stored result records the version, and the
-// daily cron re-evaluates riders stored with another one. Flagged rides never
+// daily cron re-evaluates riders stored with another one. A change of the
+// season or qualification dates in wrangler.jsonc needs a new version too
+// (issue #19, pinned in test/teams/rules.test.ts). Flagged rides never
 // count (FR-005g); that is deliberately not a rule value.
 //
 // When raising `version`, keep the previous object in `rules`: the rider page
