@@ -177,8 +177,11 @@ drop a report, and check the full list's correction and the re-check's find show
 2. **Given** the trial, **When** a team receives an event marked "chosen" about a person it doesn't
    hold, **Then** it drops it as today and counts one would-be wasted delivery.
 3. **Given** routing is live, **When** an administrator opens the admin usage view, **Then** they
-   see for the last 30 days, per day: events sent by the copy, events sent to every team, events
+   see a day table for the last 30 days: events sent by the copy, events sent to every team, events
    their team dropped, corrections by their team's full list, and rides the re-check found.
+6. **Given** a day with a would-be miss, a possible miss, or more than 1% of events sent to every
+   team, **When** the admin usage view shows it, **Then** the day carries the warning mark, and
+   the summary at the top counts it.
 4. **Given** a correction by a full list that added a person the copy had listed under other teams
    only, **When** it is counted, **Then** it counts as a possible miss, shown apart from the other
    corrections.
@@ -298,11 +301,16 @@ drop a report, and check the full list's correction and the re-check's find show
 - **FR-023**: Each team MUST count per day the rides its daily ride re-check (feature 036) stored
   that no event had brought. Counting MUST start before the trial, so there is a baseline of what
   Strava itself loses.
-- **FR-024**: The admin usage view MUST show these figures for the last 30 days, with each team's
-  own figures under its name and every other team's as "another team", as the view already does
-  (feature 026). A day with a would-be miss or a possible miss MUST be marked as needing attention.
-  The gateway's figures MUST reach the teams the way the view already gets other teams' figures.
-- **FR-025**: These figures MUST be counts only: no athlete, activity, name or team-holding
+- **FR-024**: The admin usage view MUST show these figures for the last 30 days in a new section
+  with a day table, like the ride re-check's (feature 036): one row per day, a column per figure,
+  each team's own figures under its name and every other team's as "another team", as the view
+  already does (feature 026). The gateway's figures MUST reach the teams the way the view already
+  gets other teams' figures.
+- **FR-025**: A day MUST carry the re-check table's warning mark when it has a would-be miss or a
+  possible miss, or when more than 1% of that day's events went to every team while every team was
+  routing. Days with that mark MUST count in the summary at the top of the view, so nobody has to
+  read the table to notice one.
+- **FR-026**: These figures MUST be counts only: no athlete, activity, name or team-holding
   detail is stored, shown or logged with them. Counts older than 30 days MUST be deleted.
 
 ### Key Entities
