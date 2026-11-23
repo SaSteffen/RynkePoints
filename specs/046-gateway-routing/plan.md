@@ -86,7 +86,8 @@ src/
 ├── routing/
 │   ├── figures.ts        # new: figure names shared by gateway and teams, the 30-day window
 │   ├── report.ts         # new: queue a report, send it, send the full list, exchange counts
-│   └── warning.ts        # new, pure: a day's warning mark
+│   ├── counts.ts         # new: this team's own counts (drops, trial marks, re-check finds)
+│   └── warning.ts        # new, pure: the day table's rows and a day's warning mark
 ├── db/routing.ts         # new: count, read, upsert, prune routing_daily
 ├── http/webhook.ts       # route from X-Rynke-Route
 ├── http/auth.ts, me.ts, held.ts, admin/remove.ts   # queue reports
@@ -105,8 +106,8 @@ docs/gateway-switch.md    # Routing: fallbacks, which teams route, emptying the 
 .github/workflows/ci.yml  # the gateway deploys when src/routing/figures.ts changes
 
 test/
-├── gateway/routing.test.ts, team-routes.test.ts
-├── unit/routing-choose.test.ts, routing-warning.test.ts
+├── gateway/copy.test.ts, routing.test.ts, team-routes.test.ts
+├── unit/routing-choose.test.ts, routing-warning.test.ts, routing-config.test.ts
 └── integration/routing-reports.test.ts, routing-counts.test.ts, admin-usage-routing.test.ts
 ```
 
