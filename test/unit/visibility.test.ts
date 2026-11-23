@@ -74,6 +74,10 @@ function rider(athleteId: string, organiser: boolean): Rider {
 		guest: false,
 		onGuestList: false,
 		sessionEpoch: 0,
+		roleSince: null,
+		roleSeen: null,
+		roleChangedBy: null,
+		roleChangedAt: null,
 	};
 }
 

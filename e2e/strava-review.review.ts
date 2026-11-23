@@ -266,13 +266,13 @@ for (const lang of LANGS) {
 				page,
 				lang,
 				"15-admin-riders",
-				"Administrators: riders by first name with their connection state, and no activity data or points",
+				"Administrators: riders by first name and role, with their connection state where it needs attention, and no activity data or points",
 			);
 			await page
-				.locator(".admin-rider")
-				.filter({ hasText: "Tina" })
-				.locator("a.danger")
+				.locator("li[data-name^='tina']")
+				.locator("[data-role-open]")
 				.click();
+			await page.locator("dialog.role-sheet a.sheet-remove").click();
 			await page.waitForLoadState();
 			await shoot(
 				page,

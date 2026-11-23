@@ -1108,7 +1108,77 @@ export const en: Catalog = {
 	"nav.admin": "Admin",
 	"admin.switch.label": "Admin views",
 	"admin.switch.usage": "Usage",
-	"admin.switch.riders": "Riders",
+	"admin.switch.riders": "Riders and Roles",
+	"admin.roles.hint":
+		"The Orga sees every rider's training figures and Rynke. Admins are always in the Orga too and also run the app: usage, riders and roles.",
+	"admin.roles.hint.events":
+		"The Orga sees every rider's training figures and Rynke, creates events and records who was there. Admins are always in the Orga too and also run the app: usage, riders and roles.",
+	"admin.roles.admins": "Admins",
+	"admin.roles.orga": "Orga",
+	"admin.roles.you": "You",
+	"admin.roles.change": "Change",
+	"admin.roles.adminSince": "Admin since {date}",
+	"admin.roles.orgaSince": "In the Orga since {date}",
+	"admin.roles.ownNote": "Only another admin can change your own role.",
+	"admin.roles.onlyAdmin":
+		"Nobody else is an admin. Only another admin can change your own role.",
+	"admin.roles.orgaNote": "Admins have Orga rights too.",
+	"admin.roles.orgaNone": "Nobody besides the admins.",
+	"admin.roles.without.heading": "No role",
+	"admin.roles.without.note":
+		"Only riders who share their data with the team are listed here: {listed}. Still to agree: {waiting}. Blocked: {blocked}.",
+	"admin.roles.without.empty": "Everyone here already has a role.",
+	"admin.roles.search": "Find a rider",
+	"admin.roles.searchNone": "Nobody found.",
+	"admin.roles.sheet.note":
+		"{name} will get a message the next time they open the app.",
+	"admin.roles.sheet.role": "Role",
+	"admin.roles.choice.none": "None",
+	"admin.roles.choice.none.text": "Sees what every rider sees.",
+	"admin.roles.choice.orga": "Orga",
+	"admin.roles.choice.orga.text":
+		"Sees every rider's training figures and Rynke.",
+	"admin.roles.choice.orga.text.events":
+		"Sees every rider's training figures and Rynke, creates events and records who was there.",
+	"admin.roles.choice.admin": "Admin",
+	"admin.roles.choice.admin.text":
+		"Everything the Orga has, plus the app's usage, removing riders and changing roles.",
+	"admin.roles.cancel": "Cancel",
+	"admin.roles.save": "Save",
+	"admin.roles.done.orga": "{name} is now in the Orga.",
+	"admin.roles.done.admin": "{name} is now an admin.",
+	"admin.roles.done.notAdmin": "{name} is no longer an admin.",
+	"admin.roles.done.none": "{name} is no longer in the Orga.",
+	"admin.roles.undo": "Undo",
+	"admin.roles.error.self": "Only another admin can change your own role.",
+	"admin.roles.error.unknown":
+		"This person isn't here any more. Nothing was changed.",
+	"admin.remove.error.lastAdmin":
+		"This is the team's only admin. Someone else has to become an admin first.",
+	"role.card.orga.title": "You're in the Orga now",
+	"role.card.orga.body":
+		"{by} added you to the Orga on {date}. The Orga tab is new; the tour shows you what's in it.",
+	"role.card.orga.consent":
+		"The riders agreed that the Orga sees their data. Passing it on isn't part of that.",
+	"role.card.admin.title": "You're an admin now",
+	"role.card.admin.body":
+		"{by} made you an admin on {date}. Under Admin you see the app's usage and every rider's connection, and you give the roles. That puts you in the Orga too.",
+	"role.card.notAdmin.title": "You're no longer an admin",
+	"role.card.notAdmin.body":
+		"{by} took your admin role on {date}. You're still in the Orga.",
+	"role.card.none.title": "You're no longer in the Orga",
+	"role.card.none.body":
+		"{by} took you out of the Orga on {date}. You no longer see riders by name.",
+	"role.card.none.events": "Your events are under Events again.",
+	"role.card.tour": "Start the tour",
+	"role.card.orgaTour": "Start the Orga tour",
+	"role.card.later": "Later",
+	"role.card.ok": "Got it",
+	"settings.orga.title": "Who is in the Orga",
+	"settings.orga.admin": "{name} (admin)",
+	"settings.orga.text":
+		"They see your Rynke, distance and climbing with your first name. Admins also run the app. If someone joins, they show up here.",
+	"settings.orga.link": "Change members",
 	"admin.allowance.strava_read_15m": "Strava reads per 15 minutes",
 	"admin.allowance.strava_all_15m": "Strava requests per 15 minutes",
 	"admin.allowance.strava_read_daily": "Strava reads per day",
@@ -1197,8 +1267,6 @@ export const en: Catalog = {
 	"admin.history.gap": "Nothing recorded",
 	"admin.history.ridersNote":
 		"Connected riders are this team's own, so the whole figure is its count.",
-	"admin.riders.counts":
-		"Listed: {listed}. Not listed, because they haven't agreed yet: {unlisted}. Blocked: {blocked}.",
 	"admin.riders.none": "No rider has agreed yet.",
 	"admin.riders.status": "Connection",
 	"admin.riders.status.connected": "Connected",
@@ -1212,6 +1280,10 @@ export const en: Catalog = {
 	"admin.riders.remove": "Remove",
 	"admin.riders.guests.heading": "Guests",
 	"admin.riders.guest": "Guest",
+	"admin.riders.attention.import": "Import still running",
+	"admin.riders.guest.since": "Connected on {date}",
+	"admin.riders.guests.note":
+		"Guests get no role here; Change shows their connection and Remove.",
 	"admin.remove.title": "Remove {name}?",
 	"admin.remove.explain":
 		"This can't be undone. All their data is deleted and their Strava access revoked. They can't connect to this team again, even while in the club: their Strava ID stays on the block list.",

@@ -1106,7 +1106,77 @@ export const sv: Catalog = {
 	"nav.admin": "Admin",
 	"admin.switch.label": "Admin-vyer",
 	"admin.switch.usage": "Användning",
-	"admin.switch.riders": "Cyklister",
+	"admin.switch.riders": "Cyklister och roller",
+	"admin.roles.hint":
+		"Orga ser träningssiffror och Rynke för alla cyklister. Admins är alltid också med i Orga och sköter dessutom appen: användning, cyklister och roller.",
+	"admin.roles.hint.events":
+		"Orga ser träningssiffror och Rynke för alla cyklister, skapar aktiviteter och för in vem som var där. Admins är alltid också med i Orga och sköter dessutom appen: användning, cyklister och roller.",
+	"admin.roles.admins": "Admins",
+	"admin.roles.orga": "Orga",
+	"admin.roles.you": "Du",
+	"admin.roles.change": "Ändra",
+	"admin.roles.adminSince": "Admin sedan {date}",
+	"admin.roles.orgaSince": "I Orga sedan {date}",
+	"admin.roles.ownNote": "Bara en annan admin kan ändra din egen roll.",
+	"admin.roles.onlyAdmin":
+		"Ingen utom du är admin. Bara en annan admin kan ändra din egen roll.",
+	"admin.roles.orgaNote": "Admins har också Orga-behörighet.",
+	"admin.roles.orgaNone": "Ingen utöver admins.",
+	"admin.roles.without.heading": "Utan roll",
+	"admin.roles.without.note":
+		"Här står bara cyklister som delar sina data med laget: {listed}. Har inte godkänt än: {waiting}. Blockerade: {blocked}.",
+	"admin.roles.without.empty": "Alla här har redan en roll.",
+	"admin.roles.search": "Hitta cyklist",
+	"admin.roles.searchNone": "Ingen hittades.",
+	"admin.roles.sheet.note":
+		"{name} får ett meddelande nästa gång appen öppnas.",
+	"admin.roles.sheet.role": "Roll",
+	"admin.roles.choice.none": "Ingen",
+	"admin.roles.choice.none.text": "Ser det alla cyklister ser.",
+	"admin.roles.choice.orga": "Orga",
+	"admin.roles.choice.orga.text":
+		"Ser träningssiffror och Rynke för alla cyklister.",
+	"admin.roles.choice.orga.text.events":
+		"Ser träningssiffror och Rynke för alla cyklister, skapar aktiviteter och för in vem som var där.",
+	"admin.roles.choice.admin": "Admin",
+	"admin.roles.choice.admin.text":
+		"Allt som Orga har, plus appens användning, att ta bort cyklister och att ändra roller.",
+	"admin.roles.cancel": "Avbryt",
+	"admin.roles.save": "Spara",
+	"admin.roles.done.orga": "{name} är nu med i Orga.",
+	"admin.roles.done.admin": "{name} är nu admin.",
+	"admin.roles.done.notAdmin": "{name} är inte längre admin.",
+	"admin.roles.done.none": "{name} är inte längre med i Orga.",
+	"admin.roles.undo": "Ångra",
+	"admin.roles.error.self": "Bara en annan admin kan ändra din egen roll.",
+	"admin.roles.error.unknown":
+		"Den här personen finns inte här längre. Inget ändrades.",
+	"admin.remove.error.lastAdmin":
+		"Det här är lagets enda admin. Någon annan måste bli admin först.",
+	"role.card.orga.title": "Du är nu med i Orga",
+	"role.card.orga.body":
+		"{by} tog med dig i Orga den {date}. Orga-fliken är ny; rundturen visar dig vad som finns där.",
+	"role.card.orga.consent":
+		"Cyklisterna har gått med på att Orga ser deras data. Att föra dem vidare ingår inte.",
+	"role.card.admin.title": "Du är nu admin",
+	"role.card.admin.body":
+		"{by} gjorde dig till admin den {date}. Under Admin ser du appens användning och alla cyklister med sin anslutning, och du ger rollerna. Därmed är du också med i Orga.",
+	"role.card.notAdmin.title": "Du är inte längre admin",
+	"role.card.notAdmin.body":
+		"{by} tog din admin-roll den {date}. Du är fortfarande med i Orga.",
+	"role.card.none.title": "Du är inte längre med i Orga",
+	"role.card.none.body":
+		"{by} tog bort dig från Orga den {date}. Du ser inte längre cyklister med namn.",
+	"role.card.none.events": "Dina aktiviteter hittar du igen under Aktiviteter.",
+	"role.card.tour": "Starta rundturen",
+	"role.card.orgaTour": "Starta Orga-rundturen",
+	"role.card.later": "Senare",
+	"role.card.ok": "Uppfattat",
+	"settings.orga.title": "Vem är med i Orga",
+	"settings.orga.admin": "{name} (admin)",
+	"settings.orga.text":
+		"De ser dina Rynke, kilometer och höjdmeter med ditt förnamn. Admins sköter dessutom appen. Om någon tillkommer står det här.",
+	"settings.orga.link": "Ändra medlemmar",
 	"admin.allowance.strava_read_15m": "Strava-läsningar per 15 minuter",
 	"admin.allowance.strava_all_15m": "Strava-anrop per 15 minuter",
 	"admin.allowance.strava_read_daily": "Strava-läsningar per dag",
@@ -1199,8 +1269,6 @@ export const sv: Catalog = {
 	"admin.history.gap": "Inget registrerat",
 	"admin.history.ridersNote":
 		"Anslutna cyklister är lagets egna, så hela siffran är lagets.",
-	"admin.riders.counts":
-		"På listan: {listed}. Inte på listan, eftersom de inte har godkänt än: {unlisted}. Blockerade: {blocked}.",
 	"admin.riders.none": "Ingen cyklist har godkänt än.",
 	"admin.riders.status": "Anslutning",
 	"admin.riders.status.connected": "Ansluten",
@@ -1214,6 +1282,10 @@ export const sv: Catalog = {
 	"admin.riders.remove": "Ta bort",
 	"admin.riders.guests.heading": "Gäster",
 	"admin.riders.guest": "Gäst",
+	"admin.riders.attention.import": "Import pågår fortfarande",
+	"admin.riders.guest.since": "Ansluten {date}",
+	"admin.riders.guests.note":
+		"Gäster får ingen roll här; Ändra visar deras anslutning och Ta bort.",
 	"admin.remove.title": "Ta bort {name}?",
 	"admin.remove.explain":
 		"Det går inte att ångra. Alla cyklistens uppgifter raderas och Strava-åtkomsten återkallas. Cyklisten kan inte ansluta till det här laget igen, inte ens som klubbmedlem: Strava-ID:t blir kvar på spärrlistan.",

@@ -1108,7 +1108,77 @@ export const fi: Catalog = {
 	"nav.admin": "Ylläpito",
 	"admin.switch.label": "Ylläpitonäkymät",
 	"admin.switch.usage": "Käyttö",
-	"admin.switch.riders": "Ajajat",
+	"admin.switch.riders": "Ajajat ja roolit",
+	"admin.roles.hint":
+		"Orga näkee kaikkien ajajien harjoitusluvut ja Rynket. Adminit ovat aina myös Orgassa ja ylläpitävät lisäksi sovellusta: käyttö, ajajat ja roolit.",
+	"admin.roles.hint.events":
+		"Orga näkee kaikkien ajajien harjoitusluvut ja Rynket, luo tapahtumia ja merkitsee, kuka oli paikalla. Adminit ovat aina myös Orgassa ja ylläpitävät lisäksi sovellusta: käyttö, ajajat ja roolit.",
+	"admin.roles.admins": "Adminit",
+	"admin.roles.orga": "Orga",
+	"admin.roles.you": "Sinä",
+	"admin.roles.change": "Muuta",
+	"admin.roles.adminSince": "Admin {date} alkaen",
+	"admin.roles.orgaSince": "Orgassa {date} alkaen",
+	"admin.roles.ownNote": "Vain toinen admin voi muuttaa omaa rooliasi.",
+	"admin.roles.onlyAdmin":
+		"Sinun lisäksesi kukaan ei ole admin. Vain toinen admin voi muuttaa omaa rooliasi.",
+	"admin.roles.orgaNote": "Admineilla on myös Organ oikeudet.",
+	"admin.roles.orgaNone": "Ei ketään adminien lisäksi.",
+	"admin.roles.without.heading": "Ilman roolia",
+	"admin.roles.without.note":
+		"Tässä ovat vain ajajat, jotka jakavat tietonsa tiimin kanssa: {listed}. Hyväksyntä vielä puuttuu: {waiting}. Estetty: {blocked}.",
+	"admin.roles.without.empty": "Kaikilla tässä on jo rooli.",
+	"admin.roles.search": "Etsi ajaja",
+	"admin.roles.searchNone": "Ketään ei löytynyt.",
+	"admin.roles.sheet.note":
+		"{name} saa viestin, kun sovellus avataan seuraavan kerran.",
+	"admin.roles.sheet.role": "Rooli",
+	"admin.roles.choice.none": "Ei roolia",
+	"admin.roles.choice.none.text": "Näkee sen, minkä kaikki ajajat näkevät.",
+	"admin.roles.choice.orga": "Orga",
+	"admin.roles.choice.orga.text":
+		"Näkee kaikkien ajajien harjoitusluvut ja Rynket.",
+	"admin.roles.choice.orga.text.events":
+		"Näkee kaikkien ajajien harjoitusluvut ja Rynket, luo tapahtumia ja merkitsee, kuka oli paikalla.",
+	"admin.roles.choice.admin": "Admin",
+	"admin.roles.choice.admin.text":
+		"Kaikki Organ oikeudet sekä sovelluksen käyttö, ajajien poistaminen ja roolien muuttaminen.",
+	"admin.roles.cancel": "Peruuta",
+	"admin.roles.save": "Tallenna",
+	"admin.roles.done.orga": "{name} on nyt Orgassa.",
+	"admin.roles.done.admin": "{name} on nyt admin.",
+	"admin.roles.done.notAdmin": "{name} ei ole enää admin.",
+	"admin.roles.done.none": "{name} ei ole enää Orgassa.",
+	"admin.roles.undo": "Peru",
+	"admin.roles.error.self": "Vain toinen admin voi muuttaa omaa rooliasi.",
+	"admin.roles.error.unknown":
+		"Tätä henkilöä ei ole enää täällä. Mitään ei muutettu.",
+	"admin.remove.error.lastAdmin":
+		"Tämä on tiimin ainoa admin. Jonkun muun on ensin tultava adminiksi.",
+	"role.card.orga.title": "Olet nyt Orgassa",
+	"role.card.orga.body":
+		"{by} lisäsi sinut Orgaan {date}. Orga-välilehti on uusi; esittely näyttää, mitä siellä on.",
+	"role.card.orga.consent":
+		"Ajajat ovat suostuneet siihen, että Orga näkee heidän tietonsa. Eteenpäin antaminen ei kuulu siihen.",
+	"role.card.admin.title": "Olet nyt admin",
+	"role.card.admin.body":
+		"{by} teki sinusta adminin {date}. Adminin alla näet sovelluksen käytön ja kaikki ajajat yhteyksineen, ja annat roolit. Olet siten myös Orgassa.",
+	"role.card.notAdmin.title": "Et ole enää admin",
+	"role.card.notAdmin.body":
+		"{by} poisti admin-roolisi {date}. Olet yhä Orgassa.",
+	"role.card.none.title": "Et ole enää Orgassa",
+	"role.card.none.body":
+		"{by} poisti sinut Orgasta {date}. Et enää näe ajajia nimeltä.",
+	"role.card.none.events": "Tapahtumasi löydät taas kohdasta Tapahtumat.",
+	"role.card.tour": "Aloita esittely",
+	"role.card.orgaTour": "Aloita Orga-esittely",
+	"role.card.later": "Myöhemmin",
+	"role.card.ok": "Selvä",
+	"settings.orga.title": "Ketkä ovat Orgassa",
+	"settings.orga.admin": "{name} (admin)",
+	"settings.orga.text":
+		"He näkevät Rynkesi, kilometrisi ja nousumetrisi etunimelläsi. Adminit myös ylläpitävät sovellusta. Jos joku tulee lisää, se näkyy tässä.",
+	"settings.orga.link": "Muuta jäseniä",
 	"admin.allowance.strava_read_15m": "Strava-lukuja 15 minuutissa",
 	"admin.allowance.strava_all_15m": "Strava-pyyntöjä 15 minuutissa",
 	"admin.allowance.strava_read_daily": "Strava-lukuja päivässä",
@@ -1202,8 +1272,6 @@ export const fi: Catalog = {
 	"admin.history.gap": "Ei kirjauksia",
 	"admin.history.ridersNote":
 		"Yhdistetyt ajajat ovat tämän tiimin omia, joten koko luku on tiimin.",
-	"admin.riders.counts":
-		"Listalla: {listed}. Ei listalla, koska ei ole vielä hyväksynyt: {unlisted}. Estetty: {blocked}.",
 	"admin.riders.none": "Kukaan ajaja ei ole vielä hyväksynyt.",
 	"admin.riders.status": "Yhteys",
 	"admin.riders.status.connected": "Yhdistetty",
@@ -1217,6 +1285,10 @@ export const fi: Catalog = {
 	"admin.riders.remove": "Poista",
 	"admin.riders.guests.heading": "Vieraat",
 	"admin.riders.guest": "Vieras",
+	"admin.riders.attention.import": "Tuonti on vielä käynnissä",
+	"admin.riders.guest.since": "Yhdistetty {date}",
+	"admin.riders.guests.note":
+		"Vieraat eivät saa täällä roolia; Muuta näyttää heidän yhteytensä ja Poista.",
 	"admin.remove.title": "Poistetaanko {name}?",
 	"admin.remove.explain":
 		"Tätä ei voi perua. Kaikki ajajan tiedot poistetaan ja Strava-pääsy perutaan. Ajaja ei voi enää yhdistää tähän tiimiin, ei edes klubin jäsenenä: Strava-tunnus jää estolistalle.",

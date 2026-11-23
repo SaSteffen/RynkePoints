@@ -1147,7 +1147,79 @@ export const de = {
 	"nav.admin": "Admin",
 	"admin.switch.label": "Admin-Ansichten",
 	"admin.switch.usage": "Nutzung",
-	"admin.switch.riders": "Rider",
+	"admin.switch.riders": "Rider und Rollen",
+	"admin.roles.hint":
+		"Die Orga sieht Trainingszahlen und Rynke aller Rider. Admins sind immer auch in der Orga und betreiben dazu die App: Nutzung, Rider und Rollen.",
+	"admin.roles.hint.events":
+		"Die Orga sieht Trainingszahlen und Rynke aller Rider, legt Termine an und trägt ein, wer da war. Admins sind immer auch in der Orga und betreiben dazu die App: Nutzung, Rider und Rollen.",
+	"admin.roles.admins": "Admins",
+	"admin.roles.orga": "Orga",
+	"admin.roles.you": "Du",
+	"admin.roles.change": "Ändern",
+	"admin.roles.adminSince": "Admin seit {date}",
+	"admin.roles.orgaSince": "In der Orga seit {date}",
+	"admin.roles.ownNote":
+		"Deine eigene Rolle kann nur jemand anderes mit Admin-Rolle ändern.",
+	"admin.roles.onlyAdmin":
+		"Außer dir ist niemand Admin. Deine eigene Rolle kann nur jemand anderes mit Admin-Rolle ändern.",
+	"admin.roles.orgaNote": "Admins haben ebenfalls Orga-Rechte.",
+	"admin.roles.orgaNone": "Niemand außer den Admins.",
+	"admin.roles.without.heading": "Ohne Rolle",
+	"admin.roles.without.note":
+		"Hier stehen nur Rider, die ihre Daten mit dem Team teilen: {listed}. Zustimmung steht noch aus: {waiting}. Gesperrt: {blocked}.",
+	"admin.roles.without.empty": "Alle hier haben schon eine Rolle.",
+	"admin.roles.search": "Rider finden",
+	"admin.roles.searchNone": "Niemand gefunden.",
+	"admin.roles.sheet.note":
+		"{name} bekommt beim nächsten Öffnen der App eine Nachricht.",
+	"admin.roles.sheet.role": "Rolle",
+	"admin.roles.choice.none": "Keine",
+	"admin.roles.choice.none.text": "Sieht, was alle Rider sehen.",
+	"admin.roles.choice.orga": "Orga",
+	"admin.roles.choice.orga.text":
+		"Sieht Trainingszahlen und Rynke aller Rider.",
+	"admin.roles.choice.orga.text.events":
+		"Sieht Trainingszahlen und Rynke aller Rider, legt Termine an und trägt ein, wer da war.",
+	"admin.roles.choice.admin": "Admin",
+	"admin.roles.choice.admin.text":
+		"Alles aus der Orga, dazu die Nutzung der App, Rider entfernen und Rollen ändern.",
+	"admin.roles.cancel": "Abbrechen",
+	"admin.roles.save": "Speichern",
+	"admin.roles.done.orga": "{name} ist jetzt in der Orga.",
+	"admin.roles.done.admin": "{name} ist jetzt Admin.",
+	"admin.roles.done.notAdmin": "{name} ist nicht mehr Admin.",
+	"admin.roles.done.none": "{name} ist nicht mehr in der Orga.",
+	"admin.roles.undo": "Rückgängig",
+	"admin.roles.error.self":
+		"Deine eigene Rolle kann nur jemand anderes mit Admin-Rolle ändern.",
+	"admin.roles.error.unknown":
+		"Diese Person ist hier nicht mehr dabei. Nichts wurde geändert.",
+	"admin.remove.error.lastAdmin":
+		"Das ist die einzige Person mit Admin-Rolle im Team. Erst muss jemand anderes Admin werden.",
+	"role.card.orga.title": "Du bist jetzt in der Orga",
+	"role.card.orga.body":
+		"{by} hat dich am {date} in die Orga aufgenommen. Der Orga-Tab ist neu; der Rundgang zeigt dir, was drin ist.",
+	"role.card.orga.consent":
+		"Die Rider haben zugestimmt, dass die Orga ihre Daten sieht. Weitergeben gehört nicht dazu.",
+	"role.card.admin.title": "Du bist jetzt Admin",
+	"role.card.admin.body":
+		"{by} hat dir am {date} die Admin-Rolle gegeben. Unter Admin siehst du die Nutzung der App und alle Rider mit ihrer Verbindung, und du vergibst die Rollen. In der Orga bist du damit auch.",
+	"role.card.notAdmin.title": "Du bist nicht mehr Admin",
+	"role.card.notAdmin.body":
+		"{by} hat dir am {date} die Admin-Rolle genommen. In der Orga bist du weiter.",
+	"role.card.none.title": "Du bist nicht mehr in der Orga",
+	"role.card.none.body":
+		"{by} hat dich am {date} aus der Orga genommen. Die Rider mit Namen siehst du nicht mehr.",
+	"role.card.none.events": "Deine Termine findest du wieder unter Termine.",
+	"role.card.tour": "Rundgang starten",
+	"role.card.orgaTour": "Orga-Rundgang starten",
+	"role.card.later": "Später",
+	"role.card.ok": "Verstanden",
+	"settings.orga.title": "Wer in der Orga ist",
+	"settings.orga.admin": "{name} (Admin)",
+	"settings.orga.text":
+		"Sie sehen deine Rynke, Kilometer und Höhenmeter mit deinem Vornamen. Admins betreiben außerdem die App. Kommt jemand dazu, steht es hier.",
+	"settings.orga.link": "Mitglieder ändern",
 	"admin.allowance.strava_read_15m": "Strava-Lesezugriffe pro 15 Minuten",
 	"admin.allowance.strava_all_15m": "Strava-Anfragen pro 15 Minuten",
 	"admin.allowance.strava_read_daily": "Strava-Lesezugriffe pro Tag",
@@ -1241,8 +1313,6 @@ export const de = {
 	"admin.history.gap": "Nichts aufgezeichnet",
 	"admin.history.ridersNote":
 		"Verbundene Rider sind die eigenen des Teams, also zählt der ganze Wert für dieses Team.",
-	"admin.riders.counts":
-		"Aufgeführt: {listed}. Nicht aufgeführt, weil ihre Zustimmung noch aussteht: {unlisted}. Gesperrt: {blocked}.",
 	"admin.riders.none": "Noch niemand hat zugestimmt.",
 	"admin.riders.status": "Verbindung",
 	"admin.riders.status.connected": "Verbunden",
@@ -1256,6 +1326,10 @@ export const de = {
 	"admin.riders.remove": "Entfernen",
 	"admin.riders.guests.heading": "Gäste",
 	"admin.riders.guest": "Gast",
+	"admin.riders.attention.import": "Import läuft noch",
+	"admin.riders.guest.since": "Verbunden am {date}",
+	"admin.riders.guests.note":
+		"Gäste bekommen hier keine Rolle; Ändern zeigt ihre Verbindung und Entfernen.",
 	"admin.remove.title": "{name} entfernen?",
 	"admin.remove.explain":
 		"Das lässt sich nicht rückgängig machen. Alle Daten werden gelöscht und der Strava-Zugang widerrufen. Eine erneute Verbindung mit diesem Team ist nicht mehr möglich, auch nicht bei Mitgliedschaft im Club: Die Strava-ID bleibt auf der Sperrliste.",

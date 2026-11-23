@@ -428,7 +428,13 @@ token and the account ID, the view says the figures are unavailable and everythi
 figures at once, use *Update now* on `/admin`. If the figures still don't show,
 `pnpm wrangler tail --env hamburg` during an update shows the reason.
 
-Being an administrator, and lifting a block, are set directly in the database:
+Administrators give and take the Orga and Admin roles under Admin › Rider und Rollen
+([feature 043](../specs/043-admin-grants-roles/spec.md),
+[feature 045](../specs/045-riders-and-roles/spec.md)); an administrator is always in the Orga too.
+The same tab lists every rider's connection and removes and blocks riders.
+Nobody changes their own role there, and the app never removes a team's only administrator. Only a
+team's first administrator, or a new one after the last left by themselves, is set in the database,
+as is lifting a block:
 
 ```bash
 # Mark an administrator; `= 0` clears it, from the next request on.

@@ -329,3 +329,86 @@ describe("leaving by oneself (FR-024)", () => {
 		).toEqual([]);
 	});
 });
+
+describe("the last own administrator (feature 043 FR-014)", () => {
+	const GUEST = "900009";
+
+	beforeEach(async () => {
+		await seedRider(ctx, { athleteId: GUEST, firstName: "Gesa", guest: true });
+	});
+
+	it("can't be removed, not even by a guest", async () => {
+		const before = await rowsNaming(ADMIN);
+		const page = await handleFetch(
+			request(PATH(ADMIN), { cookies: await sessionCookie(ctx, GUEST) }),
+			ctx,
+		);
+		expect(page.headers.get("Location")).toBe("/admin/riders?error=lastAdmin");
+		const res = await remove(ADMIN, GUEST);
+		expect(res.status).toBe(303);
+		expect(res.headers.get("Location")).toBe("/admin/riders?error=lastAdmin");
+		expect(await rowsNaming(ADMIN)).toEqual(before);
+		expect(fake.revocations).toEqual([]);
+		const list = await handleFetch(
+			request("/admin/riders?error=lastAdmin", {
+				cookies: await sessionCookie(ctx, GUEST),
+			}),
+			ctx,
+		);
+		expect(await list.text()).toContain(
+			escapeHtml(de["admin.remove.error.lastAdmin"]),
+		);
+	});
+
+	it("can be removed while another own administrator stays", async () => {
+		fake.addAthlete({ id: TARGET });
+		await seedRider(ctx, {
+			athleteId: TARGET,
+			firstName: "Synthetica",
+			administrator: true,
+		});
+		const res = await remove(TARGET);
+		expect(res.headers.get("Location")).toBe("/admin/riders?done=removed");
+		expect(await rowsNaming(TARGET)).toEqual({
+			"blocked_athletes.athlete_id": 1,
+		});
+	});
+});
+
+// Feature 045 US3: removing from Admin › Rider und Rollen, through the dialog.
+describe("from Rider und Rollen", () => {
+	beforeEach(seedTarget);
+
+	async function tab(query = "") {
+		return (
+			await handleFetch(
+				request(`/admin/riders${query}`, {
+					cookies: await sessionCookie(ctx, ADMIN),
+				}),
+				ctx,
+			)
+		).text();
+	}
+
+	it("opens the confirmation at the dialog's Entfernen address", async () => {
+		expect(await tab()).toContain(`data-remove="${PATH(TARGET)}"`);
+		const res = await confirmPage(TARGET);
+		expect(res.status).toBe(200);
+		const page = await res.text();
+		expect(page).toContain(
+			`<a class="segmented" href="/admin/riders" aria-current="true">`,
+		);
+		expect(page).toContain(escapeHtml(de["admin.switch.riders"]));
+		expect(page).toContain(
+			`<a class="button-outlined" href="/admin/riders">${escapeHtml(de["admin.remove.cancel"])}</a>`,
+		);
+	});
+
+	it("ends on the tab with the notice and without the rider", async () => {
+		const res = await remove(TARGET);
+		expect(res.headers.get("Location")).toBe("/admin/riders?done=removed");
+		const page = await tab("?done=removed");
+		expect(page).toContain(escapeHtml(de["admin.remove.done.removed"]));
+		expect(page).not.toContain("Synthetica");
+	});
+});

@@ -1138,7 +1138,78 @@ export const lt: Catalog = {
 	"nav.admin": "Administravimas",
 	"admin.switch.label": "Administravimo rodiniai",
 	"admin.switch.usage": "Naudojimas",
-	"admin.switch.riders": "Dviratininkai",
+	"admin.switch.riders": "Dviratininkai ir vaidmenys",
+	"admin.roles.hint":
+		"Orga mato visų dviratininkų treniruočių skaičius ir Rynke. Administratoriai visada yra ir Orgoje, be to, prižiūri programėlę: naudojimą, dviratininkus ir vaidmenis.",
+	"admin.roles.hint.events":
+		"Orga mato visų dviratininkų treniruočių skaičius ir Rynke, kuria renginius ir pažymi, kas dalyvavo. Administratoriai visada yra ir Orgoje, be to, prižiūri programėlę: naudojimą, dviratininkus ir vaidmenis.",
+	"admin.roles.admins": "Administratoriai",
+	"admin.roles.orga": "Orga",
+	"admin.roles.you": "Tu",
+	"admin.roles.change": "Keisti",
+	"admin.roles.adminSince": "Administratorius nuo {date}",
+	"admin.roles.orgaSince": "Orgoje nuo {date}",
+	"admin.roles.ownNote":
+		"Tavo paties vaidmenį gali pakeisti tik kitas administratorius.",
+	"admin.roles.onlyAdmin":
+		"Be tavęs nėra kitų administratorių. Tavo paties vaidmenį gali pakeisti tik kitas administratorius.",
+	"admin.roles.orgaNote": "Administratoriai taip pat turi Orgos teises.",
+	"admin.roles.orgaNone": "Nieko, išskyrus administratorius.",
+	"admin.roles.without.heading": "Be vaidmens",
+	"admin.roles.without.note":
+		"Čia rodomi tik dviratininkai, kurie dalijasi savo duomenimis su komanda: {listed}. Dar laukiama sutikimo: {waiting}. Užblokuoti: {blocked}.",
+	"admin.roles.without.empty": "Visi čia jau turi vaidmenį.",
+	"admin.roles.search": "Rasti dviratininką",
+	"admin.roles.searchNone": "Nieko nerasta.",
+	"admin.roles.sheet.note":
+		"{name} gaus žinutę kitą kartą atidarius programėlę.",
+	"admin.roles.sheet.role": "Vaidmuo",
+	"admin.roles.choice.none": "Jokio",
+	"admin.roles.choice.none.text": "Mato tai, ką mato visi dviratininkai.",
+	"admin.roles.choice.orga": "Orga",
+	"admin.roles.choice.orga.text":
+		"Mato visų dviratininkų treniruočių skaičius ir Rynke.",
+	"admin.roles.choice.orga.text.events":
+		"Mato visų dviratininkų treniruočių skaičius ir Rynke, kuria renginius ir pažymi, kas dalyvavo.",
+	"admin.roles.choice.admin": "Administratorius",
+	"admin.roles.choice.admin.text":
+		"Viskas, ką turi Orga, ir dar programėlės naudojimas, dviratininkų pašalinimas ir vaidmenų keitimas.",
+	"admin.roles.cancel": "Atšaukti",
+	"admin.roles.save": "Išsaugoti",
+	"admin.roles.done.orga": "{name} dabar yra Orgoje.",
+	"admin.roles.done.admin": "{name} dabar yra administratorius.",
+	"admin.roles.done.notAdmin": "{name} nebėra administratorius.",
+	"admin.roles.done.none": "{name} nebėra Orgoje.",
+	"admin.roles.undo": "Atšaukti",
+	"admin.roles.error.self":
+		"Tavo paties vaidmenį gali pakeisti tik kitas administratorius.",
+	"admin.roles.error.unknown": "Šio žmogaus čia nebėra. Niekas nepakeista.",
+	"admin.remove.error.lastAdmin":
+		"Tai vienintelis komandos administratorius. Pirmiau kas nors kitas turi tapti administratoriumi.",
+	"role.card.orga.title": "Dabar esi Orgoje",
+	"role.card.orga.body":
+		"{by} {date} įtraukė tave į Orgą. Orgos skirtukas naujas; apžvalga parodys, kas jame yra.",
+	"role.card.orga.consent":
+		"Dviratininkai sutiko, kad Orga matytų jų duomenis. Perduoti jų toliau negalima.",
+	"role.card.admin.title": "Dabar esi administratorius",
+	"role.card.admin.body":
+		"{by} {date} suteikė tau administratoriaus vaidmenį. Skiltyje Admin matai programėlės naudojimą ir visus dviratininkus su jų ryšiu, ir suteiki vaidmenis. Todėl esi ir Orgoje.",
+	"role.card.notAdmin.title": "Nebesi administratorius",
+	"role.card.notAdmin.body":
+		"{by} {date} atėmė tavo administratoriaus vaidmenį. Tu ir toliau esi Orgoje.",
+	"role.card.none.title": "Nebesi Orgoje",
+	"role.card.none.body":
+		"{by} {date} pašalino tave iš Orgos. Dviratininkų pagal vardą nebematai.",
+	"role.card.none.events": "Savo renginius vėl rasi skiltyje Renginiai.",
+	"role.card.tour": "Pradėti apžvalgą",
+	"role.card.orgaTour": "Pradėti Orgos apžvalgą",
+	"role.card.later": "Vėliau",
+	"role.card.ok": "Supratau",
+	"settings.orga.title": "Kas yra Orgoje",
+	"settings.orga.admin": "{name} (administratorius)",
+	"settings.orga.text":
+		"Jie mato tavo Rynke, kilometrus ir aukštį su tavo vardu. Administratoriai be to prižiūri programėlę. Jei kas nors prisijungs, tai bus matyti čia.",
+	"settings.orga.link": "Keisti narius",
 	"admin.allowance.strava_read_15m": "Strava skaitymai per 15 minučių",
 	"admin.allowance.strava_all_15m": "Strava užklausos per 15 minučių",
 	"admin.allowance.strava_read_daily": "Strava skaitymai per dieną",
@@ -1252,8 +1323,6 @@ export const lt: Catalog = {
 	"admin.history.gap": "Nieko neužfiksuota",
 	"admin.history.ridersNote":
 		"Prisijungę dviratininkai yra šios komandos, todėl visas skaičius yra jos.",
-	"admin.riders.counts":
-		"Sąraše: {listed}. Ne sąraše, nes dar nesutiko: {unlisted}. Užblokuoti: {blocked}.",
 	"admin.riders.none": "Dar nė vienas dviratininkas nesutiko.",
 	"admin.riders.status": "Ryšys",
 	"admin.riders.status.connected": "Prisijungęs",
@@ -1267,6 +1336,10 @@ export const lt: Catalog = {
 	"admin.riders.remove": "Pašalinti",
 	"admin.riders.guests.heading": "Svečiai",
 	"admin.riders.guest": "Svečias",
+	"admin.riders.attention.import": "Importas dar vyksta",
+	"admin.riders.guest.since": "Prisijungė {date}",
+	"admin.riders.guests.note":
+		"Svečiams čia vaidmuo neskiriamas; Keisti rodo jų ryšį ir Pašalinti.",
 	"admin.remove.title": "Pašalinti {name}?",
 	"admin.remove.explain":
 		"To nebus galima atšaukti. Visi jo duomenys ištrinami, o Strava prieiga atšaukiama. Jis nebegalės prisijungti prie šios komandos, net būdamas klube: jo Strava ID lieka blokuojamųjų sąraše.",

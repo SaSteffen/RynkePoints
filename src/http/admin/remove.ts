@@ -1,6 +1,6 @@
 import type { Ctx } from "../../ctx";
 import { removeRider } from "../../db/blocked";
-import { listedRider } from "../../db/riders";
+import { listedRider, ownAdministratorCount } from "../../db/riders";
 import type { I18n } from "../../i18n/i18n";
 import { withdrawStoredGrant } from "../../strava/withdraw";
 import { html } from "../html";
@@ -14,6 +14,21 @@ function back(param: "done" | "error", code: string): Response {
 	return redirect(`/admin/riders?${param}=${code}`, 303);
 }
 
+/**
+ * Whether `target` is the team's only own administrator, whom the app never
+ * removes (feature 043 FR-014); guests don't count.
+ */
+async function isLastAdmin(
+	db: D1Database,
+	target: { administrator: boolean; guest: boolean },
+): Promise<boolean> {
+	return (
+		target.administrator &&
+		!target.guest &&
+		(await ownAdministratorCount(db)) <= 1
+	);
+}
+
 export function handleRemoveConfirm(
 	request: Request,
 	ctx: Ctx,
@@ -25,6 +40,9 @@ export function handleRemoveConfirm(
 		if (athleteId === rider.athleteId) return back("error", "self");
 		const target = await listedRider(ctx.env.DB, athleteId);
 		if (target === null) return back("error", "unknown");
+		if (await isLastAdmin(ctx.env.DB, target)) {
+			return back("error", "lastAdmin");
+		}
 		// A guest's grant stays: their own team needs it (041 FR-009).
 		const explain = target.guest
 			? "admin.remove.explain.guest"
@@ -55,9 +73,9 @@ export async function handleRemoveRider(
 	if (administrator instanceof Response) return administrator;
 	if (athleteId === administrator.athleteId) return back("error", "self");
 	const db = ctx.env.DB;
-	if ((await listedRider(db, athleteId)) === null) {
-		return back("error", "unknown");
-	}
+	const target = await listedRider(db, athleteId);
+	if (target === null) return back("error", "unknown");
+	if (await isLastAdmin(db, target)) return back("error", "lastAdmin");
 	// Unless another team holds them (feature 041 R14).
 	await withdrawStoredGrant(ctx, athleteId);
 	await removeRider(db, athleteId, administrator.athleteId, ctx.now());

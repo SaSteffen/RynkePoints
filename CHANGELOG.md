@@ -13,6 +13,13 @@ English sentences for the administrators, without formatting or links, and
 name no team, place or rider: every team shows the same list.
 -->
 
+## 1.1.0
+
+- The admin view's Riders tab is now Riders and Roles. Administrators give and take the Orga and Admin roles there; an administrator is always in the Orga too, and nobody changes their own role.
+- One search on Riders and Roles finds every rider, a red line shows only when a rider's connection needs attention, and Change on a row shows their connection, their role and Remove.
+- A rider whose role changed sees a card about it the next time they open the app, and someone new in the Orga can start a tour of the Orga tab.
+- Settings shows the Orga and the administrators who is in the Orga, with a link for administrators to change it.
+
 ## 1.0.0
 
 - The app has a version number. Settings shows it and links to this list of changes.

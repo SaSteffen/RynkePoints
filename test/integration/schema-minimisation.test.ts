@@ -39,6 +39,11 @@ const COLUMNS: Record<string, string[]> = {
 		"evaluations",
 		// Issue #314: only a session cookie with this epoch is signed in.
 		"session_epoch",
+		// Feature 043: since when the role holds, and the unseen change's card.
+		"role_since",
+		"role_seen",
+		"role_changed_by",
+		"role_changed_at",
 	],
 	activities: [
 		"strava_activity_id",

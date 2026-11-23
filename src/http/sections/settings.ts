@@ -1,7 +1,7 @@
 import { APP_VERSION } from "../../changelog";
 import { consentLabel } from "../../consent";
 import type { Ctx } from "../../ctx";
-import type { Rider } from "../../db/riders";
+import { orgaNames, type Rider } from "../../db/riders";
 import { type BalanceRow, readBalanceStatement } from "../../db/rynke";
 import type { I18n } from "../../i18n/i18n";
 import { vapidPublicKey } from "../../push/vapid";
@@ -20,6 +20,7 @@ import {
 	INSTALL,
 	LANGUAGE,
 	PALETTE,
+	PEOPLE,
 	SHIELD,
 	SIGN_OUT,
 	SPARKLE,
@@ -129,6 +130,28 @@ ${
 </section>`;
 }
 
+async function orgaRow(
+	i18n: I18n,
+	rider: Rider,
+	db: D1Database,
+): Promise<SafeHtml> {
+	const names = (await orgaNames(db))
+		.map(({ firstName, admin }) =>
+			admin ? i18n.t("settings.orga.admin", { name: firstName }) : firstName,
+		)
+		.join(", ");
+	const link =
+		rider.administrator && !rider.guest
+			? html`
+<p><a href="/admin/riders">${i18n.t("settings.orga.link")}</a></p>`
+			: null;
+	return opens(
+		"settings-orga",
+		rowText(PEOPLE, i18n.t("settings.orga.title"), names),
+		html`<p>${i18n.t("settings.orga.text")}</p>${link}`,
+	);
+}
+
 export function handleSettings(
 	request: Request,
 	ctx: Ctx,
@@ -156,6 +179,11 @@ export function handleSettings(
 				countingWindow(ctx.env),
 			);
 			const switches = tourSwitches(ctx);
+			// Who is in the Orga, for organisers and administrators (feature 043
+			// FR-021, FR-022); own administrators get the way to change it.
+			const orga = rider.organiser
+				? await orgaRow(i18n, rider, ctx.env.DB)
+				: null;
 			const language =
 				i18n.locales.find((l) => l.locale === i18n.locale)?.languageName ?? "";
 			const tour = (kind: "rider" | "organiser") =>
@@ -192,6 +220,7 @@ ${opens(
 	),
 	consentSummary(i18n, "/me/settings", ctx.team),
 )}
+${orga}
 ${tour("rider")}
 ${rider.organiser ? tour("organiser") : null}`;
 			return html`<div class="settings-page">
