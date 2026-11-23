@@ -49,7 +49,8 @@ changes: feature 043 and feature 025 hold, except where this spec says otherwise
 
 An administrator opens the admin view and finds two tabs, Nutzung and Rider und Rollen. The new
 tab starts with a short text on what the Orga and the admins do, then a search that finds
-everyone on the page, then the lists: Admins, Orga, Ohne Rolle and Gäste. A row only says
+everyone on the page, then the lists: Admins, Orga, Gäste and, beside them on a wide screen,
+Ohne Rolle. A row only says
 something about its connection when that needs attention, in red: "Muss sich neu verbinden",
 "Import läuft noch", or both. The counts the Rider tab showed at the top (listed, waiting for
 consent, blocked) are in the note under Ohne Rolle.
@@ -65,8 +66,10 @@ import is running carry the red line, nobody else does.
 
 1. **Given** an administrator, **When** they open the admin view, **Then** the tabs are Nutzung
    and Rider und Rollen, the latter with the people icon the Rider tab had.
-2. **Given** Rider und Rollen, **When** it opens, **Then** it shows in this order: the text on
-   the roles, the search, Admins, Orga, Ohne Rolle, and Gäste if the team has any.
+2. **Given** Rider und Rollen, **When** it opens, **Then** it shows the text on the roles, the
+   search, Admins, Orga and Gäste (if the team has any) in the first column, and Ohne Rolle in a
+   second column beside them, as the design draft shows; on a phone the columns stack in that
+   order.
 3. **Given** the lists, **When** compared with today's Rider tab, **Then** every listed rider and
    every guest is on the page exactly once, and nobody else is.
 4. **Given** a rider who must reconnect or whose import is still running, **When** the page
@@ -240,11 +243,12 @@ Europe (without): the Termine part appears only on Hamburg.
   with the Rider tab's people icon. The Rider and Rollen tabs MUST be gone.
 - **FR-002**: The addresses of the old Rider and Rollen tabs MUST lead to Rider und Rollen,
   keeping any notice or error they carry. Links in the app MUST point to the new tab directly.
-- **FR-003**: Rider und Rollen MUST show, in this order: the text on the roles (FR-016); a search
-  over every row on the page; Admins; Orga, with the note "Admins haben ebenfalls Orga-Rechte.";
-  Ohne Rolle, with a note that only riders who share their data are listed and the numbers
-  listed, waiting for consent and blocked; and Gäste, if the team has guests, with a note that
-  guests get no role here.
+- **FR-003**: Rider und Rollen MUST show: the text on the roles (FR-016); a search over every row
+  on the page; Admins; Orga, with the note "Admins haben ebenfalls Orga-Rechte."; Gäste, if the
+  team has guests, with a note that guests get no role here; and Ohne Rolle, with a note that
+  only riders who share their data are listed and the numbers listed, waiting for consent and
+  blocked. As in the design draft, the text, the search, Admins, Orga and Gäste make the first
+  column and Ohne Rolle the second beside it; on a phone the two stack, in that order.
 - **FR-004**: Every listed rider and every guest MUST appear exactly once: own administrators
   under Admins, organisers who aren't administrators under Orga, other listed riders under Ohne
   Rolle, guests under Gäste. Nobody else MUST appear.
