@@ -34,3 +34,8 @@
 - Scope answers from the user: organiser and administrator roles in the app, guest list stays by
   hand; no taking away one's own administrator role; guests can't change roles; the last own
   administrator can't be removed.
+- Updated 2026-11-23 after the design draft (issue #351): roles on a new admin view Rollen; one
+  role per rider (none, Orga, Admin; Admin includes Orga); nobody changes their own role; undo;
+  a card on the rider's next visit (the new organiser's card replaces the Orga-Rundgang's first
+  step); no admin tour, no history; Settings row for organisers and administrators only; consent
+  unchanged.
