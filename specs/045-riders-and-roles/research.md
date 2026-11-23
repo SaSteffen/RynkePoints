@@ -124,7 +124,7 @@ page"; nothing else about the filter changes.
 
 **Decision**: A row's sub-line under the name (after the "seit" line, if any) lists what needs
 attention in words, joined with " · ": the existing "Muss sich neu verbinden" and a new "Import
-läuft noch". It is `settings-sub warn` (error colour, semi-bold). The same facts are red in the
+läuft noch". It is `settings-sub is-warn`, the class Settings already has (error colour), semi-bold inside `.roles`. The same facts are red in the
 sheet. A row with nothing to say has no line. Needs attention is `status = needs_reconnect` or
 `import_status` of `pending` or `running`.
 

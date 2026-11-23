@@ -52,7 +52,7 @@ Every viewer sees all of it, guests included.
 - `.settings-text`: the title (first name, then the chip "Du" on the viewer's own row, "Gast" on
   a guest's row); then, in this order, only what applies: "Admin seit {date}" / "In der Orga seit
   {date}" (listed riders with a role date), "Verbunden am {date}" (guests), and the red line
-  `.settings-sub.warn` ("Muss sich neu verbinden", "Import läuft noch", or both joined with " · ");
+  `.settings-sub.is-warn` ("Muss sich neu verbinden", "Import läuft noch", or both joined with " · ");
 - the button "Ändern" (`button.button-outlined`) on every row but the viewer's own;
 - inside the row `li`, after it, a `<template data-facts>` holding the sheet's facts (below).
 
