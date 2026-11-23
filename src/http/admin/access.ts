@@ -63,8 +63,8 @@ export function adminSwitch(i18n: I18n, current: AdminView): SafeHtml {
 	const segment = (view: AdminView, href: string, icon: SafeHtml) =>
 		html`<a class="segmented" href="${href}"${view === current ? html` aria-current="true"` : null}>${icon}${i18n.t(`admin.switch.${view}`)}</a>`;
 	return html`<nav class="organiser-switch" aria-label="${i18n.t("admin.switch.label")}">
-${segment("usage", "/admin", GAUGE)}
 ${segment("riders", "/admin/riders", PEOPLE)}
+${segment("usage", "/admin", GAUGE)}
 </nav>
 `;
 }

@@ -63,7 +63,7 @@ describe("a listed person's sign-in", () => {
 		await approve(ctx, fake, GUEST);
 		const me = await (await get("/me")).text();
 		expect(me).toContain('href="/organiser/riders"');
-		expect(me).toContain('href="/admin"');
+		expect(me).toContain('href="/admin/riders"');
 		expect((await get("/organiser/riders")).status).toBe(200);
 		expect((await get("/admin")).status).toBe(200);
 		expect((await get("/admin/riders")).status).toBe(200);
