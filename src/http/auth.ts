@@ -22,6 +22,7 @@ import {
 	updateRiderOnReconnect,
 } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
+import { queueReport } from "../routing/report";
 import { evaluateChange } from "../rynke/apply";
 import { isClubMember } from "../strava/client";
 import { STRAVA_ORIGIN } from "../strava/result";
@@ -195,6 +196,7 @@ export async function handleCallback(
 		withdraw();
 		if (!existing) return notice(id);
 		await deleteRider(ctx.env.DB, token.athleteId);
+		await queueReport(ctx, token.athleteId);
 		return notice(deletedId, [clearSessionCookie()]);
 	};
 
@@ -275,6 +277,8 @@ export async function handleCallback(
 		// A token kept from an earlier refusal here must not be revoked now
 		// that this team holds the grant (feature 044 R5).
 		await forgetPendingRevocation(ctx.env.DB, token.athleteId);
+		// The gateway's copy follows (feature 046 FR-004).
+		await queueReport(ctx, token.athleteId);
 		startImport = true;
 	} else {
 		// Reconnect rules (data-model.md). The new token is stored before the

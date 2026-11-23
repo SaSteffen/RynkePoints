@@ -1003,6 +1003,7 @@ describe("simulated Strava events (US3)", () => {
 				activityId: id,
 				aspect: "update",
 				changed: ["title"],
+				route: "plain",
 			},
 		]);
 		await drain();

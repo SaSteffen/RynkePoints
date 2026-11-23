@@ -1,9 +1,11 @@
 import { subscriptionId, verifyToken } from "../config";
 import { secretEquals } from "../crypto/secret";
 import type { Ctx } from "../ctx";
+import { ROUTE_HEADER, ROUTE_MARKS } from "../routing/figures";
 import { isStravaId, parseStravaJson } from "../strava/id";
 import {
 	ACTIVITY_ASPECTS,
+	type EventRoute,
 	isId,
 	isOneOf,
 	type WorkMessage,
@@ -94,7 +96,10 @@ async function receiveEvent(request: Request, ctx: Ctx): Promise<Response> {
 		return text("ok", 200);
 	}
 
-	const message = toMessage(event);
+	// The gateway's trial marks whether routing would have sent it here
+	// (feature 046 research R5); counted only, never processed.
+	const mark = request.headers.get(ROUTE_HEADER);
+	const message = toMessage(event, isOneOf(ROUTE_MARKS, mark) ? mark : "plain");
 	if (message) await ctx.queue.send(message);
 	return text("ok", 200);
 }
@@ -109,7 +114,7 @@ function isDeauthorization(updates: Record<string, unknown>): boolean {
 }
 
 /** The queue message for an event, or null for an event we drop. */
-function toMessage(event: StravaEvent): WorkMessage | null {
+function toMessage(event: StravaEvent, route: EventRoute): WorkMessage | null {
 	if (event.objectType === "activity") {
 		return {
 			kind: "activity-event",
@@ -117,6 +122,7 @@ function toMessage(event: StravaEvent): WorkMessage | null {
 			activityId: event.objectId,
 			aspect: event.aspect,
 			changed: Object.keys(event.updates),
+			route,
 		};
 	}
 	if (isDeauthorization(event.updates)) {
@@ -126,6 +132,7 @@ function toMessage(event: StravaEvent): WorkMessage | null {
 			athleteId: event.ownerId,
 			reason: "deauthorized",
 			revoke: false,
+			route,
 		};
 	}
 	// Any other athlete update is dropped.

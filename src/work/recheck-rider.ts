@@ -8,6 +8,7 @@ import {
 import type { Rider } from "../db/riders";
 import { anyWorkReady } from "../db/strava-work";
 import { differences, gone } from "../recheck/diff";
+import { countFound } from "../routing/counts";
 import type { StravaActivity } from "../strava/activity";
 import { listNewestActivities, PER_PAGE } from "../strava/client";
 import { budgetDecision, halfDayUsed } from "../strava/rate-limit";
@@ -92,6 +93,17 @@ export const recheckRider: Handler<RecheckRiderMessage> = async (
 			kind: "upsert",
 			...changed,
 		});
+		// What no event had brought, for gateway routing's baseline (feature
+		// 046 FR-023).
+		await countFound(
+			ctx,
+			changed.records.filter((r) => !stored.rides.has(r.strava_activity_id))
+				.length +
+				changed.runs.filter((r) => !stored.runs.has(r.strava_activity_id))
+					.length +
+				changed.swims.filter((r) => !stored.swims.has(r.strava_activity_id))
+					.length,
+		);
 	}
 	if (removed.length > 0) {
 		await evaluateAndNotify(ctx, rider.athleteId, {

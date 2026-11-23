@@ -2,6 +2,7 @@
 // and enum values only, never activity data or tokens.
 
 import type { Ctx } from "../ctx";
+import { ROUTE_MARKS } from "../routing/figures";
 import { toStravaId } from "../strava/id";
 
 export const ACTIVITY_ASPECTS = ["create", "update", "delete"] as const;
@@ -13,12 +14,21 @@ export const DELETE_REASONS = [
 	"guest-removed",
 ] as const;
 
+/**
+ * How a webhook event came (feature 046 research R5): marked by the gateway's
+ * trial, or `plain`. Set by the webhook only, read only for the routing
+ * counts, never processed and never part of the canonical form.
+ */
+export const EVENT_ROUTES = ["plain", ...ROUTE_MARKS] as const;
+export type EventRoute = (typeof EVENT_ROUTES)[number];
+
 export interface ActivityEventMessage {
 	kind: "activity-event";
 	athleteId: string;
 	activityId: string;
 	aspect: (typeof ACTIVITY_ASPECTS)[number];
 	changed: string[];
+	route?: EventRoute;
 }
 
 export interface ImportPageMessage {
@@ -62,6 +72,18 @@ export interface DeleteRiderMessage {
 	athleteId: string;
 	reason: (typeof DELETE_REASONS)[number];
 	revoke: boolean;
+	/** As for `ActivityEventMessage`: only on a deauthorization event. */
+	route?: EventRoute;
+}
+
+/**
+ * Tells the gateway whether this team holds the person now (feature 046
+ * contracts/team-side.md). Taken before the rider check, since the person may
+ * be gone; never in the Strava work table or `failed_work`.
+ */
+export interface ReportHoldMessage {
+	kind: "report-hold";
+	athleteId: string;
 }
 
 /** A full Rynke evaluation of the stored activities (feature 003). */
@@ -98,7 +120,8 @@ export type WorkMessage =
 	| DeleteRiderMessage
 	| EvaluateRiderMessage
 	| SendNotificationMessage
-	| RecheckRiderMessage;
+	| RecheckRiderMessage
+	| ReportHoldMessage;
 
 /**
  * Wakes the drain of the Strava work table (feature 024 research R4). Not a
@@ -157,6 +180,7 @@ export function parseWorkMessage(body: unknown): WorkMessage | null {
 	const m = body as Record<string, unknown>;
 	const athleteId = toStravaId(m.athleteId);
 	if (athleteId === null) return null;
+	const route = isOneOf(EVENT_ROUTES, m.route) ? { route: m.route } : {};
 	switch (m.kind) {
 		case "activity-event": {
 			const activityId = toStravaId(m.activityId);
@@ -174,6 +198,7 @@ export function parseWorkMessage(body: unknown): WorkMessage | null {
 				activityId,
 				aspect: m.aspect,
 				changed: [...m.changed],
+				...route,
 			};
 		}
 		case "import-page":
@@ -196,12 +221,19 @@ export function parseWorkMessage(body: unknown): WorkMessage | null {
 			return { kind: m.kind, athleteId, stamp: m.stamp, previous: m.previous };
 		case "check-membership":
 		case "evaluate-rider":
+		case "report-hold":
 			return { kind: m.kind, athleteId };
 		case "delete-rider":
 			if (!isOneOf(DELETE_REASONS, m.reason) || typeof m.revoke !== "boolean") {
 				return null;
 			}
-			return { kind: m.kind, athleteId, reason: m.reason, revoke: m.revoke };
+			return {
+				kind: m.kind,
+				athleteId,
+				reason: m.reason,
+				revoke: m.revoke,
+				...route,
+			};
 		case "send-notification":
 			if (!isId(m.subscriptionId)) return null;
 			return { kind: m.kind, athleteId, subscriptionId: m.subscriptionId };
@@ -234,6 +266,7 @@ export function serializeWorkMessage(m: WorkMessage): string {
 			});
 		case "check-membership":
 		case "evaluate-rider":
+		case "report-hold":
 			return JSON.stringify({ kind: m.kind, athleteId: m.athleteId });
 		case "delete-rider":
 			return JSON.stringify({

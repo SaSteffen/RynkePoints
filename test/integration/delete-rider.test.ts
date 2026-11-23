@@ -148,7 +148,9 @@ describe("deauthorization webhook", () => {
 			ctx,
 		);
 		expect(res.status).toBe(200);
-		expect(ctx.queue.sent.map((m) => m.body)).toEqual([DEAUTHORIZED]);
+		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
+			{ ...DEAUTHORIZED, route: "plain" },
+		]);
 		expect(fake.calls).toEqual([]);
 	});
 });

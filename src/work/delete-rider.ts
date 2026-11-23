@@ -1,4 +1,5 @@
 import { deleteRider as deleteRiderRows, getCredentials } from "../db/riders";
+import { queueReport } from "../routing/report";
 import { getAccessToken } from "../strava/tokens";
 import { withdrawStoredGrant } from "../strava/withdraw";
 import type { Handler } from "./consumer";
@@ -50,5 +51,6 @@ export const deleteRider: Handler<DeleteRiderMessage> = async (
 		await withdrawStoredGrant(ctx, rider.athleteId);
 	}
 	await deleteRiderRows(ctx.env.DB, rider.athleteId);
+	await queueReport(ctx, rider.athleteId);
 	return { kind: "ok" };
 };
