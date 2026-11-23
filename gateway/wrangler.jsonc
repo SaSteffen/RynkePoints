@@ -2,8 +2,10 @@
 	"$schema": "../node_modules/wrangler/config-schema.json",
 	// The Strava gateway (feature 026 release 3, contracts/gateway.md): one
 	// webhook receiver and OAuth return address for every team, because Strava
-	// allows one subscription and one callback domain per application. No D1,
-	// no rider data, no Strava client secret (FR-008).
+	// allows one subscription and one callback domain per application. No D1 and
+	// no Strava client secret (FR-008). Its only rider data is the routing copy
+	// (feature 046 FR-010 to FR-012): athlete IDs with the teams that hold them,
+	// in one Durable Object in the EU, and only while ROUTING isn't "off".
 	"name": "rynke-points-gateway",
 	"main": "index.ts",
 	"compatibility_date": "2026-08-22",
@@ -38,6 +40,23 @@
 			}
 		]
 	},
+	// The routing copy (feature 046 research R1): one SQLite-backed Durable
+	// Object, created by the deploy, used in the EU jurisdiction. It holds the
+	// copy, each team's list date and the day counts.
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "ROUTING_COPY",
+				"class_name": "RoutingCopy"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"tag": "routing-copy",
+			"new_sqlite_classes": ["RoutingCopy"]
+		}
+	],
 	// A team on this Cloudflare account is reached through its Worker directly,
 	// without a round trip through its public domain. TEAM_SERVICE_<ID>, the
 	// team's Worker name.
@@ -55,6 +74,12 @@
 		// JSON list of { "id", "origin" }: ids unique and the team's TEAM_ID,
 		// origins `https:` (local: `http://<host>:<port>`). The gateway only ever
 		// sends riders and events to these origins (FR-007).
+		// Gateway routing (feature 046 research R2): "off" sends every event to
+		// every team and keeps nothing; "trial" chooses the teams but still sends
+		// to all, marked; "on" routes. Anything else counts as "off". Goes to
+		// "on" only after the paid plan and 14 days of trial without a would-be
+		// miss (FR-018, docs/gateway-switch.md › Routing).
+		"ROUTING": "off",
 		"TEAMS": "[{\"id\":\"hamburg\",\"origin\":\"https://trhh-rynke-coins.link\"},{\"id\":\"europe\",\"origin\":\"https://rynke-points.eu\"}]"
 	},
 	// STRAVA_WEBHOOK_VERIFY_TOKEN: the token in the subscription's callback URL.

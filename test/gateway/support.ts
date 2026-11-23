@@ -1,5 +1,6 @@
-import { env } from "cloudflare:test";
+import { env, runInDurableObject } from "cloudflare:test";
 import { vi } from "vitest";
+import { copyStub } from "../../gateway/copy";
 import type { ForwardMessage, GatewayEnv } from "../../gateway/index";
 
 // Synthetic settings, from vitest.config.ts's gateway project.
@@ -40,5 +41,14 @@ export function stravaEvent(overrides: Record<string, unknown> = {}): string {
 		event_time: 1_790_000_000,
 		updates: {},
 		...overrides,
+	});
+}
+
+/** Empties the routing copy, its list dates and its counts (feature 046). */
+export async function resetCopy(): Promise<void> {
+	await runInDurableObject(copyStub(gatewayEnv), (_instance, state) => {
+		for (const table of ["copy", "lists", "counts"]) {
+			state.storage.sql.exec(`DELETE FROM ${table}`);
+		}
 	});
 }

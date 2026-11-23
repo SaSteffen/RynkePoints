@@ -167,6 +167,33 @@ describe("POST /teams/<id>/held", () => {
 		expect(asked).toEqual([]);
 	});
 
+	// Feature 046 FR-003: the team question never reads the routing copy.
+	it("asks the teams, never the routing copy, even while routing is on", async () => {
+		const untouchable = {
+			...env,
+			ROUTING: "on",
+			ROUTING_COPY: {
+				idFromName: () => {
+					throw new Error("the copy was read");
+				},
+				get: () => {
+					throw new Error("the copy was read");
+				},
+			},
+		} as unknown as GatewayEnv;
+		const asked = teamsAnswer({ [EUROPE]: "connected", [NORDIC]: "none" });
+		const res = await gatewayFetch(
+			new Request("https://gateway.example.test/teams/hamburg/held", {
+				method: "POST",
+				headers: { Authorization: `Bearer ${HAMBURG_TOKEN}` },
+				body: JSON.stringify({ athleteId: 990001 }),
+			}),
+			untouchable,
+		);
+		expect(await res.json()).toEqual({ held: "connected", rider: false });
+		expect(asked.sort()).toEqual([EUROPE, NORDIC]);
+	});
+
 	it("answers none when no other team exists", async () => {
 		const asked = teamsAnswer({});
 		const res = await gatewayFetch(
