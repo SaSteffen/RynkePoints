@@ -58,6 +58,7 @@ const cpu = (owner: string, runs: number, cutOff: number): CpuDay => ({
 	runs,
 	cutOff,
 	p99Us: 1000,
+	p50Us: null,
 });
 
 const quiet: AttentionInputs = {

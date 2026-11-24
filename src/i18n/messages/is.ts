@@ -1319,9 +1319,19 @@ export const is: Catalog = {
 	"admin.recheck.listOrder": "röð listans",
 	"admin.cpu.heading": "Örgjörvatími workera",
 	"admin.cpu.intro":
-		"Hver keyrsla workers (síða, skammtur úr biðröð, áætluð keyrsla) má nota {limit} af örgjörvatíma. Á dag: hve mikið hægustu 1 af 100 keyrslum þurftu, og hve margar keyrslur Cloudflare stöðvaði. Cloudflare fyrirgefur stöku framúrkeyrslu, en stöðvaðar keyrslur eru villur.",
+		"Hver keyrsla workers má nota {limit} af örgjörvatíma. Stöðvaðar keyrslur eru villur, en Cloudflare fyrirgefur stöku framúrkeyrslu. Miðgildi: helmingur keyrslna dagsins var undir því. Hægustu: hægustu 1 af 100 keyrslum.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut} af {runs} stöðvaðar",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut} af {runs} stöðvaðar",
+	"admin.cpu.pairHead": "Miðgildi / hægustu",
+	"admin.cpu.chart": "Miðgildi örgjörvatíma á viku, tímabil {season}: {names}",
+	"admin.cpu.months": "sep|okt|nóv|des|jan|feb|mar|apr|maí|jún|júl|ágú",
+	"admin.cpu.under":
+		"Hæsta daglega miðgildi hverrar viku; punktalínan er dagurinn í dag. Mörkin {limit} á keyrslu liggja langt fyrir ofan þetta svið.",
+	"admin.cpu.underLimit":
+		"Hæsta daglega miðgildi hverrar viku; punktalínan er dagurinn í dag, rauða strikalínan mörkin {limit} á keyrslu.",
+	"admin.cpu.seasonNone":
+		"Ekkert miðgildi hefur enn verið skráð fyrir þetta tímabil. Grafið fyllist frá fyrsta skráða degi.",
 	"admin.cpu.none": "Engar örgjörvatölur skráðar enn.",
 	"admin.cpu.unavailable":
 		"Ekki tókst að sækja örgjörvatölur Cloudflare síðast. Taflan sýnir þá daga sem hafa verið skráðir hingað til.",

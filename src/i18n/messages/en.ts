@@ -1310,9 +1310,19 @@ export const en: Catalog = {
 	"admin.recheck.listOrder": "list order",
 	"admin.cpu.heading": "Workers' CPU time",
 	"admin.cpu.intro":
-		"Each run of a Worker (a page, a queue batch, a scheduled run) may use {limit} of CPU. Per day: how much the slowest 1 in 100 runs needed, and how many runs Cloudflare cut off. Cloudflare forgives the odd overrun; runs cut off are failures.",
+		"Each run of a Worker may use {limit} of CPU. Runs cut off are failures; Cloudflare forgives the odd overrun. Median: half of a day's runs stayed below it. Slowest: the slowest 1 in 100 runs.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut} of {runs} cut off",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut} of {runs} cut off",
+	"admin.cpu.pairHead": "Median / slowest",
+	"admin.cpu.chart": "Median CPU time per week, season {season}: {names}",
+	"admin.cpu.months": "Sep|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug",
+	"admin.cpu.under":
+		"Each week's highest daily median; the dotted line is today. The limit of {limit} per run lies far above this range.",
+	"admin.cpu.underLimit":
+		"Each week's highest daily median; the dotted line is today, the red dashed one the limit of {limit} per run.",
+	"admin.cpu.seasonNone":
+		"No median recorded for this season yet. The graph fills from the first recorded day.",
 	"admin.cpu.none": "No CPU figures recorded yet.",
 	"admin.cpu.unavailable":
 		"Cloudflare's CPU figures couldn't be fetched last time. The table shows the days recorded so far.",

@@ -181,6 +181,8 @@ export interface CpuFigures {
 	cutOff?: number;
 	/** Microseconds, as Cloudflare reports them. */
 	cpuTimeP99?: number;
+	/** The median, microseconds (feature 049). */
+	cpuTimeP50?: number;
 }
 
 /** A body for `CPU_QUERY`: one group per Worker and day, split by status. */
@@ -192,7 +194,10 @@ export function cpuBody(workers: readonly CpuFigures[]): unknown {
 					{
 						runs: workers.map((w) => ({
 							sum: { requests: w.runs },
-							quantiles: { cpuTimeP99: w.cpuTimeP99 ?? 0 },
+							quantiles: {
+								cpuTimeP99: w.cpuTimeP99 ?? 0,
+								cpuTimeP50: w.cpuTimeP50 ?? 0,
+							},
 							dimensions: { date: w.date, scriptName: w.scriptName },
 						})),
 						outcomes: workers.flatMap((w) => [

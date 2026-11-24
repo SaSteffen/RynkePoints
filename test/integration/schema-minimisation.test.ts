@@ -235,6 +235,8 @@ const COLUMNS: Record<string, string[]> = {
 		"cut_off",
 		"cpu_p99_us",
 		"recorded_at",
+		// Feature 049: the daily median, NULL when none was recorded.
+		"cpu_p50_us",
 	],
 	blocked_athletes: ["athlete_id"],
 	removal_log: ["id", "removed_at", "administrator_id"],

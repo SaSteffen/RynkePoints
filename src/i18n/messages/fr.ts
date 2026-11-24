@@ -1378,9 +1378,21 @@ export const fr: Catalog = {
 	"admin.recheck.listOrder": "ordre de la liste",
 	"admin.cpu.heading": "Temps CPU des Workers",
 	"admin.cpu.intro":
-		"Chaque exécution d'un Worker (une page, un lot de la file, une exécution planifiée) peut utiliser {limit} de CPU. Par jour\u00a0: le temps qu'ont pris les exécutions les plus lentes (1 sur 100), et le nombre d'exécutions interrompues par Cloudflare. Cloudflare tolère un dépassement occasionnel\u00a0; une exécution interrompue est un échec.",
+		"Chaque exécution d'un Worker peut utiliser {limit} de CPU. Une exécution interrompue est un échec\u00a0; Cloudflare tolère un dépassement occasionnel. Médiane\u00a0: la moitié des exécutions d'une journée est restée en dessous. Plus lentes\u00a0: les exécutions les plus lentes, 1 sur 100.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut} sur {runs} interrompues",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut} sur {runs} interrompues",
+	"admin.cpu.pairHead": "Médiane / plus lentes",
+	"admin.cpu.chart":
+		"Temps CPU médian par semaine, saison {season}\u00a0: {names}",
+	"admin.cpu.months":
+		"sept.|oct.|nov.|déc.|janv.|févr.|mars|avr.|mai|juin|juil.|août",
+	"admin.cpu.under":
+		"Pour chaque semaine, la médiane journalière la plus haute\u00a0; la ligne pointillée marque aujourd'hui. La limite de {limit} par exécution se situe bien au-dessus de cette plage.",
+	"admin.cpu.underLimit":
+		"Pour chaque semaine, la médiane journalière la plus haute\u00a0; la ligne pointillée marque aujourd'hui, la ligne rouge en tirets la limite de {limit} par exécution.",
+	"admin.cpu.seasonNone":
+		"Aucune médiane n'est encore enregistrée pour cette saison. Le graphique se remplit à partir du premier jour enregistré.",
 	"admin.cpu.none": "Aucun chiffre CPU enregistré pour l'instant.",
 	"admin.cpu.unavailable":
 		"Les chiffres CPU de Cloudflare n'ont pas pu être récupérés la dernière fois. Le tableau montre les jours déjà enregistrés.",

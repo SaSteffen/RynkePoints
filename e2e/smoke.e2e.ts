@@ -654,6 +654,17 @@ test("an administrator uses the admin pages", async ({ page, browserName }) => {
 	);
 	await expect(page.locator(".usage-gap")).toHaveCount(1);
 
+	// The CPU row's season graph says a past week's three medians (feature 049).
+	await page.locator("#cpu > details > summary").click();
+	const season = page.locator("#cpu .usage-graph");
+	await season.hover({ position: { x: 3, y: 60 } });
+	const week = season.locator(".usage-tip");
+	await expect(week).toContainText(/01\.09\.–0\d\.09\.\d{4}/);
+	for (const owner of ["Dieses Team", "Anderes Team", "Gemeinsam (Gateway)"]) {
+		await expect(week).toContainText(owner);
+	}
+	await expect(page.locator(".usage-chart")).toHaveCount(8);
+
 	const rider = REMOVED_RIDER[browserName];
 	await page.goto("/admin/riders");
 	const row = page.locator(`li[data-name='${rider.toLowerCase()}']`);

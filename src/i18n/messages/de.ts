@@ -1357,9 +1357,19 @@ export const de = {
 	"admin.recheck.listOrder": "Reihenfolge der Liste",
 	"admin.cpu.heading": "CPU-Zeit der Worker",
 	"admin.cpu.intro":
-		"Jeder Lauf eines Workers (eine Seite, ein Stapel aus der Warteschlange, ein geplanter Lauf) darf {limit} CPU-Zeit nutzen. Je Tag: wie viel die langsamsten 1 von 100 Läufen brauchten, und wie viele Läufe Cloudflare abgebrochen hat. Einzelne Ausreißer verzeiht Cloudflare, abgebrochene Läufe sind Fehler.",
+		"Jeder Lauf eines Workers darf {limit} CPU-Zeit nutzen. Abgebrochene Läufe sind Fehler, einzelne Ausreißer verzeiht Cloudflare. Median: Die Hälfte der Läufe eines Tages blieb darunter. Langsamste: die langsamsten 1 von 100 Läufen.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut} von {runs} abgebrochen",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut} von {runs} abgebrochen",
+	"admin.cpu.pairHead": "Median / langsamste",
+	"admin.cpu.chart": "Median-CPU-Zeit je Woche, Saison {season}: {names}",
+	"admin.cpu.months": "Sep|Okt|Nov|Dez|Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug",
+	"admin.cpu.under":
+		"Je Woche der höchste Tages-Median, die gepunktete Linie ist heute. Das Limit von {limit} je Lauf liegt weit über diesem Ausschnitt.",
+	"admin.cpu.underLimit":
+		"Je Woche der höchste Tages-Median, die gepunktete Linie ist heute, die rote gestrichelte das Limit von {limit} je Lauf.",
+	"admin.cpu.seasonNone":
+		"Für diese Saison ist noch kein Median aufgezeichnet. Die Grafik füllt sich ab dem ersten aufgezeichneten Tag.",
 	"admin.cpu.none": "Bisher sind keine CPU-Zahlen aufgezeichnet.",
 	"admin.cpu.unavailable":
 		"Die CPU-Zahlen von Cloudflare konnten zuletzt nicht abgerufen werden. Die Tabelle zeigt die bisher aufgezeichneten Tage.",
