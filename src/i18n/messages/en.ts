@@ -1109,6 +1109,10 @@ export const en: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Admin",
+	"nav.admin.marks": {
+		one: "Admin, {n} needs your attention",
+		other: "Admin, {n} need your attention",
+	},
 	"admin.switch.label": "Admin views",
 	"admin.switch.usage": "Usage",
 	"admin.switch.riders": "Riders and Roles",
@@ -1215,6 +1219,33 @@ export const en: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflare's figures are unavailable right now. These are the last known values.",
 	"admin.refresh": "Update now",
+	"admin.strava.figure.strava_read_daily": "Reads per day",
+	"admin.strava.figure.strava_all_daily": "Requests per day",
+	"admin.strava.figure.strava_read_15m": "Reads per 15 minutes",
+	"admin.strava.figure.strava_all_15m": "Requests per 15 minutes",
+	"admin.betrieb.heading": "Operations",
+	"admin.betrieb.when": "last 30 days",
+	"admin.betrieb.noFigures": "No figures yet",
+	"admin.waiting.none": "Nothing is waiting.",
+	"admin.waiting.note": "Work the Strava budget holds back tries again later.",
+	"admin.calls.today": {
+		one: "Today {n} call by this team",
+		other: "Today {n} calls by this team",
+	},
+	"admin.calls.heldToday": "{n} held back",
+	"admin.calls.heldNone": "nothing held back",
+	"admin.recheck.line":
+		"{allowance} checks a day · {riders} active riders · {last}",
+	"admin.recheck.lastRun": "last on {date}",
+	"admin.recheck.notRun": "not run yet",
+	"admin.routing.today": "Today {n} passed on",
+	"admin.routing.todayCalm": "Today {n} passed on, nothing unusual",
+	"admin.cpu.lineNone": "No figures yet · limit {limit} per run",
+	"admin.cpu.line": "Today {cut} of {runs} runs cut off",
+	"admin.switch.usage.marks": {
+		one: "Usage, {n} needs your attention",
+		other: "Usage, {n} need your attention",
+	},
 	"admin.lage.heading": "Needs your attention",
 	"admin.lage.calm": "All within limits",
 	"admin.lage.calmLine":
@@ -1339,8 +1370,6 @@ export const en: Catalog = {
 		"Once per figure and level: from its heads-up threshold, at 80\u00a0% and at 95\u00a0%.",
 	"admin.alerts.off":
 		"You get no notifications about usage. This page still marks the figures.",
-	"admin.alerts.turnOff": "Turn off usage alerts",
-	"admin.alerts.turnOn": "Turn on usage alerts",
 	"admin.history.days": "Every day",
 	"admin.history.hideDays": "Hide days",
 	"admin.history.none": "Nothing recorded yet. Recording runs once an hour.",

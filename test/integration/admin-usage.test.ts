@@ -178,7 +178,8 @@ describe("the figures' rows (feature 048 US3)", () => {
 			ownReadDaily: 900,
 		});
 		const row = summaryOf(figure(await page(), "strava_read_daily"));
-		expect(row).toContain(`>${de["admin.allowance.strava_read_daily"]}<`);
+		// Under the heading "Strava", without "Strava-" in front.
+		expect(row).toContain(">Lesezugriffe pro Tag<");
 		expect(row).toContain(
 			'<span class="usage-mark usage-mark-early">Hinweis</span>',
 		);
@@ -483,8 +484,11 @@ describe("waiting work (US3 scenario 3, FR-020)", () => {
 		}
 	};
 
-	it("shows nothing when nothing waits", async () => {
-		expect(await page()).not.toContain(de["admin.waiting.heading"]);
+	it("says nothing waits, without a value", async () => {
+		const row = summaryOf(figure(await page(), "waiting" as AllowanceId));
+		expect(row).toContain(`>${de["admin.waiting.heading"]}<`);
+		expect(row).toContain('<span class="settings-sub">Nichts wartet.</span>');
+		expect(row).not.toContain("settings-value");
 	});
 
 	it("gets the singular right", async () => {
@@ -500,9 +504,60 @@ describe("waiting work (US3 scenario 3, FR-020)", () => {
 		await setStravaUsage({ observedAt: NOW - 60 });
 		await wait(3);
 		const text = await page();
-		expect(text).toContain(de["admin.waiting.heading"]);
-		expect(text).toContain("3 Einträge warten, fertig in etwa 15 Minuten.");
+		const row = summaryOf(figure(text, "waiting" as AllowanceId));
+		expect(row).toContain("3 Einträge warten, fertig in etwa 15 Minuten.");
+		expect(row).toContain('<span class="settings-value">3</span>');
 		expect(text).not.toContain("Synthetica");
+	});
+});
+
+describe("Betrieb (feature 048 US4)", () => {
+	const betrieb = (text: string) => {
+		const start = text.indexOf(
+			'<section class="settings-section" id="betrieb"',
+		);
+		return start === -1
+			? "missing"
+			: text.slice(start, text.indexOf("</section>", start));
+	};
+
+	it("always shows its five rows, in order, under its head", async () => {
+		const text = betrieb(await page());
+		expect(text).toContain(
+			`<h2 id="betrieb-heading">Betrieb <small>letzte 30 Tage</small></h2>`,
+		);
+		expect(
+			[...text.matchAll(/<li id="([^"]+)"><details>/g)].map((m) => m[1]),
+		).toEqual(["waiting", "strava-calls", "recheck", "routing", "cpu"]);
+	});
+
+	it("says each one's state in one line", async () => {
+		const text = await page();
+		const sub = (id: string) =>
+			summaryOf(figure(text, id as AllowanceId)).match(
+				/<span class="settings-sub">([^<]*)<\/span>/,
+			)?.[1];
+		expect(sub("strava-calls")).toBe(
+			"Heute 0 Aufrufe dieses Teams · nichts zurückgehalten",
+		);
+		expect(sub("recheck")).toBe(
+			"150 Prüfungen am Tag · 0 aktive Rider · noch nicht gelaufen",
+		);
+		expect(sub("routing")).toBe("Noch keine Zahlen");
+		expect(sub("cpu")).toBe(`Noch keine Zahlen · Limit 10${NB}ms je Lauf`);
+	});
+
+	it("keeps today's section inside the opened row", async () => {
+		const row = figure(await page(), "cpu" as AllowanceId);
+		expect(row).toContain('<div class="settings-panel is-wide">');
+		expect(row).toContain(de["admin.cpu.none"]);
+		expect(row).not.toContain("<h2>");
+	});
+
+	it("opens Strava-Aufrufe when a day is asked for", async () => {
+		const text = await page("de", `/admin?calls=${TODAY}`);
+		expect(text).toContain('<li id="strava-calls"><details open>');
+		expect(text).toContain('<li id="recheck"><details>');
 	});
 });
 
@@ -555,10 +610,25 @@ describe("usage alerts switch (FR-039)", () => {
 			.bind(athleteId)
 			.first("admin_alerts");
 
+	/** The switch row, in its own section under Betrieb (feature 048 R11). */
+	const alerts = (text: string) =>
+		text.match(
+			/<section class="settings-section" id="alerts"[\s\S]*?<\/section>/,
+		)?.[0] ?? "";
+
 	it("is on by default", async () => {
 		expect(await stored(ADMIN)).toBe(1);
-		const text = await page();
-		expect(text).toContain(de["admin.alerts.turnOff"]);
+		const text = alerts(await page());
+		expect(text).toContain(
+			`<h2 id="alerts-heading">${de["admin.alerts.heading"]}</h2>`,
+		);
+		expect(text).toContain('<form method="post" action="/admin/alerts">');
+		expect(text).toContain(
+			'<input type="hidden" name="admin_alerts" value="off">',
+		);
+		expect(text).toContain(
+			'<button role="switch" aria-checked="true" aria-labelledby="alerts-on"></button>',
+		);
 		// Feature 048 FR-011: the switch names the three levels.
 		expect(text).toContain(
 			"Benachrichtigung bei Hinweis, Warnung und kritisch",
@@ -573,11 +643,26 @@ describe("usage alerts switch (FR-039)", () => {
 		expect(res.headers.get("Location")).toBe("/admin");
 		expect(await stored(ADMIN)).toBe(0);
 		expect(await stored(ATHLETE_B)).toBe(1);
-		const text = await page();
-		expect(text).toContain(de["admin.alerts.turnOn"]);
+		const text = alerts(await page());
+		expect(text).toContain('aria-checked="false"');
+		expect(text).toContain(
+			'<input type="hidden" name="admin_alerts" value="on">',
+		);
 		expect(text).toContain(de["admin.alerts.off"]);
 		await set(ADMIN, "on");
 		expect(await stored(ADMIN)).toBe(1);
+	});
+
+	it("says under it when no device gets notifications, and when recording began", async () => {
+		const without = alerts(await page());
+		expect(without).toContain(
+			`<span class="settings-sub is-warn">${de["admin.lage.deviceLine"]}</span>`,
+		);
+		expect(without).toContain(
+			`<p class="settings-note">${de["admin.history.none"]}</p>`,
+		);
+		await seedSubscription(ADMIN, pushEndpoint(1));
+		expect(alerts(await page())).not.toContain("is-warn");
 	});
 
 	it("ignores anything but on and off", async () => {

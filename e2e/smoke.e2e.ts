@@ -624,11 +624,19 @@ test("an administrator uses the admin pages", async ({ page, browserName }) => {
 	await page.goto("/admin");
 	await expect(page.locator(".usage-mark-warning").first()).toBeVisible();
 	await expect(page.locator(".usage-mark-critical").first()).toBeVisible();
+	// The marks are counted on the Admin tab (feature 048).
+	await expect(
+		page.locator('nav.app-nav a[href="/admin/riders"] .count-badge'),
+	).toBeVisible();
 	const alerts = page.locator('form[action="/admin/alerts"]');
+	const toggle = alerts.locator("button[role=switch]");
+	await expect(toggle).toHaveAttribute("aria-checked", "true");
 	await expect(alerts.locator("input[name=admin_alerts]")).toHaveValue("off");
-	await alerts.locator("button").click();
+	await toggle.click();
+	await expect(toggle).toHaveAttribute("aria-checked", "false");
 	await expect(alerts.locator("input[name=admin_alerts]")).toHaveValue("on");
-	await alerts.locator("button").click();
+	await toggle.click();
+	await expect(toggle).toHaveAttribute("aria-checked", "true");
 	await expect(alerts.locator("input[name=admin_alerts]")).toHaveValue("off");
 
 	await page.goto("/admin");
@@ -640,6 +648,10 @@ test("an administrator uses the admin pages", async ({ page, browserName }) => {
 	await expect(graph.locator(".usage-tip")).toContainText(/1[.,]000/);
 	await page.locator(".usage-table-link").first().click();
 	await expect(page).toHaveURL(/\/admin\?days=strava_read_daily#/);
+	await expect(page.locator("#strava_read_daily > details")).toHaveAttribute(
+		"open",
+		"",
+	);
 	await expect(page.locator(".usage-gap")).toHaveCount(1);
 
 	const rider = REMOVED_RIDER[browserName];

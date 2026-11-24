@@ -31,7 +31,7 @@ import {
 	daysBefore,
 	utcDay,
 } from "./allowances";
-import { type AttentionItem, attentionItems, markCount } from "./attention";
+import { type AttentionItem, attentionItems } from "./attention";
 import {
 	connectedFigure,
 	type Figure,
@@ -183,12 +183,4 @@ export async function readUsageState(
 			hasDevice,
 		}),
 	};
-}
-
-/** The Admin tab's number: the marks in the list's head (feature 048 FR-020). */
-export async function countUsageMarks(
-	ctx: Ctx,
-	athleteId: string,
-): Promise<number> {
-	return markCount((await readUsageState(ctx, athleteId)).items).total;
 }

@@ -1122,6 +1122,10 @@ export const nl: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Beheer",
+	"nav.admin.marks": {
+		one: "Beheer, {n} vraagt je aandacht",
+		other: "Beheer, {n} vragen je aandacht",
+	},
 	"admin.switch.label": "Beheerweergaven",
 	"admin.switch.usage": "Gebruik",
 	"admin.switch.riders": "Renners en rollen",
@@ -1229,6 +1233,34 @@ export const nl: Catalog = {
 	"admin.cloudflare.unavailable":
 		"De cijfers van Cloudflare zijn nu niet beschikbaar. Dit zijn de laatst bekende waarden.",
 	"admin.refresh": "Nu bijwerken",
+	"admin.strava.figure.strava_read_daily": "Leesverzoeken per dag",
+	"admin.strava.figure.strava_all_daily": "Verzoeken per dag",
+	"admin.strava.figure.strava_read_15m": "Leesverzoeken per 15 minuten",
+	"admin.strava.figure.strava_all_15m": "Verzoeken per 15 minuten",
+	"admin.betrieb.heading": "Bedrijf",
+	"admin.betrieb.when": "laatste 30 dagen",
+	"admin.betrieb.noFigures": "Nog geen cijfers",
+	"admin.waiting.none": "Er wacht niets.",
+	"admin.waiting.note":
+		"Werk dat het Strava-budget tegenhoudt, probeert het later opnieuw.",
+	"admin.calls.today": {
+		one: "Vandaag {n} aanroep van dit team",
+		other: "Vandaag {n} aanroepen van dit team",
+	},
+	"admin.calls.heldToday": "{n} tegengehouden",
+	"admin.calls.heldNone": "niets tegengehouden",
+	"admin.recheck.line":
+		"{allowance} controles per dag · {riders} actieve renners · {last}",
+	"admin.recheck.lastRun": "laatst op {date}",
+	"admin.recheck.notRun": "nog niet gedraaid",
+	"admin.routing.today": "Vandaag {n} doorgegeven",
+	"admin.routing.todayCalm": "Vandaag {n} doorgegeven, niets bijzonders",
+	"admin.cpu.lineNone": "Nog geen cijfers · limiet {limit} per run",
+	"admin.cpu.line": "Vandaag {cut} van {runs} runs afgebroken",
+	"admin.switch.usage.marks": {
+		one: "Gebruik, {n} vraagt je aandacht",
+		other: "Gebruik, {n} vragen je aandacht",
+	},
 	"admin.lage.heading": "Dit vraagt je aandacht",
 	"admin.lage.calm": "Alles binnen de grenzen",
 	"admin.lage.calmLine":
@@ -1356,8 +1388,6 @@ export const nl: Catalog = {
 		"Eén keer per cijfer en niveau: vanaf de let-op-grens, bij 80 % en bij 95 %.",
 	"admin.alerts.off":
 		"Je krijgt geen meldingen over het gebruik. Deze pagina markeert de cijfers wel.",
-	"admin.alerts.turnOff": "Gebruiksmeldingen uitzetten",
-	"admin.alerts.turnOn": "Gebruiksmeldingen aanzetten",
 	"admin.history.days": "Elke dag",
 	"admin.history.hideDays": "Dagen verbergen",
 	"admin.history.none":

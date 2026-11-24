@@ -37,7 +37,7 @@ async function page(query = "", lang = "de", athleteId = ADMIN) {
 function section(text: string): string {
 	return (
 		text.match(
-			/<section class="card usage-source" id="strava-calls">[\s\S]*?<\/section>/,
+			/<li id="strava-calls"><details[\s\S]*?<\/details><\/li>/,
 		)?.[0] ?? ""
 	);
 }
@@ -75,10 +75,21 @@ describe("the Strava calls section", () => {
 		expect(text).not.toContain("<table>");
 	});
 
-	it("comes after the ride re-check's", async () => {
+	it("comes after the waiting work and before the ride re-check (feature 048)", async () => {
 		const text = await page();
-		expect(text.indexOf('id="strava-calls"')).toBeGreaterThan(
-			text.indexOf('id="recheck"'),
+		expect(text.indexOf('<li id="strava-calls">')).toBeGreaterThan(
+			text.indexOf('<li id="waiting">'),
+		);
+		expect(text.indexOf('<li id="strava-calls">')).toBeLessThan(
+			text.indexOf('<li id="recheck">'),
+		);
+	});
+
+	it("names today's calls and held back in its line", async () => {
+		await seedCalls(TODAY, "ride-event", "GET /activities/{id}", 5, 2);
+		const text = await page();
+		expect(text).toContain(
+			'<span class="settings-sub">Heute 5 Aufrufe dieses Teams · 2 zurückgehalten</span>',
 		);
 	});
 

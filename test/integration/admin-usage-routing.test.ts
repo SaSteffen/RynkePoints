@@ -34,9 +34,7 @@ async function page(lang = "de") {
 
 function section(text: string): string {
 	return (
-		text.match(
-			/<section class="card usage-source" id="routing">[\s\S]*?<\/section>/,
-		)?.[0] ?? ""
+		text.match(/<li id="routing"><details[\s\S]*?<\/details><\/li>/)?.[0] ?? ""
 	);
 }
 
@@ -154,13 +152,20 @@ describe("the Gateway routing section", () => {
 			'Gateway-Routing: 22.11.2026</span><span class="settings-sub">Zu viele Meldungen an alle Teams</span>',
 		);
 		expect(text).toContain(">2 Warnungen<");
+		// Its row carries the mark, and says today's copy without "nothing unusual".
+		expect(text).toContain(
+			'<span class="settings-title">Gateway-Routing<span class="usage-mark usage-mark-warning">Warnung</span></span><span class="settings-sub">Heute 0 weitergegeben</span>',
+		);
 	});
 
-	it("leaves a day marked before yesterday out of the list (feature 048)", async () => {
+	it("leaves a day marked before yesterday out of the list and the row's mark (feature 048)", async () => {
 		await count("2026-11-21", "hamburg", "missed", 1);
 		const text = await page();
 		expect(rows(text)[0]?.[0]).toBe("21.11.2026 Warnung");
 		expect(text).not.toContain('href="#routing"');
+		expect(text).toContain(
+			'<span class="settings-title">Gateway-Routing</span><span class="settings-sub">Heute 0 weitergegeben, keine Auffälligkeit</span>',
+		);
 	});
 
 	it("lists no day without a mark", async () => {

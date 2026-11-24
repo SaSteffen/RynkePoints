@@ -1105,6 +1105,10 @@ export const nb: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Admin",
+	"nav.admin.marks": {
+		one: "Admin, {n} trenger oppmerksomheten din",
+		other: "Admin, {n} trenger oppmerksomheten din",
+	},
 	"admin.switch.label": "Admin-visninger",
 	"admin.switch.usage": "Bruk",
 	"admin.switch.riders": "Ryttere og roller",
@@ -1210,6 +1214,34 @@ export const nb: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflares tall er ikke tilgjengelige akkurat nå. Dette er de sist kjente verdiene.",
 	"admin.refresh": "Oppdater nå",
+	"admin.strava.figure.strava_read_daily": "Lesinger per dag",
+	"admin.strava.figure.strava_all_daily": "Forespørsler per dag",
+	"admin.strava.figure.strava_read_15m": "Lesinger per 15 minutter",
+	"admin.strava.figure.strava_all_15m": "Forespørsler per 15 minutter",
+	"admin.betrieb.heading": "Drift",
+	"admin.betrieb.when": "siste 30 dager",
+	"admin.betrieb.noFigures": "Ingen tall ennå",
+	"admin.waiting.none": "Ingenting venter.",
+	"admin.waiting.note":
+		"Arbeid som Strava-budsjettet holder tilbake, prøver igjen senere.",
+	"admin.calls.today": {
+		one: "I dag {n} kall fra dette laget",
+		other: "I dag {n} kall fra dette laget",
+	},
+	"admin.calls.heldToday": "{n} holdt tilbake",
+	"admin.calls.heldNone": "ingenting holdt tilbake",
+	"admin.recheck.line":
+		"{allowance} kontroller om dagen · {riders} aktive ryttere · {last}",
+	"admin.recheck.lastRun": "sist {date}",
+	"admin.recheck.notRun": "ikke kjørt ennå",
+	"admin.routing.today": "I dag {n} videresendt",
+	"admin.routing.todayCalm": "I dag {n} videresendt, ingenting uvanlig",
+	"admin.cpu.lineNone": "Ingen tall ennå · grense {limit} per kjøring",
+	"admin.cpu.line": "I dag {cut} av {runs} kjøringer avbrutt",
+	"admin.switch.usage.marks": {
+		one: "Bruk, {n} trenger oppmerksomheten din",
+		other: "Bruk, {n} trenger oppmerksomheten din",
+	},
 	"admin.lage.heading": "Trenger din oppmerksomhet",
 	"admin.lage.calm": "Alt innenfor rammene",
 	"admin.lage.calmLine":
@@ -1337,8 +1369,6 @@ export const nb: Catalog = {
 		"Én gang per tall og nivå: fra obs-grensen, ved 80 % og ved 95 %.",
 	"admin.alerts.off":
 		"Du får ingen varsler om bruk. Denne siden markerer fortsatt tallene.",
-	"admin.alerts.turnOff": "Slå av bruksvarsler",
-	"admin.alerts.turnOn": "Slå på bruksvarsler",
 	"admin.history.days": "Hver dag",
 	"admin.history.hideDays": "Skjul dager",
 	"admin.history.none":

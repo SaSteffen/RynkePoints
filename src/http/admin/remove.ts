@@ -6,7 +6,7 @@ import { queueReport } from "../../routing/report";
 import { withdrawStoredGrant } from "../../strava/withdraw";
 import { html } from "../html";
 import { redirect } from "../redirect";
-import { adminPage, adminSwitch, requireAdminPost } from "./access";
+import { adminPage, adminSwitch, requireAdminPost, usageMarks } from "./access";
 
 // Removing and blocking a rider (feature 025 US4, FR-021 to FR-024, research R6).
 // Only a rider the overview lists, never oneself: leaving is `/me/disconnect`.
@@ -37,7 +37,8 @@ export function handleRemoveConfirm(
 	athleteId: string,
 ): Promise<Response> {
 	const path = `/admin/riders/${athleteId}/remove`;
-	return adminPage(request, ctx, i18n, path, async ({ rider }) => {
+	return adminPage(request, ctx, i18n, path, async (shell) => {
+		const { rider } = shell;
 		if (athleteId === rider.athleteId) return back("error", "self");
 		const target = await listedRider(ctx.env.DB, athleteId);
 		if (target === null) return back("error", "unknown");
@@ -48,7 +49,7 @@ export function handleRemoveConfirm(
 		const explain = target.guest
 			? "admin.remove.explain.guest"
 			: "admin.remove.explain";
-		return html`${adminSwitch(i18n, "riders")}<section class="card">
+		return html`${adminSwitch(i18n, "riders", await usageMarks(shell))}<section class="card">
 <h2>${i18n.t("admin.remove.title", { name: target.firstName })}</h2>
 <p>${i18n.t(explain)}</p>
 <form method="post" action="${path}"><button class="danger">${i18n.t("admin.remove.confirm")}</button></form>

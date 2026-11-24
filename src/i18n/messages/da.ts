@@ -1103,6 +1103,10 @@ export const da: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Admin",
+	"nav.admin.marks": {
+		one: "Admin, {n} kræver din opmærksomhed",
+		other: "Admin, {n} kræver din opmærksomhed",
+	},
 	"admin.switch.label": "Admin-visninger",
 	"admin.switch.usage": "Forbrug",
 	"admin.switch.riders": "Ryttere og roller",
@@ -1208,6 +1212,34 @@ export const da: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflares tal er ikke tilgængelige lige nu. Dette er de sidst kendte værdier.",
 	"admin.refresh": "Opdater nu",
+	"admin.strava.figure.strava_read_daily": "Læsninger pr. dag",
+	"admin.strava.figure.strava_all_daily": "Forespørgsler pr. dag",
+	"admin.strava.figure.strava_read_15m": "Læsninger pr. 15 minutter",
+	"admin.strava.figure.strava_all_15m": "Forespørgsler pr. 15 minutter",
+	"admin.betrieb.heading": "Drift",
+	"admin.betrieb.when": "sidste 30 dage",
+	"admin.betrieb.noFigures": "Ingen tal endnu",
+	"admin.waiting.none": "Intet venter.",
+	"admin.waiting.note":
+		"Arbejde, som Strava-budgettet holder tilbage, prøver igen senere.",
+	"admin.calls.today": {
+		one: "I dag {n} kald fra dette hold",
+		other: "I dag {n} kald fra dette hold",
+	},
+	"admin.calls.heldToday": "{n} holdt tilbage",
+	"admin.calls.heldNone": "intet holdt tilbage",
+	"admin.recheck.line":
+		"{allowance} kontroller om dagen · {riders} aktive ryttere · {last}",
+	"admin.recheck.lastRun": "sidst den {date}",
+	"admin.recheck.notRun": "ikke kørt endnu",
+	"admin.routing.today": "I dag {n} videregivet",
+	"admin.routing.todayCalm": "I dag {n} videregivet, intet usædvanligt",
+	"admin.cpu.lineNone": "Ingen tal endnu · grænse {limit} pr. kørsel",
+	"admin.cpu.line": "I dag {cut} af {runs} kørsler afbrudt",
+	"admin.switch.usage.marks": {
+		one: "Forbrug, {n} kræver din opmærksomhed",
+		other: "Forbrug, {n} kræver din opmærksomhed",
+	},
 	"admin.lage.heading": "Kræver din opmærksomhed",
 	"admin.lage.calm": "Alt inden for rammerne",
 	"admin.lage.calmLine":
@@ -1336,8 +1368,6 @@ export const da: Catalog = {
 		"Én gang pr. tal og niveau: fra obs-grænsen, ved 80 % og ved 95 %.",
 	"admin.alerts.off":
 		"Du får ingen notifikationer om forbrug. Denne side markerer stadig tallene.",
-	"admin.alerts.turnOff": "Slå forbrugsadvarsler fra",
-	"admin.alerts.turnOn": "Slå forbrugsadvarsler til",
 	"admin.history.days": "Hver dag",
 	"admin.history.hideDays": "Skjul dage",
 	"admin.history.none":

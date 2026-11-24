@@ -197,3 +197,18 @@ export const DATABASE = icon(
 export const LIST = icon(
 	'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>',
 );
+
+/** An hourglass, for the work waiting on the Strava budget. */
+export const HOURGLASS = icon(
+	'<path d="M6.5 2.5h11M6.5 21.5h11M7.5 2.5c0 5 9 5 9 9.5s-9 4.5-9 9.5M16.5 2.5c0 5-9 5-9 9.5"/>',
+);
+
+/** A route between two points, for the gateway's routing. */
+export const ROUTE = icon(
+	'<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5"/>',
+);
+
+/** A chip, for the Workers' CPU time. */
+export const CHIP = icon(
+	'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9.5 2.5v3.5M14.5 2.5v3.5M9.5 18v3.5M14.5 18v3.5M2.5 9.5H6M2.5 14.5H6M18 9.5h3.5M18 14.5h3.5"/>',
+);

@@ -61,20 +61,25 @@ import {
 import { type Peer, usagePeers } from "../../usage/peers";
 import { recordUsage } from "../../usage/record";
 import { SHARED } from "../../usage/split";
-import { readUsageState } from "../../usage/state";
+import { readUsageState, type UsageState } from "../../usage/state";
 import { thresholdBars } from "../charts";
 import { html, type SafeHtml } from "../html";
 import {
+	BELL,
 	BELL_OFF,
 	BOLT,
 	CHECK_CIRCLE,
+	CHIP,
 	CLOCK,
 	CLOUD,
 	CRITICAL,
 	DATABASE,
+	HOURGLASS,
 	INFO,
 	LIST,
 	PEOPLE,
+	REFRESH,
+	ROUTE,
 	WARNING,
 } from "../icons";
 import { redirect } from "../redirect";
@@ -84,6 +89,7 @@ import {
 	amount,
 	moment,
 	requireAdminPost,
+	usageMarks,
 	whole,
 } from "./access";
 import { type DailyHistory, dailyHistory, type HistoryTeams } from "./history";
@@ -231,6 +237,22 @@ function whose(i18n: I18n, figure: Figure, teams: Teams): string {
 	].join(" · ");
 }
 
+/**
+ * A figure's name in its row: under the heading "Strava", Strava's own figures
+ * go without the "Strava" in front; everywhere else they keep it.
+ */
+function rowName(i18n: I18n, id: AllowanceId): string {
+	switch (id) {
+		case "strava_read_daily":
+		case "strava_all_daily":
+		case "strava_read_15m":
+		case "strava_all_15m":
+			return i18n.t(`admin.strava.figure.${id}`);
+		default:
+			return i18n.t(`admin.allowance.${id}`);
+	}
+}
+
 /** A 15-minute figure at 0 %, hidden on a phone (FR-016). */
 const isQuiet = (figure: Figure) => isWindow(figure.id) && figure.percent === 0;
 
@@ -287,7 +309,7 @@ function figureRow(
 	});
 	const level = figure.level === "ok" ? null : html` lvl-${figure.level}`;
 	return html`<li id="${figure.id}"${isQuiet(figure) ? html` class="is-quiet"` : null}><details${open ? html` open` : null}>
-<summary class="settings-row meter usage-${figure.level}"><span class="settings-icon${level}">${FIGURE_ICONS[figure.id]}</span><span class="settings-text"><span class="settings-title">${i18n.t(`admin.allowance.${figure.id}`)}${mark(i18n, figure)}</span>${thresholdBars(figure.used, figure.limit, null, ticks)}<span class="settings-sub">${numbers} · ${whose(i18n, figure, teams)}</span></span><span class="settings-value">${i18n.t("admin.history.percent", { n: whole(i18n, figure.percent) })}</span></summary>
+<summary class="settings-row meter usage-${figure.level}"><span class="settings-icon${level}">${FIGURE_ICONS[figure.id]}</span><span class="settings-text"><span class="settings-title">${rowName(i18n, figure.id)}${mark(i18n, figure)}</span>${thresholdBars(figure.used, figure.limit, null, ticks)}<span class="settings-sub">${numbers} · ${whose(i18n, figure, teams)}</span></span><span class="settings-value">${i18n.t("admin.history.percent", { n: whole(i18n, figure.percent) })}</span></summary>
 <div class="settings-panel is-wide">
 <p class="usage-levels">${levels}</p>
 ${split}<p class="usage-detail">${seen}</p>
@@ -298,7 +320,7 @@ ${isRecordedAllowance(figure.id) ? history(figure.id) : null}</div>
 
 /** A Cloudflare figure without a value yet: never a zero, never a mark. */
 function missingRow(i18n: I18n, id: CloudflareAllowance): SafeHtml {
-	return html`<li id="${id}"><div class="settings-row is-static"><span class="settings-icon">${FIGURE_ICONS[id]}</span><span class="settings-text"><span class="settings-title">${i18n.t(`admin.allowance.${id}`)}</span><span class="settings-sub">${i18n.t("admin.figure.noValue", { limit: amount(i18n, id, CLOUDFLARE_LIMITS[id]) })}</span></span></div></li>
+	return html`<li id="${id}"><div class="settings-row is-static"><span class="settings-icon">${FIGURE_ICONS[id]}</span><span class="settings-text"><span class="settings-title">${rowName(i18n, id)}</span><span class="settings-sub">${i18n.t("admin.figure.noValue", { limit: amount(i18n, id, CLOUDFLARE_LIMITS[id]) })}</span></span></div></li>
 `;
 }
 
@@ -536,7 +558,7 @@ ${items.map((item) => lageRow(i18n, item, teams))}</ul>
  * A day with riders waiting over 24 hours or a list in the wrong order is marked
  * in words, like a warning figure.
  */
-function recheckSection(
+function recheckBody(
 	i18n: I18n,
 	allowance: number,
 	activeRiders: number,
@@ -557,9 +579,7 @@ function recheckSection(
 		return html`<tr><th scope="row">${i18n.formatDate(`${d.day}T00:00:00Z`)}${warn ? html` <span class="usage-mark usage-mark-warning">${i18n.t("admin.level.warning")}</span>` : null}</th><td>${whole(i18n, d.sent - d.skipped - d.failed)}</td><td>${stoodBack}</td><td>${failed}</td><td>${whole(i18n, d.over24h)}</td></tr>
 `;
 	};
-	return html`<section class="card usage-source" id="recheck">
-<h2>${i18n.t("admin.recheck.heading")}</h2>
-<p class="usage-detail">${i18n.t("admin.recheck.allowance", { allowance: whole(i18n, allowance), riders: whole(i18n, activeRiders) })}</p>
+	return html`<p class="usage-detail">${i18n.t("admin.recheck.allowance", { allowance: whole(i18n, allowance), riders: whole(i18n, activeRiders) })}</p>
 ${
 	days.length === 0
 		? html`<p class="usage-detail">${i18n.t("admin.recheck.none")}</p>`
@@ -568,8 +588,7 @@ ${
 <tbody>
 ${days.map(row)}</tbody>
 </table></div></div>`
-}</section>
-`;
+}`;
 }
 
 /** Each endpoint's name in the breakdown. */
@@ -588,7 +607,7 @@ const ENDPOINT_NAMES: Record<StravaEndpoint, MessageId> = {
  * breakdown below, `picked`'s, by action and endpoint. Counts only: no rider
  * and no other team is named.
  */
-function callsSection(
+function callsBody(
 	i18n: I18n,
 	days: readonly CallDayRow[],
 	/** How many other teams there are; without any, their columns are left out. */
@@ -619,9 +638,7 @@ ${breakdown.rows.map(
 `,
 )}</tbody>
 </table></div></div>`;
-	return html`<section class="card usage-source" id="strava-calls">
-<h2>${i18n.t("admin.calls.heading")}</h2>
-<p class="usage-detail">${i18n.t("admin.calls.intro")}</p>
+	return html`<p class="usage-detail">${i18n.t("admin.calls.intro")}</p>
 ${
 	days.length === 0
 		? html`<p class="usage-detail">${i18n.t("admin.calls.none")}</p>`
@@ -636,8 +653,7 @@ ${days.map(row)}</tbody>
 </table></div></div>
 <h3>${i18n.t("admin.calls.day", { date: date(picked) })}</h3>
 ${parts}`
-}</section>
-`;
+}`;
 }
 
 /** The days the CPU table shows, today included (FR-042). */
@@ -654,7 +670,7 @@ function levelMark(i18n: I18n, level: CpuLevel): SafeHtml | null {
  * slowest 1 in 100 runs' CPU time beside the limit, and the runs cut off out of
  * all runs, marked by FR-043. No other team is named (feature 026 FR-023).
  */
-function cpuSection(
+function cpuBody(
 	i18n: I18n,
 	rows: readonly CpuRow[],
 	available: boolean,
@@ -671,9 +687,7 @@ function cpuSection(
 					cut: whole(i18n, record.cutOff),
 					runs: whole(i18n, record.runs),
 				})}${levelMark(i18n, cpuLevel(record.runs, record.cutOff))}</td>`;
-	return html`<section class="card usage-source" id="cpu">
-<h2>${i18n.t("admin.cpu.heading")}</h2>
-<p class="usage-detail">${i18n.t("admin.cpu.intro", { limit: i18n.t("admin.cpu.ms", { n: whole(i18n, CPU_LIMIT_MS) }) })}</p>
+	return html`<p class="usage-detail">${i18n.t("admin.cpu.intro", { limit: i18n.t("admin.cpu.ms", { n: whole(i18n, CPU_LIMIT_MS) }) })}</p>
 ${available ? null : html`<p class="notice notice-error" role="alert">${i18n.t("admin.cpu.unavailable")}</p>`}${
 	rows.length === 0
 		? html`<p class="usage-detail">${i18n.t("admin.cpu.none")}</p>`
@@ -687,8 +701,7 @@ ${rows.map(
 `,
 )}</tbody>
 </table></div></div>`
-}</section>
-`;
+}`;
 }
 
 /** The team figures of the routing table, each with this team's and the others' value. */
@@ -707,7 +720,7 @@ const ROUTING_COLUMNS: [MessageId, (side: RoutingDay["own"]) => number][] = [
  * team and, summed, the other teams. A day with a would-be or possible miss, or
  * too many events to every team, carries the re-check table's warning mark.
  */
-function routingSection(i18n: I18n, days: readonly RoutingDay[]): SafeHtml {
+function routingBody(i18n: I18n, days: readonly RoutingDay[]): SafeHtml {
 	const others = days.some((d) => d.hasOthers);
 	const span = others ? html` colspan="2"` : null;
 	const tall = others ? html` rowspan="2"` : null;
@@ -724,9 +737,7 @@ function routingSection(i18n: I18n, days: readonly RoutingDay[]): SafeHtml {
 			)}</tr>
 `
 		: null;
-	return html`<section class="card usage-source" id="routing">
-<h2>${i18n.t("admin.routing.heading")}</h2>
-<p class="usage-detail">${i18n.t("admin.routing.note")}</p>
+	return html`<p class="usage-detail">${i18n.t("admin.routing.note")}</p>
 ${
 	days.length === 0
 		? html`<p class="usage-detail">${i18n.t("admin.routing.none")}</p>`
@@ -738,8 +749,7 @@ ${sides}</thead>
 <tbody>
 ${days.map(row)}</tbody>
 </table></div></div>`
-}</section>
-`;
+}`;
 }
 
 /** "About" a duration in the largest unit that reads well (R11). */
@@ -753,13 +763,48 @@ function aboutDuration(i18n: I18n, seconds: number): string {
 	return i18n.t("admin.waiting.days", { n: Math.ceil(hours / 24) });
 }
 
-function alertsSwitch(i18n: I18n, rider: Rider): SafeHtml {
+/**
+ * A row of Betrieb (feature 048 contracts/usage-view.md "Betrieb rows"): what
+ * it is, its mark and one line; opened, today's section as it was.
+ */
+function betriebRow(
+	i18n: I18n,
+	id: string,
+	icon: SafeHtml,
+	title: string,
+	/** The worst of the row's marks the list shows, if any. */
+	level: AttentionLevel | undefined,
+	line: string,
+	value: string | null,
+	body: SafeHtml,
+	open = false,
+): SafeHtml {
+	const marked = level !== undefined && level !== "hint";
+	return html`<li id="${id}"><details${open ? html` open` : null}>
+<summary class="settings-row"><span class="settings-icon${marked ? html` lvl-${level}` : null}">${icon}</span><span class="settings-text"><span class="settings-title">${title}${marked ? html`<span class="usage-mark usage-mark-${level}">${i18n.t(`admin.level.${level}`)}</span>` : null}</span><span class="settings-sub">${line}</span></span>${value === null ? null : html`<span class="settings-value">${value}</span>`}</summary>
+<div class="settings-panel is-wide">
+${body}</div>
+</details></li>
+`;
+}
+
+/**
+ * The viewer's own usage notifications as a switch (feature 048 research
+ * R11): tapping it posts the other state, as the button did. Under it, a
+ * viewer whose devices all have notifications off reads so; under the list,
+ * when the recording began.
+ */
+function alertsSection(
+	i18n: I18n,
+	rider: Rider,
+	hasDevice: boolean,
+	since: string,
+): SafeHtml {
 	const on = rider.adminAlerts;
-	return html`<section class="settings-group">
-<h2>${i18n.t("admin.alerts.heading")}</h2>
-<p>${i18n.t("admin.alerts.title")}</p>
-<p>${i18n.t(on ? "admin.alerts.levels" : "admin.alerts.off")}</p>
-<form method="post" action="/admin/alerts"><input type="hidden" name="admin_alerts" value="${on ? "off" : "on"}"><button class="button-outlined">${i18n.t(on ? "admin.alerts.turnOff" : "admin.alerts.turnOn")}</button></form>
+	return html`<section class="settings-section" id="alerts" aria-labelledby="alerts-heading">
+<h2 id="alerts-heading">${i18n.t("admin.alerts.heading")}</h2>
+<ul class="settings-list"><li><form method="post" action="/admin/alerts"><div class="settings-row is-static"><span class="settings-icon">${BELL}</span><span class="settings-text"><span class="settings-title" id="alerts-on">${i18n.t("admin.alerts.title")}</span><span class="settings-sub">${i18n.t(on ? "admin.alerts.levels" : "admin.alerts.off")}</span>${hasDevice ? null : html`<span class="settings-sub is-warn">${i18n.t("admin.lage.deviceLine")}</span>`}</span><input type="hidden" name="admin_alerts" value="${on ? "off" : "on"}"><button role="switch" aria-checked="${on ? "true" : "false"}" aria-labelledby="alerts-on"></button></div></form></li></ul>
+<p class="settings-note">${since}</p>
 </section>
 `;
 }
@@ -800,32 +845,176 @@ function teamsOf(
 	};
 }
 
+/** What Betrieb's rows show, read beside the list's state. */
+interface Operations {
+	waiting: number;
+	activeRiders: number;
+	cpuDays: readonly CpuDay[];
+	cpuAvailable: boolean;
+	routing: readonly RoutingDay[];
+	/** The day the Strava calls' breakdown shows. */
+	picked: string;
+	/** `?calls=` asked for a day: its row opens. */
+	callsOpen: boolean;
+}
+
+/**
+ * Betrieb (feature 048 User Story 4): the work waiting, Strava calls, the
+ * re-check, gateway routing and CPU time, always all five, each in one line
+ * with the mark the list gives it.
+ */
+function betriebGroup(
+	i18n: I18n,
+	ctx: Ctx,
+	state: UsageState,
+	ops: Operations,
+	teams: Teams,
+): SafeHtml {
+	const { today } = state;
+	const level = (id: string) =>
+		state.items.find((item) => item.target === `#${id}`)?.level;
+	const estimate = drainEstimateSeconds(ops.waiting, state.usage, ctx.now());
+	const callsToday = state.callDays.find((d) => d.day === today);
+	const held = callsToday?.heldBack ?? 0;
+	const lastRecheck = state.recheckDays[0]?.day;
+	const routingToday = ops.routing.find((d) => d.day === today);
+	const cpuToday = ops.cpuDays.filter((d) => d.day === today);
+	const cpuSum = (pick: (d: CpuDay) => number) =>
+		whole(
+			i18n,
+			cpuToday.reduce((sum, d) => sum + pick(d), 0),
+		);
+	const rows = [
+		betriebRow(
+			i18n,
+			"waiting",
+			HOURGLASS,
+			i18n.t("admin.waiting.heading"),
+			undefined,
+			estimate === null
+				? i18n.t("admin.waiting.none")
+				: i18n.t("admin.waiting.body", {
+						n: ops.waiting,
+						time: aboutDuration(i18n, estimate),
+					}),
+			ops.waiting > 0 ? whole(i18n, ops.waiting) : null,
+			html`<p class="usage-detail">${i18n.t("admin.waiting.note")}</p>`,
+		),
+		betriebRow(
+			i18n,
+			"strava-calls",
+			BOLT,
+			i18n.t("admin.calls.heading"),
+			level("strava-calls"),
+			`${i18n.t("admin.calls.today", { n: callsToday?.calls ?? 0 })} · ${
+				held > 0
+					? i18n.t("admin.calls.heldToday", { n: whole(i18n, held) })
+					: i18n.t("admin.calls.heldNone")
+			}`,
+			null,
+			callsBody(
+				i18n,
+				state.callDays,
+				teams.peers.length,
+				ops.picked,
+				callBreakdown(state.calls.counts, ops.picked),
+			),
+			ops.callsOpen,
+		),
+		betriebRow(
+			i18n,
+			"recheck",
+			REFRESH,
+			i18n.t("admin.recheck.heading"),
+			level("recheck"),
+			i18n.t("admin.recheck.line", {
+				allowance: whole(i18n, ctx.team.recheckAllowance),
+				riders: whole(i18n, ops.activeRiders),
+				last:
+					lastRecheck === undefined
+						? i18n.t("admin.recheck.notRun")
+						: i18n.t("admin.recheck.lastRun", {
+								date: i18n.formatDate(`${lastRecheck}T00:00:00Z`),
+							}),
+			}),
+			null,
+			recheckBody(
+				i18n,
+				ctx.team.recheckAllowance,
+				ops.activeRiders,
+				state.recheckDays,
+			),
+		),
+		betriebRow(
+			i18n,
+			"routing",
+			ROUTE,
+			i18n.t("admin.routing.heading"),
+			level("routing"),
+			ops.routing.length === 0
+				? i18n.t("admin.betrieb.noFigures")
+				: i18n.t(
+						level("routing") === undefined
+							? "admin.routing.todayCalm"
+							: "admin.routing.today",
+						{ n: whole(i18n, routingToday?.copy ?? 0) },
+					),
+			null,
+			routingBody(i18n, ops.routing),
+		),
+		betriebRow(
+			i18n,
+			"cpu",
+			CHIP,
+			i18n.t("admin.cpu.heading"),
+			level("cpu"),
+			ops.cpuDays.length === 0
+				? i18n.t("admin.cpu.lineNone", {
+						limit: i18n.t("admin.cpu.ms", { n: whole(i18n, CPU_LIMIT_MS) }),
+					})
+				: i18n.t("admin.cpu.line", {
+						cut: cpuSum((d) => d.cutOff),
+						runs: cpuSum((d) => d.runs),
+					}),
+			null,
+			cpuBody(i18n, cpuRows(ops.cpuDays, ctx.team.id), ops.cpuAvailable),
+		),
+	];
+	return group(
+		"betrieb",
+		i18n.t("admin.betrieb.heading"),
+		i18n.t("admin.betrieb.when"),
+		html`${rows}`,
+		null,
+	);
+}
+
 export function handleAdminUsage(
 	request: Request,
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	return adminPage(request, ctx, i18n, "/admin", async ({ rider }) => {
+	return adminPage(request, ctx, i18n, "/admin", async (viewer) => {
+		const { rider } = viewer;
 		const db = ctx.env.DB;
 		const now = ctx.now();
 		const today = utcDay(now);
-		// The list and its count come from the same reads as the Admin tab's
-		// number (feature 048 research R5); the longer tables are read beside.
-		const [state, counts, active, cpuDays, routingCounts] = await Promise.all([
-			readUsageState(ctx, rider.athleteId),
-			db.batch([
-				totalWaitingStatement(db),
-				usageHistoryStatement(db, historyStart(today)),
-				teamCountsStatement(db, historyStart(today)),
-			]),
-			countActiveRiders(db, now),
-			readCpuDays(db, daysBefore(today, CPU_DAYS - 1)),
-			readRoutingCounts(db, firstRoutingDay(today)),
-		]);
+		// The list and its count are the state the shell read for the Admin
+		// tab's number (feature 048 research R5), so all show the same; the
+		// longer tables are read beside.
+		const [state, counts, activeRiders, cpuDays, routingCounts] =
+			await Promise.all([
+				viewer.usage ?? readUsageState(ctx, rider.athleteId),
+				db.batch([
+					totalWaitingStatement(db),
+					usageHistoryStatement(db, historyStart(today)),
+					teamCountsStatement(db, historyStart(today)),
+				]),
+				countActiveRiders(db, now),
+				readCpuDays(db, daysBefore(today, CPU_DAYS - 1)),
+				readRoutingCounts(db, firstRoutingDay(today)),
+			]);
 		const cpuState = state.states.get("cloudflare-cpu");
-		const cpuAvailable =
-			cpuState?.lastFailureAt == null ||
-			(cpuState.lastSuccessAt ?? 0) > cpuState.lastFailureAt;
 		const waiting =
 			(counts[0]?.results[0] as { n: number } | undefined)?.n ?? 0;
 		const records = usageRecords(counts[1]?.results ?? []);
@@ -848,7 +1037,6 @@ export function handleAdminUsage(
 		const history = dailyHistory(i18n, records, today, openDays, teams.history);
 		const row = (figure: Figure) =>
 			figureRow(i18n, figure, history, teams, figure.id === openDays);
-		const estimate = drainEstimateSeconds(waiting, state.usage, now);
 		const firstDay = records[0]?.day;
 		// The figures' time: the newest seen or recorded, riders counting live.
 		const asOf =
@@ -858,7 +1046,24 @@ export function handleAdminUsage(
 					.filter((figure) => figure.id !== "riders_connected")
 					.map((figure) => figure.observedAt ?? 0),
 			) || now;
-		return html`${adminSwitch(i18n, "usage")}${lageSection(i18n, state.items, teams, { time: asOf, waiting: waiting > 0 })}<div class="settings-page usage-page">
+		const ops: Operations = {
+			waiting,
+			activeRiders,
+			cpuDays,
+			cpuAvailable:
+				cpuState?.lastFailureAt == null ||
+				(cpuState.lastSuccessAt ?? 0) > cpuState.lastFailureAt,
+			routing: routingDays(routingCounts, ctx.team.id),
+			picked,
+			callsOpen: askedDay !== null,
+		};
+		const since =
+			firstDay === undefined
+				? i18n.t("admin.history.none")
+				: i18n.t("admin.history.since", {
+						date: i18n.formatDate(`${firstDay}T00:00:00Z`),
+					});
+		return html`${adminSwitch(i18n, "usage", await usageMarks(viewer))}${lageSection(i18n, state.items, teams, { time: asOf, waiting: waiting > 0 })}<div class="settings-page usage-page">
 <div class="settings-col">
 ${stravaGroup(
 	i18n,
@@ -876,22 +1081,7 @@ ${stravaGroup(
 	state.cloudflare.available,
 )}</div>
 <div class="settings-col">
-${recheckSection(i18n, ctx.team.recheckAllowance, active, state.recheckDays)}${callsSection(i18n, state.callDays, teams.peers.length, picked, callBreakdown(state.calls.counts, picked))}${routingSection(i18n, routingDays(routingCounts, ctx.team.id))}${
-	estimate === null
-		? null
-		: html`<section class="card">
-<h2>${i18n.t("admin.waiting.heading")}</h2>
-<p>${i18n.t("admin.waiting.body", { n: waiting, time: aboutDuration(i18n, estimate) })}</p>
-</section>
-`
-}${cpuSection(i18n, cpuRows(cpuDays, ctx.team.id), cpuAvailable)}${alertsSwitch(i18n, rider)}<p class="settings-note">${
-			firstDay === undefined
-				? i18n.t("admin.history.none")
-				: i18n.t("admin.history.since", {
-						date: i18n.formatDate(`${firstDay}T00:00:00Z`),
-					})
-		}</p>
-</div>
+${betriebGroup(i18n, ctx, state, ops, teams)}${alertsSection(i18n, rider, state.hasDevice, since)}</div>
 </div>
 `;
 	});

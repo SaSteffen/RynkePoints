@@ -1159,6 +1159,11 @@ export const fr: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Admin",
+	"nav.admin.marks": {
+		one: "Admin, {n} demande ton attention",
+		many: "Admin, {n} demandent ton attention",
+		other: "Admin, {n} demandent ton attention",
+	},
 	"admin.switch.label": "Vues admin",
 	"admin.switch.usage": "Utilisation",
 	"admin.switch.riders": "Cyclistes et rôles",
@@ -1268,6 +1273,36 @@ export const fr: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Les chiffres de Cloudflare sont indisponibles pour le moment. Voici les dernières valeurs connues.",
 	"admin.refresh": "Mettre à jour",
+	"admin.strava.figure.strava_read_daily": "Lectures par jour",
+	"admin.strava.figure.strava_all_daily": "Requêtes par jour",
+	"admin.strava.figure.strava_read_15m": "Lectures par 15 minutes",
+	"admin.strava.figure.strava_all_15m": "Requêtes par 15 minutes",
+	"admin.betrieb.heading": "Fonctionnement",
+	"admin.betrieb.when": "30 derniers jours",
+	"admin.betrieb.noFigures": "Pas encore de chiffres",
+	"admin.waiting.none": "Rien n’attend.",
+	"admin.waiting.note":
+		"Le travail que le budget Strava retient réessaie plus tard.",
+	"admin.calls.today": {
+		one: "Aujourd’hui {n} appel de cette équipe",
+		many: "Aujourd’hui {n} appels de cette équipe",
+		other: "Aujourd’hui {n} appels de cette équipe",
+	},
+	"admin.calls.heldToday": "{n} retenus",
+	"admin.calls.heldNone": "rien de retenu",
+	"admin.recheck.line":
+		"{allowance} vérifications par jour · {riders} cyclistes actif·ve·s · {last}",
+	"admin.recheck.lastRun": "dernière le {date}",
+	"admin.recheck.notRun": "pas encore lancée",
+	"admin.routing.today": "Aujourd’hui {n} transmis",
+	"admin.routing.todayCalm": "Aujourd’hui {n} transmis, rien d’inhabituel",
+	"admin.cpu.lineNone": "Pas encore de chiffres · limite {limit} par exécution",
+	"admin.cpu.line": "Aujourd’hui {cut} sur {runs} exécutions interrompues",
+	"admin.switch.usage.marks": {
+		one: "Utilisation, {n} demande ton attention",
+		many: "Utilisation, {n} demandent ton attention",
+		other: "Utilisation, {n} demandent ton attention",
+	},
 	"admin.lage.heading": "À regarder",
 	"admin.lage.calm": "Tout est dans les limites",
 	"admin.lage.calmLine":
@@ -1417,8 +1452,6 @@ export const fr: Catalog = {
 		"Une fois par chiffre et par niveau\u00a0: dès son seuil «\u00a0à noter\u00a0», à 80 % et à 95 %.",
 	"admin.alerts.off":
 		"Tu ne reçois pas de notifications d'utilisation. Cette page marque quand même les chiffres.",
-	"admin.alerts.turnOff": "Désactiver les alertes d'utilisation",
-	"admin.alerts.turnOn": "Activer les alertes d'utilisation",
 	"admin.history.days": "Chaque jour",
 	"admin.history.hideDays": "Masquer les jours",
 	"admin.history.none":

@@ -1107,6 +1107,10 @@ export const sv: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Admin",
+	"nav.admin.marks": {
+		one: "Admin, {n} behöver din uppmärksamhet",
+		other: "Admin, {n} behöver din uppmärksamhet",
+	},
 	"admin.switch.label": "Admin-vyer",
 	"admin.switch.usage": "Användning",
 	"admin.switch.riders": "Cyklister och roller",
@@ -1213,6 +1217,34 @@ export const sv: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflares siffror är inte tillgängliga just nu. Det här är de senast kända värdena.",
 	"admin.refresh": "Uppdatera nu",
+	"admin.strava.figure.strava_read_daily": "Läsningar per dag",
+	"admin.strava.figure.strava_all_daily": "Anrop per dag",
+	"admin.strava.figure.strava_read_15m": "Läsningar per 15 minuter",
+	"admin.strava.figure.strava_all_15m": "Anrop per 15 minuter",
+	"admin.betrieb.heading": "Drift",
+	"admin.betrieb.when": "senaste 30 dagarna",
+	"admin.betrieb.noFigures": "Inga siffror än",
+	"admin.waiting.none": "Inget väntar.",
+	"admin.waiting.note":
+		"Arbete som Strava-budgeten håller tillbaka försöker igen senare.",
+	"admin.calls.today": {
+		one: "I dag {n} anrop från det här laget",
+		other: "I dag {n} anrop från det här laget",
+	},
+	"admin.calls.heldToday": "{n} tillbakahållna",
+	"admin.calls.heldNone": "inget tillbakahållet",
+	"admin.recheck.line":
+		"{allowance} kontroller per dag · {riders} aktiva cyklister · {last}",
+	"admin.recheck.lastRun": "senast {date}",
+	"admin.recheck.notRun": "inte körd än",
+	"admin.routing.today": "I dag {n} vidareskickade",
+	"admin.routing.todayCalm": "I dag {n} vidareskickade, inget ovanligt",
+	"admin.cpu.lineNone": "Inga siffror än · gräns {limit} per körning",
+	"admin.cpu.line": "I dag {cut} av {runs} körningar avbrutna",
+	"admin.switch.usage.marks": {
+		one: "Användning, {n} behöver din uppmärksamhet",
+		other: "Användning, {n} behöver din uppmärksamhet",
+	},
 	"admin.lage.heading": "Behöver din uppmärksamhet",
 	"admin.lage.calm": "Allt inom ramarna",
 	"admin.lage.calmLine":
@@ -1340,8 +1372,6 @@ export const sv: Catalog = {
 		"En gång per siffra och nivå: från obs-gränsen, vid 80 % och vid 95 %.",
 	"admin.alerts.off":
 		"Du får inga aviseringar om användning. Den här sidan markerar fortfarande siffrorna.",
-	"admin.alerts.turnOff": "Stäng av användningsvarningar",
-	"admin.alerts.turnOn": "Slå på användningsvarningar",
 	"admin.history.days": "Varje dag",
 	"admin.history.hideDays": "Dölj dagar",
 	"admin.history.none":

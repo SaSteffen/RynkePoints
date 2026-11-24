@@ -1139,6 +1139,12 @@ export const lt: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Administravimas",
+	"nav.admin.marks": {
+		one: "Administravimas, {n} reikia tavo dėmesio",
+		few: "Administravimas, {n} reikia tavo dėmesio",
+		many: "Administravimas, {n} reikia tavo dėmesio",
+		other: "Administravimas, {n} reikia tavo dėmesio",
+	},
 	"admin.switch.label": "Administravimo rodiniai",
 	"admin.switch.usage": "Naudojimas",
 	"admin.switch.riders": "Dviratininkai ir vaidmenys",
@@ -1249,6 +1255,38 @@ export const lt: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflare skaičiai šiuo metu nepasiekiami. Tai paskutinės žinomos reikšmės.",
 	"admin.refresh": "Atnaujinti dabar",
+	"admin.strava.figure.strava_read_daily": "Skaitymai per dieną",
+	"admin.strava.figure.strava_all_daily": "Užklausos per dieną",
+	"admin.strava.figure.strava_read_15m": "Skaitymai per 15 minučių",
+	"admin.strava.figure.strava_all_15m": "Užklausos per 15 minučių",
+	"admin.betrieb.heading": "Veikimas",
+	"admin.betrieb.when": "pastarosios 30 dienų",
+	"admin.betrieb.noFigures": "Skaičių dar nėra",
+	"admin.waiting.none": "Niekas nelaukia.",
+	"admin.waiting.note":
+		"Darbas, kurį sulaiko Strava biudžetas, bandys vėliau dar kartą.",
+	"admin.calls.today": {
+		one: "Šiandien šios komandos užklausų: {n}",
+		few: "Šiandien šios komandos užklausų: {n}",
+		many: "Šiandien šios komandos užklausų: {n}",
+		other: "Šiandien šios komandos užklausų: {n}",
+	},
+	"admin.calls.heldToday": "sulaikyta: {n}",
+	"admin.calls.heldNone": "nieko nesulaikyta",
+	"admin.recheck.line":
+		"{allowance} patikrinimai per dieną · aktyvūs dviratininkai: {riders} · {last}",
+	"admin.recheck.lastRun": "paskutinį kartą {date}",
+	"admin.recheck.notRun": "dar nevykdyta",
+	"admin.routing.today": "Šiandien perduota: {n}",
+	"admin.routing.todayCalm": "Šiandien perduota: {n}, nieko neįprasto",
+	"admin.cpu.lineNone": "Skaičių dar nėra · riba {limit} vienam vykdymui",
+	"admin.cpu.line": "Šiandien nutraukta {cut} iš {runs} vykdymų",
+	"admin.switch.usage.marks": {
+		one: "Naudojimas, {n} reikia tavo dėmesio",
+		few: "Naudojimas, {n} reikia tavo dėmesio",
+		many: "Naudojimas, {n} reikia tavo dėmesio",
+		other: "Naudojimas, {n} reikia tavo dėmesio",
+	},
 	"admin.lage.heading": "Reikia tavo dėmesio",
 	"admin.lage.calm": "Viskas ribose",
 	"admin.lage.calmLine":
@@ -1401,8 +1439,6 @@ export const lt: Catalog = {
 		"Kartą kiekvienam skaičiui ir lygiui: nuo dėmesio ribos, ties 80 % ir ties 95 %.",
 	"admin.alerts.off":
 		"Pranešimų apie naudojimą negauni. Šis puslapis skaičius vis tiek pažymi.",
-	"admin.alerts.turnOff": "Išjungti naudojimo įspėjimus",
-	"admin.alerts.turnOn": "Įjungti naudojimo įspėjimus",
 	"admin.history.days": "Kiekviena diena",
 	"admin.history.hideDays": "Slėpti dienas",
 	"admin.history.none": "Dar nieko neužfiksuota. Fiksuojama kartą per valandą.",

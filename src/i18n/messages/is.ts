@@ -1112,6 +1112,10 @@ export const is: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Stjórnun",
+	"nav.admin.marks": {
+		one: "Stjórnun, {n} þarfnast athygli þinnar",
+		other: "Stjórnun, {n} þarfnast athygli þinnar",
+	},
 	"admin.switch.label": "Stjórnunaryfirlit",
 	"admin.switch.usage": "Notkun",
 	"admin.switch.riders": "Hjólreiðamenn og hlutverk",
@@ -1220,6 +1224,34 @@ export const is: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Tölur Cloudflare eru ekki tiltækar í bili. Þetta eru síðustu þekktu gildin.",
 	"admin.refresh": "Uppfæra núna",
+	"admin.strava.figure.strava_read_daily": "Lestrar á dag",
+	"admin.strava.figure.strava_all_daily": "Beiðnir á dag",
+	"admin.strava.figure.strava_read_15m": "Lestrar á 15 mínútum",
+	"admin.strava.figure.strava_all_15m": "Beiðnir á 15 mínútum",
+	"admin.betrieb.heading": "Rekstur",
+	"admin.betrieb.when": "síðustu 30 daga",
+	"admin.betrieb.noFigures": "Engar tölur enn",
+	"admin.waiting.none": "Ekkert bíður.",
+	"admin.waiting.note":
+		"Vinna sem Strava-kvótinn heldur aftur reynir aftur síðar.",
+	"admin.calls.today": {
+		one: "Í dag {n} kall frá þessu liði",
+		other: "Í dag {n} köll frá þessu liði",
+	},
+	"admin.calls.heldToday": "{n} haldið aftur",
+	"admin.calls.heldNone": "engu haldið aftur",
+	"admin.recheck.line":
+		"{allowance} athuganir á dag · {riders} virkir hjólreiðamenn · {last}",
+	"admin.recheck.lastRun": "síðast {date}",
+	"admin.recheck.notRun": "ekki keyrt enn",
+	"admin.routing.today": "Í dag {n} áframsent",
+	"admin.routing.todayCalm": "Í dag {n} áframsent, ekkert óvenjulegt",
+	"admin.cpu.lineNone": "Engar tölur enn · hámark {limit} á keyrslu",
+	"admin.cpu.line": "Í dag {cut} af {runs} keyrslum stöðvaðar",
+	"admin.switch.usage.marks": {
+		one: "Notkun, {n} þarfnast athygli þinnar",
+		other: "Notkun, {n} þarfnast athygli þinnar",
+	},
 	"admin.lage.heading": "Þetta þarf að skoða",
 	"admin.lage.calm": "Allt innan marka",
 	"admin.lage.calmLine":
@@ -1347,8 +1379,6 @@ export const is: Catalog = {
 		"Einu sinni fyrir hverja tölu og stig: frá athugunarmörkum, við 80 % og við 95 %.",
 	"admin.alerts.off":
 		"Þú færð engar tilkynningar um notkun. Þessi síða merkir tölurnar samt.",
-	"admin.alerts.turnOff": "Slökkva á notkunarviðvörunum",
-	"admin.alerts.turnOn": "Kveikja á notkunarviðvörunum",
 	"admin.history.days": "Hvern dag",
 	"admin.history.hideDays": "Fela daga",
 	"admin.history.none":

@@ -35,9 +35,7 @@ async function page(lang = "de", athleteId = ADMIN) {
 /** The section's markup, or "" when the page has none. */
 function section(text: string): string {
 	return (
-		text.match(
-			/<section class="card usage-source" id="recheck">[\s\S]*?<\/section>/,
-		)?.[0] ?? ""
+		text.match(/<li id="recheck"><details[\s\S]*?<\/details><\/li>/)?.[0] ?? ""
 	);
 }
 
@@ -170,6 +168,9 @@ describe("the Ride re-check section", () => {
 			'Nachprüfung der Fahrten: 03.11.2026</span><span class="settings-sub">Liste in falscher Reihenfolge</span>',
 		);
 		expect(text).toContain(">2 Warnungen<");
+		expect(text).toContain(
+			'<span class="settings-title">Nachprüfung der Fahrten<span class="usage-mark usage-mark-warning">Warnung</span></span><span class="settings-sub">150 Prüfungen am Tag · 0 aktive Rider · zuletzt am 04.11.2026</span>',
+		);
 	});
 
 	it("names one run held in the singular", async () => {

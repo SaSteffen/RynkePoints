@@ -1148,6 +1148,10 @@ export const de = {
 
 	// Feature 025: die Admin-Ansicht.
 	"nav.admin": "Admin",
+	"nav.admin.marks": {
+		one: "Admin, {n} braucht deinen Blick",
+		other: "Admin, {n} brauchen deinen Blick",
+	},
 	"admin.switch.label": "Admin-Ansichten",
 	"admin.switch.usage": "Nutzung",
 	"admin.switch.riders": "Rider und Rollen",
@@ -1257,6 +1261,34 @@ export const de = {
 	"admin.cloudflare.unavailable":
 		"Cloudflares Werte sind gerade nicht verfügbar. Das hier sind die letzten bekannten.",
 	"admin.refresh": "Jetzt aktualisieren",
+	"admin.strava.figure.strava_read_daily": "Lesezugriffe pro Tag",
+	"admin.strava.figure.strava_all_daily": "Anfragen pro Tag",
+	"admin.strava.figure.strava_read_15m": "Lesezugriffe pro 15 Minuten",
+	"admin.strava.figure.strava_all_15m": "Anfragen pro 15 Minuten",
+	"admin.betrieb.heading": "Betrieb",
+	"admin.betrieb.when": "letzte 30 Tage",
+	"admin.betrieb.noFigures": "Noch keine Zahlen",
+	"admin.waiting.none": "Nichts wartet.",
+	"admin.waiting.note":
+		"Arbeit, die das Strava-Budget zurückhält, versucht es später wieder.",
+	"admin.calls.today": {
+		one: "Heute {n} Aufruf dieses Teams",
+		other: "Heute {n} Aufrufe dieses Teams",
+	},
+	"admin.calls.heldToday": "{n} zurückgehalten",
+	"admin.calls.heldNone": "nichts zurückgehalten",
+	"admin.recheck.line":
+		"{allowance} Prüfungen am Tag · {riders} aktive Rider · {last}",
+	"admin.recheck.lastRun": "zuletzt am {date}",
+	"admin.recheck.notRun": "noch nicht gelaufen",
+	"admin.routing.today": "Heute {n} weitergegeben",
+	"admin.routing.todayCalm": "Heute {n} weitergegeben, keine Auffälligkeit",
+	"admin.cpu.lineNone": "Noch keine Zahlen · Limit {limit} je Lauf",
+	"admin.cpu.line": "Heute {cut} von {runs} Läufen abgebrochen",
+	"admin.switch.usage.marks": {
+		one: "Nutzung, {n} braucht deinen Blick",
+		other: "Nutzung, {n} brauchen deinen Blick",
+	},
 	"admin.lage.heading": "Das braucht deinen Blick",
 	"admin.lage.calm": "Alles im Rahmen",
 	"admin.lage.calmLine":
@@ -1386,8 +1418,6 @@ export const de = {
 		"Einmal je Wert und Stufe: ab der Hinweisgrenze, bei 80\u00a0% und bei 95\u00a0%.",
 	"admin.alerts.off":
 		"Du bekommst keine Benachrichtigungen zur Nutzung. Diese Seite markiert die Zahlen weiter.",
-	"admin.alerts.turnOff": "Nutzungshinweise ausschalten",
-	"admin.alerts.turnOn": "Nutzungshinweise einschalten",
 	"admin.history.days": "Alle Tage",
 	"admin.history.hideDays": "Tage ausblenden",
 	"admin.history.none":

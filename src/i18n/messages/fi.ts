@@ -1109,6 +1109,10 @@ export const fi: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Ylläpito",
+	"nav.admin.marks": {
+		one: "Ylläpito, {n} vaatii huomiotasi",
+		other: "Ylläpito, {n} vaativat huomiotasi",
+	},
 	"admin.switch.label": "Ylläpitonäkymät",
 	"admin.switch.usage": "Käyttö",
 	"admin.switch.riders": "Ajajat ja roolit",
@@ -1216,6 +1220,34 @@ export const fi: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflaren luvut eivät ole juuri nyt saatavilla. Nämä ovat viimeisimmät tunnetut arvot.",
 	"admin.refresh": "Päivitä nyt",
+	"admin.strava.figure.strava_read_daily": "Lukuja päivässä",
+	"admin.strava.figure.strava_all_daily": "Pyyntöjä päivässä",
+	"admin.strava.figure.strava_read_15m": "Lukuja 15 minuutissa",
+	"admin.strava.figure.strava_all_15m": "Pyyntöjä 15 minuutissa",
+	"admin.betrieb.heading": "Toiminta",
+	"admin.betrieb.when": "viimeiset 30 päivää",
+	"admin.betrieb.noFigures": "Ei vielä lukuja",
+	"admin.waiting.none": "Mikään ei odota.",
+	"admin.waiting.note":
+		"Työ, jota Strava-budjetti pidättää, yrittää myöhemmin uudelleen.",
+	"admin.calls.today": {
+		one: "Tänään {n} tämän tiimin kutsu",
+		other: "Tänään {n} tämän tiimin kutsua",
+	},
+	"admin.calls.heldToday": "{n} pidätetty",
+	"admin.calls.heldNone": "mitään ei pidätetty",
+	"admin.recheck.line":
+		"{allowance} tarkistusta päivässä · {riders} aktiivista ajajaa · {last}",
+	"admin.recheck.lastRun": "viimeksi {date}",
+	"admin.recheck.notRun": "ei vielä ajettu",
+	"admin.routing.today": "Tänään {n} välitetty",
+	"admin.routing.todayCalm": "Tänään {n} välitetty, ei mitään poikkeavaa",
+	"admin.cpu.lineNone": "Ei vielä lukuja · raja {limit} ajoa kohden",
+	"admin.cpu.line": "Tänään {cut}/{runs} ajoa keskeytetty",
+	"admin.switch.usage.marks": {
+		one: "Käyttö, {n} vaatii huomiotasi",
+		other: "Käyttö, {n} vaativat huomiotasi",
+	},
 	"admin.lage.heading": "Vaatii huomiotasi",
 	"admin.lage.calm": "Kaikki rajoissa",
 	"admin.lage.calmLine":
@@ -1343,8 +1375,6 @@ export const fi: Catalog = {
 		"Kerran lukua ja tasoa kohden: huomiorajasta alkaen, 80 %:ssa ja 95 %:ssa.",
 	"admin.alerts.off":
 		"Et saa ilmoituksia käytöstä. Tämä sivu merkitsee luvut silti.",
-	"admin.alerts.turnOff": "Poista käyttöhälytykset käytöstä",
-	"admin.alerts.turnOn": "Ota käyttöhälytykset käyttöön",
 	"admin.history.days": "Joka päivä",
 	"admin.history.hideDays": "Piilota päivät",
 	"admin.history.none":
