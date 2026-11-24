@@ -94,11 +94,12 @@ other figures without a median.
 **Acceptance Scenarios**:
 
 1. **Given** a recorded day with a median of 1.4 ms, slowest runs at 7.8 ms and 0 of
-   1,234 runs cut off, **When** the table is shown, **Then** the cell reads the
-   median, the slowest runs' value and the cut-off runs.
+   1,234 runs cut off, **When** the table is shown, **Then** the cell reads
+   "1,4 / 7,8 ms" over "0 von 1.234 abgebrochen", and each owner's column header
+   says the pair is "Median / langsamste".
 2. **Given** a day recorded before this feature, **When** the table is shown,
-   **Then** its cell shows the slowest runs' value and cut-off runs as today, with
-   no median and no zero in its place.
+   **Then** its cell reads "– / 7,8 ms" over the cut-off runs: no median and no
+   zero in its place.
 
 ---
 
@@ -191,7 +192,8 @@ filled in, nothing else changes, and a second run changes nothing.
   a label at the line), with a legend naming each owner.
 - **FR-009**: Hovering over or tapping a week MUST show the week's dates and each
   owner's week value in milliseconds, or that the owner has no record that week.
-- **FR-010**: The graph MUST be scaled to its values with milliseconds on its axis.
+- **FR-010**: The graph MUST be scaled to its values with milliseconds on its axis,
+  and name the season's months (September to August) along the bottom.
   The 10 ms limit MUST be drawn as a line when the scale reaches it; otherwise the
   line under the graph MUST name it.
 - **FR-011**: The graph MUST carry a text description for screen readers naming
@@ -203,9 +205,14 @@ filled in, nothing else changes, and a second run changes nothing.
 
 **Table**
 
-- **FR-014**: Each cell of the 30-day CPU table MUST show the day's median next to
-  the slowest runs' CPU time and the cut-off runs; a day without a median shows the
-  other two only.
+- **FR-014**: Each cell of the 30-day CPU table MUST show the day's median and the
+  slowest runs' CPU time as one short pair ("1,4 / 7,8 ms"), over the cut-off runs.
+  The meaning of the pair MUST be in each owner's column header ("Median /
+  langsamste"), not repeated in the cells. A day without a median shows "–" in its
+  place.
+- **FR-014a**: The row's intro MUST stay concise: the per-run limit, that cut-off
+  runs are failures while single outliers are forgiven, and what "Median" and
+  "langsamste" mean, in short sentences, replacing today's longer intro.
 
 **Fill (one-time task)**
 
