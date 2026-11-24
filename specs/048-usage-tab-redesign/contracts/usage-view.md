@@ -23,7 +23,7 @@ On the phone the columns follow each other in that order.
   <div class="lage-head">
     <span class="lage-badge is-{critical|warning|early|hint}">{icon}</span>
     <div><h2 id="lage-h">Das braucht deinen Blick</h2>
-      <p class="lage-counts">
+      <p class="lage-chips">
         <span class="usage-mark usage-mark-critical">1 kritisch</span>
         <span class="usage-mark usage-mark-warning">1 Warnung</span>
         <span class="usage-mark usage-mark-early">1 Hinweis</span></p></div>

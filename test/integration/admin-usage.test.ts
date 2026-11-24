@@ -370,7 +370,7 @@ describe("what needs a look (feature 048 US1)", () => {
 		expect(lage(text)).toContain(
 			`<span class="settings-value">${percent("97")}</span>`,
 		);
-		const counts = lage(text).slice(lage(text).indexOf('class="lage-counts"'));
+		const counts = lage(text).slice(lage(text).indexOf('class="lage-chips"'));
 		expect(counts).toContain(">1 kritisch<");
 		expect(counts).toContain(">1 Warnung<");
 		expect(counts).toContain(">1 Hinweis<");
@@ -392,7 +392,7 @@ describe("what needs a look (feature 048 US1)", () => {
 		expect(links(text)).toEqual(["/me/settings"]);
 		expect(lage(text)).toContain(`>${de["admin.lage.device"]}<`);
 		expect(lage(text)).toContain(`>${de["nav.settings"]}</span>`);
-		expect(lage(text)).not.toContain("lage-counts");
+		expect(lage(text)).not.toContain("lage-chips");
 		expect(lage(text)).toContain('class="lage-badge is-hint"');
 	});
 

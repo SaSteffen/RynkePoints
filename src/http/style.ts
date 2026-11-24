@@ -815,8 +815,8 @@ button.org-legend-entry[aria-pressed=true]{background:var(--md-sys-color-surface
 .lage-badge.is-warning,.settings-icon.lvl-warning{background:var(--rp-push-container);color:var(--rp-on-push-container)}
 .lage-badge.is-early,.lage-badge.is-hint,.settings-icon.lvl-early,.settings-icon.lvl-hint{background:var(--rp-neutral-container);color:var(--rp-on-neutral-container)}
 .lage-badge.is-ok{background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
-.lage-counts{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);margin:var(--rp-space-1) 0 0}
-.lage-counts .usage-mark{padding:2px 10px;font:var(--rp-type-status)}
+.lage-chips{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);margin:var(--rp-space-1) 0 0}
+.lage-chips .usage-mark{padding:2px 10px;font:var(--rp-type-status)}
 .usage-page .settings-section>h2{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:0 var(--rp-space-2);margin-right:var(--rp-space-4)}
 .usage-page .settings-section>h2 small{font:var(--md-type-caption)}
 .settings-note.is-warn{color:var(--md-sys-color-error)}

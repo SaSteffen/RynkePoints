@@ -543,7 +543,7 @@ function lageSection(
 	const counts =
 		count.total === 0
 			? null
-			: html`<p class="lage-counts">${chip("critical", "admin.lage.critical", count.critical)}${chip("warning", "admin.lage.warning", count.warning)}${chip("early", "admin.lage.early", count.early)}</p>`;
+			: html`<p class="lage-chips">${chip("critical", "admin.lage.critical", count.critical)}${chip("warning", "admin.lage.warning", count.warning)}${chip("early", "admin.lage.early", count.early)}</p>`;
 	return html`<section class="usage-lage" aria-labelledby="lage-heading">
 <div class="lage-head"><span class="lage-badge is-${worst}">${LEVEL_ICONS[worst]}</span><div class="lage-text"><h2 id="lage-heading">${i18n.t("admin.lage.heading")}</h2>${counts}</div>${refresh}</div>
 <ul class="settings-list">

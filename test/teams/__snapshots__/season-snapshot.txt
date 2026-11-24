@@ -11414,7 +11414,7 @@ Du
 Fahrten
 Abzeichen
 5 Orga
-Admin
+3 Admin
 Einst. Einstellungen
 --- /me/rides 200
 Fahrten – RynkePoints
@@ -11484,7 +11484,7 @@ Du
 Fahrten
 Abzeichen
 5 Orga
-Admin
+3 Admin
 Einst. Einstellungen
 --- /me/badges 200
 Abzeichen – RynkePoints
@@ -11811,7 +11811,7 @@ Du
 Fahrten
 Abzeichen
 5 Orga
-Admin
+3 Admin
 Einst. Einstellungen
 --- /team 200
 Team – RynkePoints
@@ -11926,7 +11926,7 @@ Du
 Fahrten
 Abzeichen
 5 Orga
-Admin
+3 Admin
 Einst. Einstellungen
 === 990019 Gesa Gast
 rider [{"status":"connected","import_status":"done"}]
@@ -12047,7 +12047,7 @@ Du
 Fahrten
 Abzeichen
 5 Orga
-Admin
+3 Admin
 Einst. Einstellungen
 --- /me/rides 200
 Fahrten – RynkePoints
@@ -12117,7 +12117,7 @@ Du
 Fahrten
 Abzeichen
 5 Orga
-Admin
+3 Admin
 Einst. Einstellungen
 --- /me/badges 200
 Abzeichen – RynkePoints
@@ -12465,7 +12465,7 @@ Du
 Fahrten
 Abzeichen
 5 Orga
-Admin
+3 Admin
 Einst. Einstellungen
 --- /team 200
 Team – RynkePoints
@@ -12605,7 +12605,7 @@ Du
 Fahrten
 Abzeichen
 5 Orga
-Admin
+3 Admin
 Einst. Einstellungen
 === 9007199254740993 Alma
 rider [{"status":"connected","import_status":"done"}]
