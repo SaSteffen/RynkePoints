@@ -971,6 +971,9 @@ export const fr: Catalog = {
 		"Les journaux du serveur ne contiennent que des identifiants comme ceux d'athlète et d'activité et le type d'une erreur, jamais de clés d'accès ni de données d'activité. RynkePoints ne stocke pas d'adresses IP.",
 	"privacy.technical.oneTeam":
 		"Sur RynkePoints, tu roules pour une seule équipe à la fois. Quand tu te connectes, une équipe demande donc aux autres équipes si tu roules déjà pour l'une d'elles. Elle n'apprend que oui ou non, jamais laquelle, et ne garde pas la réponse. Si tu changes d'équipe, l'équipe que tu quittes supprime tout ce qui te concerne.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Toutes les équipes partagent une seule connexion à Strava, et Strava envoie ses messages sur tes activités à une adresse commune. Celle-ci ne transmet chaque message qu'à l'équipe ou aux équipes dont tu fais partie. Pour cela, elle garde ton identifiant d'athlète Strava avec ces équipes, et rien d'autre. C'est stocké dans l'UE, seules les personnes qui maintiennent RynkePoints peuvent le voir, et c'est supprimé quand tu pars, au plus tard un jour après.",
 	"privacy.visibility.heading": "Qui voit quoi",
 	"privacy.visibility.you":
 		"Tu vois tes propres activités avec leurs titres, tes Rynke et tes badges. Personne d'autre ne voit les titres.",
@@ -1300,6 +1303,22 @@ export const fr: Catalog = {
 	"admin.cpu.none": "Aucun chiffre CPU enregistré pour l'instant.",
 	"admin.cpu.unavailable":
 		"Les chiffres CPU de Cloudflare n'ont pas pu être récupérés la dernière fois. Le tableau montre les jours déjà enregistrés.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Routage de la passerelle",
+	"admin.routing.note":
+		"Les 30 derniers jours. Pendant l'essai, chaque équipe reçoit toujours chaque message ; une perte évitée de justesse est un message sur quelqu'un de l'équipe que le routage ne lui aurait pas envoyé. Écartés : messages sur quelqu'un que l'équipe n'a pas. Un jour est marqué en cas de perte évitée ou possible, ou quand plus de 1\u00a0% des messages sont allés à toutes les équipes alors que toutes routaient.",
+	"admin.routing.none": "Pas encore de chiffres.",
+	"admin.routing.copy": "Envoyés selon la copie",
+	"admin.routing.everyone": "Envoyés à toutes les équipes",
+	"admin.routing.missed": "Pertes évitées de justesse",
+	"admin.routing.wasted": "Envois inutiles",
+	"admin.routing.dropped": "Écartés",
+	"admin.routing.corrections": "Corrections par la liste",
+	"admin.routing.possible": "Pertes possibles",
+	"admin.routing.found": "Trouvées par la nouvelle vérification",
+	"admin.routing.others": "Autres équipes",
+	"admin.summary.routing":
+		"Jours avec un avertissement du routage de la passerelle : {n}",
 	"admin.waiting.heading": "En attente du budget Strava",
 	"admin.waiting.body": {
 		one: "{n} élément en attente, terminé dans environ {time}.",

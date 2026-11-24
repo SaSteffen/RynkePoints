@@ -953,6 +953,9 @@ export const lt: Catalog = {
 		"Serverio žurnaluose yra tik identifikatoriai, pvz., sportininkų ir veiklų ID, ir klaidos rūšis, bet niekada ne prieigos raktai ar veiklų duomenys. RynkePoints nesaugo IP adresų.",
 	"privacy.technical.oneTeam":
 		"RynkePoints vienu metu važinėji už vieną komandą. Todėl jungiantis komanda paklausia kitų komandų, ar jau važinėji už kurią nors iš jų. Ji sužino tik taip arba ne, niekada kuri komanda, ir atsakymo nesaugo. Jei pakeisi komandą, komanda, kurią palieki, ištrins viską apie tave.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Visos komandos naudoja vieną bendrą ryšį su Strava, ir Strava siunčia pranešimus apie tavo veiklas vienu bendru adresu. Jis kiekvieną pranešimą perduoda tik tai komandai ar toms komandoms, kurioms priklausai. Tam jis saugo tavo Strava sportininko ID kartu su šiomis komandomis ir nieko daugiau. Tai saugoma ES, matyti tai gali tik RynkePoints prižiūrintys žmonės, ir tai ištrinama, kai išeini, ne vėliau kaip po dienos.",
 	"privacy.visibility.heading": "Kas ką mato",
 	"privacy.visibility.you":
 		"Tu matai savo veiklas su jų pavadinimais, savo Rynke ir savo ženklelius. Pavadinimų niekas kitas nemato.",
@@ -1281,6 +1284,21 @@ export const lt: Catalog = {
 	"admin.cpu.none": "Procesoriaus laiko duomenų dar neužfiksuota.",
 	"admin.cpu.unavailable":
 		"Paskutinį kartą nepavyko gauti Cloudflare procesoriaus laiko duomenų. Lentelėje rodomos iki šiol užfiksuotos dienos.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Šliuzo maršrutizavimas",
+	"admin.routing.note":
+		"Paskutinės 30 dienų. Bandymo metu kiekviena komanda vis dar gauna kiekvieną pranešimą; grėsęs praradimas – tai pranešimas apie komandos narį, kurio maršrutizavimas nebūtų čia atsiuntęs. Atmesti: pranešimai apie žmogų, kurio komanda neturi. Diena pažymima, jei buvo grėsęs ar galimas praradimas arba daugiau nei 1\u00a0% pranešimų nuėjo visoms komandoms, kai visos komandos maršrutizavo.",
+	"admin.routing.none": "Skaičių dar nėra.",
+	"admin.routing.copy": "Išsiųsta pagal kopiją",
+	"admin.routing.everyone": "Išsiųsta visoms komandoms",
+	"admin.routing.missed": "Grėsę praradimai",
+	"admin.routing.wasted": "Išsiųsta be reikalo",
+	"admin.routing.dropped": "Atmesta",
+	"admin.routing.corrections": "Sąrašo pataisos",
+	"admin.routing.possible": "Galimi praradimai",
+	"admin.routing.found": "Rasta pakartotinio tikrinimo",
+	"admin.routing.others": "Kitos komandos",
+	"admin.summary.routing": "Dienos su šliuzo maršrutizavimo įspėjimu: {n}",
 	"admin.waiting.heading": "Laukiama Strava biudžeto",
 	"admin.waiting.body": {
 		one: "Laukia {n} užduotis, liko maždaug {time}.",

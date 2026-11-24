@@ -11,6 +11,7 @@ import {
 	type Rider,
 	setAdminAlerts,
 } from "../../db/riders";
+import { readRoutingCounts } from "../../db/routing";
 import { totalWaitingStatement } from "../../db/strava-work";
 import {
 	readCloudflareFigures,
@@ -23,7 +24,15 @@ import {
 	usageHistoryStatement,
 	usageRecords,
 } from "../../db/usage";
+import type { MessageId } from "../../i18n/catalogs";
 import type { I18n } from "../../i18n/i18n";
+import { firstRoutingDay } from "../../routing/figures";
+import { exchangeRoutingCounts } from "../../routing/report";
+import {
+	isWarningDay,
+	type RoutingDay,
+	routingDays,
+} from "../../routing/warning";
 import {
 	CLOUDFLARE_ALLOWANCES,
 	CLOUDFLARE_LIMITS,
@@ -390,21 +399,79 @@ ${rows.map(
 `;
 }
 
+/** The team figures of the routing table, each with this team's and the others' value. */
+const ROUTING_COLUMNS: [MessageId, (side: RoutingDay["own"]) => number][] = [
+	["admin.routing.missed", (side) => side.missed],
+	["admin.routing.wasted", (side) => side.wasted],
+	["admin.routing.dropped", (side) => side.dropped],
+	["admin.routing.corrections", (side) => side.added + side.removed],
+	["admin.routing.possible", (side) => side.possible],
+	["admin.routing.found", (side) => side.found],
+];
+
+/**
+ * Gateway routing's last 30 days (feature 046 contracts/usage-view.md): what
+ * the gateway sent by the copy and to every team, then each figure for this
+ * team and, summed, the other teams. A day with a would-be or possible miss, or
+ * too many events to every team, carries the re-check table's warning mark.
+ */
+function routingSection(i18n: I18n, days: readonly RoutingDay[]): SafeHtml {
+	const others = days.some((d) => d.hasOthers);
+	const span = others ? html` colspan="2"` : null;
+	const tall = others ? html` rowspan="2"` : null;
+	const row = (d: RoutingDay) =>
+		html`<tr><th scope="row">${i18n.formatDate(`${d.day}T00:00:00Z`)}${isWarningDay(d) ? html` <span class="usage-mark usage-mark-warning">${i18n.t("admin.level.warning")}</span>` : null}</th><td>${whole(i18n, d.copy)}</td><td>${whole(i18n, d.everyone)}</td>${ROUTING_COLUMNS.map(
+			([, value]) =>
+				html`<td>${whole(i18n, value(d.own))}</td>${others ? html`<td>${whole(i18n, value(d.others))}</td>` : null}`,
+		)}</tr>
+`;
+	const sides = others
+		? html`<tr>${ROUTING_COLUMNS.map(
+				() =>
+					html`<th scope="col">${i18n.t("admin.history.team")}</th><th scope="col">${i18n.t("admin.routing.others")}</th>`,
+			)}</tr>
+`
+		: null;
+	return html`<section class="card usage-source" id="routing">
+<h2>${i18n.t("admin.routing.heading")}</h2>
+<p class="usage-detail">${i18n.t("admin.routing.note")}</p>
+${
+	days.length === 0
+		? html`<p class="usage-detail">${i18n.t("admin.routing.none")}</p>`
+		: html`<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
+<thead><tr><th scope="col"${tall}>${i18n.t("admin.history.day")}</th><th scope="col"${tall}>${i18n.t("admin.routing.copy")}</th><th scope="col"${tall}>${i18n.t("admin.routing.everyone")}</th>${ROUTING_COLUMNS.map(
+				([label]) => html`<th scope="colgroup"${span}>${i18n.t(label)}</th>`,
+			)}</tr>
+${sides}</thead>
+<tbody>
+${days.map(row)}</tbody>
+</table></div></div>`
+}</section>
+`;
+}
+
 /**
  * How many figures need a look, so nobody has to read them all (SC-001), and
- * today's CPU marks of this team's Worker and the gateway (FR-044).
+ * today's CPU marks of this team's Worker and the gateway (FR-044), and how
+ * many days of gateway routing carry a warning (feature 046 FR-025).
  */
 function summary(
 	i18n: I18n,
 	figures: readonly Figure[],
 	cpuMarked: number,
+	routingWarnings: number,
 ): SafeHtml {
 	const marked = figures.filter((f) => f.level !== "ok").length + cpuMarked;
+	const routing =
+		routingWarnings === 0
+			? null
+			: html`<p class="notice notice-error" role="status">${i18n.t("admin.summary.routing", { n: whole(i18n, routingWarnings) })}</p>
+`;
 	return marked === 0
 		? html`<p class="notice" role="status">${i18n.t("admin.summary.ok")}</p>
-`
+${routing}`
 		: html`<p class="notice notice-error" role="status">${i18n.t("admin.summary.attention", { n: whole(i18n, marked) })}</p>
-`;
+${routing}`;
 }
 
 /** "About" a duration in the largest unit that reads well (R11). */
@@ -493,6 +560,7 @@ export function handleAdminUsage(
 			recheckDays,
 			active,
 			cpuDays,
+			routingCounts,
 		] = await Promise.all([
 			readStravaUsage(db),
 			readCloudflareFigures(db),
@@ -507,7 +575,9 @@ export function handleAdminUsage(
 			readRecheckDays(db),
 			countActiveRiders(db, now),
 			readCpuDays(db, daysBefore(today, CPU_DAYS - 1)),
+			readRoutingCounts(db, firstRoutingDay(today)),
 		]);
+		const routing = routingDays(routingCounts, ctx.team.id);
 		const cpu = cpuRows(cpuDays, ctx.team.id);
 		const cpuMarked = cpuDays.filter(
 			(d) =>
@@ -572,7 +642,7 @@ export function handleAdminUsage(
 		);
 		const firstDay = records[0]?.day;
 		const item = (figure: Figure) => figureItem(i18n, figure, history, teams);
-		return html`${adminSwitch(i18n, "usage")}${summary(i18n, [...strava, ...account], cpuMarked)}${teamNotices(i18n, teams.peers, states)}${overviewSection(i18n, [...strava, ...account], teams)}${
+		return html`${adminSwitch(i18n, "usage")}${summary(i18n, [...strava, ...account], cpuMarked, routing.filter(isWarningDay).length)}${teamNotices(i18n, teams.peers, states)}${overviewSection(i18n, [...strava, ...account], teams)}${
 			devices.length === 0
 				? html`<p class="notice">${i18n.tHtml("admin.alerts.noDevice", {
 						settings: html`<a href="/me/settings">${i18n.t("nav.settings")}</a>`,
@@ -591,7 +661,7 @@ export function handleAdminUsage(
 <ul class="usage-figures">
 ${strava.map(item)}</ul>
 </section>
-${recheckSection(i18n, ctx.team.recheckAllowance, active, recheckDays)}${
+${recheckSection(i18n, ctx.team.recheckAllowance, active, recheckDays)}${routingSection(i18n, routing)}${
 	estimate === null
 		? null
 		: html`<section class="card">
@@ -624,6 +694,14 @@ export async function handleAdminRefresh(
 	const rider = await requireAdminPost(request, ctx, i18n, "/admin/refresh");
 	if (rider instanceof Response) return rider;
 	await recordUsage(ctx);
+	// Gateway routing's figures come with it (feature 046 research R9).
+	try {
+		await exchangeRoutingCounts(ctx);
+	} catch (err) {
+		console.error(
+			`Routing counts failed: ${err instanceof Error ? err.name : "unknown error"}`,
+		);
+	}
 	return redirect("/admin", 303);
 }
 

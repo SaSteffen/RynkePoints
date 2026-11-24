@@ -940,6 +940,9 @@ export const nl: Catalog = {
 		"Serverlogs bevatten alleen kenmerken zoals atleet- en activiteit-ID's en het soort fout, nooit toegangssleutels of activiteitsgegevens. RynkePoints slaat geen IP-adressen op.",
 	"privacy.technical.oneTeam":
 		"Op RynkePoints rijd je voor één team tegelijk. Daarom vraagt een team bij het koppelen aan de andere teams of je al voor een van hen rijdt. Het hoort alleen ja of nee, nooit welk team, en bewaart het antwoord niet. Stap je over naar een ander team, dan wist het team dat je verlaat alles over je.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Alle teams delen één verbinding met Strava, en Strava stuurt zijn berichten over je activiteiten naar één gedeeld adres. Dat geeft elk bericht alleen door aan het team of de teams waar je bij hoort. Daarvoor bewaart het je Strava-atleet-ID samen met die teams, en verder niets. Dit wordt in de EU opgeslagen, alleen de mensen die RynkePoints onderhouden kunnen het zien, en het wordt verwijderd als je vertrekt, uiterlijk een dag later.",
 	"privacy.visibility.heading": "Wie wat ziet",
 	"privacy.visibility.you":
 		"Jij ziet je eigen activiteiten met hun titels, je Rynke en je badges. Niemand anders ziet de titels.",
@@ -1259,6 +1262,22 @@ export const nl: Catalog = {
 	"admin.cpu.none": "Nog geen CPU-cijfers vastgelegd.",
 	"admin.cpu.unavailable":
 		"De CPU-cijfers van Cloudflare konden de laatste keer niet worden opgehaald. De tabel toont de dagen die tot nu toe zijn vastgelegd.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Gateway-routering",
+	"admin.routing.note":
+		"De laatste 30 dagen. Tijdens de proef krijgt elk team nog elk bericht; een dreigend verlies is een bericht over iemand van het team dat de routering hier niet had bezorgd. Verworpen: berichten over iemand die het team niet heeft. Een dag wordt gemarkeerd bij een dreigend of mogelijk verlies, of als meer dan 1\u00a0% van de berichten naar alle teams ging terwijl alle teams routeerden.",
+	"admin.routing.none": "Nog geen cijfers.",
+	"admin.routing.copy": "Bezorgd via de kopie",
+	"admin.routing.everyone": "Naar alle teams",
+	"admin.routing.missed": "Dreigende verliezen",
+	"admin.routing.wasted": "Onnodig bezorgd",
+	"admin.routing.dropped": "Verworpen",
+	"admin.routing.corrections": "Correcties door de lijst",
+	"admin.routing.possible": "Mogelijke verliezen",
+	"admin.routing.found": "Gevonden door de hercontrole",
+	"admin.routing.others": "Andere teams",
+	"admin.summary.routing":
+		"Dagen met een waarschuwing bij de gateway-routering: {n}",
 	"admin.waiting.heading": "Wachten op het Strava-budget",
 	"admin.waiting.body": {
 		one: "{n} item wacht, klaar over ongeveer {time}.",

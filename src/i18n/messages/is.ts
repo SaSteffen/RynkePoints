@@ -927,6 +927,9 @@ export const is: Catalog = {
 		"Netþjónaskrár geyma aðeins auðkenni eins og íþróttamanns- og virkniauðkenni og tegund villu, aldrei aðgangslykla eða virknigögn. RynkePoints geymir ekki IP-tölur.",
 	"privacy.technical.oneTeam":
 		"Á RynkePoints hjólarðu fyrir eitt lið í einu. Þegar þú tengist spyr lið því hin liðin hvort þú hjólir nú þegar fyrir eitt þeirra. Það fær aðeins að vita já eða nei, aldrei hvaða lið, og geymir ekki svarið. Ef þú skiptir um lið eyðir liðið sem þú yfirgefur öllu um þig.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Öll lið deila einni tengingu við Strava, og Strava sendir skilaboð sín um virkni þína á eitt sameiginlegt heimilisfang. Það sendir hver skilaboð aðeins áfram til liðsins eða liðanna sem þú tilheyrir. Til þess geymir það Strava-íþróttamannsauðkenni þitt ásamt þessum liðum og ekkert annað. Það er geymt innan ESB, aðeins fólkið sem heldur RynkePoints við getur séð það og því er eytt þegar þú hættir, í síðasta lagi degi síðar.",
 	"privacy.visibility.heading": "Hver sér hvað",
 	"privacy.visibility.you":
 		"Þú sérð þína eigin virkni með titlum, Rynke-stigin og merkin. Enginn annar sér titlana.",
@@ -1250,6 +1253,21 @@ export const is: Catalog = {
 	"admin.cpu.none": "Engar örgjörvatölur skráðar enn.",
 	"admin.cpu.unavailable":
 		"Ekki tókst að sækja örgjörvatölur Cloudflare síðast. Taflan sýnir þá daga sem hafa verið skráðir hingað til.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Leiðarval gáttarinnar",
+	"admin.routing.note":
+		"Síðustu 30 dagar. Í prufunni fær hvert lið enn öll skilaboð; yfirvofandi tap eru skilaboð um einhvern í liðinu sem leiðarvalið hefði ekki sent hingað. Hent: skilaboð um einhvern sem liðið hefur ekki. Dagur er merktur við yfirvofandi eða mögulegt tap, eða þegar meira en 1\u00a0% skilaboða fóru til allra liða meðan öll lið notuðu leiðarval.",
+	"admin.routing.none": "Engar tölur enn.",
+	"admin.routing.copy": "Send eftir afritinu",
+	"admin.routing.everyone": "Send til allra liða",
+	"admin.routing.missed": "Yfirvofandi töp",
+	"admin.routing.wasted": "Send að óþörfu",
+	"admin.routing.dropped": "Hent",
+	"admin.routing.corrections": "Leiðréttingar listans",
+	"admin.routing.possible": "Möguleg töp",
+	"admin.routing.found": "Fundið við endurskoðun",
+	"admin.routing.others": "Önnur lið",
+	"admin.summary.routing": "Dagar með viðvörun í leiðarvali gáttarinnar: {n}",
 	"admin.waiting.heading": "Beðið eftir Strava-kvótanum",
 	"admin.waiting.body": {
 		one: "{n} færsla bíður, lokið eftir um {time}.",

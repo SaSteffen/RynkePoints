@@ -46,6 +46,27 @@ describe("GET /privacy", () => {
 		},
 	);
 
+	// Feature 046 FR-014: what the shared gateway keeps, in every language,
+	// naming no team.
+	it.each(Object.keys(CATALOGS) as (keyof typeof CATALOGS)[])(
+		"says what the gateway keeps for routing in %s",
+		async (lang) => {
+			const { page } = await get("/privacy", lang);
+			expect(page).toContain(
+				escapeHtml(CATALOGS[lang]["privacy.technical.gateway"]),
+			);
+		},
+	);
+
+	it("says the gateway's copy is in the EU, for how long and who sees it", () => {
+		const text = CATALOGS.en["privacy.technical.gateway"];
+		expect(text).toContain("Strava athlete ID");
+		expect(text).toContain("EU");
+		expect(text).toContain("at the latest a day later");
+		expect(text).toContain("only the people who maintain RynkePoints");
+		expect(text).not.toMatch(/Hamburg|Europe/);
+	});
+
 	it("says organisers see what riders report at team events (019 FR-052)", async () => {
 		const { page } = await get("/privacy", "de");
 		for (const id of [

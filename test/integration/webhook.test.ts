@@ -170,6 +170,7 @@ describe("POST /strava/webhook/:secret (events)", () => {
 				activityId: "7100001",
 				aspect: "create",
 				changed: [],
+				route: "plain",
 			},
 		]);
 	});
@@ -188,6 +189,7 @@ describe("POST /strava/webhook/:secret (events)", () => {
 				activityId: "9007199254740993",
 				aspect: "create",
 				changed: [],
+				route: "plain",
 			},
 		]);
 	});
@@ -235,6 +237,7 @@ describe("POST /strava/webhook/:secret (events)", () => {
 				activityId: "7100001",
 				aspect: "update",
 				changed: ["title", "type"],
+				route: "plain",
 			},
 		]);
 	});
@@ -249,6 +252,7 @@ describe("POST /strava/webhook/:secret (events)", () => {
 				activityId: "7100001",
 				aspect: "delete",
 				changed: [],
+				route: "plain",
 			},
 		]);
 	});
@@ -269,6 +273,7 @@ describe("POST /strava/webhook/:secret (events)", () => {
 				activityId: "7100001",
 				aspect: "update",
 				changed: ["title"],
+				route: "plain",
 			},
 		]);
 	});
@@ -293,6 +298,7 @@ describe("POST /strava/webhook/:secret (events)", () => {
 				athleteId: ATHLETE_A,
 				reason: "deauthorized",
 				revoke: false,
+				route: "plain",
 			},
 		]);
 	});

@@ -962,6 +962,9 @@ export const de = {
 		"Server-Protokolle enthalten nur Kennungen wie Athleten- und Aktivitäts-IDs und die Art eines Fehlers, nie Zugangsschlüssel oder Aktivitätsdaten. IP-Adressen speichert RynkePoints nicht.",
 	"privacy.technical.oneTeam":
 		"Bei RynkePoints fährst du immer für ein Team. Deshalb fragt ein Team beim Verbinden die anderen Teams, ob du schon für eines von ihnen fährst. Es erfährt nur ja oder nein, nie welches Team, und speichert die Antwort nicht. Wechselst du das Team, löscht das Team, das du verlässt, alles über dich.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Alle Teams teilen sich eine Verbindung zu Strava, und Strava schickt seine Meldungen zu deinen Aktivitäten an eine gemeinsame Adresse. Sie gibt jede Meldung nur an das Team oder die Teams weiter, zu denen du gehörst. Dafür speichert sie deine Strava-Athleten-ID zusammen mit diesen Teams, sonst nichts. Gespeichert wird in der EU, sehen können das nur die Leute, die RynkePoints betreuen, und gelöscht wird es, wenn du gehst, spätestens einen Tag später.",
 	"privacy.visibility.heading": "Wer was sieht",
 	"privacy.visibility.you":
 		"Du siehst deine eigenen Aktivitäten mit Titel, deine Rynke und deine Abzeichen. Die Titel sieht sonst niemand.",
@@ -1287,6 +1290,21 @@ export const de = {
 	"admin.cpu.none": "Bisher sind keine CPU-Zahlen aufgezeichnet.",
 	"admin.cpu.unavailable":
 		"Die CPU-Zahlen von Cloudflare konnten zuletzt nicht abgerufen werden. Die Tabelle zeigt die bisher aufgezeichneten Tage.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Gateway-Routing",
+	"admin.routing.note":
+		"Die letzten 30 Tage. Im Probelauf bekommt jedes Team weiter jede Meldung; ein drohender Verlust ist eine Meldung über jemanden aus dem Team, die das Routing nicht hierher geschickt hätte. Verworfen: Meldungen über jemanden, den das Team nicht führt. Markiert wird ein Tag mit drohendem oder möglichem Verlust, oder wenn mehr als 1\u00a0% der Meldungen an alle Teams gingen, während alle Teams routeten.",
+	"admin.routing.none": "Noch keine Zahlen.",
+	"admin.routing.copy": "Per Kopie zugestellt",
+	"admin.routing.everyone": "An alle Teams",
+	"admin.routing.missed": "Drohende Verluste",
+	"admin.routing.wasted": "Unnötig zugestellt",
+	"admin.routing.dropped": "Verworfen",
+	"admin.routing.corrections": "Korrekturen durch die Liste",
+	"admin.routing.possible": "Mögliche Verluste",
+	"admin.routing.found": "Von der Nachprüfung gefunden",
+	"admin.routing.others": "Andere Teams",
+	"admin.summary.routing": "Tage mit Warnung beim Gateway-Routing: {n}",
 	"admin.waiting.heading": "Warten auf das Strava-Budget",
 	"admin.waiting.body": {
 		one: "{n} Eintrag wartet, fertig in etwa {time}.",

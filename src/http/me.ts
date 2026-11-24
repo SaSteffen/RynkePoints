@@ -5,6 +5,7 @@ import {
 } from "../db/push-subscriptions";
 import { deleteRider, endSessions } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
+import { queueReport } from "../routing/report";
 import { withdrawStoredGrant } from "../strava/withdraw";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, pageLook } from "./html";
@@ -62,6 +63,7 @@ export async function handleDisconnect(
 	// withdrawn later (feature 041 R14).
 	await withdrawStoredGrant(ctx, rider.athleteId);
 	await deleteRider(ctx.env.DB, rider.athleteId);
+	await queueReport(ctx, rider.athleteId);
 	return redirect("/notice/deleted", 303, [clearSessionCookie()]);
 }
 

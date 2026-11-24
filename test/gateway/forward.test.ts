@@ -183,3 +183,33 @@ describe("forwarding", () => {
 		]);
 	});
 });
+
+// Feature 046 research R5: the trial's mark goes along as a header.
+describe("the trial's mark", () => {
+	function marked(chosen: boolean | undefined) {
+		return createMessageBatch<ForwardMessage>(QUEUE, [
+			{
+				id: "m0",
+				timestamp: new Date(1_790_000_000_000),
+				attempts: 1,
+				body: { team: "hamburg", body: BODY, chosen },
+			},
+		]);
+	}
+
+	async function header(chosen: boolean | undefined) {
+		let seen: string | null | undefined;
+		vi.mocked(globalThis.fetch).mockImplementation(async (input, init) => {
+			seen = new Request(input, init).headers.get("X-Rynke-Route");
+			return new Response("ok", { status: 200 });
+		});
+		await run(marked(chosen));
+		return seen;
+	}
+
+	it("says chosen or not-chosen, and nothing outside the trial", async () => {
+		expect(await header(true)).toBe("chosen");
+		expect(await header(false)).toBe("not-chosen");
+		expect(await header(undefined)).toBeNull();
+	});
+});

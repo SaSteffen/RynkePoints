@@ -93,6 +93,12 @@ export default defineConfig(async () => {
 									STRAVA_WEBHOOK_VERIFY_TOKEN: "test-gateway-verify-token",
 									TEAM_WEBHOOK_TOKEN_HAMBURG: "test-hamburg-webhook-token",
 									TEAM_WEBHOOK_TOKEN_EUROPE: "test-europe-webhook-token",
+									// workerd has no jurisdictions (feature 046 R1).
+									ROUTING_COPY_LOCAL: "local-only",
+									// The plain broadcast unless a test sets a mode, so tests
+									// that don't route leave the copy and its counts alone
+									// (the gateway ships "trial", test/unit/routing-config).
+									ROUTING: "off",
 								},
 								// Stand in for the teams' Workers; the forward tests replace them.
 								serviceBindings: {

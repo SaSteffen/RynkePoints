@@ -18,8 +18,10 @@ import {
 	listRidersBehindFiguresVersion,
 	setFiguresVersion,
 } from "../db/riders";
+import { pruneRoutingCounts } from "../db/routing";
 import { listRidersNeedingEvaluation } from "../db/rynke";
 import { pruneUsageAlerts, pruneUsageHistory } from "../db/usage";
+import { exchangeRoutingCounts, sendFullList } from "../routing/report";
 import {
 	type CountingWindow,
 	countingWindow,
@@ -42,8 +44,9 @@ const PURGE_EVALUATION_DELAY_SECONDS = 60;
 const DEADLINE_WAIT_DAYS = GIVE_UP_AFTER_SECONDS / (24 * 3600);
 
 /**
- * The hourly cron in `wrangler.jsonc`: usage (feature 025 research R2), then
- * the ride edit re-check's run (feature 036).
+ * The hourly cron in `wrangler.jsonc`: usage (feature 025 research R2), the
+ * gateway routing's counts (feature 046 research R9), then the ride edit
+ * re-check's run (feature 036).
  */
 export const USAGE_CRON = "58 * * * *";
 
@@ -223,6 +226,8 @@ export async function pruneUsage(ctx: Ctx): Promise<void> {
 	await pruneUsageHistory(ctx.env.DB, historyStart(today));
 	await pruneRecheckDays(ctx.env.DB, historyStart(today));
 	await pruneUsageAlerts(ctx.env.DB, daysBefore(today, 2));
+	// Gateway routing's counts keep 30 days (feature 046 FR-026).
+	await pruneRoutingCounts(ctx.env.DB, today);
 }
 
 function safeParse(json: string): unknown {
@@ -261,13 +266,16 @@ export async function handleScheduled(
 	if (controller.cron === USAGE_CRON) {
 		// The ride edit re-check's hourly run after the usage (feature 036
 		// contracts/hourly-run.md).
-		await runSteps(ctx, [recordUsage, recheckRun]);
+		await runSteps(ctx, [recordUsage, exchangeRoutingCounts, recheckRun]);
 		return;
 	}
 	await runSteps(ctx, [
 		fanOutMembershipChecks,
 		expireReconnectRiders,
 		sweepRemovedGuests,
+		// Everyone held now, so the gateway's copy matches within a day
+		// (feature 046 FR-006).
+		sendFullList,
 		settleWithdrawals,
 		requeueFailedWork,
 		fanOutFiguresReread,

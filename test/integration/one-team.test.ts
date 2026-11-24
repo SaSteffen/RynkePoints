@@ -88,7 +88,11 @@ describe("a new person who rides for another team", () => {
 		expect(setCookies(res).rp_session).toMatch(/^rp_session=[^;]+;/);
 		expect(fake.letGo).toEqual([PERSON]);
 		expect(await getRider(env.DB, PERSON)).not.toBeNull();
-		expect(ctx.queue.sent.map((m) => m.body.kind)).toEqual(["import-page"]);
+		// And the gateway's copy follows (feature 046).
+		expect(ctx.queue.sent.map((m) => m.body.kind)).toEqual([
+			"report-hold",
+			"import-page",
+		]);
 		await settled();
 		expect(fake.revocations).toEqual([]);
 	});

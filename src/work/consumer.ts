@@ -2,6 +2,8 @@ import type { Ctx } from "../ctx";
 import { deleteFailedWorkByMessage, upsertFailedWork } from "../db/failed-work";
 import { deleteRider, getRider, markNeedsReconnect } from "../db/riders";
 import { storeWork } from "../db/strava-work";
+import { countEvent } from "../routing/counts";
+import { queueReport, sendReport } from "../routing/report";
 import { backoffSeconds, MAX_DELAY_SECONDS } from "../strava/rate-limit";
 import { drain } from "./drain";
 import {
@@ -80,7 +82,22 @@ async function processMessage(
 		return;
 	}
 
+	if (body.kind === "report-hold") {
+		// Before the rider check: the person may be gone (feature 046).
+		await reportHold(message, body.athleteId, ctx);
+		return;
+	}
+
 	const rider = await getRider(ctx.env.DB, body.athleteId);
+	// The routing counts, once per event (feature 046 research R5). Nothing
+	// below reads `route`.
+	if (
+		(body.kind === "activity-event" || body.kind === "delete-rider") &&
+		body.route !== undefined &&
+		message.attempts === 1
+	) {
+		await countEvent(ctx, body.route, rider !== null);
+	}
 	// Deletions and evaluations need no Strava, so they apply while a rider must
 	// reconnect too (review L-03): a ride deleted meanwhile stops counting at
 	// once, and the season start's clean-up reaches their summary.
@@ -170,6 +187,27 @@ async function processMessage(
 	}
 }
 
+/**
+ * Sends a report to the gateway; retried while it fails, dropped on the last
+ * attempt, since the next full list corrects the copy (feature 046 FR-005).
+ */
+async function reportHold(
+	message: Message<unknown>,
+	athleteId: string,
+	ctx: Ctx,
+): Promise<void> {
+	if ((await sendReport(ctx, athleteId)) === "done") {
+		message.ack();
+	} else if (message.attempts >= MAX_ATTEMPTS) {
+		console.warn(
+			`report-hold for athlete ${athleteId} dropped: the next full list corrects it`,
+		);
+		message.ack();
+	} else {
+		message.retry({ delaySeconds: backoffSeconds(message.attempts) });
+	}
+}
+
 /** Backoff, or on the last attempt: record in failed_work (R7) and ack. */
 async function transientFailure(
 	message: Message<unknown>,
@@ -192,6 +230,7 @@ async function transientFailure(
 	} else if (body.kind === "delete-rider") {
 		// The deletion must complete (Principle I), even if revoking never did.
 		await deleteRider(ctx.env.DB, body.athleteId);
+		await queueReport(ctx, body.athleteId);
 		console.error(
 			`delete-rider for athlete ${body.athleteId} deleted after retries ran out: ${reason}`,
 		);

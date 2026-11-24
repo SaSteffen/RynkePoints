@@ -134,6 +134,13 @@ export function gatewayArgs(targets, teamToken) {
 		`TEAMS:${JSON.stringify(teams)}`,
 		"--var",
 		`STRAVA_WEBHOOK_VERIFY_TOKEN:${GATEWAY_VERIFY_TOKEN}`,
+		// Routing as it will run in production, with the gateway's own local
+		// copy under GATEWAY.stateDir; workerd has no jurisdictions (feature 046
+		// FR-017, research R1).
+		"--var",
+		"ROUTING:on",
+		"--var",
+		"ROUTING_COPY_LOCAL:local-only",
 		...targets.flatMap((t) => [
 			"--var",
 			`TEAM_WEBHOOK_TOKEN_${t.id.toUpperCase().replaceAll("-", "_")}:${teamToken}`,

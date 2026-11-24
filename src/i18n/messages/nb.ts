@@ -922,6 +922,9 @@ export const nb: Catalog = {
 		"Serverlogger inneholder bare ID-er som utøver- og aktivitets-ID og typen feil, aldri tilgangsnøkler eller aktivitetsdata. RynkePoints lagrer ikke IP-adresser.",
 	"privacy.technical.oneTeam":
 		"På RynkePoints sykler du for ett lag om gangen. Når du kobler deg til, spør et lag derfor de andre lagene om du allerede sykler for ett av dem. Det får bare vite ja eller nei, aldri hvilket lag, og lagrer ikke svaret. Bytter du lag, sletter laget du forlater alt om deg.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Alle lag deler én forbindelse til Strava, og Strava sender meldingene sine om aktivitetene dine til én felles adresse. Den sender hver melding bare videre til laget eller lagene du hører til. For det lagrer den Strava-utøver-ID-en din sammen med disse lagene, og ingenting annet. Den lagres i EU, bare de som vedlikeholder RynkePoints, kan se den, og den slettes når du går, senest en dag senere.",
 	"privacy.visibility.heading": "Hvem ser hva",
 	"privacy.visibility.you":
 		"Du ser dine egne aktiviteter med titlene, Rynke-ene og merkene dine. Ingen andre ser titlene.",
@@ -1240,6 +1243,21 @@ export const nb: Catalog = {
 	"admin.cpu.none": "Ingen CPU-tall registrert ennå.",
 	"admin.cpu.unavailable":
 		"Cloudflares CPU-tall kunne ikke hentes sist. Tabellen viser dagene som er registrert så langt.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Gateway-ruting",
+	"admin.routing.note":
+		"De siste 30 dagene. Under prøvekjøringen får hvert lag fortsatt hver melding; et truende tap er en melding om noen laget har, som rutingen ikke ville ha sendt hit. Forkastet: meldinger om noen laget ikke har. En dag markeres ved truende eller mulig tap, eller når mer enn 1\u00a0% av meldingene gikk til alle lag mens alle lag rutet.",
+	"admin.routing.none": "Ingen tall ennå.",
+	"admin.routing.copy": "Sendt etter kopien",
+	"admin.routing.everyone": "Sendt til alle lag",
+	"admin.routing.missed": "Truende tap",
+	"admin.routing.wasted": "Sendt unødig",
+	"admin.routing.dropped": "Forkastet",
+	"admin.routing.corrections": "Rettelser fra listen",
+	"admin.routing.possible": "Mulige tap",
+	"admin.routing.found": "Funnet av den nye kontrollen",
+	"admin.routing.others": "Andre lag",
+	"admin.summary.routing": "Dager med advarsel i gateway-rutingen: {n}",
 	"admin.waiting.heading": "Venter på Strava-budsjettet",
 	"admin.waiting.body": {
 		one: "{n} oppføring venter, ferdig om omtrent {time}.",

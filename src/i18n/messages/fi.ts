@@ -928,6 +928,9 @@ export const fi: Catalog = {
 		"Palvelinlokeissa on vain tunnisteita, kuten urheilija- ja suoritustunnuksia ja virheen tyyppi, ei koskaan pääsyavaimia tai suoritustietoja. RynkePoints ei tallenna IP-osoitteita.",
 	"privacy.technical.oneTeam":
 		"RynkePointsissa ajat yhdessä tiimissä kerrallaan. Kun yhdistät, tiimi kysyy siksi muilta tiimeiltä, ajatko jo jossakin niistä. Se saa tietää vain kyllä tai ei, ei koskaan mikä tiimi, eikä tallenna vastausta. Jos vaihdat tiimiä, tiimi, josta lähdet, poistaa kaiken sinusta.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Kaikilla tiimeillä on yksi yhteinen yhteys Stravaan, ja Strava lähettää viestinsä aktiviteeteistasi yhteen yhteiseen osoitteeseen. Se välittää jokaisen viestin vain sille tiimille tai niille tiimeille, joihin kuulut. Sitä varten se tallentaa Strava-urheilijatunnuksesi yhdessä näiden tiimien kanssa, eikä mitään muuta. Tiedot säilytetään EU:ssa, vain RynkePointsia ylläpitävät ihmiset näkevät ne, ja ne poistetaan, kun lähdet, viimeistään päivää myöhemmin.",
 	"privacy.visibility.heading": "Kuka näkee mitä",
 	"privacy.visibility.you":
 		"Näet omat suorituksesi otsikkoineen, Rynkesi ja merkkisi. Kukaan muu ei näe otsikoita.",
@@ -1246,6 +1249,22 @@ export const fi: Catalog = {
 	"admin.cpu.none": "Suoritinaikoja ei ole vielä tallennettu.",
 	"admin.cpu.unavailable":
 		"Cloudflaren suoritinaikoja ei viimeksi saatu haettua. Taulukko näyttää tähän mennessä tallennetut päivät.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Yhdyskäytävän reititys",
+	"admin.routing.note":
+		"Viimeiset 30 päivää. Kokeilun aikana jokainen tiimi saa yhä jokaisen viestin; uhkaava menetys on viesti tiimin jäsenestä, jota reititys ei olisi lähettänyt tänne. Hylätty: viestit henkilöstä, joka ei kuulu tiimiin. Päivä merkitään, jos siinä on uhkaava tai mahdollinen menetys tai jos yli 1\u00a0% viesteistä meni kaikille tiimeille, kun kaikki tiimit reitittivät.",
+	"admin.routing.none": "Ei vielä lukuja.",
+	"admin.routing.copy": "Kopion mukaan lähetetyt",
+	"admin.routing.everyone": "Kaikille tiimeille",
+	"admin.routing.missed": "Uhkaavat menetykset",
+	"admin.routing.wasted": "Turhaan lähetetyt",
+	"admin.routing.dropped": "Hylätyt",
+	"admin.routing.corrections": "Listan korjaukset",
+	"admin.routing.possible": "Mahdolliset menetykset",
+	"admin.routing.found": "Uudelleentarkistuksen löytämät",
+	"admin.routing.others": "Muut tiimit",
+	"admin.summary.routing":
+		"Päiviä, joilla yhdyskäytävän reitityksessä on varoitus: {n}",
 	"admin.waiting.heading": "Odotetaan Strava-budjettia",
 	"admin.waiting.body": {
 		one: "{n} kohde odottaa, valmis noin {time} kuluttua.",
