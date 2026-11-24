@@ -79,7 +79,7 @@ specs/047-strava-call-counts/
 
 ```text
 migrations/
-└── 00NN_strava_calls.sql       # next free number (data-model.md)
+└── 0040_strava_calls.sql       # after gateway routing's 0039
 
 src/
 ├── ctx.ts                      # Ctx.stravaAction

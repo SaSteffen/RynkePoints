@@ -1,7 +1,7 @@
 # Data Model: Strava Call Counts
 
-One forward-only migration in each team's D1 (the next free number after
-`0037`; if the gateway routing branch takes it first, this one moves up). It only
+One forward-only migration in each team's D1 (`0040_strava_calls.sql`, after
+CPU time's `0038` and gateway routing's `0039`). It only
 adds tables, so the previous release keeps working.
 
 ## `strava_calls_daily`
