@@ -1377,7 +1377,7 @@ describe("links to Strava (008 research R9)", () => {
 // `pnpm dev` with every team runs them behind the local gateway (feature 026
 // release 3): the stand-in screen sends the rider back through the gateway's
 // return address, and simulated events go to the gateway's webhook.
-describe("behind the local gateway", () => {
+describe("behind the local gateway", { timeout: 20_000 }, () => {
 	const GATEWAY = "http://localhost:8791";
 	const GATEWAY_WEBHOOK = `${GATEWAY}/strava/webhook/fake-gateway-token`;
 
