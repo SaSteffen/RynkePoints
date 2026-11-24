@@ -6,6 +6,11 @@
 
 **Status**: Draft
 
+**Design draft**: the Claude Design canvas "RynkePoints CPU Median"
+(https://claude.ai/artifact/Bs773SmPMa4bXFkoEYySPg). Board 0 is the CPU row
+today, board 1 the season graph with the median in the table, board 2 a week
+touched, board 3 the season before any median. Its figures are examples.
+
 **Input**: User description: "CPU time median over the season on Admin › Nutzung (usage tab), CPU time row. Cloudflare already reports the median CPU time next to the slowest 1 in 100 runs; record the daily median per owner (this team, the other teams, the gateway; highest across an owner's Workers, like the slowest runs' value) alongside the existing daily value. Show a graph covering the current season (1 Sep – 31 Aug): one point per week, each week's value the highest daily median of that week (max strategy); this team, the other teams and the gateway all in the same graph, as separate lines, with the 10 ms CPU limit for reference. Weeks without records are gaps, never zero. The 30-day table stays. History starts when recording starts (a one-time backfill task the maintainer runs on their computer, as far back as Cloudflare keeps data; must only need to run once). The stored data only gains a value, nothing existing changes. All admin text in the ten catalogs."
 
 ## Context and terms

@@ -33,4 +33,4 @@
 
 - The one-time fill is a task the maintainer runs by hand per team (User Story 3,
   FR-015 to FR-017); it is safe to repeat, so "only once" needs no guard.
-- The UI example (design draft) is linked from the spec once made.
+- The design draft is linked at the top of the spec.
