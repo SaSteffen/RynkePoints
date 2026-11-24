@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { COMMON_EN } from "../../src/content/phrases/common.en";
-import { HAMBURG_PHRASES } from "../../src/content/phrases/hamburg.de";
 import type { PhraseSet, Season } from "../../src/content/types";
 import { TEAMS } from "../../src/teams";
+import { HAMBURG_PHRASES } from "../../teams/hamburg/phrases.de";
 
 // The common English phrases (feature 026 contracts/phrases.md › Checks): the
 // stand-in for every team without phrases of its own, so they name no team or

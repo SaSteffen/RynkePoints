@@ -376,7 +376,7 @@ jobs:
           set -euo pipefail
           if [ "$GITHUB_EVENT_NAME" != push ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
             echo "deploy=true" >> "$GITHUB_OUTPUT"
-          elif git diff --quiet "$BEFORE" "$GITHUB_SHA" -- gateway src/crypto/secret.ts pnpm-lock.yaml; then
+          elif git diff --quiet "$BEFORE" "$GITHUB_SHA" -- gateway src/crypto/secret.ts src/routing/figures.ts pnpm-lock.yaml; then
             echo "deploy=false" >> "$GITHUB_OUTPUT"
             echo "::notice::The gateway didn't change; not deploying it."
           else

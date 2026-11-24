@@ -1,5 +1,6 @@
 import { env } from "cloudflare:test";
 import { vi } from "vitest";
+import type { StravaAction, StravaEndpoint } from "../../src/strava/calls";
 
 // Synthetic usage for the admin view's tests (feature 025): figures straight into
 // D1, and a stubbed Cloudflare. No test reaches Cloudflare (FR-028).
@@ -87,6 +88,31 @@ export async function setCloudflareState(
 		.run();
 }
 
+/** A day's Strava calls under one action and endpoint (feature 047). */
+export async function seedCalls(
+	day: string,
+	action: StravaAction,
+	endpoint: StravaEndpoint,
+	calls: number,
+	heldBack = 0,
+): Promise<void> {
+	await env.DB.prepare(
+		`INSERT INTO strava_calls_daily (day, action, endpoint, calls, held_back)
+		VALUES (?, ?, ?, ?, ?)`,
+	)
+		.bind(day, action, endpoint, calls, heldBack)
+		.run();
+}
+
+/** The highest daily total Strava reported to this team on `day`. */
+export async function seedSeen(day: string, seen: number): Promise<void> {
+	await env.DB.prepare(
+		"INSERT INTO strava_seen_daily (day, seen) VALUES (?, ?)",
+	)
+		.bind(day, seen)
+		.run();
+}
+
 export interface CloudflareFigures {
 	requests?: number;
 	operations?: number;
@@ -147,9 +173,65 @@ export interface CloudflareCall {
 	query: string;
 }
 
-/** Answers Cloudflare's GraphQL endpoint; everything else goes to the earlier mock. */
+/** One Worker's day in a CPU answer (feature 025 User Story 6). */
+export interface CpuFigures {
+	date: string;
+	scriptName: string;
+	runs: number;
+	cutOff?: number;
+	/** Microseconds, as Cloudflare reports them. */
+	cpuTimeP99?: number;
+}
+
+/** A body for `CPU_QUERY`: one group per Worker and day, split by status. */
+export function cpuBody(workers: readonly CpuFigures[]): unknown {
+	return {
+		data: {
+			viewer: {
+				accounts: [
+					{
+						runs: workers.map((w) => ({
+							sum: { requests: w.runs },
+							quantiles: { cpuTimeP99: w.cpuTimeP99 ?? 0 },
+							dimensions: { date: w.date, scriptName: w.scriptName },
+						})),
+						outcomes: workers.flatMap((w) => [
+							{
+								sum: { requests: w.runs - (w.cutOff ?? 0) },
+								dimensions: {
+									date: w.date,
+									scriptName: w.scriptName,
+									status: "success",
+								},
+							},
+							...((w.cutOff ?? 0) > 0
+								? [
+										{
+											sum: { requests: w.cutOff },
+											dimensions: {
+												date: w.date,
+												scriptName: w.scriptName,
+												status: "exceededResources",
+											},
+										},
+									]
+								: []),
+						]),
+					},
+				],
+			},
+		},
+		errors: null,
+	};
+}
+
+/**
+ * Answers Cloudflare's GraphQL endpoint; everything else goes to the earlier
+ * mock. The CPU query gets `cpu` (no Workers by default) and isn't in `calls`.
+ */
 export function installCloudflare(
 	answer: () => Response | "throw",
+	cpu: () => Response | "throw" = () => Response.json(cpuBody([])),
 ): CloudflareCall[] {
 	const spy = vi.mocked(globalThis.fetch);
 	const previous = spy.getMockImplementation();
@@ -164,6 +246,11 @@ export function installCloudflare(
 			query: string;
 			variables: CloudflareCall["variables"];
 		};
+		if (body.query.startsWith("query Cpu")) {
+			const response = cpu();
+			if (response === "throw") throw new TypeError("Network connection lost");
+			return response;
+		}
 		calls.push({
 			authorization: request.headers.get("Authorization"),
 			variables: body.variables,

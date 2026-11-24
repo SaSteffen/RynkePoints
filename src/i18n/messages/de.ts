@@ -700,7 +700,7 @@ export const de = {
 		"Fahrten {n}, typisch {typical}\u00a0km",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
-	// names of a team with its own are in src/content/badge-names/; the
+	// names of a team with its own are in teams/<id>/badge-names.<locale>.ts; the
 	// common ones are the badge.name.<id> messages at the end.
 	"badges.heading": "Abzeichen",
 	"badges.personal.newest": "Deine Abzeichen",
@@ -962,6 +962,9 @@ export const de = {
 		"Server-Protokolle enthalten nur Kennungen wie Athleten- und Aktivitäts-IDs und die Art eines Fehlers, nie Zugangsschlüssel oder Aktivitätsdaten. IP-Adressen speichert RynkePoints nicht.",
 	"privacy.technical.oneTeam":
 		"Bei RynkePoints fährst du immer für ein Team. Deshalb fragt ein Team beim Verbinden die anderen Teams, ob du schon für eines von ihnen fährst. Es erfährt nur ja oder nein, nie welches Team, und speichert die Antwort nicht. Wechselst du das Team, löscht das Team, das du verlässt, alles über dich.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Alle Teams teilen sich eine Verbindung zu Strava, und Strava schickt seine Meldungen zu deinen Aktivitäten an eine gemeinsame Adresse. Sie gibt jede Meldung nur an das Team oder die Teams weiter, zu denen du gehörst. Dafür speichert sie deine Strava-Athleten-ID zusammen mit diesen Teams, sonst nichts. Gespeichert wird in der EU, sehen können das nur die Leute, die RynkePoints betreuen, und gelöscht wird es, wenn du gehst, spätestens einen Tag später.",
 	"privacy.visibility.heading": "Wer was sieht",
 	"privacy.visibility.you":
 		"Du siehst deine eigenen Aktivitäten mit Titel, deine Rynke und deine Abzeichen. Die Titel sieht sonst niemand.",
@@ -1279,6 +1282,57 @@ export const de = {
 		other: "{n} Läufe angehalten",
 	},
 	"admin.recheck.listOrder": "Reihenfolge der Liste",
+	"admin.cpu.heading": "CPU-Zeit der Worker",
+	"admin.cpu.intro":
+		"Jeder Lauf eines Workers (eine Seite, ein Stapel aus der Warteschlange, ein geplanter Lauf) darf {limit} CPU-Zeit nutzen. Je Tag: wie viel die langsamsten 1 von 100 Läufen brauchten, und wie viele Läufe Cloudflare abgebrochen hat. Einzelne Ausreißer verzeiht Cloudflare, abgebrochene Läufe sind Fehler.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} von {runs} abgebrochen",
+	"admin.cpu.none": "Bisher sind keine CPU-Zahlen aufgezeichnet.",
+	"admin.cpu.unavailable":
+		"Die CPU-Zahlen von Cloudflare konnten zuletzt nicht abgerufen werden. Die Tabelle zeigt die bisher aufgezeichneten Tage.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Gateway-Routing",
+	"admin.routing.note":
+		"Die letzten 30 Tage. Im Probelauf bekommt jedes Team weiter jede Meldung; ein drohender Verlust ist eine Meldung über jemanden aus dem Team, die das Routing nicht hierher geschickt hätte. Verworfen: Meldungen über jemanden, den das Team nicht führt. Markiert wird ein Tag mit drohendem oder möglichem Verlust, oder wenn mehr als 1\u00a0% der Meldungen an alle Teams gingen, während alle Teams routeten.",
+	"admin.routing.none": "Noch keine Zahlen.",
+	"admin.routing.copy": "Per Kopie zugestellt",
+	"admin.routing.everyone": "An alle Teams",
+	"admin.routing.missed": "Drohende Verluste",
+	"admin.routing.wasted": "Unnötig zugestellt",
+	"admin.routing.dropped": "Verworfen",
+	"admin.routing.corrections": "Korrekturen durch die Liste",
+	"admin.routing.possible": "Mögliche Verluste",
+	"admin.routing.found": "Von der Nachprüfung gefunden",
+	"admin.routing.others": "Andere Teams",
+	// Feature 047: Strava call counts in the usage view (contracts/usage-view.md).
+	"admin.calls.heading": "Strava-Aufrufe",
+	"admin.calls.intro":
+		"Die letzten 30 Tage nach UTC: jeder Aufruf dieses Teams bei Strava, und die Aufrufe, die das Budget zurückgehalten hat. Zurückgehaltene Arbeit versucht es später wieder. Unter der Tabelle steht, wofür die Aufrufe des gewählten Tages waren.",
+	"admin.calls.none": "Bisher ist kein Aufruf gezählt.",
+	"admin.calls.heldBack": "Zurückgehalten",
+	"admin.calls.day": "Aufrufe am {date}",
+	"admin.calls.dayNone": "An diesem Tag gab es keinen Aufruf.",
+	"admin.calls.for": "Wofür",
+	"admin.calls.total": "Zusammen",
+	"admin.calls.action.connect": "Verbinden",
+	"admin.calls.action.import": "Saison-Import",
+	"admin.calls.action.ride-event": "Gemeldete Fahrt",
+	"admin.calls.action.club-check": "Tägliche Club-Prüfung",
+	"admin.calls.action.recheck": "Nachprüfung der Fahrten",
+	"admin.calls.action.reread": "Einmaliges Neulesen",
+	"admin.calls.action.leave": "Zugang zurückgeben",
+	"admin.calls.action.disconnect": "Von Strava gemeldete Trennung",
+	"admin.calls.action.unassigned": "Nicht zugeordnet",
+	"admin.calls.endpoint.clubs": "Clubs",
+	"admin.calls.endpoint.activity": "Eine Aktivität",
+	"admin.calls.endpoint.activities": "Aktivitätenliste",
+	"admin.calls.endpoint.token": "Token holen oder erneuern",
+	"admin.calls.endpoint.revoke": "Token widerrufen",
+	"admin.calls.all": "Alle Teams",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "fehlt",
+	"admin.summary.calls": "Tage mit Warnung bei den Strava-Aufrufen: {n}",
+	"admin.summary.routing": "Tage mit Warnung beim Gateway-Routing: {n}",
 	"admin.waiting.heading": "Warten auf das Strava-Budget",
 	"admin.waiting.body": {
 		one: "{n} Eintrag wartet, fertig in etwa {time}.",
@@ -1345,6 +1399,10 @@ export const de = {
 	"admin.remove.leaveLink": "Meine Daten löschen",
 	"notification.usage.warning": "{allowance}: {percent}\u00a0%",
 	"notification.usage.critical": "Kritisch: {allowance} bei {percent}\u00a0%",
+	"notification.usage.cpuWarning":
+		"Cloudflare hat heute Läufe abgebrochen, meist wegen zu viel CPU-Zeit.",
+	"notification.usage.cpuCritical":
+		"Kritisch: Cloudflare hat heute mehr als 1 von 100 Läufen abgebrochen.",
 	"notice.blocked.title": "Du kannst bei diesem Team nicht mitmachen",
 	"notice.blocked.body":
 		"Ein Admin hat dich aus diesem Team entfernt. Wir behalten nur deine Strava-ID, damit du dich nicht wieder verbinden kannst.",

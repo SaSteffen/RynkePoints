@@ -971,6 +971,9 @@ export const fr: Catalog = {
 		"Les journaux du serveur ne contiennent que des identifiants comme ceux d'athlète et d'activité et le type d'une erreur, jamais de clés d'accès ni de données d'activité. RynkePoints ne stocke pas d'adresses IP.",
 	"privacy.technical.oneTeam":
 		"Sur RynkePoints, tu roules pour une seule équipe à la fois. Quand tu te connectes, une équipe demande donc aux autres équipes si tu roules déjà pour l'une d'elles. Elle n'apprend que oui ou non, jamais laquelle, et ne garde pas la réponse. Si tu changes d'équipe, l'équipe que tu quittes supprime tout ce qui te concerne.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Toutes les équipes partagent une seule connexion à Strava, et Strava envoie ses messages sur tes activités à une adresse commune. Celle-ci ne transmet chaque message qu'à l'équipe ou aux équipes dont tu fais partie. Pour cela, elle garde ton identifiant d'athlète Strava avec ces équipes, et rien d'autre. C'est stocké dans l'UE, seules les personnes qui maintiennent RynkePoints peuvent le voir, et c'est supprimé quand tu pars, au plus tard un jour après.",
 	"privacy.visibility.heading": "Qui voit quoi",
 	"privacy.visibility.you":
 		"Tu vois tes propres activités avec leurs titres, tes Rynke et tes badges. Personne d'autre ne voit les titres.",
@@ -1292,6 +1295,58 @@ export const fr: Catalog = {
 		other: "{n} passages suspendus",
 	},
 	"admin.recheck.listOrder": "ordre de la liste",
+	"admin.cpu.heading": "Temps CPU des Workers",
+	"admin.cpu.intro":
+		"Chaque exécution d'un Worker (une page, un lot de la file, une exécution planifiée) peut utiliser {limit} de CPU. Par jour\u00a0: le temps qu'ont pris les exécutions les plus lentes (1 sur 100), et le nombre d'exécutions interrompues par Cloudflare. Cloudflare tolère un dépassement occasionnel\u00a0; une exécution interrompue est un échec.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} sur {runs} interrompues",
+	"admin.cpu.none": "Aucun chiffre CPU enregistré pour l'instant.",
+	"admin.cpu.unavailable":
+		"Les chiffres CPU de Cloudflare n'ont pas pu être récupérés la dernière fois. Le tableau montre les jours déjà enregistrés.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Routage de la passerelle",
+	"admin.routing.note":
+		"Les 30 derniers jours. Pendant l'essai, chaque équipe reçoit toujours chaque message ; une perte évitée de justesse est un message sur quelqu'un de l'équipe que le routage ne lui aurait pas envoyé. Écartés : messages sur quelqu'un que l'équipe n'a pas. Un jour est marqué en cas de perte évitée ou possible, ou quand plus de 1\u00a0% des messages sont allés à toutes les équipes alors que toutes routaient.",
+	"admin.routing.none": "Pas encore de chiffres.",
+	"admin.routing.copy": "Envoyés selon la copie",
+	"admin.routing.everyone": "Envoyés à toutes les équipes",
+	"admin.routing.missed": "Pertes évitées de justesse",
+	"admin.routing.wasted": "Envois inutiles",
+	"admin.routing.dropped": "Écartés",
+	"admin.routing.corrections": "Corrections par la liste",
+	"admin.routing.possible": "Pertes possibles",
+	"admin.routing.found": "Trouvées par la nouvelle vérification",
+	"admin.routing.others": "Autres équipes",
+	"admin.calls.heading": "Appels à Strava",
+	"admin.calls.intro":
+		"Les 30 derniers jours, en UTC\u00a0: chaque appel de cette équipe à Strava, et les appels que le budget a retenus. Le travail retenu réessaie plus tard. Sous le tableau\u00a0: à quoi ont servi les appels du jour choisi.",
+	"admin.calls.none": "Aucun appel compté pour l'instant.",
+	"admin.calls.heldBack": "Retenus",
+	"admin.calls.day": "Appels du {date}",
+	"admin.calls.dayNone": "Aucun appel ce jour-là.",
+	"admin.calls.for": "Pour",
+	"admin.calls.total": "Total",
+	"admin.calls.action.connect": "Connexion",
+	"admin.calls.action.import": "Import de la saison",
+	"admin.calls.action.ride-event": "Sortie signalée",
+	"admin.calls.action.club-check": "Vérification quotidienne du club",
+	"admin.calls.action.recheck": "Nouvelle vérification des sorties",
+	"admin.calls.action.reread": "Relecture unique",
+	"admin.calls.action.leave": "Rendre l'accès",
+	"admin.calls.action.disconnect": "Déconnexion signalée par Strava",
+	"admin.calls.action.unassigned": "Non attribué",
+	"admin.calls.endpoint.clubs": "Clubs",
+	"admin.calls.endpoint.activity": "Une activité",
+	"admin.calls.endpoint.activities": "Liste des activités",
+	"admin.calls.endpoint.token": "Obtenir ou renouveler un jeton",
+	"admin.calls.endpoint.revoke": "Révoquer un jeton",
+	"admin.calls.all": "Toutes les équipes",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "manquant",
+	"admin.summary.calls":
+		"Jours avec un avertissement des appels à Strava : {n}",
+	"admin.summary.routing":
+		"Jours avec un avertissement du routage de la passerelle : {n}",
 	"admin.waiting.heading": "En attente du budget Strava",
 	"admin.waiting.body": {
 		one: "{n} élément en attente, terminé dans environ {time}.",
@@ -1371,6 +1426,10 @@ export const fr: Catalog = {
 	"admin.remove.leaveLink": "Supprimer mes données",
 	"notification.usage.warning": "{allowance}\u00a0: {percent} %",
 	"notification.usage.critical": "Critique\u00a0: {allowance} à {percent} %",
+	"notification.usage.cpuWarning":
+		"Cloudflare a interrompu des exécutions aujourd'hui, surtout pour trop de temps CPU.",
+	"notification.usage.cpuCritical":
+		"Critique\u00a0: Cloudflare a interrompu plus d'une exécution sur 100 aujourd'hui.",
 	"notice.blocked.title": "Tu ne peux pas participer à cette équipe",
 	"notice.blocked.body":
 		"Un administrateur t'a retiré·e de cette équipe. Nous gardons seulement ton identifiant Strava, pour que tu ne puisses pas te reconnecter.",

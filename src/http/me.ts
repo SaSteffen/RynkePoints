@@ -5,6 +5,7 @@ import {
 } from "../db/push-subscriptions";
 import { deleteRider, endSessions } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
+import { queueReport } from "../routing/report";
 import { withdrawStoredGrant } from "../strava/withdraw";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, pageLook } from "./html";
@@ -59,9 +60,10 @@ export async function handleDisconnect(
 	const { rider } = viewer;
 
 	// Unless another team holds them; a token not settled yet is kept and
-	// withdrawn later (feature 041 R14).
-	await withdrawStoredGrant(ctx, rider.athleteId);
+	// withdrawn later (feature 041 R14). Counted as leaving (feature 047).
+	await withdrawStoredGrant({ ...ctx, stravaAction: "leave" }, rider.athleteId);
 	await deleteRider(ctx.env.DB, rider.athleteId);
+	await queueReport(ctx, rider.athleteId);
 	return redirect("/notice/deleted", 303, [clearSessionCookie()]);
 }
 

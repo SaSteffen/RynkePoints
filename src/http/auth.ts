@@ -22,6 +22,7 @@ import {
 	updateRiderOnReconnect,
 } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
+import { queueReport } from "../routing/report";
 import { evaluateChange } from "../rynke/apply";
 import { isClubMember } from "../strava/client";
 import { STRAVA_ORIGIN } from "../strava/result";
@@ -149,10 +150,16 @@ function notice(id: NoticeId, cookies: string[] = []): Response {
 	return redirect(`/notice/${id}`, 303, [clearOAuthStateCookie(), ...cookies]);
 }
 
-export async function handleCallback(
-	request: Request,
-	ctx: Ctx,
-): Promise<Response> {
+/**
+ * Strava's redirect after the person approved or declined. Its Strava calls,
+ * giving access back to someone turned away among them, count under
+ * connecting (feature 047 research R1).
+ */
+export function handleCallback(request: Request, ctx: Ctx): Promise<Response> {
+	return signIn(request, { ...ctx, stravaAction: "connect" });
+}
+
+async function signIn(request: Request, ctx: Ctx): Promise<Response> {
 	const params = new URL(request.url).searchParams;
 	const expected = await readOAuthState(request, ctx.env, ctx.now());
 	if (!expected || params.get("state") !== expected.state) {
@@ -195,6 +202,7 @@ export async function handleCallback(
 		withdraw();
 		if (!existing) return notice(id);
 		await deleteRider(ctx.env.DB, token.athleteId);
+		await queueReport(ctx, token.athleteId);
 		return notice(deletedId, [clearSessionCookie()]);
 	};
 
@@ -275,6 +283,8 @@ export async function handleCallback(
 		// A token kept from an earlier refusal here must not be revoked now
 		// that this team holds the grant (feature 044 R5).
 		await forgetPendingRevocation(ctx.env.DB, token.athleteId);
+		// The gateway's copy follows (feature 046 FR-004).
+		await queueReport(ctx, token.athleteId);
 		startImport = true;
 	} else {
 		// Reconnect rules (data-model.md). The new token is stored before the

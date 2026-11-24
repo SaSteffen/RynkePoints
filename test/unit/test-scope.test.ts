@@ -33,7 +33,7 @@ describe("testsFor", () => {
 		"e2e/smoke.e2e.ts",
 		"scripts/e2e-scope.mjs",
 		"public/app.js",
-		"src/content/phrases/hamburg.de.ts",
+		"teams/hamburg/phrases.de.ts",
 		".github/workflows/ci.yml",
 		".github/actions/setup/action.yml",
 	])("runs all of them when %s changed", (path) => {

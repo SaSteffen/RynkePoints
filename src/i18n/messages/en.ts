@@ -674,7 +674,7 @@ export const en: Catalog = {
 		"Sessions {n}, typical {typical}\u00a0km",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
-	// names of a team with its own are in src/content/badge-names/; the
+	// names of a team with its own are in teams/<id>/badge-names.<locale>.ts; the
 	// common ones are the badge.name.<id> messages at the end.
 	"badges.heading": "Badges",
 	"badges.personal.newest": "Your badges",
@@ -927,6 +927,9 @@ export const en: Catalog = {
 		"Server logs hold only identifiers such as athlete and activity IDs and the kind of an error, never access keys or activity data. RynkePoints doesn't store IP addresses.",
 	"privacy.technical.oneTeam":
 		"On RynkePoints you ride for one team at a time. So when you connect, a team asks the other teams whether you already ride for one of them. It learns only yes or no, never which team, and doesn't store the answer. If you switch teams, the team you leave deletes everything about you.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"All teams share one connection to Strava, and Strava sends its messages about your activities to one shared address. It passes each message on only to the team or teams you belong to. For that, it keeps your Strava athlete ID together with those teams, and nothing else. It is stored in the EU, only the people who maintain RynkePoints can see it, and it is deleted when you leave, at the latest a day later.",
 	"privacy.visibility.heading": "Who sees what",
 	"privacy.visibility.you":
 		"You see your own activities with their titles, your Rynke and your badges. Nobody else sees the titles.",
@@ -1234,6 +1237,56 @@ export const en: Catalog = {
 	"admin.recheck.over24h": "Waited over 24\u00a0h",
 	"admin.recheck.runsHeld": { one: "{n} run held", other: "{n} runs held" },
 	"admin.recheck.listOrder": "list order",
+	"admin.cpu.heading": "Workers' CPU time",
+	"admin.cpu.intro":
+		"Each run of a Worker (a page, a queue batch, a scheduled run) may use {limit} of CPU. Per day: how much the slowest 1 in 100 runs needed, and how many runs Cloudflare cut off. Cloudflare forgives the odd overrun; runs cut off are failures.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} of {runs} cut off",
+	"admin.cpu.none": "No CPU figures recorded yet.",
+	"admin.cpu.unavailable":
+		"Cloudflare's CPU figures couldn't be fetched last time. The table shows the days recorded so far.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Gateway routing",
+	"admin.routing.note":
+		"The last 30 days. In the trial every team still gets every event; a would-be miss is an event about someone the team holds that routing wouldn't have sent it. Dropped: events about someone the team doesn't hold. A day is marked for a would-be or possible miss, or when more than 1\u00a0% of events went to every team while every team was routing.",
+	"admin.routing.none": "No figures yet.",
+	"admin.routing.copy": "Sent by the copy",
+	"admin.routing.everyone": "Sent to every team",
+	"admin.routing.missed": "Would-be misses",
+	"admin.routing.wasted": "Would-be wasted",
+	"admin.routing.dropped": "Dropped",
+	"admin.routing.corrections": "List corrections",
+	"admin.routing.possible": "Possible misses",
+	"admin.routing.found": "Found by the re-check",
+	"admin.routing.others": "Other teams",
+	"admin.calls.heading": "Strava calls",
+	"admin.calls.intro":
+		"The last 30 days by UTC: every call this team made to Strava, and the calls the budget held back. Work held back tries again later. Below the table: what the chosen day's calls were for.",
+	"admin.calls.none": "No call counted yet.",
+	"admin.calls.heldBack": "Held back",
+	"admin.calls.day": "Calls on {date}",
+	"admin.calls.dayNone": "No calls that day.",
+	"admin.calls.for": "For",
+	"admin.calls.total": "Total",
+	"admin.calls.action.connect": "Connecting",
+	"admin.calls.action.import": "Season import",
+	"admin.calls.action.ride-event": "Ride event",
+	"admin.calls.action.club-check": "Daily club check",
+	"admin.calls.action.recheck": "Ride re-check",
+	"admin.calls.action.reread": "One-time re-read",
+	"admin.calls.action.leave": "Giving access back",
+	"admin.calls.action.disconnect": "Disconnect reported by Strava",
+	"admin.calls.action.unassigned": "Unassigned",
+	"admin.calls.endpoint.clubs": "Clubs",
+	"admin.calls.endpoint.activity": "One activity",
+	"admin.calls.endpoint.activities": "Activity list",
+	"admin.calls.endpoint.token": "Get or refresh a token",
+	"admin.calls.endpoint.revoke": "Revoke a token",
+	"admin.calls.all": "All teams",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "missing",
+	"admin.summary.calls": "Strava call days with a warning: {n}",
+	"admin.summary.routing": "Gateway routing days with a warning: {n}",
 	"admin.waiting.heading": "Waiting for the Strava budget",
 	"admin.waiting.body": {
 		one: "{n} item is waiting, done in about {time}.",
@@ -1299,6 +1352,10 @@ export const en: Catalog = {
 	"admin.remove.leaveLink": "Delete my data",
 	"notification.usage.warning": "{allowance}: {percent}\u00a0%",
 	"notification.usage.critical": "Critical: {allowance} at {percent}\u00a0%",
+	"notification.usage.cpuWarning":
+		"Cloudflare cut off runs today, mostly for using too much CPU time.",
+	"notification.usage.cpuCritical":
+		"Critical: Cloudflare cut off more than 1 in 100 runs today.",
 	"notice.blocked.title": "You can't take part in this team",
 	"notice.blocked.body":
 		"An administrator removed you from this team. We only keep your Strava ID, so you can't connect again.",

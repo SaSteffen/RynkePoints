@@ -678,7 +678,7 @@ export const nl: Catalog = {
 	"organiser.overview.sessions.typical": "Sessies {n}, typisch {typical} km",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
-	// names of a team with its own are in src/content/badge-names/; the
+	// names of a team with its own are in teams/<id>/badge-names.<locale>.ts; the
 	// common ones are the badge.name.<id> messages at the end.
 	"badges.heading": "Badges",
 	"badges.personal.newest": "Je badges",
@@ -940,6 +940,9 @@ export const nl: Catalog = {
 		"Serverlogs bevatten alleen kenmerken zoals atleet- en activiteit-ID's en het soort fout, nooit toegangssleutels of activiteitsgegevens. RynkePoints slaat geen IP-adressen op.",
 	"privacy.technical.oneTeam":
 		"Op RynkePoints rijd je voor één team tegelijk. Daarom vraagt een team bij het koppelen aan de andere teams of je al voor een van hen rijdt. Het hoort alleen ja of nee, nooit welk team, en bewaart het antwoord niet. Stap je over naar een ander team, dan wist het team dat je verlaat alles over je.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Alle teams delen één verbinding met Strava, en Strava stuurt zijn berichten over je activiteiten naar één gedeeld adres. Dat geeft elk bericht alleen door aan het team of de teams waar je bij hoort. Daarvoor bewaart het je Strava-atleet-ID samen met die teams, en verder niets. Dit wordt in de EU opgeslagen, alleen de mensen die RynkePoints onderhouden kunnen het zien, en het wordt verwijderd als je vertrekt, uiterlijk een dag later.",
 	"privacy.visibility.heading": "Wie wat ziet",
 	"privacy.visibility.you":
 		"Jij ziet je eigen activiteiten met hun titels, je Rynke en je badges. Niemand anders ziet de titels.",
@@ -1251,6 +1254,58 @@ export const nl: Catalog = {
 		other: "{n} rondes aangehouden",
 	},
 	"admin.recheck.listOrder": "volgorde van de lijst",
+	"admin.cpu.heading": "CPU-tijd van de Workers",
+	"admin.cpu.intro":
+		"Elke run van een Worker (een pagina, een batch uit de wachtrij, een geplande run) mag {limit} CPU-tijd gebruiken. Per dag: hoeveel de traagste 1 op 100 runs nodig hadden, en hoeveel runs Cloudflare heeft afgebroken. Cloudflare vergeeft een enkele overschrijding; afgebroken runs zijn fouten.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} van {runs} afgebroken",
+	"admin.cpu.none": "Nog geen CPU-cijfers vastgelegd.",
+	"admin.cpu.unavailable":
+		"De CPU-cijfers van Cloudflare konden de laatste keer niet worden opgehaald. De tabel toont de dagen die tot nu toe zijn vastgelegd.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Gateway-routering",
+	"admin.routing.note":
+		"De laatste 30 dagen. Tijdens de proef krijgt elk team nog elk bericht; een dreigend verlies is een bericht over iemand van het team dat de routering hier niet had bezorgd. Verworpen: berichten over iemand die het team niet heeft. Een dag wordt gemarkeerd bij een dreigend of mogelijk verlies, of als meer dan 1\u00a0% van de berichten naar alle teams ging terwijl alle teams routeerden.",
+	"admin.routing.none": "Nog geen cijfers.",
+	"admin.routing.copy": "Bezorgd via de kopie",
+	"admin.routing.everyone": "Naar alle teams",
+	"admin.routing.missed": "Dreigende verliezen",
+	"admin.routing.wasted": "Onnodig bezorgd",
+	"admin.routing.dropped": "Verworpen",
+	"admin.routing.corrections": "Correcties door de lijst",
+	"admin.routing.possible": "Mogelijke verliezen",
+	"admin.routing.found": "Gevonden door de hercontrole",
+	"admin.routing.others": "Andere teams",
+	"admin.calls.heading": "Aanroepen naar Strava",
+	"admin.calls.intro":
+		"De laatste 30 dagen volgens UTC: elke aanroep van dit team naar Strava, en de aanroepen die het budget tegenhield. Tegengehouden werk probeert het later opnieuw. Onder de tabel staat waarvoor de aanroepen van de gekozen dag waren.",
+	"admin.calls.none": "Nog geen aanroep geteld.",
+	"admin.calls.heldBack": "Tegengehouden",
+	"admin.calls.day": "Aanroepen op {date}",
+	"admin.calls.dayNone": "Geen aanroepen die dag.",
+	"admin.calls.for": "Waarvoor",
+	"admin.calls.total": "Totaal",
+	"admin.calls.action.connect": "Verbinden",
+	"admin.calls.action.import": "Seizoensimport",
+	"admin.calls.action.ride-event": "Gemelde rit",
+	"admin.calls.action.club-check": "Dagelijkse clubcontrole",
+	"admin.calls.action.recheck": "Hercontrole van ritten",
+	"admin.calls.action.reread": "Eenmalig opnieuw lezen",
+	"admin.calls.action.leave": "Toegang teruggeven",
+	"admin.calls.action.disconnect": "Ontkoppeling gemeld door Strava",
+	"admin.calls.action.unassigned": "Niet toegewezen",
+	"admin.calls.endpoint.clubs": "Clubs",
+	"admin.calls.endpoint.activity": "Eén activiteit",
+	"admin.calls.endpoint.activities": "Activiteitenlijst",
+	"admin.calls.endpoint.token": "Token ophalen of vernieuwen",
+	"admin.calls.endpoint.revoke": "Token intrekken",
+	"admin.calls.all": "Alle teams",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "ontbreekt",
+	"admin.summary.calls":
+		"Dagen met een waarschuwing bij de aanroepen naar Strava: {n}",
+	"admin.summary.routing":
+		"Dagen met een waarschuwing bij de gateway-routering: {n}",
 	"admin.waiting.heading": "Wachten op het Strava-budget",
 	"admin.waiting.body": {
 		one: "{n} item wacht, klaar over ongeveer {time}.",
@@ -1317,6 +1372,10 @@ export const nl: Catalog = {
 	"admin.remove.leaveLink": "Mijn gegevens wissen",
 	"notification.usage.warning": "{allowance}: {percent} %",
 	"notification.usage.critical": "Kritiek: {allowance} op {percent} %",
+	"notification.usage.cpuWarning":
+		"Cloudflare heeft vandaag runs afgebroken, meestal door te veel CPU-tijd.",
+	"notification.usage.cpuCritical":
+		"Kritiek: Cloudflare heeft vandaag meer dan 1 op 100 runs afgebroken.",
 	"notice.blocked.title": "Je kunt niet meedoen in dit team",
 	"notice.blocked.body":
 		"Een beheerder heeft je uit dit team verwijderd. We bewaren alleen je Strava-ID, zodat je niet opnieuw kunt verbinden.",

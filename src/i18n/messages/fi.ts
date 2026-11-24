@@ -928,6 +928,9 @@ export const fi: Catalog = {
 		"Palvelinlokeissa on vain tunnisteita, kuten urheilija- ja suoritustunnuksia ja virheen tyyppi, ei koskaan pääsyavaimia tai suoritustietoja. RynkePoints ei tallenna IP-osoitteita.",
 	"privacy.technical.oneTeam":
 		"RynkePointsissa ajat yhdessä tiimissä kerrallaan. Kun yhdistät, tiimi kysyy siksi muilta tiimeiltä, ajatko jo jossakin niistä. Se saa tietää vain kyllä tai ei, ei koskaan mikä tiimi, eikä tallenna vastausta. Jos vaihdat tiimiä, tiimi, josta lähdet, poistaa kaiken sinusta.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Kaikilla tiimeillä on yksi yhteinen yhteys Stravaan, ja Strava lähettää viestinsä aktiviteeteistasi yhteen yhteiseen osoitteeseen. Se välittää jokaisen viestin vain sille tiimille tai niille tiimeille, joihin kuulut. Sitä varten se tallentaa Strava-urheilijatunnuksesi yhdessä näiden tiimien kanssa, eikä mitään muuta. Tiedot säilytetään EU:ssa, vain RynkePointsia ylläpitävät ihmiset näkevät ne, ja ne poistetaan, kun lähdet, viimeistään päivää myöhemmin.",
 	"privacy.visibility.heading": "Kuka näkee mitä",
 	"privacy.visibility.you":
 		"Näet omat suorituksesi otsikkoineen, Rynkesi ja merkkisi. Kukaan muu ei näe otsikoita.",
@@ -1238,6 +1241,57 @@ export const fi: Catalog = {
 		other: "{n} ajoa pidätetty",
 	},
 	"admin.recheck.listOrder": "listan järjestys",
+	"admin.cpu.heading": "Workerien suoritinaika",
+	"admin.cpu.intro":
+		"Workerin jokainen suoritus (sivu, jonon erä, ajastettu suoritus) saa käyttää {limit} suoritinaikaa. Päivittäin: kuinka paljon hitain suoritus sadasta tarvitsi ja kuinka monta suoritusta Cloudflare keskeytti. Cloudflare sallii satunnaiset ylitykset, mutta keskeytetyt suoritukset ovat virheitä.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut}/{runs} keskeytetty",
+	"admin.cpu.none": "Suoritinaikoja ei ole vielä tallennettu.",
+	"admin.cpu.unavailable":
+		"Cloudflaren suoritinaikoja ei viimeksi saatu haettua. Taulukko näyttää tähän mennessä tallennetut päivät.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Yhdyskäytävän reititys",
+	"admin.routing.note":
+		"Viimeiset 30 päivää. Kokeilun aikana jokainen tiimi saa yhä jokaisen viestin; uhkaava menetys on viesti tiimin jäsenestä, jota reititys ei olisi lähettänyt tänne. Hylätty: viestit henkilöstä, joka ei kuulu tiimiin. Päivä merkitään, jos siinä on uhkaava tai mahdollinen menetys tai jos yli 1\u00a0% viesteistä meni kaikille tiimeille, kun kaikki tiimit reitittivät.",
+	"admin.routing.none": "Ei vielä lukuja.",
+	"admin.routing.copy": "Kopion mukaan lähetetyt",
+	"admin.routing.everyone": "Kaikille tiimeille",
+	"admin.routing.missed": "Uhkaavat menetykset",
+	"admin.routing.wasted": "Turhaan lähetetyt",
+	"admin.routing.dropped": "Hylätyt",
+	"admin.routing.corrections": "Listan korjaukset",
+	"admin.routing.possible": "Mahdolliset menetykset",
+	"admin.routing.found": "Uudelleentarkistuksen löytämät",
+	"admin.routing.others": "Muut tiimit",
+	"admin.calls.heading": "Strava-kutsut",
+	"admin.calls.intro":
+		"Viimeiset 30 päivää UTC:n mukaan: jokainen tämän tiimin kutsu Stravaan ja kutsut, jotka budjetti pidätti. Pidätetty työ yrittää myöhemmin uudelleen. Taulukon alla näkyy, mihin valitun päivän kutsut käytettiin.",
+	"admin.calls.none": "Kutsuja ei ole vielä laskettu.",
+	"admin.calls.heldBack": "Pidätetty",
+	"admin.calls.day": "Kutsut {date}",
+	"admin.calls.dayNone": "Sinä päivänä ei ollut kutsuja.",
+	"admin.calls.for": "Mihin",
+	"admin.calls.total": "Yhteensä",
+	"admin.calls.action.connect": "Yhdistäminen",
+	"admin.calls.action.import": "Kauden tuonti",
+	"admin.calls.action.ride-event": "Ilmoitettu ajo",
+	"admin.calls.action.club-check": "Päivittäinen seuratarkistus",
+	"admin.calls.action.recheck": "Ajojen uudelleentarkistus",
+	"admin.calls.action.reread": "Kertaluonteinen uudelleenluku",
+	"admin.calls.action.leave": "Pääsyn palautus",
+	"admin.calls.action.disconnect": "Stravan ilmoittama yhteyden katkaisu",
+	"admin.calls.action.unassigned": "Kohdistamaton",
+	"admin.calls.endpoint.clubs": "Seurat",
+	"admin.calls.endpoint.activity": "Yksi suoritus",
+	"admin.calls.endpoint.activities": "Suorituslista",
+	"admin.calls.endpoint.token": "Tunnuksen haku tai uusiminen",
+	"admin.calls.endpoint.revoke": "Tunnuksen peruutus",
+	"admin.calls.all": "Kaikki tiimit",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "puuttuu",
+	"admin.summary.calls": "Päiviä, joilla Strava-kutsuissa on varoitus: {n}",
+	"admin.summary.routing":
+		"Päiviä, joilla yhdyskäytävän reitityksessä on varoitus: {n}",
 	"admin.waiting.heading": "Odotetaan Strava-budjettia",
 	"admin.waiting.body": {
 		one: "{n} kohde odottaa, valmis noin {time} kuluttua.",
@@ -1304,6 +1358,10 @@ export const fi: Catalog = {
 	"admin.remove.leaveLink": "Poista tietoni",
 	"notification.usage.warning": "{allowance}: {percent} %",
 	"notification.usage.critical": "Kriittinen: {allowance} {percent} %",
+	"notification.usage.cpuWarning":
+		"Cloudflare keskeytti tänään suorituksia, yleensä liian suuren suoritinajan vuoksi.",
+	"notification.usage.cpuCritical":
+		"Kriittinen: Cloudflare keskeytti tänään yli yhden suorituksen sadasta.",
 	"notice.blocked.title": "Et voi osallistua tässä tiimissä",
 	"notice.blocked.body":
 		"Ylläpitäjä on poistanut sinut tästä tiimistä. Säilytämme vain Strava-tunnuksesi, jotta et voi yhdistää uudelleen.",

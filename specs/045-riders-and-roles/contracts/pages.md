@@ -8,8 +8,9 @@ dialog (`dialog.role-sheet`).
 
 ## Admin switch
 
-Two segments: Nutzung (gauge icon, `/admin`) and "Rider und Rollen" (people icon,
-`/admin/riders`). The key-icon segment is gone.
+Two segments: "Rider und Rollen" (people icon, `/admin/riders`) first, then Nutzung (gauge
+icon, `/admin`). The key-icon segment is gone. The Admin tab in the navigation opens
+"Rider und Rollen", as Orga's opens its rider overview.
 
 ## Rider und Rollen (`/admin/riders`)
 

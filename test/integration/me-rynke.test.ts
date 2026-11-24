@@ -6,7 +6,7 @@ import { CATALOGS, type Locale } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import type { ReasonCode } from "../../src/rynke/rides";
 import type { TeamEventSum } from "../../src/rynke/team-events";
-import { hamburg } from "../../src/teams/hamburg";
+import { hamburg } from "../../teams/hamburg/team";
 import {
 	makeCtx,
 	request,

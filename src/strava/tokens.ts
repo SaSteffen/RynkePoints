@@ -1,6 +1,7 @@
 import { clientId, clientSecret } from "../config";
 import { readRateLimitState } from "../db/rate-limit";
 import { getCredentials, saveCredentials } from "../db/riders";
+import type { StravaEndpoint } from "./calls";
 import { isStravaId, parseStravaJson } from "./id";
 import {
 	budgetDecision,
@@ -8,6 +9,7 @@ import {
 	type Priority,
 } from "./rate-limit";
 import {
+	countRefused,
 	STRAVA_ORIGIN,
 	type StravaCtx,
 	type StravaFailure,
@@ -20,8 +22,8 @@ import {
 // (research R2, contracts/strava-api-usage.md).
 
 const REFRESH_MARGIN_SECONDS = 300;
-const TOKEN_ENDPOINT = "POST /oauth/token";
-const REVOKE_ENDPOINT = "POST /oauth/revoke";
+const TOKEN_ENDPOINT: StravaEndpoint = "POST /oauth/token";
+const REVOKE_ENDPOINT: StravaEndpoint = "POST /oauth/revoke";
 
 export interface TokenExchange {
 	accessToken: string;
@@ -43,20 +45,21 @@ interface TokenBody {
 
 /**
  * Whether the budget allows a token call of this priority (feature 024 FR-007,
- * research R5); the deferral if not.
+ * research R5); the deferral if not, counted as held back (feature 047 FR-005).
  */
 async function tokenBudget(
 	ctx: StravaCtx,
 	priority: Priority,
+	endpoint: StravaEndpoint,
 ): Promise<StravaFailure | null> {
 	const budget = budgetDecision(
 		await readRateLimitState(ctx.env.DB),
 		ctx.now(),
 		priority,
 	);
-	return budget.ok
-		? null
-		: { kind: "budget", delaySeconds: budget.delaySeconds };
+	if (budget.ok) return null;
+	await countRefused(ctx, endpoint);
+	return { kind: "budget", delaySeconds: budget.delaySeconds };
 }
 
 async function postToken(
@@ -64,7 +67,7 @@ async function postToken(
 	form: Record<string, string>,
 	priority: Priority,
 ): Promise<Response | StravaFailure> {
-	const refused = await tokenBudget(ctx, priority);
+	const refused = await tokenBudget(ctx, priority, TOKEN_ENDPOINT);
 	if (refused) return refused;
 	return stravaFetch(ctx, TOKEN_ENDPOINT, `${STRAVA_ORIGIN}/oauth/token`, {
 		method: "POST",
@@ -192,7 +195,7 @@ export async function revokeToken(
 	ctx: StravaCtx,
 	token: string,
 ): Promise<StravaResult<null>> {
-	if (await tokenBudget(ctx, "interactive")) {
+	if (await tokenBudget(ctx, "interactive", REVOKE_ENDPOINT)) {
 		return transient(REVOKE_ENDPOINT, "budget");
 	}
 	const credentials = btoa(`${clientId(ctx.env)}:${clientSecret(ctx.env)}`);

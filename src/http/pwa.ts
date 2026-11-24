@@ -6,7 +6,11 @@ import { readBadgeRiseStatement } from "../db/badges";
 import { riderStandingStatements, toRiderStanding } from "../db/rider-view";
 import { sessionCurrentStatement } from "../db/riders";
 import { readRiseStatement } from "../db/rynke";
-import { type CurrentAlert, currentAlertStatement } from "../db/usage";
+import {
+	CPU_ALERT,
+	type CurrentAlert,
+	currentAlertStatement,
+} from "../db/usage";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
 import { versionsOf } from "../rynke/rules";
@@ -166,23 +170,34 @@ export async function handleRiderNotificationText(
 	const alert = (alertRows?.results as CurrentAlert[] | undefined)?.[0];
 	if (alert) {
 		const i18n = textI18n(request, ctx);
-		// Without today's record yet, the level is what's known to be reached.
-		const percent =
-			alert.used !== null && alert.limit_value !== null
-				? percentOf(alert.used, alert.limit_value)
-				: alert.level;
+		const critical = alert.level >= CRITICAL_LEVEL;
+		const { allowance } = alert;
+		let body: string;
+		if (allowance === CPU_ALERT) {
+			// Runs cut off have no percentage (feature 025 FR-044).
+			body = i18n.t(
+				critical
+					? "notification.usage.cpuCritical"
+					: "notification.usage.cpuWarning",
+			);
+		} else {
+			// Without today's record yet, the level is what's known to be reached.
+			const percent =
+				alert.used !== null && alert.limit_value !== null
+					? percentOf(alert.used, alert.limit_value)
+					: alert.level;
+			body = i18n.t(
+				critical ? "notification.usage.critical" : "notification.usage.warning",
+				{
+					allowance: i18n.t(`admin.allowance.${allowance}`),
+					percent: i18n.formatNumber(percent, { fractionDigits: 0 }),
+				},
+			);
+		}
 		return Response.json(
 			{
 				title: i18n.t("app.name"),
-				body: i18n.t(
-					alert.level >= CRITICAL_LEVEL
-						? "notification.usage.critical"
-						: "notification.usage.warning",
-					{
-						allowance: i18n.t(`admin.allowance.${alert.allowance}`),
-						percent: i18n.formatNumber(percent, { fractionDigits: 0 }),
-					},
-				),
+				body,
 				url: "/admin",
 			},
 			{ headers: { ...headers, "Content-Language": i18n.locale } },

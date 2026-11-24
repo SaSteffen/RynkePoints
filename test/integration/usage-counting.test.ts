@@ -24,8 +24,10 @@ const WITH_USAGE = {
 	"X-RateLimit-Limit": "600,6000",
 };
 
+const ENDPOINT = "GET /athlete/clubs";
+
 const call = (now: number, method?: string) =>
-	stravaFetch(makeCtx({ now }), "test", "https://www.strava.com/api/v3/x", {
+	stravaFetch(makeCtx({ now }), ENDPOINT, "https://www.strava.com/api/v3/x", {
 		method,
 	});
 
@@ -89,12 +91,13 @@ describe("recordRateLimitHeaders counting", () => {
 		});
 	});
 
-	it("causes one UPDATE per response, as before", async () => {
+	it("causes one UPDATE per response, beside the call's count", async () => {
 		answer(WITH_USAGE);
 		const { ctx, counter } = countTrips(makeCtx({ now: NOW }));
-		await stravaFetch(ctx, "test", "https://www.strava.com/api/v3/x", {});
-		// One read of the row and one UPDATE.
-		expect(counter.calls()).toBe(2);
+		await stravaFetch(ctx, ENDPOINT, "https://www.strava.com/api/v3/x", {});
+		// One read of the row and one UPDATE, and the call's count in one batch
+		// (feature 047).
+		expect(counter.calls()).toBe(3);
 	});
 
 	it("doesn't lose the response when the write fails", async () => {
@@ -114,7 +117,7 @@ describe("recordRateLimitHeaders counting", () => {
 		};
 		const res = await stravaFetch(
 			broken,
-			"test",
+			ENDPOINT,
 			"https://www.strava.com/api/v3/x",
 			{},
 		);

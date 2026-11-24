@@ -86,6 +86,18 @@ export interface FakeStrava {
 	/** The gateway answers 503. */
 	gatewayDown: boolean;
 	gatewayCalls: { team: string; athleteId: string; auth: string | null }[];
+	/**
+	 * Gateway routing (feature 046): each report, full list and counts
+	 * exchange the gateway was sent, and the status it answers them with.
+	 */
+	routing: {
+		reports: { team: string; athleteId: string; held: boolean }[];
+		lists: { team: string; athleteIds: string[] }[];
+		exchanges: { team: string; days: unknown[] }[];
+		/** What `/counts` answers with. */
+		counts: unknown[];
+		status: number;
+	};
 	/** Rate headers on every /api/v3 response; `null` sends none. */
 	rateHeaders: RateHeaders | null;
 	/**
@@ -145,6 +157,7 @@ export function installFakeStrava(): FakeStrava {
 		letGoFails: false,
 		gatewayDown: false,
 		gatewayCalls: [],
+		routing: { reports: [], lists: [], exchanges: [], counts: [], status: 200 },
 		rateHeaders: {
 			usage: "1,1",
 			limit: "200,2000",
@@ -382,6 +395,35 @@ export function installFakeStrava(): FakeStrava {
 					held: fake.held.get(athleteId) ?? "none",
 					rider: fake.riders.has(athleteId),
 				});
+			}
+			const route = /^\/teams\/([^/]+)\/(report|list|counts)$/.exec(
+				url.pathname,
+			);
+			if (url.origin === GATEWAY_ORIGIN && route && request.method === "POST") {
+				// Feature 046 contracts/gateway.md: IDs as strings.
+				const team = route[1] ?? "";
+				const body = (await request.json()) as Record<string, unknown>;
+				if (fake.gatewayDown) return new Response("down", { status: 503 });
+				if (route[2] === "report") {
+					fake.routing.reports.push({
+						team,
+						athleteId: body.athleteId as string,
+						held: body.held as boolean,
+					});
+				} else if (route[2] === "list") {
+					fake.routing.lists.push({
+						team,
+						athleteIds: body.athleteIds as string[],
+					});
+				} else {
+					fake.routing.exchanges.push({ team, days: body.days as unknown[] });
+					if (fake.routing.status === 200) {
+						return Response.json({ days: fake.routing.counts });
+					}
+				}
+				return fake.routing.status === 200
+					? Response.json({})
+					: new Response("no", { status: fake.routing.status });
 			}
 			const letGo = /^\/teams\/([^/]+)\/let-go$/.exec(url.pathname);
 			if (url.origin === GATEWAY_ORIGIN && letGo && request.method === "POST") {

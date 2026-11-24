@@ -1,5 +1,6 @@
 import type { ConsentVersions } from "./consent";
 import type { Catalogs } from "./i18n/catalogs";
+import type { StravaAction } from "./strava/calls";
 import type { TeamData } from "./teams/types";
 import type { WorkMessage } from "./work/messages";
 
@@ -24,4 +25,9 @@ export interface Ctx {
 	 * `Server-Timing` header (`handleFetch`). Only a request has one.
 	 */
 	timing?: (name: string, ms: number) => void;
+	/**
+	 * What this piece of work's Strava calls count under, set where the work
+	 * starts; without one they count as unassigned (feature 047 research R1).
+	 */
+	stravaAction?: StravaAction;
 }

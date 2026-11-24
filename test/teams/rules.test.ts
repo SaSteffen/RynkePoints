@@ -13,9 +13,9 @@ import {
 	seasonEnd,
 } from "../../src/rynke/rules";
 import { teamFor } from "../../src/teams";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
 import type { TeamData } from "../../src/teams/types";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A } from "../support/fixtures";
 import { makeRide } from "../support/rides";
@@ -170,6 +170,52 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 			rulesFingerprint(inEffect),
 			"a rule value changed: raise Europe's version and effectiveDate, then update this fingerprint",
 		).toBe(fingerprint);
+	});
+});
+
+// The season and qualification dates each team's rules version was set for
+// (issue #19). Stored results record only the rules version, and the daily
+// cron re-evaluates only riders stored with another one; the season start
+// leaves rides and badges out, the window's dates mark rides as counting or
+// not. So a change of any of these dates in a team's Wrangler block raises
+// that team's rules version (teams/<id>/team.ts), then updates its entry here.
+const DATES_OF_VERSION: Record<
+	string,
+	{ version: number; dates: Record<string, string> }
+> = {
+	hamburg: {
+		version: 3,
+		dates: {
+			SEASON_START_DATE: "2026-09-01",
+			QUALIFICATION_START_DATE: "2026-09-01",
+			QUALIFICATION_DEADLINE: "2027-06-30",
+		},
+	},
+	europe: {
+		version: 6,
+		dates: {
+			SEASON_START_DATE: "2026-09-01",
+			QUALIFICATION_START_DATE: "2027-01-01",
+			QUALIFICATION_DEADLINE: "2027-06-30",
+		},
+	},
+};
+
+describe(`${team.id}'s season dates (issue #19)`, () => {
+	it("pins the season and qualification dates to the rules version", () => {
+		const pinned = DATES_OF_VERSION[team.id];
+		expect(pinned, `no dates pinned for ${team.id}`).toBeDefined();
+		expect(
+			{
+				version: currentRules(team.rules).version,
+				dates: {
+					SEASON_START_DATE: env.SEASON_START_DATE,
+					QUALIFICATION_START_DATE: env.QUALIFICATION_START_DATE,
+					QUALIFICATION_DEADLINE: env.QUALIFICATION_DEADLINE,
+				},
+			},
+			"a season date changed: raise the team's rules version and effectiveDate, then update DATES_OF_VERSION",
+		).toEqual(pinned);
 	});
 });
 

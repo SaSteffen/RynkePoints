@@ -8,9 +8,11 @@ import {
 import type { Rider } from "../db/riders";
 import { anyWorkReady } from "../db/strava-work";
 import { differences, gone } from "../recheck/diff";
+import { countFound } from "../routing/counts";
 import type { StravaActivity } from "../strava/activity";
 import { listNewestActivities, PER_PAGE } from "../strava/client";
 import { budgetDecision, halfDayUsed } from "../strava/rate-limit";
+import { countRefused } from "../strava/result";
 import { utcDay } from "../usage/allowances";
 import { evaluateAndNotify } from "./activity-event";
 import { keptActivities } from "./activity-page";
@@ -36,15 +38,21 @@ function newestFirst(list: readonly StravaActivity[]): boolean {
 	return true;
 }
 
-/** Whether the check stands back (research R8): what others wait for first. */
-async function standsBack(rider: Rider, ctx: Ctx): Promise<boolean> {
+/**
+ * Why the check stands back (research R8), null if it doesn't: the budget, or
+ * other work, which goes first.
+ */
+async function standsBack(
+	rider: Rider,
+	ctx: Ctx,
+): Promise<"budget" | "other" | null> {
 	if (rider.status !== "connected" || rider.importStatus !== "done")
-		return true;
+		return "other";
 	const state = await readRateLimitState(ctx.env.DB);
 	const now = ctx.now();
-	if (halfDayUsed(state, now)) return true;
-	if (!budgetDecision(state, now, "background").ok) return true;
-	return anyWorkReady(ctx.env.DB, now);
+	if (halfDayUsed(state, now)) return "budget";
+	if (!budgetDecision(state, now, "background").ok) return "budget";
+	return (await anyWorkReady(ctx.env.DB, now)) ? "other" : null;
 }
 
 export const recheckRider: Handler<RecheckRiderMessage> = async (
@@ -57,7 +65,10 @@ export const recheckRider: Handler<RecheckRiderMessage> = async (
 		return OK;
 	};
 
-	if (await standsBack(rider, ctx)) return notMade({ skipped: 1 });
+	const back = await standsBack(rider, ctx);
+	// Only the budget holds a call back (feature 047 research R4).
+	if (back === "budget") await countRefused(ctx, "GET /athlete/activities");
+	if (back !== null) return notMade({ skipped: 1 });
 
 	// Read before the list is fetched: an activity stored in between is then
 	// either listed or not judged, never taken for one deleted on Strava.
@@ -92,6 +103,17 @@ export const recheckRider: Handler<RecheckRiderMessage> = async (
 			kind: "upsert",
 			...changed,
 		});
+		// What no event had brought, for gateway routing's baseline (feature
+		// 046 FR-023).
+		await countFound(
+			ctx,
+			changed.records.filter((r) => !stored.rides.has(r.strava_activity_id))
+				.length +
+				changed.runs.filter((r) => !stored.runs.has(r.strava_activity_id))
+					.length +
+				changed.swims.filter((r) => !stored.swims.has(r.strava_activity_id))
+					.length,
+		);
 	}
 	if (removed.length > 0) {
 		await evaluateAndNotify(ctx, rider.athleteId, {

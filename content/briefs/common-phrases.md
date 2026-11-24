@@ -39,7 +39,7 @@ About 40 phrases:
 
 ## Source
 
-Adapted from Hamburg's list in `src/content/phrases/hamburg.de.ts` (formerly
+Adapted from Hamburg's list in `teams/hamburg/phrases.de.ts` (formerly
 `src/i18n/messages/quotes.de.ts`), with the team and place references taken out, plus
 some new ones. Generate about three times the target, drop near-duplicates and rule
 breakers before rating (FR-030). Only approved phrases reach the code (FR-033).

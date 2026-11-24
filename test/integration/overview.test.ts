@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
-import { hamburg } from "../../src/teams/hamburg";
+import { hamburg } from "../../teams/hamburg/team";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A } from "../support/fixtures";
 import { riderPage, seedBalance, seedRide } from "../support/rider-view";

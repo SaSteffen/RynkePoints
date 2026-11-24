@@ -11,9 +11,12 @@ import {
 	type Rider,
 	setAdminAlerts,
 } from "../../db/riders";
+import { readRoutingCounts } from "../../db/routing";
+import { readCalls } from "../../db/strava-calls";
 import { totalWaitingStatement } from "../../db/strava-work";
 import {
 	readCloudflareFigures,
+	readCpuDays,
 	readSourceStates,
 	type SourceState,
 	type TeamCountRecord,
@@ -22,14 +25,40 @@ import {
 	usageHistoryStatement,
 	usageRecords,
 } from "../../db/usage";
+import type { MessageId } from "../../i18n/catalogs";
 import type { I18n } from "../../i18n/i18n";
+import { firstRoutingDay } from "../../routing/figures";
+import { exchangeRoutingCounts } from "../../routing/report";
+import {
+	isWarningDay,
+	type RoutingDay,
+	routingDays,
+} from "../../routing/warning";
+import {
+	type CallBreakdown,
+	type CallDayRow,
+	callBreakdown,
+	callDayRows,
+	firstCallDay,
+	ownCallDays,
+	type PeerCallDay,
+	type StravaEndpoint,
+} from "../../strava/calls";
 import {
 	CLOUDFLARE_ALLOWANCES,
 	CLOUDFLARE_LIMITS,
+	daysBefore,
 	historyStart,
 	isRecordedAllowance,
 	utcDay,
 } from "../../usage/allowances";
+import {
+	CPU_LIMIT_MS,
+	type CpuDay,
+	type CpuLevel,
+	cpuLevel,
+	notifiesThisTeam,
+} from "../../usage/cpu";
 import {
 	connectedFigure,
 	drainEstimateSeconds,
@@ -301,14 +330,230 @@ ${days.map(row)}</tbody>
 `;
 }
 
-/** How many figures need a look, so nobody has to read them all (SC-001). */
-function summary(i18n: I18n, figures: readonly Figure[]): SafeHtml {
-	const marked = figures.filter((f) => f.level !== "ok").length;
+/** Each endpoint's name in the breakdown. */
+const ENDPOINT_NAMES: Record<StravaEndpoint, MessageId> = {
+	"GET /athlete/clubs": "admin.calls.endpoint.clubs",
+	"GET /activities/{id}": "admin.calls.endpoint.activity",
+	"GET /athlete/activities": "admin.calls.endpoint.activities",
+	"POST /oauth/token": "admin.calls.endpoint.token",
+	"POST /oauth/revoke": "admin.calls.endpoint.revoke",
+};
+
+/**
+ * This team's Strava calls (feature 047 contracts/usage-view.md): per UTC day
+ * the calls, the other teams' together, all teams', Strava's count and the
+ * calls held back, a day that doesn't add up marked; each day linked to its
+ * breakdown below, `picked`'s, by action and endpoint. Counts only: no rider
+ * and no other team is named.
+ */
+function callsSection(
+	i18n: I18n,
+	days: readonly CallDayRow[],
+	/** How many other teams there are; without any, their columns are left out. */
+	peers: number,
+	picked: string,
+	breakdown: CallBreakdown,
+): SafeHtml {
+	const date = (day: string) => i18n.formatDate(`${day}T00:00:00Z`);
+	const head = (label: string) => html`<th scope="col">${label}</th>`;
+	const cell = (n: number | null) =>
+		html`<td>${n === null ? null : whole(i18n, n)}</td>`;
+	const teams = (d: CallDayRow) =>
+		peers === 0
+			? null
+			: html`<td>${d.others === "missing" ? i18n.t("admin.calls.missing") : d.others === null ? null : whole(i18n, d.others)}</td>${cell(d.all)}`;
+	const row = (d: CallDayRow) =>
+		html`<tr><th scope="row"><a href="?calls=${d.day}#strava-calls"${d.day === picked ? html` aria-current="date"` : null}>${date(d.day)}</a>${d.marked ? html` <span class="usage-mark usage-mark-warning">${i18n.t("admin.level.warning")}</span>` : null}</th><td>${whole(i18n, d.calls)}</td>${teams(d)}${cell(d.strava)}<td>${whole(i18n, d.heldBack)}</td></tr>
+`;
+	const parts =
+		breakdown.rows.length === 0
+			? html`<p class="usage-detail">${i18n.t("admin.calls.dayNone")}</p>`
+			: html`<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
+<thead><tr>${head(i18n.t("admin.calls.for"))}${breakdown.endpoints.map((e) => head(i18n.t(ENDPOINT_NAMES[e])))}${head(i18n.t("admin.calls.heldBack"))}${head(i18n.t("admin.calls.total"))}</tr></thead>
+<tbody>
+${breakdown.rows.map(
+	(r) =>
+		html`<tr><th scope="row">${i18n.t(`admin.calls.action.${r.action}`)}</th>${r.calls.map((n) => html`<td>${whole(i18n, n)}</td>`)}<td>${whole(i18n, r.heldBack)}</td><td>${whole(i18n, r.total)}</td></tr>
+`,
+)}</tbody>
+</table></div></div>`;
+	return html`<section class="card usage-source" id="strava-calls">
+<h2>${i18n.t("admin.calls.heading")}</h2>
+<p class="usage-detail">${i18n.t("admin.calls.intro")}</p>
+${
+	days.length === 0
+		? html`<p class="usage-detail">${i18n.t("admin.calls.none")}</p>`
+		: html`<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
+<thead><tr>${head(i18n.t("admin.history.day"))}${head(i18n.t("admin.history.team"))}${
+				peers === 0
+					? null
+					: html`${head(i18n.t(peers === 1 ? "admin.teams.other" : "admin.routing.others"))}${head(i18n.t("admin.calls.all"))}`
+			}${head(i18n.t("admin.calls.strava"))}${head(i18n.t("admin.calls.heldBack"))}</tr></thead>
+<tbody>
+${days.map(row)}</tbody>
+</table></div></div>
+<h3>${i18n.t("admin.calls.day", { date: date(picked) })}</h3>
+${parts}`
+}</section>
+`;
+}
+
+/** The days the CPU table shows, today included (FR-042). */
+const CPU_DAYS = 30;
+
+/** Per day: this team, the other teams together, the gateway. */
+interface CpuRow {
+	day: string;
+	own: CpuDay | null;
+	others: CpuDay | null;
+	shared: CpuDay | null;
+}
+
+/** The days' records by owner, other teams added up, newest first. */
+function cpuRows(days: readonly CpuDay[], self: string): CpuRow[] {
+	const rows = new Map<string, CpuRow>();
+	for (const record of days) {
+		let row = rows.get(record.day);
+		if (!row) {
+			row = { day: record.day, own: null, others: null, shared: null };
+			rows.set(record.day, row);
+		}
+		if (record.owner === self) row.own = record;
+		else if (record.owner === SHARED) row.shared = record;
+		else if (row.others === null) row.others = { ...record };
+		else {
+			row.others.runs += record.runs;
+			row.others.cutOff += record.cutOff;
+			row.others.p99Us = Math.max(row.others.p99Us, record.p99Us);
+		}
+	}
+	return [...rows.values()].sort((a, b) => b.day.localeCompare(a.day));
+}
+
+function levelMark(i18n: I18n, level: CpuLevel): SafeHtml | null {
+	return level === "ok"
+		? null
+		: html` <span class="usage-mark usage-mark-${level}">${i18n.t(`admin.level.${level}`)}</span>`;
+}
+
+/**
+ * The Workers' CPU time (feature 025 User Story 6): per day and owner, the
+ * slowest 1 in 100 runs' CPU time beside the limit, and the runs cut off out of
+ * all runs, marked by FR-043. No other team is named (feature 026 FR-023).
+ */
+function cpuSection(
+	i18n: I18n,
+	rows: readonly CpuRow[],
+	available: boolean,
+): SafeHtml {
+	const ms = (us: number) =>
+		i18n.t("admin.cpu.ms", {
+			n: i18n.formatNumber(us / 1000, { fractionDigits: 1 }),
+		});
+	const cell = (record: CpuDay | null) =>
+		record === null
+			? html`<td>–</td>`
+			: html`<td>${i18n.t("admin.cpu.cell", {
+					slowest: ms(record.p99Us),
+					cut: whole(i18n, record.cutOff),
+					runs: whole(i18n, record.runs),
+				})}${levelMark(i18n, cpuLevel(record.runs, record.cutOff))}</td>`;
+	return html`<section class="card usage-source" id="cpu">
+<h2>${i18n.t("admin.cpu.heading")}</h2>
+<p class="usage-detail">${i18n.t("admin.cpu.intro", { limit: i18n.t("admin.cpu.ms", { n: whole(i18n, CPU_LIMIT_MS) }) })}</p>
+${available ? null : html`<p class="notice notice-error" role="alert">${i18n.t("admin.cpu.unavailable")}</p>`}${
+	rows.length === 0
+		? html`<p class="usage-detail">${i18n.t("admin.cpu.none")}</p>`
+		: html`<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
+<thead><tr><th scope="col">${i18n.t("admin.history.day")}</th><th scope="col">${i18n.t("admin.history.team")}</th><th scope="col">${i18n.t("admin.teams.other")}</th><th scope="col">${i18n.t("admin.teams.shared")}</th></tr></thead>
+<tbody>
+${rows.map(
+	(
+		row,
+	) => html`<tr><th scope="row">${i18n.formatDate(`${row.day}T00:00:00Z`)}</th>${cell(row.own)}${cell(row.others)}${cell(row.shared)}</tr>
+`,
+)}</tbody>
+</table></div></div>`
+}</section>
+`;
+}
+
+/** The team figures of the routing table, each with this team's and the others' value. */
+const ROUTING_COLUMNS: [MessageId, (side: RoutingDay["own"]) => number][] = [
+	["admin.routing.missed", (side) => side.missed],
+	["admin.routing.wasted", (side) => side.wasted],
+	["admin.routing.dropped", (side) => side.dropped],
+	["admin.routing.corrections", (side) => side.added + side.removed],
+	["admin.routing.possible", (side) => side.possible],
+	["admin.routing.found", (side) => side.found],
+];
+
+/**
+ * Gateway routing's last 30 days (feature 046 contracts/usage-view.md): what
+ * the gateway sent by the copy and to every team, then each figure for this
+ * team and, summed, the other teams. A day with a would-be or possible miss, or
+ * too many events to every team, carries the re-check table's warning mark.
+ */
+function routingSection(i18n: I18n, days: readonly RoutingDay[]): SafeHtml {
+	const others = days.some((d) => d.hasOthers);
+	const span = others ? html` colspan="2"` : null;
+	const tall = others ? html` rowspan="2"` : null;
+	const row = (d: RoutingDay) =>
+		html`<tr><th scope="row">${i18n.formatDate(`${d.day}T00:00:00Z`)}${isWarningDay(d) ? html` <span class="usage-mark usage-mark-warning">${i18n.t("admin.level.warning")}</span>` : null}</th><td>${whole(i18n, d.copy)}</td><td>${whole(i18n, d.everyone)}</td>${ROUTING_COLUMNS.map(
+			([, value]) =>
+				html`<td>${whole(i18n, value(d.own))}</td>${others ? html`<td>${whole(i18n, value(d.others))}</td>` : null}`,
+		)}</tr>
+`;
+	const sides = others
+		? html`<tr>${ROUTING_COLUMNS.map(
+				() =>
+					html`<th scope="col">${i18n.t("admin.history.team")}</th><th scope="col">${i18n.t("admin.routing.others")}</th>`,
+			)}</tr>
+`
+		: null;
+	return html`<section class="card usage-source" id="routing">
+<h2>${i18n.t("admin.routing.heading")}</h2>
+<p class="usage-detail">${i18n.t("admin.routing.note")}</p>
+${
+	days.length === 0
+		? html`<p class="usage-detail">${i18n.t("admin.routing.none")}</p>`
+		: html`<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
+<thead><tr><th scope="col"${tall}>${i18n.t("admin.history.day")}</th><th scope="col"${tall}>${i18n.t("admin.routing.copy")}</th><th scope="col"${tall}>${i18n.t("admin.routing.everyone")}</th>${ROUTING_COLUMNS.map(
+				([label]) => html`<th scope="colgroup"${span}>${i18n.t(label)}</th>`,
+			)}</tr>
+${sides}</thead>
+<tbody>
+${days.map(row)}</tbody>
+</table></div></div>`
+}</section>
+`;
+}
+
+/**
+ * How many figures need a look, so nobody has to read them all (SC-001), and
+ * today's CPU marks of this team's Worker and the gateway (FR-044), and how
+ * many days of gateway routing (feature 046 FR-025) and of Strava calls
+ * (feature 047 FR-011) carry a warning.
+ */
+function summary(
+	i18n: I18n,
+	figures: readonly Figure[],
+	cpuMarked: number,
+	routingWarnings: number,
+	callWarnings: number,
+): SafeHtml {
+	const marked = figures.filter((f) => f.level !== "ok").length + cpuMarked;
+	const days = (key: MessageId, n: number) =>
+		n === 0
+			? null
+			: html`<p class="notice notice-error" role="status">${i18n.t(key, { n: whole(i18n, n) })}</p>
+`;
+	const warnings = html`${days("admin.summary.routing", routingWarnings)}${days("admin.summary.calls", callWarnings)}`;
 	return marked === 0
 		? html`<p class="notice" role="status">${i18n.t("admin.summary.ok")}</p>
-`
+${warnings}`
 		: html`<p class="notice notice-error" role="status">${i18n.t("admin.summary.attention", { n: whole(i18n, marked) })}</p>
-`;
+${warnings}`;
 }
 
 /** "About" a duration in the largest unit that reads well (R11). */
@@ -378,6 +623,24 @@ function teamsOf(
 	};
 }
 
+/** Each other team's Strava call totals per day, as the exchange brought them. */
+function peerCallDays(
+	peers: readonly Peer[],
+	records: readonly TeamCountRecord[],
+): PeerCallDay[][] {
+	return peers.map((peer) => {
+		const theirs = records.filter((r) => r.team === peer.id);
+		const seen = new Map(
+			theirs
+				.filter((r) => r.allowance === "strava_seen")
+				.map((r) => [r.day, r.used]),
+		);
+		return theirs
+			.filter((r) => r.allowance === "strava_calls")
+			.map((r) => ({ day: r.day, calls: r.used, seen: seen.get(r.day) ?? 0 }));
+	});
+}
+
 export function handleAdminUsage(
 	request: Request,
 	ctx: Ctx,
@@ -388,24 +651,57 @@ export function handleAdminUsage(
 		const now = ctx.now();
 		const today = utcDay(now);
 		const peers = usagePeers(ctx.env);
-		const [usage, cloudflare, counts, devices, states, recheckDays, active] =
-			await Promise.all([
-				readStravaUsage(db),
-				readCloudflareFigures(db),
-				db.batch([
-					connectedCountStatement(db),
-					totalWaitingStatement(db),
-					usageHistoryStatement(db, historyStart(today)),
-					teamCountsStatement(db, historyStart(today)),
-				]),
-				subscriptionIdsOfRiders(db, [rider.athleteId]),
-				peers.length > 0 ? readSourceStates(db) : new Map(),
-				readRecheckDays(db),
-				countActiveRiders(db, now),
-			]);
+		const [
+			usage,
+			cloudflare,
+			counts,
+			devices,
+			states,
+			recheckDays,
+			active,
+			cpuDays,
+			routingCounts,
+			calls,
+		] = await Promise.all([
+			readStravaUsage(db),
+			readCloudflareFigures(db),
+			db.batch([
+				connectedCountStatement(db),
+				totalWaitingStatement(db),
+				usageHistoryStatement(db, historyStart(today)),
+				teamCountsStatement(db, historyStart(today)),
+			]),
+			subscriptionIdsOfRiders(db, [rider.athleteId]),
+			readSourceStates(db),
+			readRecheckDays(db),
+			countActiveRiders(db, now),
+			readCpuDays(db, daysBefore(today, CPU_DAYS - 1)),
+			readRoutingCounts(db, firstRoutingDay(today)),
+			readCalls(db, firstCallDay(today)),
+		]);
+		const routing = routingDays(routingCounts, ctx.team.id);
+		const cpu = cpuRows(cpuDays, ctx.team.id);
+		const cpuMarked = cpuDays.filter(
+			(d) =>
+				d.day === today &&
+				notifiesThisTeam(d.owner, ctx.team.id) &&
+				cpuLevel(d.runs, d.cutOff) !== "ok",
+		).length;
+		const cpuState = states.get("cloudflare-cpu");
+		const cpuAvailable =
+			cpuState?.lastFailureAt == null ||
+			(cpuState.lastSuccessAt ?? 0) > cpuState.lastFailureAt;
 		const count = (i: number) =>
 			(counts[i]?.results[0] as { n: number } | undefined)?.n ?? 0;
 		const teamRecords = teamCountRecords(counts[3]?.results ?? []);
+		const callDays = callDayRows(
+			today,
+			ownCallDays(calls.counts, calls.seen),
+			peerCallDays(peers, teamRecords),
+		);
+		// The day `?calls=` picks if it is one shown, else today.
+		const askedDay = new URL(request.url).searchParams.get("calls");
+		const picked = callDays.find((d) => d.day === askedDay)?.day ?? today;
 		const teams = teamsOf(
 			i18n,
 			peers,
@@ -456,7 +752,7 @@ export function handleAdminUsage(
 		);
 		const firstDay = records[0]?.day;
 		const item = (figure: Figure) => figureItem(i18n, figure, history, teams);
-		return html`${adminSwitch(i18n, "usage")}${summary(i18n, [...strava, ...account])}${teamNotices(i18n, teams.peers, states)}${overviewSection(i18n, [...strava, ...account], teams)}${
+		return html`${adminSwitch(i18n, "usage")}${summary(i18n, [...strava, ...account], cpuMarked, routing.filter(isWarningDay).length, callDays.filter((d) => d.marked).length)}${teamNotices(i18n, teams.peers, states)}${overviewSection(i18n, [...strava, ...account], teams)}${
 			devices.length === 0
 				? html`<p class="notice">${i18n.tHtml("admin.alerts.noDevice", {
 						settings: html`<a href="/me/settings">${i18n.t("nav.settings")}</a>`,
@@ -475,7 +771,7 @@ export function handleAdminUsage(
 <ul class="usage-figures">
 ${strava.map(item)}</ul>
 </section>
-${recheckSection(i18n, ctx.team.recheckAllowance, active, recheckDays)}${
+${recheckSection(i18n, ctx.team.recheckAllowance, active, recheckDays)}${callsSection(i18n, callDays, peers.length, picked, callBreakdown(calls.counts, picked))}${routingSection(i18n, routing)}${
 	estimate === null
 		? null
 		: html`<section class="card">
@@ -495,7 +791,7 @@ ${account.map(item)}${missing.map(
 `,
 )}</ul>
 </section>
-${alertsSwitch(i18n, rider)}`;
+${cpuSection(i18n, cpu, cpuAvailable)}${alertsSwitch(i18n, rider)}`;
 	});
 }
 
@@ -508,6 +804,14 @@ export async function handleAdminRefresh(
 	const rider = await requireAdminPost(request, ctx, i18n, "/admin/refresh");
 	if (rider instanceof Response) return rider;
 	await recordUsage(ctx);
+	// Gateway routing's figures come with it (feature 046 research R9).
+	try {
+		await exchangeRoutingCounts(ctx);
+	} catch (err) {
+		console.error(
+			`Routing counts failed: ${err instanceof Error ? err.name : "unknown error"}`,
+		);
+	}
 	return redirect("/admin", 303);
 }
 

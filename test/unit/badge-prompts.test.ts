@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import data from "../../art/badges/badges.json";
-import europe from "../../art/badges/teams/europe/badges.json";
 import {
 	buildPrompt,
 	validateBadges,
 	validateTeamBadges,
 } from "../../scripts/badge-prompts.mjs";
-import { europe as europeTeam } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
+import europe from "../../teams/europe/art/badges/badges.json";
+import { europe as europeTeam } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 
 // The badge art inputs (feature 013 art pipeline, data-model.md): the badge
 // list in art/badges/badges.json and how a badge's Gemini prompt is put

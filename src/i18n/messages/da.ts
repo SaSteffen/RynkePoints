@@ -920,6 +920,9 @@ export const da: Catalog = {
 		"Serverlogs indeholder kun id'er som atlet- og aktivitets-ID og fejltypen, aldrig adgangsnøgler eller aktivitetsdata. RynkePoints gemmer ikke IP-adresser.",
 	"privacy.technical.oneTeam":
 		"På RynkePoints kører du for ét hold ad gangen. Når du forbinder dig, spørger et hold derfor de andre hold, om du allerede kører for et af dem. Det får kun ja eller nej at vide, aldrig hvilket hold, og gemmer ikke svaret. Skifter du hold, sletter det hold, du forlader, alt om dig.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Alle hold deler én forbindelse til Strava, og Strava sender sine beskeder om dine aktiviteter til én fælles adresse. Den sender hver besked kun videre til det hold eller de hold, du hører til. Til det gemmer den dit Strava-atlet-ID sammen med disse hold og intet andet. Det gemmes i EU, kun de folk, der vedligeholder RynkePoints, kan se det, og det slettes, når du går, senest en dag efter.",
 	"privacy.visibility.heading": "Hvem ser hvad",
 	"privacy.visibility.you":
 		"Du ser dine egne aktiviteter med deres titler, dine Rynke og dine badges. Ingen andre ser titlerne.",
@@ -1230,6 +1233,56 @@ export const da: Catalog = {
 		other: "{n} kørsler holdt tilbage",
 	},
 	"admin.recheck.listOrder": "listens rækkefølge",
+	"admin.cpu.heading": "Workernes CPU-tid",
+	"admin.cpu.intro":
+		"Hver afvikling af en worker (en side, en portion fra køen, en planlagt afvikling) må bruge {limit} CPU-tid. Pr. dag: hvor meget de langsomste 1 ud af 100 afviklinger brugte, og hvor mange afviklinger Cloudflare afbrød. Cloudflare tilgiver enkelte overskridelser; afbrudte afviklinger er fejl.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} af {runs} afbrudt",
+	"admin.cpu.none": "Endnu ingen CPU-tal registreret.",
+	"admin.cpu.unavailable":
+		"Cloudflares CPU-tal kunne ikke hentes sidste gang. Tabellen viser de dage, der er registreret indtil nu.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Gateway-routing",
+	"admin.routing.note":
+		"De seneste 30 dage. Under prøvekørslen får hvert hold stadig hver besked; et truende tab er en besked om en, holdet har, som routingen ikke ville have sendt hertil. Kasseret: beskeder om en, holdet ikke har. En dag markeres ved et truende eller muligt tab, eller når mere end 1\u00a0% af beskederne gik til alle hold, mens alle hold routede.",
+	"admin.routing.none": "Ingen tal endnu.",
+	"admin.routing.copy": "Sendt via kopien",
+	"admin.routing.everyone": "Sendt til alle hold",
+	"admin.routing.missed": "Truende tab",
+	"admin.routing.wasted": "Unødigt sendt",
+	"admin.routing.dropped": "Kasseret",
+	"admin.routing.corrections": "Rettelser fra listen",
+	"admin.routing.possible": "Mulige tab",
+	"admin.routing.found": "Fundet af genkontrollen",
+	"admin.routing.others": "Andre hold",
+	"admin.calls.heading": "Kald til Strava",
+	"admin.calls.intro":
+		"De seneste 30 dage efter UTC: hvert kald, dette hold har sendt til Strava, og de kald, budgettet holdt tilbage. Arbejde, der blev holdt tilbage, prøver igen senere. Under tabellen står, hvad den valgte dags kald var til.",
+	"admin.calls.none": "Der er ikke talt nogen kald endnu.",
+	"admin.calls.heldBack": "Holdt tilbage",
+	"admin.calls.day": "Kald den {date}",
+	"admin.calls.dayNone": "Ingen kald den dag.",
+	"admin.calls.for": "Til",
+	"admin.calls.total": "I alt",
+	"admin.calls.action.connect": "Forbindelse",
+	"admin.calls.action.import": "Sæsonimport",
+	"admin.calls.action.ride-event": "Meldt tur",
+	"admin.calls.action.club-check": "Daglig klubkontrol",
+	"admin.calls.action.recheck": "Genkontrol af ture",
+	"admin.calls.action.reread": "Engangsgenlæsning",
+	"admin.calls.action.leave": "Adgang givet tilbage",
+	"admin.calls.action.disconnect": "Afbrydelse meldt af Strava",
+	"admin.calls.action.unassigned": "Ikke tildelt",
+	"admin.calls.endpoint.clubs": "Klubber",
+	"admin.calls.endpoint.activity": "Én aktivitet",
+	"admin.calls.endpoint.activities": "Aktivitetsliste",
+	"admin.calls.endpoint.token": "Hent eller forny token",
+	"admin.calls.endpoint.revoke": "Tilbagekald token",
+	"admin.calls.all": "Alle hold",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "mangler",
+	"admin.summary.calls": "Dage med advarsel i kaldene til Strava: {n}",
+	"admin.summary.routing": "Dage med advarsel i gateway-routingen: {n}",
 	"admin.waiting.heading": "Venter på Strava-budgettet",
 	"admin.waiting.body": {
 		one: "{n} post venter, færdig om cirka {time}.",
@@ -1296,6 +1349,10 @@ export const da: Catalog = {
 	"admin.remove.leaveLink": "Slet mine data",
 	"notification.usage.warning": "{allowance}: {percent} %",
 	"notification.usage.critical": "Kritisk: {allowance} på {percent} %",
+	"notification.usage.cpuWarning":
+		"Cloudflare afbrød afviklinger i dag, oftest på grund af for meget CPU-tid.",
+	"notification.usage.cpuCritical":
+		"Kritisk: Cloudflare afbrød i dag mere end 1 ud af 100 afviklinger.",
 	"notice.blocked.title": "Du kan ikke være med på dette hold",
 	"notice.blocked.body":
 		"En administrator har fjernet dig fra dette hold. Vi beholder kun dit Strava-ID, så du ikke kan forbinde igen.",

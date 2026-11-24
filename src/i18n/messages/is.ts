@@ -927,6 +927,9 @@ export const is: Catalog = {
 		"Netþjónaskrár geyma aðeins auðkenni eins og íþróttamanns- og virkniauðkenni og tegund villu, aldrei aðgangslykla eða virknigögn. RynkePoints geymir ekki IP-tölur.",
 	"privacy.technical.oneTeam":
 		"Á RynkePoints hjólarðu fyrir eitt lið í einu. Þegar þú tengist spyr lið því hin liðin hvort þú hjólir nú þegar fyrir eitt þeirra. Það fær aðeins að vita já eða nei, aldrei hvaða lið, og geymir ekki svarið. Ef þú skiptir um lið eyðir liðið sem þú yfirgefur öllu um þig.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Öll lið deila einni tengingu við Strava, og Strava sendir skilaboð sín um virkni þína á eitt sameiginlegt heimilisfang. Það sendir hver skilaboð aðeins áfram til liðsins eða liðanna sem þú tilheyrir. Til þess geymir það Strava-íþróttamannsauðkenni þitt ásamt þessum liðum og ekkert annað. Það er geymt innan ESB, aðeins fólkið sem heldur RynkePoints við getur séð það og því er eytt þegar þú hættir, í síðasta lagi degi síðar.",
 	"privacy.visibility.heading": "Hver sér hvað",
 	"privacy.visibility.you":
 		"Þú sérð þína eigin virkni með titlum, Rynke-stigin og merkin. Enginn annar sér titlana.",
@@ -1242,6 +1245,56 @@ export const is: Catalog = {
 		other: "{n} keyrslum haldið aftur",
 	},
 	"admin.recheck.listOrder": "röð listans",
+	"admin.cpu.heading": "Örgjörvatími workera",
+	"admin.cpu.intro":
+		"Hver keyrsla workers (síða, skammtur úr biðröð, áætluð keyrsla) má nota {limit} af örgjörvatíma. Á dag: hve mikið hægustu 1 af 100 keyrslum þurftu, og hve margar keyrslur Cloudflare stöðvaði. Cloudflare fyrirgefur stöku framúrkeyrslu, en stöðvaðar keyrslur eru villur.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} af {runs} stöðvaðar",
+	"admin.cpu.none": "Engar örgjörvatölur skráðar enn.",
+	"admin.cpu.unavailable":
+		"Ekki tókst að sækja örgjörvatölur Cloudflare síðast. Taflan sýnir þá daga sem hafa verið skráðir hingað til.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Leiðarval gáttarinnar",
+	"admin.routing.note":
+		"Síðustu 30 dagar. Í prufunni fær hvert lið enn öll skilaboð; yfirvofandi tap eru skilaboð um einhvern í liðinu sem leiðarvalið hefði ekki sent hingað. Hent: skilaboð um einhvern sem liðið hefur ekki. Dagur er merktur við yfirvofandi eða mögulegt tap, eða þegar meira en 1\u00a0% skilaboða fóru til allra liða meðan öll lið notuðu leiðarval.",
+	"admin.routing.none": "Engar tölur enn.",
+	"admin.routing.copy": "Send eftir afritinu",
+	"admin.routing.everyone": "Send til allra liða",
+	"admin.routing.missed": "Yfirvofandi töp",
+	"admin.routing.wasted": "Send að óþörfu",
+	"admin.routing.dropped": "Hent",
+	"admin.routing.corrections": "Leiðréttingar listans",
+	"admin.routing.possible": "Möguleg töp",
+	"admin.routing.found": "Fundið við endurskoðun",
+	"admin.routing.others": "Önnur lið",
+	"admin.calls.heading": "Köll til Strava",
+	"admin.calls.intro":
+		"Síðustu 30 dagar eftir UTC: hvert kall þessa liðs til Strava og köllin sem kvótinn hélt aftur. Vinna sem var haldið aftur reynir aftur seinna. Undir töflunni sést til hvers köll valins dags voru.",
+	"admin.calls.none": "Engin köll hafa verið talin enn.",
+	"admin.calls.heldBack": "Haldið aftur",
+	"admin.calls.day": "Köll {date}",
+	"admin.calls.dayNone": "Engin köll þann dag.",
+	"admin.calls.for": "Til",
+	"admin.calls.total": "Samtals",
+	"admin.calls.action.connect": "Tenging",
+	"admin.calls.action.import": "Innflutningur tímabils",
+	"admin.calls.action.ride-event": "Tilkynnt ferð",
+	"admin.calls.action.club-check": "Dagleg klúbbathugun",
+	"admin.calls.action.recheck": "Endurskoðun ferða",
+	"admin.calls.action.reread": "Einskiptis endurlestur",
+	"admin.calls.action.leave": "Aðgangi skilað",
+	"admin.calls.action.disconnect": "Aftenging tilkynnt af Strava",
+	"admin.calls.action.unassigned": "Óúthlutað",
+	"admin.calls.endpoint.clubs": "Klúbbar",
+	"admin.calls.endpoint.activity": "Ein hreyfing",
+	"admin.calls.endpoint.activities": "Listi yfir hreyfingar",
+	"admin.calls.endpoint.token": "Sækja eða endurnýja tóka",
+	"admin.calls.endpoint.revoke": "Afturkalla tóka",
+	"admin.calls.all": "Öll lið",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "vantar",
+	"admin.summary.calls": "Dagar með viðvörun í köllum til Strava: {n}",
+	"admin.summary.routing": "Dagar með viðvörun í leiðarvali gáttarinnar: {n}",
 	"admin.waiting.heading": "Beðið eftir Strava-kvótanum",
 	"admin.waiting.body": {
 		one: "{n} færsla bíður, lokið eftir um {time}.",
@@ -1309,6 +1362,10 @@ export const is: Catalog = {
 	"admin.remove.leaveLink": "Eyða gögnunum mínum",
 	"notification.usage.warning": "{allowance}: {percent} %",
 	"notification.usage.critical": "Alvarlegt: {allowance} í {percent} %",
+	"notification.usage.cpuWarning":
+		"Cloudflare stöðvaði keyrslur í dag, oftast vegna of mikils örgjörvatíma.",
+	"notification.usage.cpuCritical":
+		"Alvarlegt: Cloudflare stöðvaði meira en 1 af 100 keyrslum í dag.",
 	"notice.blocked.title": "Þú getur ekki tekið þátt í þessu liði",
 	"notice.blocked.body":
 		"Stjórnandi fjarlægði þig úr þessu liði. Við geymum aðeins Strava-auðkennið þitt svo þú getir ekki tengst aftur.",

@@ -17,6 +17,7 @@ import {
 	retryWork,
 	type StravaWorkItem,
 } from "../db/strava-work";
+import { actionOf } from "../strava/calls";
 import { compareIds } from "../strava/id";
 import { backoffSeconds, MAX_DELAY_SECONDS } from "../strava/rate-limit";
 import {
@@ -137,7 +138,11 @@ async function runItem(
 		isLastAttempt: item.attempts >= MAX_ATTEMPTS,
 	};
 	const badgesBefore = await readBadgeRise(db, item.athleteId);
-	const { ctx: holding, captured } = holdingNotifications(ctx);
+	// Its Strava calls count under the item's action (feature 047 R1).
+	const { ctx: holding, captured } = holdingNotifications({
+		...ctx,
+		stravaAction: actionOf(item.message),
+	});
 	let result: HandlerResult;
 	try {
 		result = await handler(item.message, rider, holding, attempt);

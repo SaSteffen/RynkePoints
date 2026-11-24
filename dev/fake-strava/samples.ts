@@ -6,7 +6,7 @@ import type { FakeActivity } from "./store";
 
 // What the sample riders of fake mode are made of, one per state of the rider
 // page (specs/006-local-frontend-dev data-model.md, research R6); each team's
-// riders are in `samples.<team id>.ts` (feature 026 FR-050). Everything is
+// riders are in `teams/<team id>/samples.ts` (feature 026 FR-050). Everything is
 // invented (constitution Principle I): athlete IDs from 990001 (the ordinary
 // riders' above 2^53, feature 042), names that name
 // the state, rides without GPS, heart rate or power. A recipe only picks

@@ -1,6 +1,6 @@
+import { EUROPE_SAMPLES } from "../../teams/europe/samples";
+import { HAMBURG_SAMPLES } from "../../teams/hamburg/samples";
 import type { SampleRider, SampleSet } from "./samples";
-import { EUROPE_SAMPLES } from "./samples.europe";
-import { HAMBURG_SAMPLES } from "./samples.hamburg";
 
 // Each team's sample riders, by team id (feature 026 FR-050, data-model.md ›
 // DevTarget).

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { BADGES, surpriseName } from "../../src/badges/catalog";
-import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
 import { hintLinesFor } from "../../src/content/hints";
 import { HINTS_DE } from "../../src/content/hints/de";
 import { HINTS_EN } from "../../src/content/hints/en";
@@ -11,8 +10,9 @@ import type {
 	SurpriseLineId,
 } from "../../src/content/hints/types";
 import { CATALOGS } from "../../src/i18n/catalogs";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
+import { europe } from "../../teams/europe/team";
+import { BADGE_NAMES } from "../../teams/hamburg/badge-names.de";
+import { hamburg } from "../../teams/hamburg/team";
 
 // Feature 034 contracts/hint-lines.md: German and English, picked by the
 // team, veiled surprise lines (SC-005).

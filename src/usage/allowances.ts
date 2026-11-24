@@ -31,6 +31,17 @@ export const STRAVA_RECORDED = [
 	"riders_connected",
 ] as const;
 
+/**
+ * A team's Strava calls, held-back calls and Strava's count per day, in the
+ * usage exchange (feature 047 contracts/usage-exchange.md); kept 30 days.
+ */
+export const CALL_ALLOWANCES = [
+	"strava_calls",
+	"strava_held_back",
+	"strava_seen",
+] as const;
+export type CallAllowance = (typeof CALL_ALLOWANCES)[number];
+
 export const CLOUDFLARE_ALLOWANCES = [
 	"cf_worker_requests",
 	"cf_queue_operations",

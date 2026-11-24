@@ -27,7 +27,9 @@ it down or break it.
     "days": [{ "day": "2026-11-04", "allowance": "strava_read_daily", "count": 900 }] }
   ```
 
-  `allowance` is one of `strava_read_daily`, `strava_all_daily` and `riders_connected`.
+  `allowance` is one of `strava_read_daily`, `strava_all_daily` and `riders_connected`,
+  and since feature 047 also `strava_calls`, `strava_held_back` and `strava_seen`
+  (its [usage-exchange.md](../../047-strava-call-counts/contracts/usage-exchange.md)).
   `count` is this team's own: for past days, `usage_daily.team_used`; for today, the live
   values, so a pull just before this team's recording still gets today. The export holds
   counts only, never rider identifiers (FR-039).
@@ -38,7 +40,8 @@ it down or break it.
   nothing is stored yet, and at most 31 days back. A team that was down for some days
   gets those days filled in. Days before a team joined stay as they are (FR-041).
 - Timeout 5 s, no redirects. The answer is accepted only when its `team` is the peer's
-  ID and every entry has the shape above (at most 1,500 entries).
+  ID and every entry has the shape above (at most 1,500 entries). Since feature 047 an
+  entry with an allowance the parser doesn't know is skipped instead.
 - Counts go into `usage_team_daily` as upserts. `usage_source_state` records
   `team:<id>` as a success or a failure. The token, URLs with it and bodies are never
   logged.

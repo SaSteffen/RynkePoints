@@ -2,7 +2,7 @@ import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { getRider } from "../../src/db/riders";
 import { handleFetch } from "../../src/index";
-import { hamburg } from "../../src/teams/hamburg";
+import { hamburg } from "../../teams/hamburg/team";
 import { approve, SCOPES_ALL } from "../support/callback";
 import {
 	listGuest,
@@ -63,7 +63,7 @@ describe("a listed person's sign-in", () => {
 		await approve(ctx, fake, GUEST);
 		const me = await (await get("/me")).text();
 		expect(me).toContain('href="/organiser/riders"');
-		expect(me).toContain('href="/admin"');
+		expect(me).toContain('href="/admin/riders"');
 		expect((await get("/organiser/riders")).status).toBe(200);
 		expect((await get("/admin")).status).toBe(200);
 		expect((await get("/admin/riders")).status).toBe(200);

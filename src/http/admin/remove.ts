@@ -2,6 +2,7 @@ import type { Ctx } from "../../ctx";
 import { removeRider } from "../../db/blocked";
 import { listedRider, ownAdministratorCount } from "../../db/riders";
 import type { I18n } from "../../i18n/i18n";
+import { queueReport } from "../../routing/report";
 import { withdrawStoredGrant } from "../../strava/withdraw";
 import { html } from "../html";
 import { redirect } from "../redirect";
@@ -76,8 +77,10 @@ export async function handleRemoveRider(
 	const target = await listedRider(db, athleteId);
 	if (target === null) return back("error", "unknown");
 	if (await isLastAdmin(db, target)) return back("error", "lastAdmin");
-	// Unless another team holds them (feature 041 R14).
-	await withdrawStoredGrant(ctx, athleteId);
+	// Unless another team holds them (feature 041 R14). Counted as leaving
+	// (feature 047).
+	await withdrawStoredGrant({ ...ctx, stravaAction: "leave" }, athleteId);
 	await removeRider(db, athleteId, administrator.athleteId, ctx.now());
+	await queueReport(ctx, athleteId);
 	return back("done", "removed");
 }

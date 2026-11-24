@@ -681,7 +681,7 @@ export const lt: Catalog = {
 		"Treniruotės: {n}, tipinis {typical} km",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
-	// names of a team with its own are in src/content/badge-names/; the
+	// names of a team with its own are in teams/<id>/badge-names.<locale>.ts; the
 	// common ones are the badge.name.<id> messages at the end.
 	"badges.heading": "Ženkleliai",
 	"badges.personal.newest": "Tavo ženkleliai",
@@ -953,6 +953,9 @@ export const lt: Catalog = {
 		"Serverio žurnaluose yra tik identifikatoriai, pvz., sportininkų ir veiklų ID, ir klaidos rūšis, bet niekada ne prieigos raktai ar veiklų duomenys. RynkePoints nesaugo IP adresų.",
 	"privacy.technical.oneTeam":
 		"RynkePoints vienu metu važinėji už vieną komandą. Todėl jungiantis komanda paklausia kitų komandų, ar jau važinėji už kurią nors iš jų. Ji sužino tik taip arba ne, niekada kuri komanda, ir atsakymo nesaugo. Jei pakeisi komandą, komanda, kurią palieki, ištrins viską apie tave.",
+	// What the shared gateway keeps for routing (feature 046 FR-014).
+	"privacy.technical.gateway":
+		"Visos komandos naudoja vieną bendrą ryšį su Strava, ir Strava siunčia pranešimus apie tavo veiklas vienu bendru adresu. Jis kiekvieną pranešimą perduoda tik tai komandai ar toms komandoms, kurioms priklausai. Tam jis saugo tavo Strava sportininko ID kartu su šiomis komandomis ir nieko daugiau. Tai saugoma ES, matyti tai gali tik RynkePoints prižiūrintys žmonės, ir tai ištrinama, kai išeini, ne vėliau kaip po dienos.",
 	"privacy.visibility.heading": "Kas ką mato",
 	"privacy.visibility.you":
 		"Tu matai savo veiklas su jų pavadinimais, savo Rynke ir savo ženklelius. Pavadinimų niekas kitas nemato.",
@@ -1273,6 +1276,56 @@ export const lt: Catalog = {
 		other: "{n} paleidimų sulaikyta",
 	},
 	"admin.recheck.listOrder": "sąrašo tvarka",
+	"admin.cpu.heading": "Workerių procesoriaus laikas",
+	"admin.cpu.intro":
+		"Kiekvienas workerio paleidimas (puslapis, eilės paketas, suplanuotas paleidimas) gali naudoti {limit} procesoriaus laiko. Kas dieną: kiek prireikė lėčiausiam 1 iš 100 paleidimų ir kiek paleidimų Cloudflare nutraukė. Cloudflare atleidžia pavienius viršijimus, o nutraukti paleidimai yra klaidos.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · nutraukta {cut} iš {runs}",
+	"admin.cpu.none": "Procesoriaus laiko duomenų dar neužfiksuota.",
+	"admin.cpu.unavailable":
+		"Paskutinį kartą nepavyko gauti Cloudflare procesoriaus laiko duomenų. Lentelėje rodomos iki šiol užfiksuotos dienos.",
+	// Feature 046: gateway routing in the usage view (contracts/usage-view.md).
+	"admin.routing.heading": "Šliuzo maršrutizavimas",
+	"admin.routing.note":
+		"Paskutinės 30 dienų. Bandymo metu kiekviena komanda vis dar gauna kiekvieną pranešimą; grėsęs praradimas – tai pranešimas apie komandos narį, kurio maršrutizavimas nebūtų čia atsiuntęs. Atmesti: pranešimai apie žmogų, kurio komanda neturi. Diena pažymima, jei buvo grėsęs ar galimas praradimas arba daugiau nei 1\u00a0% pranešimų nuėjo visoms komandoms, kai visos komandos maršrutizavo.",
+	"admin.routing.none": "Skaičių dar nėra.",
+	"admin.routing.copy": "Išsiųsta pagal kopiją",
+	"admin.routing.everyone": "Išsiųsta visoms komandoms",
+	"admin.routing.missed": "Grėsę praradimai",
+	"admin.routing.wasted": "Išsiųsta be reikalo",
+	"admin.routing.dropped": "Atmesta",
+	"admin.routing.corrections": "Sąrašo pataisos",
+	"admin.routing.possible": "Galimi praradimai",
+	"admin.routing.found": "Rasta pakartotinio tikrinimo",
+	"admin.routing.others": "Kitos komandos",
+	"admin.calls.heading": "Užklausos į Stravą",
+	"admin.calls.intro":
+		"Paskutinės 30 dienų pagal UTC: kiekviena šios komandos užklausa į Stravą ir užklausos, kurias sulaikė biudžetas. Sulaikytas darbas bandys vėliau. Po lentele matyti, kam buvo skirtos pasirinktos dienos užklausos.",
+	"admin.calls.none": "Kol kas nesuskaičiuota nė vienos užklausos.",
+	"admin.calls.heldBack": "Sulaikyta",
+	"admin.calls.day": "Užklausos {date}",
+	"admin.calls.dayNone": "Tą dieną užklausų nebuvo.",
+	"admin.calls.for": "Kam",
+	"admin.calls.total": "Iš viso",
+	"admin.calls.action.connect": "Prisijungimas",
+	"admin.calls.action.import": "Sezono importas",
+	"admin.calls.action.ride-event": "Praneštas važiavimas",
+	"admin.calls.action.club-check": "Kasdienis klubo patikrinimas",
+	"admin.calls.action.recheck": "Važiavimų pakartotinis tikrinimas",
+	"admin.calls.action.reread": "Vienkartinis pakartotinis nuskaitymas",
+	"admin.calls.action.leave": "Prieigos grąžinimas",
+	"admin.calls.action.disconnect": "Stravos praneštas atsijungimas",
+	"admin.calls.action.unassigned": "Nepriskirta",
+	"admin.calls.endpoint.clubs": "Klubai",
+	"admin.calls.endpoint.activity": "Viena veikla",
+	"admin.calls.endpoint.activities": "Veiklų sąrašas",
+	"admin.calls.endpoint.token": "Gauti ar atnaujinti žetoną",
+	"admin.calls.endpoint.revoke": "Atšaukti žetoną",
+	"admin.calls.all": "Visos komandos",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "trūksta",
+	"admin.summary.calls": "Dienos su užklausų į Stravą įspėjimu: {n}",
+	"admin.summary.routing": "Dienos su šliuzo maršrutizavimo įspėjimu: {n}",
 	"admin.waiting.heading": "Laukiama Strava biudžeto",
 	"admin.waiting.body": {
 		one: "Laukia {n} užduotis, liko maždaug {time}.",
@@ -1355,6 +1408,10 @@ export const lt: Catalog = {
 	"admin.remove.leaveLink": "Ištrinti mano duomenis",
 	"notification.usage.warning": "{allowance}: {percent} %",
 	"notification.usage.critical": "Kritinis: {allowance} – {percent} %",
+	"notification.usage.cpuWarning":
+		"Šiandien Cloudflare nutraukė paleidimų, dažniausiai dėl per didelio procesoriaus laiko.",
+	"notification.usage.cpuCritical":
+		"Kritinis: šiandien Cloudflare nutraukė daugiau nei 1 iš 100 paleidimų.",
 	"notice.blocked.title": "Negali dalyvauti šioje komandoje",
 	"notice.blocked.body":
 		"Administratorius tave pašalino iš šios komandos. Pasiliekame tik tavo Strava ID, kad negalėtum vėl prisijungti.",

@@ -20,8 +20,8 @@ import type {
 } from "../../src/http/rider-view";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 
 const en = createI18n("en", CATALOGS);
 const de = createI18n("de", CATALOGS);

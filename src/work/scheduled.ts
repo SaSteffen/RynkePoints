@@ -18,14 +18,18 @@ import {
 	listRidersBehindFiguresVersion,
 	setFiguresVersion,
 } from "../db/riders";
+import { pruneRoutingCounts } from "../db/routing";
 import { listRidersNeedingEvaluation } from "../db/rynke";
+import { pruneStravaCalls } from "../db/strava-calls";
 import { pruneUsageAlerts, pruneUsageHistory } from "../db/usage";
+import { exchangeRoutingCounts, sendFullList } from "../routing/report";
 import {
 	type CountingWindow,
 	countingWindow,
 	currentRules,
 } from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
+import { firstCallDay } from "../strava/calls";
 import { settleWithdrawals } from "../strava/withdraw";
 import { daysBefore, historyStart, utcDay } from "../usage/allowances";
 import { recordUsage } from "../usage/record";
@@ -42,8 +46,9 @@ const PURGE_EVALUATION_DELAY_SECONDS = 60;
 const DEADLINE_WAIT_DAYS = GIVE_UP_AFTER_SECONDS / (24 * 3600);
 
 /**
- * The hourly cron in `wrangler.jsonc`: usage (feature 025 research R2), then
- * the ride edit re-check's run (feature 036).
+ * The hourly cron in `wrangler.jsonc`: usage (feature 025 research R2), the
+ * gateway routing's counts (feature 046 research R9), then the ride edit
+ * re-check's run (feature 036).
  */
 export const USAGE_CRON = "58 * * * *";
 
@@ -216,13 +221,17 @@ export async function fanOutEvaluations(ctx: Ctx): Promise<void> {
 
 /**
  * Usage days past 13 months, and alert rows past 2 days (025 data-model.md);
- * the re-check's days with the usage history (feature 036).
+ * the re-check's days with the usage history (feature 036); the Strava call
+ * counts past 30 days (feature 047 FR-017).
  */
 export async function pruneUsage(ctx: Ctx): Promise<void> {
 	const today = utcDay(ctx.now());
 	await pruneUsageHistory(ctx.env.DB, historyStart(today));
 	await pruneRecheckDays(ctx.env.DB, historyStart(today));
 	await pruneUsageAlerts(ctx.env.DB, daysBefore(today, 2));
+	await pruneStravaCalls(ctx.env.DB, firstCallDay(today));
+	// Gateway routing's counts keep 30 days (feature 046 FR-026).
+	await pruneRoutingCounts(ctx.env.DB, today);
 }
 
 function safeParse(json: string): unknown {
@@ -261,14 +270,18 @@ export async function handleScheduled(
 	if (controller.cron === USAGE_CRON) {
 		// The ride edit re-check's hourly run after the usage (feature 036
 		// contracts/hourly-run.md).
-		await runSteps(ctx, [recordUsage, recheckRun]);
+		await runSteps(ctx, [recordUsage, exchangeRoutingCounts, recheckRun]);
 		return;
 	}
 	await runSteps(ctx, [
 		fanOutMembershipChecks,
 		expireReconnectRiders,
 		sweepRemovedGuests,
-		settleWithdrawals,
+		// Everyone held now, so the gateway's copy matches within a day
+		// (feature 046 FR-006).
+		sendFullList,
+		// Giving access back is leaving (feature 047 research R2).
+		(ctx) => settleWithdrawals({ ...ctx, stravaAction: "leave" }),
 		requeueFailedWork,
 		fanOutFiguresReread,
 		purgePreSeasonActivities,

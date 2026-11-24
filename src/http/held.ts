@@ -2,6 +2,7 @@ import { verifyToken } from "../config";
 import { secretEquals } from "../crypto/secret";
 import type { Ctx } from "../ctx";
 import { letGoRider, riderHold } from "../db/riders";
+import { queueReport } from "../routing/report";
 import { isStravaId, parseStravaJson } from "../strava/id";
 import { readBodyUpTo } from "./body";
 
@@ -73,5 +74,7 @@ export async function handleLetGo(
 	const athleteId = await gatewayAthlete(request, secret, ctx);
 	if (athleteId instanceof Response) return athleteId;
 	await letGoRider(ctx.env.DB, athleteId);
+	// A guest stays held; the report says what is true now (feature 046).
+	await queueReport(ctx, athleteId);
 	return Response.json({ letGo: true });
 }

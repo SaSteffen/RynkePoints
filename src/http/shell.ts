@@ -98,7 +98,7 @@ export const SECTIONS: readonly {
 	},
 	{
 		id: "admin",
-		path: "/admin",
+		path: "/admin/riders",
 		label: "nav.admin",
 		icon: GAUGE,
 		adminOnly: true,
