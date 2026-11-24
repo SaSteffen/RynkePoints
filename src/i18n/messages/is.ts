@@ -1242,6 +1242,14 @@ export const is: Catalog = {
 		other: "{n} keyrslum haldið aftur",
 	},
 	"admin.recheck.listOrder": "röð listans",
+	"admin.cpu.heading": "Örgjörvatími workera",
+	"admin.cpu.intro":
+		"Hver keyrsla workers (síða, skammtur úr biðröð, áætluð keyrsla) má nota {limit} af örgjörvatíma. Á dag: hve mikið hægustu 1 af 100 keyrslum þurftu, og hve margar keyrslur Cloudflare stöðvaði. Cloudflare fyrirgefur stöku framúrkeyrslu, en stöðvaðar keyrslur eru villur.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} af {runs} stöðvaðar",
+	"admin.cpu.none": "Engar örgjörvatölur skráðar enn.",
+	"admin.cpu.unavailable":
+		"Ekki tókst að sækja örgjörvatölur Cloudflare síðast. Taflan sýnir þá daga sem hafa verið skráðir hingað til.",
 	"admin.waiting.heading": "Beðið eftir Strava-kvótanum",
 	"admin.waiting.body": {
 		one: "{n} færsla bíður, lokið eftir um {time}.",
@@ -1309,6 +1317,10 @@ export const is: Catalog = {
 	"admin.remove.leaveLink": "Eyða gögnunum mínum",
 	"notification.usage.warning": "{allowance}: {percent} %",
 	"notification.usage.critical": "Alvarlegt: {allowance} í {percent} %",
+	"notification.usage.cpuWarning":
+		"Cloudflare stöðvaði keyrslur í dag, oftast vegna of mikils örgjörvatíma.",
+	"notification.usage.cpuCritical":
+		"Alvarlegt: Cloudflare stöðvaði meira en 1 af 100 keyrslum í dag.",
 	"notice.blocked.title": "Þú getur ekki tekið þátt í þessu liði",
 	"notice.blocked.body":
 		"Stjórnandi fjarlægði þig úr þessu liði. Við geymum aðeins Strava-auðkennið þitt svo þú getir ekki tengst aftur.",

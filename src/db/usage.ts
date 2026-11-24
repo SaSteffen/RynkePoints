@@ -4,6 +4,7 @@ import {
 	type CloudflareAllowance,
 	type RecordedAllowance,
 } from "../usage/allowances";
+import type { CpuDay } from "../usage/cpu";
 
 // The daily usage records and the sources' state (feature 025 data-model.md).
 // They hold no rider identifiers and have no relation to `riders` (FR-017).
@@ -97,7 +98,7 @@ export function correctPastUsageStatement(
 }
 
 /** `cloudflare`, or `team:<id>` for another team's export (feature 026). */
-export type UsageSource = "cloudflare" | `team:${string}`;
+export type UsageSource = "cloudflare" | "cloudflare-cpu" | `team:${string}`;
 
 export function sourceSuccessStatement(
 	db: D1Database,
@@ -322,14 +323,75 @@ export async function pruneUsageHistory(
 	await db.batch([
 		db.prepare("DELETE FROM usage_daily WHERE day < ?").bind(firstKept),
 		db.prepare("DELETE FROM usage_team_daily WHERE day < ?").bind(firstKept),
+		db.prepare("DELETE FROM usage_cpu_daily WHERE day < ?").bind(firstKept),
 	]);
+}
+
+// The Workers' CPU time (User Story 6, FR-041).
+
+/** An owner's day as Cloudflare now reports it; a later recording replaces it. */
+export function upsertCpuDayStatement(
+	db: D1Database,
+	record: CpuDay,
+	now: number,
+): D1PreparedStatement {
+	return db
+		.prepare(
+			`INSERT INTO usage_cpu_daily (day, owner, runs, cut_off, cpu_p99_us,
+				recorded_at)
+			VALUES (?, ?, ?, ?, ?, ?)
+			ON CONFLICT (day, owner) DO UPDATE SET runs = excluded.runs,
+				cut_off = excluded.cut_off, cpu_p99_us = excluded.cpu_p99_us,
+				recorded_at = excluded.recorded_at`,
+		)
+		.bind(
+			record.day,
+			record.owner,
+			record.runs,
+			record.cutOff,
+			record.p99Us,
+			now,
+		);
+}
+
+/** Every owner's days from `since` on, newest first (FR-042). */
+export async function readCpuDays(
+	db: D1Database,
+	since: string,
+): Promise<CpuDay[]> {
+	const { results } = await db
+		.prepare(
+			`SELECT day, owner, runs, cut_off, cpu_p99_us FROM usage_cpu_daily
+			WHERE day >= ? ORDER BY day DESC`,
+		)
+		.bind(since)
+		.all<{
+			day: string;
+			owner: string;
+			runs: number;
+			cut_off: number;
+			cpu_p99_us: number;
+		}>();
+	return results.map((row) => ({
+		day: row.day,
+		owner: row.owner,
+		runs: row.runs,
+		cutOff: row.cut_off,
+		p99Us: row.cpu_p99_us,
+	}));
 }
 
 // Alert state (research R5, contracts/alerts.md).
 
+/** What an alert is about: an allowance, or runs cut off for CPU (FR-044). */
+export type AlertSubject = RecordedAllowance | typeof CPU_ALERT;
+
+/** The alert subject of Workers' runs cut off (User Story 6). */
+export const CPU_ALERT = "cpu_cut_off";
+
 export function fireAlertStatement(
 	db: D1Database,
-	allowance: RecordedAllowance,
+	allowance: AlertSubject,
 	period: string,
 	level: number,
 	now: number,
@@ -367,7 +429,7 @@ export async function pruneUsageAlerts(
 }
 
 export interface CurrentAlert {
-	allowance: RecordedAllowance;
+	allowance: AlertSubject;
 	level: number;
 	used: number | null;
 	limit_value: number | null;

@@ -1279,6 +1279,14 @@ export const de = {
 		other: "{n} Läufe angehalten",
 	},
 	"admin.recheck.listOrder": "Reihenfolge der Liste",
+	"admin.cpu.heading": "CPU-Zeit der Worker",
+	"admin.cpu.intro":
+		"Jeder Lauf eines Workers (eine Seite, ein Stapel aus der Warteschlange, ein geplanter Lauf) darf {limit} CPU-Zeit nutzen. Je Tag: wie viel die langsamsten 1 von 100 Läufen brauchten, und wie viele Läufe Cloudflare abgebrochen hat. Einzelne Ausreißer verzeiht Cloudflare, abgebrochene Läufe sind Fehler.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} von {runs} abgebrochen",
+	"admin.cpu.none": "Bisher sind keine CPU-Zahlen aufgezeichnet.",
+	"admin.cpu.unavailable":
+		"Die CPU-Zahlen von Cloudflare konnten zuletzt nicht abgerufen werden. Die Tabelle zeigt die bisher aufgezeichneten Tage.",
 	"admin.waiting.heading": "Warten auf das Strava-Budget",
 	"admin.waiting.body": {
 		one: "{n} Eintrag wartet, fertig in etwa {time}.",
@@ -1345,6 +1353,10 @@ export const de = {
 	"admin.remove.leaveLink": "Meine Daten löschen",
 	"notification.usage.warning": "{allowance}: {percent}\u00a0%",
 	"notification.usage.critical": "Kritisch: {allowance} bei {percent}\u00a0%",
+	"notification.usage.cpuWarning":
+		"Cloudflare hat heute Läufe abgebrochen, meist wegen zu viel CPU-Zeit.",
+	"notification.usage.cpuCritical":
+		"Kritisch: Cloudflare hat heute mehr als 1 von 100 Läufen abgebrochen.",
 	"notice.blocked.title": "Du kannst bei diesem Team nicht mitmachen",
 	"notice.blocked.body":
 		"Ein Admin hat dich aus diesem Team entfernt. Wir behalten nur deine Strava-ID, damit du dich nicht wieder verbinden kannst.",

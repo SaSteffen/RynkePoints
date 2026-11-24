@@ -226,6 +226,7 @@ export async function resetDb(): Promise<void> {
 	await env.DB.batch([
 		env.DB.prepare("DELETE FROM usage_daily"),
 		env.DB.prepare("DELETE FROM usage_team_daily"),
+		env.DB.prepare("DELETE FROM usage_cpu_daily"),
 		env.DB.prepare("DELETE FROM usage_source_state"),
 		env.DB.prepare("DELETE FROM usage_alerts"),
 		env.DB.prepare("DELETE FROM recheck_daily"),

@@ -1235,6 +1235,14 @@ export const sv: Catalog = {
 		other: "{n} körningar hölls tillbaka",
 	},
 	"admin.recheck.listOrder": "listans ordning",
+	"admin.cpu.heading": "Workerns CPU-tid",
+	"admin.cpu.intro":
+		"Varje körning av en worker (en sida, en omgång från kön, en schemalagd körning) får använda {limit} CPU-tid. Per dag: hur mycket de långsammaste 1 av 100 körningarna behövde, och hur många körningar Cloudflare avbröt. Cloudflare förlåter enstaka överskridanden; avbrutna körningar är fel.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut} av {runs} avbrutna",
+	"admin.cpu.none": "Inga CPU-siffror registrerade ännu.",
+	"admin.cpu.unavailable":
+		"Cloudflares CPU-siffror kunde inte hämtas senast. Tabellen visar de dagar som registrerats hittills.",
 	"admin.waiting.heading": "Väntar på Strava-budgeten",
 	"admin.waiting.body": {
 		one: "{n} post väntar, klart om ungefär {time}.",
@@ -1301,6 +1309,10 @@ export const sv: Catalog = {
 	"admin.remove.leaveLink": "Radera mina uppgifter",
 	"notification.usage.warning": "{allowance}: {percent} %",
 	"notification.usage.critical": "Kritiskt: {allowance} på {percent} %",
+	"notification.usage.cpuWarning":
+		"Cloudflare avbröt körningar i dag, oftast för att de använde för mycket CPU-tid.",
+	"notification.usage.cpuCritical":
+		"Kritiskt: Cloudflare avbröt mer än 1 av 100 körningar i dag.",
 	"notice.blocked.title": "Du kan inte vara med i det här laget",
 	"notice.blocked.body":
 		"En administratör har tagit bort dig från det här laget. Vi behåller bara ditt Strava-ID, så att du inte kan ansluta igen.",

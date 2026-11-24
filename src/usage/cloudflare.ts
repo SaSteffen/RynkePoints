@@ -66,7 +66,7 @@ function unavailable(reason: string): CloudflareResult {
 	return { kind: "unavailable", reason };
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+export function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
 }
 
@@ -149,17 +149,23 @@ export function parseUsage(
 	return parsed ? days : null;
 }
 
+/** Cloudflare's answer to `query` for yesterday and today, or why there is none. */
+export type CloudflareAnswer =
+	| { kind: "ok"; today: string; yesterday: string; body: unknown }
+	| { kind: "unavailable"; reason: string };
+
 /**
- * Yesterday's and today's figures, so Cloudflare's later corrections reach
- * yesterday's record. Never throws: any failure just reads as unavailable, and
- * without the secrets it asks nobody (FR-028).
+ * Asks Cloudflare's GraphQL API `query` for yesterday and today, so its later
+ * corrections reach yesterday's record. Never throws: any failure just reads as
+ * unavailable, and without the secrets it asks nobody (FR-028).
  */
-export async function fetchCloudflareUsage(
+export async function queryCloudflare(
 	env: object,
 	now: number,
-): Promise<CloudflareResult> {
+	query: string,
+): Promise<CloudflareAnswer> {
 	const analytics = cloudflareAnalytics(env);
-	if (!analytics) return unavailable("not configured");
+	if (!analytics) return { kind: "unavailable", reason: "not configured" };
 	const today = utcDay(now);
 	const yesterday = daysBefore(today, 1);
 	let response: Response;
@@ -171,7 +177,7 @@ export async function fetchCloudflareUsage(
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				query: USAGE_QUERY,
+				query,
 				variables: {
 					accountTag: analytics.accountId,
 					from: yesterday,
@@ -180,20 +186,33 @@ export async function fetchCloudflareUsage(
 			}),
 		});
 	} catch {
-		return unavailable("network error");
+		return { kind: "unavailable", reason: "network error" };
 	}
-	if (!response.ok) return unavailable(`HTTP ${response.status}`);
+	if (!response.ok) {
+		return { kind: "unavailable", reason: `HTTP ${response.status}` };
+	}
 	let body: unknown;
 	try {
 		body = await response.json();
 	} catch {
-		return unavailable("unreadable response");
+		return { kind: "unavailable", reason: "unreadable response" };
 	}
 	if (isRecord(body) && Array.isArray(body.errors) && body.errors.length > 0) {
-		return unavailable(errorReason(body.errors));
+		return { kind: "unavailable", reason: errorReason(body.errors) };
 	}
+	return { kind: "ok", today, yesterday, body };
+}
+
+/** Yesterday's and today's figures. Never throws. */
+export async function fetchCloudflareUsage(
+	env: object,
+	now: number,
+): Promise<CloudflareResult> {
+	const answer = await queryCloudflare(env, now, USAGE_QUERY);
+	if (answer.kind !== "ok") return answer;
 	const parts: CloudflarePart[] = [];
-	const days = parseUsage(body, parts);
+	const days = parseUsage(answer.body, parts);
 	if (!days) return unavailable("unexpected response");
+	const { today, yesterday } = answer;
 	return { kind: "ok", today, yesterday, days, parts };
 }

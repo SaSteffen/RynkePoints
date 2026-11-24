@@ -1,6 +1,8 @@
 import type { Ctx } from "../ctx";
 import { listAlertRecipients } from "../db/riders";
 import {
+	type AlertSubject,
+	CPU_ALERT,
 	clearOpenAlertStatement,
 	fireAlertStatement,
 	type UsageRecord,
@@ -9,9 +11,12 @@ import { notifyRiders } from "../work/send-notification";
 import {
 	ALERT_LEVELS,
 	type AlertLevel,
+	CRITICAL_LEVEL,
 	isOpenEnded,
 	type RecordedAllowance,
+	WARNING_LEVEL,
 } from "./allowances";
+import type { CpuLevel } from "./cpu";
 import { reachesLevel } from "./figures";
 
 // Telling administrators when an allowance is near its limit (feature 025
@@ -42,15 +47,14 @@ export async function checkAlerts(
 ): Promise<void> {
 	const db = ctx.env.DB;
 	const now = ctx.now();
-	const fires: { allowance: RecordedAllowance; fire: D1PreparedStatement }[] =
-		[];
+	const fires: Fire[] = [];
 	const clears: D1PreparedStatement[] = [];
 	for (const { allowance, day, used, limit } of records) {
 		const reached = levelsReached(used, limit);
 		const period = alertPeriod(allowance, day);
 		for (const level of reached) {
 			fires.push({
-				allowance,
+				subject: allowance,
 				fire: fireAlertStatement(db, allowance, period, level, now),
 			});
 		}
@@ -62,12 +66,54 @@ export async function checkAlerts(
 			}
 		}
 	}
+	await fireAndNotify(ctx, fires, clears);
+}
+
+interface Fire {
+	subject: AlertSubject;
+	fire: D1PreparedStatement;
+}
+
+/**
+ * Today's CPU marks of this team's Worker and the gateway, as alert levels: a
+ * warning is the lower level, critical the higher (FR-044). The same insert-first
+ * rule gives one notification per level and day.
+ */
+export async function checkCpuAlerts(
+	ctx: Ctx,
+	day: string,
+	levels: readonly CpuLevel[],
+): Promise<void> {
+	const db = ctx.env.DB;
+	const now = ctx.now();
+	const reached = new Set<AlertLevel>();
+	for (const level of levels) {
+		if (level !== "ok") reached.add(WARNING_LEVEL);
+		if (level === "critical") reached.add(CRITICAL_LEVEL);
+	}
+	await fireAndNotify(
+		ctx,
+		[...reached].map((level) => ({
+			subject: CPU_ALERT,
+			fire: fireAlertStatement(db, CPU_ALERT, day, level, now),
+		})),
+		[],
+	);
+}
+
+/** Inserts the levels, then notifies once per subject with a level newly reached. */
+async function fireAndNotify(
+	ctx: Ctx,
+	fires: readonly Fire[],
+	clears: readonly D1PreparedStatement[],
+): Promise<void> {
+	const db = ctx.env.DB;
 	if (fires.length + clears.length === 0) return;
 	const results = await db.batch([...fires.map((f) => f.fire), ...clears]);
 	const newly = new Set(
 		fires
 			.filter((_, i) => results[i]?.meta.changes === 1)
-			.map((f) => f.allowance),
+			.map((f) => f.subject),
 	);
 	if (newly.size === 0) return;
 	const recipients = await listAlertRecipients(db);

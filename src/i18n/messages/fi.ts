@@ -1238,6 +1238,14 @@ export const fi: Catalog = {
 		other: "{n} ajoa pidätetty",
 	},
 	"admin.recheck.listOrder": "listan järjestys",
+	"admin.cpu.heading": "Workerien suoritinaika",
+	"admin.cpu.intro":
+		"Workerin jokainen suoritus (sivu, jonon erä, ajastettu suoritus) saa käyttää {limit} suoritinaikaa. Päivittäin: kuinka paljon hitain suoritus sadasta tarvitsi ja kuinka monta suoritusta Cloudflare keskeytti. Cloudflare sallii satunnaiset ylitykset, mutta keskeytetyt suoritukset ovat virheitä.",
+	"admin.cpu.ms": "{n}\u00a0ms",
+	"admin.cpu.cell": "{slowest} · {cut}/{runs} keskeytetty",
+	"admin.cpu.none": "Suoritinaikoja ei ole vielä tallennettu.",
+	"admin.cpu.unavailable":
+		"Cloudflaren suoritinaikoja ei viimeksi saatu haettua. Taulukko näyttää tähän mennessä tallennetut päivät.",
 	"admin.waiting.heading": "Odotetaan Strava-budjettia",
 	"admin.waiting.body": {
 		one: "{n} kohde odottaa, valmis noin {time} kuluttua.",
@@ -1304,6 +1312,10 @@ export const fi: Catalog = {
 	"admin.remove.leaveLink": "Poista tietoni",
 	"notification.usage.warning": "{allowance}: {percent} %",
 	"notification.usage.critical": "Kriittinen: {allowance} {percent} %",
+	"notification.usage.cpuWarning":
+		"Cloudflare keskeytti tänään suorituksia, yleensä liian suuren suoritinajan vuoksi.",
+	"notification.usage.cpuCritical":
+		"Kriittinen: Cloudflare keskeytti tänään yli yhden suorituksen sadasta.",
 	"notice.blocked.title": "Et voi osallistua tässä tiimissä",
 	"notice.blocked.body":
 		"Ylläpitäjä on poistanut sinut tästä tiimistä. Säilytämme vain Strava-tunnuksesi, jotta et voi yhdistää uudelleen.",
