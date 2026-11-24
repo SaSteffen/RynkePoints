@@ -29,9 +29,9 @@ No setup: no dependency, no new tooling. Work on branch `048-usage-tab-redesign`
 **Purpose**: the level scale with Hinweis, which the page, the alerts and the
 number all read.
 
-- [ ] T001 [P] Write failing tests in test/unit/usage-figures.test.ts: every `AllowanceId` has an early threshold; each group's threshold is 25 (Strava per day, Strava per 15 minutes, connected riders, Cloudflare per day, database storage, per data-model.md); `levelOf(id, used, limit)` gives `"early"` at exactly 25 % (`used × 100 ≥ limit × level`), `"ok"` at 24.99 %, `"warning"` at 80 %, `"critical"` at 95 %, highest reached wins; a group with threshold ≥ 80 never gives `"early"`; `alertLevels(id)` is `[25, 80, 95]`, lowest first, and `[80, 95]` for a threshold ≥ 80
-- [ ] T002 Add the early thresholds in src/usage/allowances.ts: one constant per group (all 25, "A threshold is a whole percentage, 1–100. At 80 or more the group has no early level."), a map from every `AllowanceId` to its group's threshold, `earlyThreshold(id)` and `alertLevels(id)` (early threshold if below `WARNING_LEVEL`, then 80, 95); `WARNING_LEVEL`, `CRITICAL_LEVEL` unchanged
-- [ ] T003 Extend `Level` to `"ok" | "early" | "warning" | "critical"` and make `levelOf` take the allowance id in src/usage/figures.ts; update `makeFigure` and every caller of `levelOf` (`grep -rn "levelOf(" src`) so T001 passes and `pnpm typecheck` is clean; CPU and day-table levels keep `"ok" | "warning" | "critical"`
+- [x] T001 [P] Write failing tests in test/unit/usage-figures.test.ts: every `AllowanceId` has an early threshold; each group's threshold is 25 (Strava per day, Strava per 15 minutes, connected riders, Cloudflare per day, database storage, per data-model.md); `levelOf(id, used, limit)` gives `"early"` at exactly 25 % (`used × 100 ≥ limit × level`), `"ok"` at 24.99 %, `"warning"` at 80 %, `"critical"` at 95 %, highest reached wins; a group with threshold ≥ 80 never gives `"early"`; `alertLevels(id)` is `[25, 80, 95]`, lowest first, and `[80, 95]` for a threshold ≥ 80
+- [x] T002 Add the early thresholds in src/usage/allowances.ts: one constant per group (all 25, "A threshold is a whole percentage, 1–100. At 80 or more the group has no early level."), a map from every `AllowanceId` to its group's threshold, `earlyThreshold(id)` and `alertLevels(id)` (early threshold if below `WARNING_LEVEL`, then 80, 95); `WARNING_LEVEL`, `CRITICAL_LEVEL` unchanged
+- [x] T003 Extend `Level` to `"ok" | "early" | "warning" | "critical"` and make `levelOf` take the allowance id in src/usage/figures.ts; update `makeFigure` and every caller of `levelOf` (`grep -rn "levelOf(" src`) so T001 passes and `pnpm typecheck` is clean; CPU and day-table levels keep `"ok" | "warning" | "critical"`
 
 **Checkpoint**: `pnpm test test/unit/usage-figures.test.ts` passes.
 
@@ -48,17 +48,17 @@ clears its open Hinweis.
 
 ### Tests for User Story 2
 
-- [ ] T004 [P] [US2] Add failing cases to test/unit/usage-alerts.test.ts: crossing 25 % inserts a `usage_alerts` row with level 25 and notifies once; a second check that period inserts nothing; jumping from 10 % to 85 % in one check notifies once and the device text is worded by 80; an `open` allowance (`cf_d1_storage_bytes`, `riders_connected`) below 25 % deletes its open 25 row so the next rise notifies again; `cpu_cut_off` still fires only 80/95
-- [ ] T005 [P] [US2] Add a failing case to test/unit/migrations.test.ts (or its integration counterpart, following how existing migrations are tested): after `0041_usage_alerts_early.sql`, rows with level 80 and 95 are kept, a row with level 25 inserts, level 0 and 101 are refused, and the primary key `(allowance, period, level)` still refuses duplicates
-- [ ] T006 [P] [US2] Add failing cases to test/integration/notifications-route.test.ts: a stored level below 80 is worded "Hinweis: {allowance} bei {percent} %" (`notification.usage.early`); 80…94 and ≥ 95 keep their texts
-- [ ] T007 [P] [US2] Add a failing case to test/integration/admin-usage.test.ts: the alerts switch reads "Benachrichtigung bei Hinweis, Warnung und kritisch" and its explanation "Einmal je Wert und Stufe: ab der Hinweisgrenze, bei 80 % und bei 95 %."
+- [x] T004 [P] [US2] Add failing cases to test/unit/usage-alerts.test.ts: crossing 25 % inserts a `usage_alerts` row with level 25 and notifies once; a second check that period inserts nothing; jumping from 10 % to 85 % in one check notifies once and the device text is worded by 80; an `open` allowance (`cf_d1_storage_bytes`, `riders_connected`) below 25 % deletes its open 25 row so the next rise notifies again; `cpu_cut_off` still fires only 80/95
+- [x] T005 [P] [US2] Add a failing case to test/unit/migrations.test.ts (or its integration counterpart, following how existing migrations are tested): after `0041_usage_alerts_early.sql`, rows with level 80 and 95 are kept, a row with level 25 inserts, level 0 and 101 are refused, and the primary key `(allowance, period, level)` still refuses duplicates
+- [x] T006 [P] [US2] Add failing cases to test/integration/notifications-route.test.ts: a stored level below 80 is worded "Hinweis: {allowance} bei {percent} %" (`notification.usage.early`); 80…94 and ≥ 95 keep their texts
+- [x] T007 [P] [US2] Add a failing case to test/integration/admin-usage.test.ts: the alerts switch reads "Benachrichtigung bei Hinweis, Warnung und kritisch" and its explanation "Einmal je Wert und Stufe: ab der Hinweisgrenze, bei 80 % und bei 95 %."
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Create migrations/0041_usage_alerts_early.sql exactly as in contracts/alerts.md (create `usage_alerts_new` with `CHECK (level BETWEEN 1 AND 100)`, copy, drop, rename; same name, columns, primary key, `WITHOUT ROWID`), and register it wherever the migration list is checked
-- [ ] T009 [US2] In src/usage/alerts.ts, fire and clear with `alertLevels(allowance)` instead of `ALERT_LEVELS` for recorded allowances (insert first, `INSERT OR IGNORE`, one notification per subject with a newly reached level); CPU alerts keep 80/95; 15-minute figures stay unrecorded and never fire; adjust src/db/usage.ts statements only if they hard-code 80/95
-- [ ] T010 [US2] In src/http/pwa.ts, word a stored level below `WARNING_LEVEL` with the new key `notification.usage.early`; `currentAlertStatement` keeps picking the newest, highest row
-- [ ] T011 [P] [US2] Add `notification.usage.early` and change `admin.alerts.title` and the switch explanation in all ten catalogs src/i18n/messages/{de,en,da,fi,fr,is,lt,nb,nl,sv}.ts (German is the source; same placeholders)
+- [x] T008 [US2] Create migrations/0041_usage_alerts_early.sql exactly as in contracts/alerts.md (create `usage_alerts_new` with `CHECK (level BETWEEN 1 AND 100)`, copy, drop, rename; same name, columns, primary key, `WITHOUT ROWID`), and register it wherever the migration list is checked
+- [x] T009 [US2] In src/usage/alerts.ts, fire and clear with `alertLevels(allowance)` instead of `ALERT_LEVELS` for recorded allowances (insert first, `INSERT OR IGNORE`, one notification per subject with a newly reached level); CPU alerts keep 80/95; 15-minute figures stay unrecorded and never fire; adjust src/db/usage.ts statements only if they hard-code 80/95
+- [x] T010 [US2] In src/http/pwa.ts, word a stored level below `WARNING_LEVEL` with the new key `notification.usage.early`; `currentAlertStatement` keeps picking the newest, highest row
+- [x] T011 [P] [US2] Add `notification.usage.early` and change `admin.alerts.title` and the switch explanation in all ten catalogs src/i18n/messages/{de,en,da,fi,fr,is,lt,nb,nl,sv}.ts (German is the source; same placeholders)
 
 **Checkpoint**: T004–T007 pass; Hinweis works with the old page layout.
 
