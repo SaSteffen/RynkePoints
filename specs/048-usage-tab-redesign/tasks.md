@@ -124,14 +124,14 @@ today's table and explanation; `?calls={day}` opens Strava-Aufrufe on that day.
 
 ### Tests for User Story 4
 
-- [ ] T025 [P] [US4] Rewrite the section assertions in test/integration/admin-usage-recheck.test.ts, admin-usage-routing.test.ts, admin-usage-calls.test.ts and admin-usage-cpu.test.ts as failing tests: rows `li#waiting`, `#strava-calls`, `#recheck`, `#routing`, `#cpu` always present in that order under "Betrieb" (head "letzte 30 Tage"); each one line per the table in contracts/usage-view.md ("Nichts wartet." / "{n} Einträge warten, fertig in etwa {time}.", calls, re-check, routing, CPU with "Limit 10 ms je Lauf"); a summary mark at the highest of today's (CPU) or today's and yesterday's (day tables) marks; a routing day marked two days ago shows inside the opened row but gives no summary mark; the panel holds today's table unchanged; `?calls={day}` renders `#strava-calls` `open` with that day's breakdown
-- [ ] T026 [P] [US4] Add failing cases to test/integration/admin-usage.test.ts for the switch row: `section#alerts` with a `button role="switch"` whose `aria-checked` follows the stored setting, the hidden `admin_alerts` input, posting to `/admin/alerts`; the no-device line under it when the viewer has no push subscription; the recording start date note
+- [x] T025 [P] [US4] Rewrite the section assertions in test/integration/admin-usage-recheck.test.ts, admin-usage-routing.test.ts, admin-usage-calls.test.ts and admin-usage-cpu.test.ts as failing tests: rows `li#waiting`, `#strava-calls`, `#recheck`, `#routing`, `#cpu` always present in that order under "Betrieb" (head "letzte 30 Tage"); each one line per the table in contracts/usage-view.md ("Nichts wartet." / "{n} Einträge warten, fertig in etwa {time}.", calls, re-check, routing, CPU with "Limit 10 ms je Lauf"); a summary mark at the highest of today's (CPU) or today's and yesterday's (day tables) marks; a routing day marked two days ago shows inside the opened row but gives no summary mark; the panel holds today's table unchanged; `?calls={day}` renders `#strava-calls` `open` with that day's breakdown
+- [x] T026 [P] [US4] Add failing cases to test/integration/admin-usage.test.ts for the switch row: `section#alerts` with a `button role="switch"` whose `aria-checked` follows the stored setting, the hidden `admin_alerts` input, posting to `/admin/alerts`; the no-device line under it when the viewer has no push subscription; the recording start date note
 
 ### Implementation for User Story 4
 
-- [ ] T027 [US4] In src/http/admin/usage.ts, wrap the waiting text, `callsSection`, `recheckSection`, `routingSection` and `cpuSection` bodies unchanged in Betrieb `details` rows with ids `waiting`, `strava-calls`, `recheck`, `routing`, `cpu`, each summary with icon, title, mark, one line and optional value; compute the summary mark from the same day/CPU levels `attentionItems` uses; open `strava-calls` when `?calls=` is present
-- [ ] T028 [US4] In src/http/admin/usage.ts, replace `alertsSwitch` with the Nutzungshinweise section per contracts/usage-view.md (R11): `settings-row is-static`, `button role="switch" aria-checked` inside the existing `POST /admin/alerts` form, no-device line under it, recording start note
-- [ ] T029 [P] [US4] Add the Betrieb titles and one-liners and the switch row's texts, remove the replaced section headings' keys, in all ten catalogs src/i18n/messages/*.ts
+- [x] T027 [US4] In src/http/admin/usage.ts, wrap the waiting text, `callsSection`, `recheckSection`, `routingSection` and `cpuSection` bodies unchanged in Betrieb `details` rows with ids `waiting`, `strava-calls`, `recheck`, `routing`, `cpu`, each summary with icon, title, mark, one line and optional value; compute the summary mark from the same day/CPU levels `attentionItems` uses; open `strava-calls` when `?calls=` is present
+- [x] T028 [US4] In src/http/admin/usage.ts, replace `alertsSwitch` with the Nutzungshinweise section per contracts/usage-view.md (R11): `settings-row is-static`, `button role="switch" aria-checked` inside the existing `POST /admin/alerts` form, no-device line under it, recording start note
+- [x] T029 [P] [US4] Add the Betrieb titles and one-liners and the switch row's texts, remove the replaced section headings' keys, in all ten catalogs src/i18n/messages/*.ts
 - [x] T030 [P] [US4] Open rows from links in public/app.js (R9): on load and on `hashchange`, open the `details` inside the `li` whose id equals the hash and scroll it into view; nothing else
 
 **Checkpoint**: US4 tests pass; the page matches boards 1, 3 and 4.
@@ -149,13 +149,13 @@ non-administrator has no Admin tab.
 
 ### Tests for User Story 5
 
-- [ ] T031 [P] [US5] Write failing tests in test/integration/admin-usage-badge.test.ts: an administrator on a non-admin page sees `countBadge(2)` in the Admin tab's `.nav-icon` and the link's `aria-label` "Admin, 2 brauchen deinen Blick"; on `/admin` the Admin tab, the "Nutzung" segment (`aria-label` "Nutzung, 2 brauchen deinen Blick") and the list's head show the same total; with only state hints no badge; above 9 shows "9+"; a rider who isn't an administrator gets no Admin tab and the reader isn't run; an organiser who is also administrator keeps the Orga number unchanged; no request to Strava or Cloudflare is made
+- [x] T031 [P] [US5] Write failing tests in test/integration/admin-usage-badge.test.ts: an administrator on a non-admin page sees `countBadge(2)` in the Admin tab's `.nav-icon` and the link's `aria-label` "Admin, 2 brauchen deinen Blick"; on `/admin` the Admin tab, the "Nutzung" segment (`aria-label` "Nutzung, 2 brauchen deinen Blick") and the list's head show the same total; with only state hints no badge; above 9 shows "9+"; a rider who isn't an administrator gets no Admin tab and the reader isn't run; an organiser who is also administrator keeps the Orga number unchanged; no request to Strava or Cloudflare is made
 
 ### Implementation for User Story 5
 
-- [ ] T032 [US5] In src/http/shell.ts, compute `countUsageMarks(ctx)` for administrators in the same `Promise.all` as `countOpenRequests`, and show it on the Admin tab with `countBadge` and the `nav.admin.marks` label, as the Orga tab does
-- [ ] T033 [US5] Let `adminSwitch` in src/http/admin/access.ts take the count and show `countBadge` with `admin.switch.usage.marks` on "Nutzung"; pass it from src/http/admin/usage.ts (the list's own count) and from src/http/admin/riders.ts and src/http/admin/remove.ts (via `countUsageMarks`), so one request shows one number
-- [ ] T034 [P] [US5] Add `nav.admin.marks` and `admin.switch.usage.marks` to all ten catalogs src/i18n/messages/*.ts
+- [x] T032 [US5] In src/http/shell.ts, compute `countUsageMarks(ctx)` for administrators in the same `Promise.all` as `countOpenRequests`, and show it on the Admin tab with `countBadge` and the `nav.admin.marks` label, as the Orga tab does
+- [x] T033 [US5] Let `adminSwitch` in src/http/admin/access.ts take the count and show `countBadge` with `admin.switch.usage.marks` on "Nutzung"; pass it from src/http/admin/usage.ts (the list's own count) and from src/http/admin/riders.ts and src/http/admin/remove.ts (via `countUsageMarks`), so one request shows one number
+- [x] T034 [P] [US5] Add `nav.admin.marks` and `admin.switch.usage.marks` to all ten catalogs src/i18n/messages/*.ts
 
 **Checkpoint**: all stories pass.
 
@@ -163,10 +163,10 @@ non-administrator has no Admin tab.
 
 ## Phase 8: Polish & cross-cutting
 
-- [ ] T035 Update the admin test in e2e/smoke.e2e.ts to the new page: the warning and critical marks still visible; the alerts switch is the `button[role=switch]` and its hidden input still flips; open a figure row before hovering its graph and counting `.usage-chart`; "Alle Tage" opens `/admin?days=strava_read_daily#…` with its row open
-- [ ] T036 Remove code and CSS left unused by T016, T022, T027, T028 (old summary, overview table, card styles) from src/http/admin/usage.ts and src/http/style.ts; `pnpm lint` and `pnpm typecheck` clean
-- [ ] T037 [P] Check the page and the number show no other team's name or rider data (`pnpm test test/teams/no-other-team.test.ts`) and run the targeted tests of quickstart.md
-- [ ] T038 [P] Note the feature in docs that describe Admin › Nutzung, if any (`grep -rln "Nutzung" docs README.md`), and the Hinweis level in feature 025's description only where docs list the alert levels
+- [x] T035 Update the admin test in e2e/smoke.e2e.ts to the new page: the warning and critical marks still visible; the alerts switch is the `button[role=switch]` and its hidden input still flips; open a figure row before hovering its graph and counting `.usage-chart`; "Alle Tage" opens `/admin?days=strava_read_daily#…` with its row open
+- [x] T036 Remove code and CSS left unused by T016, T022, T027, T028 (old summary, overview table, card styles) from src/http/admin/usage.ts and src/http/style.ts; `pnpm lint` and `pnpm typecheck` clean
+- [x] T037 [P] Check the page and the number show no other team's name or rider data (`pnpm test test/teams/no-other-team.test.ts`) and run the targeted tests of quickstart.md
+- [x] T038 [P] Note the feature in docs that describe Admin › Nutzung, if any (`grep -rln "Nutzung" docs README.md`), and the Hinweis level in feature 025's description only where docs list the alert levels
 
 ---
 

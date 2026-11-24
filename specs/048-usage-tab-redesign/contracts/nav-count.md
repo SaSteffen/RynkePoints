@@ -9,7 +9,7 @@
 
 ## What
 
-`countUsageMarks(ctx)` → the total of `markCount` (data-model.md): items at
+The total of `markCount` (data-model.md) over the usage state's items: items at
 Kritisch, Warnung and Hinweis; hints never count. 0 shows nothing.
 
 Markup as Orga's: `countBadge(n)` inside `.nav-icon` (shows "9+" above 9), and an
@@ -30,5 +30,6 @@ administrators.
 ## Same number everywhere
 
 For one request, the Admin tab, the "Nutzung" segment and the list's head show
-the same total (SC-005): all three come from one `countUsageMarks` result on the
-usage page.
+the same total (SC-005): the shell reads the usage state once per request
+(`readUsageState`, for administrators only) and hands it to the page as
+`ShellViewer.usage`; the tab, the segment and the list all count that one state.
