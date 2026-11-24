@@ -207,6 +207,25 @@ describe("GET /me/notification-text for an alert (feature 025 FR-036)", () => {
 		);
 	});
 
+	it("says it is a Hinweis below 80 % (feature 048 FR-009)", async () => {
+		await makeAdmin();
+		await usage("strava_read_daily", 900, 3000);
+		await fired("strava_read_daily", 25);
+		expect((await text()).body?.body).toBe(
+			`Hinweis: ${CATALOGS.de["admin.allowance.strava_read_daily"]} bei 30\u00a0%`,
+		);
+	});
+
+	it("words a run that passed 25 % and 80 % by 80 % (feature 048 US2 scenario 3)", async () => {
+		await makeAdmin();
+		await usage("strava_read_daily", 2500, 3000);
+		await fired("strava_read_daily", 25);
+		await fired("strava_read_daily", 80);
+		expect((await text()).body?.body).toBe(
+			`${CATALOGS.de["admin.allowance.strava_read_daily"]}: 83\u00a0%`,
+		);
+	});
+
 	it("falls back on the level without today's record", async () => {
 		await makeAdmin();
 		await fired("riders_connected", 80);

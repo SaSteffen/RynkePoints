@@ -624,21 +624,46 @@ test("an administrator uses the admin pages", async ({ page, browserName }) => {
 	await page.goto("/admin");
 	await expect(page.locator(".usage-mark-warning").first()).toBeVisible();
 	await expect(page.locator(".usage-mark-critical").first()).toBeVisible();
+	// The marks are counted on the Admin tab (feature 048).
+	await expect(
+		page.locator('nav.app-nav a[href="/admin/riders"] .count-badge'),
+	).toBeVisible();
 	const alerts = page.locator('form[action="/admin/alerts"]');
+	const toggle = alerts.locator("button[role=switch]");
+	await expect(toggle).toHaveAttribute("aria-checked", "true");
 	await expect(alerts.locator("input[name=admin_alerts]")).toHaveValue("off");
-	await alerts.locator("button").click();
+	await toggle.click();
+	await expect(toggle).toHaveAttribute("aria-checked", "false");
 	await expect(alerts.locator("input[name=admin_alerts]")).toHaveValue("on");
-	await alerts.locator("button").click();
+	await toggle.click();
+	await expect(toggle).toHaveAttribute("aria-checked", "true");
 	await expect(alerts.locator("input[name=admin_alerts]")).toHaveValue("off");
 
 	await page.goto("/admin");
 	await expect(page.locator(".usage-chart")).toHaveCount(8);
+	// A figure's history is inside its row (feature 048).
+	await page.locator("#strava_read_daily > details > summary").click();
 	const graph = page.locator(".usage-graph").first();
 	await graph.hover();
 	await expect(graph.locator(".usage-tip")).toContainText(/1[.,]000/);
 	await page.locator(".usage-table-link").first().click();
 	await expect(page).toHaveURL(/\/admin\?days=strava_read_daily#/);
+	await expect(page.locator("#strava_read_daily > details")).toHaveAttribute(
+		"open",
+		"",
+	);
 	await expect(page.locator(".usage-gap")).toHaveCount(1);
+
+	// The CPU row's season graph says a past week's three medians (feature 049).
+	await page.locator("#cpu > details > summary").click();
+	const season = page.locator("#cpu .usage-graph");
+	await season.hover({ position: { x: 3, y: 60 } });
+	const week = season.locator(".usage-tip");
+	await expect(week).toContainText(/01\.09\.–0\d\.09\.\d{4}/);
+	for (const owner of ["Dieses Team", "Anderes Team", "Gemeinsam (Gateway)"]) {
+		await expect(week).toContainText(owner);
+	}
+	await expect(page.locator(".usage-chart")).toHaveCount(8);
 
 	const rider = REMOVED_RIDER[browserName];
 	await page.goto("/admin/riders");

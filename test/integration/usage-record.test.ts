@@ -1,10 +1,13 @@
 import { createScheduledController, env } from "cloudflare:test";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { handleScheduled } from "../../src/index";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
 import {
 	cloudflareBody,
+	cpuBody,
 	installCloudflare,
 	seedUsageDay,
 	setStravaUsage,
@@ -261,6 +264,75 @@ describe("the hourly cron", () => {
 		await handleScheduled(hourly(), counted);
 		// At most 1,000 rows written a day is 1 % of the 100,000 allowed.
 		expect(written * 24).toBeLessThan(1000);
+	});
+});
+
+describe("the CPU median (feature 049 FR-001, FR-002)", () => {
+	const owner = env.TEAM_ID === "europe" ? europe : hamburg;
+	const recordCpu = async (p50Today: number, p50Yesterday = 900) => {
+		installCloudflare(
+			() => Response.json(cloudflareBody({ [TODAY]: FIGURES })),
+			() =>
+				Response.json(
+					cpuBody([
+						{
+							date: YESTERDAY,
+							scriptName: owner.cloudflare.worker,
+							runs: 800,
+							cpuTimeP99: 3800,
+							cpuTimeP50: p50Yesterday,
+						},
+						{
+							date: TODAY,
+							scriptName: owner.cloudflare.worker,
+							runs: 900,
+							cpuTimeP99: 4200,
+							cpuTimeP50: p50Today,
+						},
+					]),
+				),
+		);
+		await handleScheduled(hourly(), withAnalytics(ctx));
+	};
+	const cpuRow = (day: string) =>
+		env.DB.prepare(
+			"SELECT runs, cut_off, cpu_p99_us, cpu_p50_us FROM usage_cpu_daily WHERE day = ? AND owner = ?",
+		)
+			.bind(day, owner.id)
+			.first();
+
+	it("stores the median with the other figures for yesterday and today", async () => {
+		await recordCpu(1400);
+		expect(await cpuRow(TODAY)).toEqual({
+			runs: 900,
+			cut_off: 0,
+			cpu_p99_us: 4200,
+			cpu_p50_us: 1400,
+		});
+		expect(await cpuRow(YESTERDAY)).toMatchObject({ cpu_p50_us: 900 });
+	});
+
+	it("replaces today's median on the next recording", async () => {
+		await recordCpu(1400);
+		await recordCpu(1700);
+		expect(await cpuRow(TODAY)).toMatchObject({ cpu_p50_us: 1700 });
+	});
+
+	it("leaves a day the release before wrote with a NULL median until recorded again", async () => {
+		await env.DB.prepare(
+			`INSERT INTO usage_cpu_daily (day, owner, runs, cut_off, cpu_p99_us,
+				recorded_at) VALUES (?, ?, 700, 2, 3900, 1)`,
+		)
+			.bind(YESTERDAY, owner.id)
+			.run();
+		expect(await cpuRow(YESTERDAY)).toEqual({
+			runs: 700,
+			cut_off: 2,
+			cpu_p99_us: 3900,
+			cpu_p50_us: null,
+		});
+		await recordCpu(1400, 1100);
+		expect(await cpuRow(YESTERDAY)).toMatchObject({ cpu_p50_us: 1100 });
 	});
 });
 

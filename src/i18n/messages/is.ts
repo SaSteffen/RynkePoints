@@ -1112,6 +1112,10 @@ export const is: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Stjórnun",
+	"nav.admin.marks": {
+		one: "Stjórnun, {n} þarfnast athygli þinnar",
+		other: "Stjórnun, {n} þarfnast athygli þinnar",
+	},
 	"admin.switch.label": "Stjórnunaryfirlit",
 	"admin.switch.usage": "Notkun",
 	"admin.switch.riders": "Hjólreiðamenn og hlutverk",
@@ -1198,9 +1202,8 @@ export const is: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Gagnagrunnsgeymsla",
 	"admin.gigabytes": "{n} GB",
 	"admin.level.warning": "Viðvörun",
+	"admin.level.early": "Athugið",
 	"admin.level.critical": "Alvarlegt",
-	"admin.summary.ok": "Allar tölur eru undir 80 %.",
-	"admin.summary.attention": "Tölur í 80 % eða yfir: {n}",
 	"admin.figure.numbers": "{used} af {limit} · {percent} %",
 	"admin.figure.split": "Þetta lið: {team} · Óúthlutað: {rest}",
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
@@ -1208,23 +1211,12 @@ export const is: Catalog = {
 	"admin.figure.rest": "Óúthlutað: {n}",
 	"admin.figure.notSplit":
 		"Ekki er enn hægt að skipta þessari tölu eftir liðum.",
-	"admin.figure.windowNote":
-		"Beiðnir annarra liða teljast hér óúthlutaðar: liðin skiptast ekki á 15 mínútna tölum sínum.",
-	"admin.teams.stale":
-		"{team}: ekkert svar við síðustu skráningu. Tölurnar eru frá {time} UTC.",
 	"admin.teams.other": "Annað lið",
 	"admin.teams.otherN": "Annað lið {n}",
 	"admin.teams.shared": "Sameiginlegt (gátt)",
-	"admin.teams.never": "{team}: ekkert svar enn, svo tölurnar vantar.",
-	"admin.overview.heading": "Öll lið",
-	"admin.overview.note":
-		"Tölur dagsins; hjá Cloudflare tölur síðasta skráða dags. Tómur reitur hefur enga tölu.",
-	"admin.overview.figure": "Tala",
-	"admin.overview.rest": "Óúthlutað",
-	"admin.overview.total": "Samtals",
 	"admin.figure.seen": "Staða {time} UTC",
 	"admin.figure.notSeen": "Ekki séð enn",
-	"admin.figure.noValue": "Ekkert gildi enn. Hámark: {limit}",
+	"admin.figure.noValue": "Ekkert gildi enn · hámark {limit}",
 	"admin.strava.heading": "Strava",
 	"admin.cloudflare.heading": "Cloudflare",
 	"admin.cloudflare.note":
@@ -1232,6 +1224,86 @@ export const is: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Tölur Cloudflare eru ekki tiltækar í bili. Þetta eru síðustu þekktu gildin.",
 	"admin.refresh": "Uppfæra núna",
+	"admin.strava.figure.strava_read_daily": "Lestrar á dag",
+	"admin.strava.figure.strava_all_daily": "Beiðnir á dag",
+	"admin.strava.figure.strava_read_15m": "Lestrar á 15 mínútum",
+	"admin.strava.figure.strava_all_15m": "Beiðnir á 15 mínútum",
+	"admin.betrieb.heading": "Rekstur",
+	"admin.betrieb.when": "síðustu 30 daga",
+	"admin.betrieb.noFigures": "Engar tölur enn",
+	"admin.waiting.none": "Ekkert bíður.",
+	"admin.waiting.note":
+		"Vinna sem Strava-kvótinn heldur aftur reynir aftur síðar.",
+	"admin.calls.today": {
+		one: "Í dag {n} kall frá þessu liði",
+		other: "Í dag {n} köll frá þessu liði",
+	},
+	"admin.calls.heldToday": "{n} haldið aftur",
+	"admin.calls.heldNone": "engu haldið aftur",
+	"admin.recheck.line":
+		"{allowance} athuganir á dag · {riders} virkir hjólreiðamenn · {last}",
+	"admin.recheck.lastRun": "síðast {date}",
+	"admin.recheck.notRun": "ekki keyrt enn",
+	"admin.routing.today": "Í dag {n} áframsent",
+	"admin.routing.todayCalm": "Í dag {n} áframsent, ekkert óvenjulegt",
+	"admin.cpu.lineNone": "Engar tölur enn · hámark {limit} á keyrslu",
+	"admin.cpu.line": "Í dag {cut} af {runs} keyrslum stöðvaðar",
+	"admin.switch.usage.marks": {
+		one: "Notkun, {n} þarfnast athygli þinnar",
+		other: "Notkun, {n} þarfnast athygli þinnar",
+	},
+	"admin.lage.heading": "Þetta þarf að skoða",
+	"admin.lage.calm": "Allt innan marka",
+	"admin.lage.calmLine":
+		"Engin tala hefur náð athugunarmörkum sínum, öll lið hafa svarað, ekkert bíður. Staða {time} UTC.",
+	"admin.lage.calmLineWaiting":
+		"Engin tala hefur náð athugunarmörkum sínum og öll lið hafa svarað. Staða {time} UTC.",
+	"admin.lage.critical": {
+		one: "{n} alvarlegt",
+		other: "{n} alvarleg",
+	},
+	"admin.lage.warning": {
+		one: "{n} viðvörun",
+		other: "{n} viðvaranir",
+	},
+	"admin.lage.early": {
+		one: "{n} til athugunar",
+		other: "{n} til athugunar",
+	},
+	"admin.lage.strava": "Strava, í dag",
+	"admin.lage.cloudflare": "Cloudflare, staða {date}",
+	"admin.lage.earlyLine": "yfir athugunarmörkunum {n}\u00a0%",
+	"admin.lage.day": "{table}: {date}",
+	"admin.lage.recheck.over24h": "Hjólreiðamenn hafa beðið lengur en 24 klst.",
+	"admin.lage.recheck.order": "Listinn í rangri röð",
+	"admin.lage.routing.missed": "Yfirvofandi tap",
+	"admin.lage.routing.possible": "Mögulegt tap",
+	"admin.lage.routing.everyone": "Of mikið sent til allra liða",
+	"admin.lage.calls": "Köllin stemma ekki",
+	"admin.lage.cpu": "{owner}: keyrslur stöðvaðar",
+	"admin.lage.cpuLine": "{cut} af {runs} í dag",
+	"admin.lage.team.stale": "{team} svaraði ekki",
+	"admin.lage.team.staleLine":
+		"Nýjar tölur þess vantar þar til það svarar aftur. Síðasta svar: {time} UTC.",
+	"admin.lage.team.never": "{team} hefur aldrei svarað",
+	"admin.lage.team.neverLine":
+		"Tölur þess vantar í öll gildi þar til það svarar.",
+	"admin.lage.device": "Þú færð engar notkunarviðvaranir",
+	"admin.lage.deviceLine": "Ekkert tækja þinna er með kveikt á tilkynningum.",
+	"admin.figure.of": "{used} af {limit}",
+	"admin.figure.levels":
+		"Athugið frá {early}\u00a0%, viðvörun frá {warning}\u00a0%, alvarlegt frá {critical}\u00a0%.",
+	"admin.figure.levelsNoEarly":
+		"Viðvörun frá {warning}\u00a0%, alvarlegt frá {critical}\u00a0%.",
+	"admin.figure.whose.team": "{team} {n}",
+	"admin.figure.whose.none": "{team}: engar tölur",
+	"admin.figure.whose.window": "aðeins þetta lið",
+	"admin.figure.whose.account": "allur reikningurinn",
+	"admin.strava.when": "í dag, UTC",
+	"admin.cloudflare.when": "staða {time} UTC",
+	"admin.strava.note":
+		"Í 15 mínútna tölunum teljast beiðnir annarra liða óúthlutaðar: liðin skiptast ekki á þessum tölum.",
+	"admin.strava.quiet": "15 mínútna tölur í 0\u00a0% eru faldar.",
 	"admin.recheck.heading": "Endurskoðun ferða",
 	"admin.recheck.allowance":
 		"{allowance} athuganir á dag fyrir þetta lið · {riders} virkir hjólreiðamenn (með virkni síðustu 30 daga)",
@@ -1247,9 +1319,19 @@ export const is: Catalog = {
 	"admin.recheck.listOrder": "röð listans",
 	"admin.cpu.heading": "Örgjörvatími workera",
 	"admin.cpu.intro":
-		"Hver keyrsla workers (síða, skammtur úr biðröð, áætluð keyrsla) má nota {limit} af örgjörvatíma. Á dag: hve mikið hægustu 1 af 100 keyrslum þurftu, og hve margar keyrslur Cloudflare stöðvaði. Cloudflare fyrirgefur stöku framúrkeyrslu, en stöðvaðar keyrslur eru villur.",
+		"Hver keyrsla workers má nota {limit} af örgjörvatíma. Stöðvaðar keyrslur eru villur, en Cloudflare fyrirgefur stöku framúrkeyrslu. Miðgildi: helmingur keyrslna dagsins var undir því. Hægustu: hægustu 1 af 100 keyrslum.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut} af {runs} stöðvaðar",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut} af {runs} stöðvaðar",
+	"admin.cpu.pairHead": "Miðgildi / hægustu",
+	"admin.cpu.chart": "Miðgildi örgjörvatíma á viku, tímabil {season}: {names}",
+	"admin.cpu.months": "sep|okt|nóv|des|jan|feb|mar|apr|maí|jún|júl|ágú",
+	"admin.cpu.under":
+		"Hæsta daglega miðgildi hverrar viku; punktalínan er dagurinn í dag. Mörkin {limit} á keyrslu liggja langt fyrir ofan þetta svið.",
+	"admin.cpu.underLimit":
+		"Hæsta daglega miðgildi hverrar viku; punktalínan er dagurinn í dag, rauða strikalínan mörkin {limit} á keyrslu.",
+	"admin.cpu.seasonNone":
+		"Ekkert miðgildi hefur enn verið skráð fyrir þetta tímabil. Grafið fyllist frá fyrsta skráða degi.",
 	"admin.cpu.none": "Engar örgjörvatölur skráðar enn.",
 	"admin.cpu.unavailable":
 		"Ekki tókst að sækja örgjörvatölur Cloudflare síðast. Taflan sýnir þá daga sem hafa verið skráðir hingað til.",
@@ -1293,8 +1375,6 @@ export const is: Catalog = {
 	"admin.calls.all": "Öll lið",
 	"admin.calls.strava": "Strava",
 	"admin.calls.missing": "vantar",
-	"admin.summary.calls": "Dagar með viðvörun í köllum til Strava: {n}",
-	"admin.summary.routing": "Dagar með viðvörun í leiðarvali gáttarinnar: {n}",
 	"admin.waiting.heading": "Beðið eftir Strava-kvótanum",
 	"admin.waiting.body": {
 		one: "{n} færsla bíður, lokið eftir um {time}.",
@@ -1304,14 +1384,11 @@ export const is: Catalog = {
 	"admin.waiting.hours": { one: "{n} klukkustund", other: "{n} klukkustundir" },
 	"admin.waiting.days": { one: "{n} dag", other: "{n} daga" },
 	"admin.alerts.heading": "Notkunarviðvaranir",
-	"admin.alerts.on":
-		"Þú færð tilkynningu þegar Strava- eða Cloudflare-kvóti eða tengdir hjólreiðamenn ná 80 % eða 95 %.",
+	"admin.alerts.title": "Tilkynningar: athugið, viðvörun og alvarlegt",
+	"admin.alerts.levels":
+		"Einu sinni fyrir hverja tölu og stig: frá athugunarmörkum, við 80 % og við 95 %.",
 	"admin.alerts.off":
 		"Þú færð engar tilkynningar um notkun. Þessi síða merkir tölurnar samt.",
-	"admin.alerts.turnOff": "Slökkva á notkunarviðvörunum",
-	"admin.alerts.turnOn": "Kveikja á notkunarviðvörunum",
-	"admin.alerts.noDevice":
-		"Þú færð engar viðvaranir: ekkert tækja þinna er með kveikt á tilkynningum. Kveiktu á þeim í {settings}.",
 	"admin.history.days": "Hvern dag",
 	"admin.history.hideDays": "Fela daga",
 	"admin.history.none":
@@ -1361,6 +1438,7 @@ export const is: Catalog = {
 		"Þetta er ekki hjólreiðamaður á listanum hér. Engu var breytt.",
 	"admin.remove.leaveLink": "Eyða gögnunum mínum",
 	"notification.usage.warning": "{allowance}: {percent} %",
+	"notification.usage.early": "Athugið: {allowance} í {percent} %",
 	"notification.usage.critical": "Alvarlegt: {allowance} í {percent} %",
 	"notification.usage.cpuWarning":
 		"Cloudflare stöðvaði keyrslur í dag, oftast vegna of mikils örgjörvatíma.",

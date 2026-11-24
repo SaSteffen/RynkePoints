@@ -1,6 +1,6 @@
 {
 	"name": "rynke-points",
-	"version": "1.2.0",
+	"version": "1.3.0",
 	"private": true,
 	"description": "Strava integration for Team Rynkeby Hamburg: collects riders' activities (with consent), detects event participation, and awards gamified Rynke Points.",
 	"license": "Unlicense",
@@ -35,6 +35,7 @@
 		"catch-up": "scripts/catch-up.sh",
 		"strava:review": "node scripts/strava-review.mjs",
 		"season:album": "node scripts/season-album.mjs",
+		"cpu:fill-median": "node scripts/cpu-median-fill.mjs",
 		"prepare": "lefthook install"
 	},
 	"devDependencies": {

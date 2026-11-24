@@ -4,11 +4,13 @@ import { insertReportStatement } from "../../src/db/participation";
 import {
 	sourceSuccessStatement,
 	type UsageRecord,
+	upsertCpuDayStatement,
 	upsertUsageStatement,
 } from "../../src/db/usage";
 import { handleFetch } from "../../src/index";
 import { countingWindow } from "../../src/rynke/rules";
 import { teamEventChange } from "../../src/rynke/team-event-change";
+import { TEAMS } from "../../src/teams";
 import {
 	ATHLETE_CAPACITY,
 	CLOUDFLARE_ALLOWANCES,
@@ -18,6 +20,8 @@ import {
 	type RecordedAllowance,
 	utcDay,
 } from "../../src/usage/allowances";
+import { seasonOf } from "../../src/usage/cpu";
+import { SHARED } from "../../src/usage/split";
 import { samplesFor } from "./sample-sets";
 import {
 	eventDay,
@@ -143,6 +147,7 @@ export async function seed(
 			WHERE id = 1`,
 		),
 		db.prepare("DELETE FROM usage_daily"),
+		db.prepare("DELETE FROM usage_cpu_daily"),
 		db.prepare("DELETE FROM usage_source_state"),
 		db.prepare("DELETE FROM usage_alerts"),
 		db.prepare("DELETE FROM blocked_athletes"),
@@ -333,4 +338,53 @@ async function seedUsage(ctx: Ctx): Promise<void> {
 		}
 	}
 	await db.batch(statements);
+	await seedCpu(ctx);
+}
+
+/** The gateway has no record in the week three weeks back: a gap. */
+const SAMPLE_CPU_GAP_WEEKS_AGO = 3;
+
+/**
+ * Synthetic CPU days for every owner from the season's start to today
+ * (feature 049 research R9): medians as a gentle, repeatable wave well under
+ * the limit, never a figure from real use.
+ */
+async function seedCpu(ctx: Ctx): Promise<void> {
+	const db = ctx.env.DB;
+	const now = ctx.now();
+	const today = utcDay(now);
+	const first = seasonOf(today).from;
+	const gapDay = daysBefore(today, 7 * SAMPLE_CPU_GAP_WEEKS_AGO);
+	// The Monday of `day`'s week.
+	const monday = (day: string) => {
+		const at = new Date(`${day}T00:00:00Z`);
+		return daysBefore(day, (at.getUTCDay() + 6) % 7);
+	};
+	const gapWeek = monday(gapDay);
+	const owners = [...TEAMS.map((team) => team.id), SHARED];
+	const statements: D1PreparedStatement[] = [];
+	for (let ago = 0; ; ago++) {
+		const day = daysBefore(today, ago);
+		if (day < first) break;
+		owners.forEach((owner, n) => {
+			if (owner === SHARED && monday(day) === gapWeek) return;
+			const base = owner === SHARED ? 400 : 1000 + 400 * n;
+			const p50Us = Math.round(base + base * 0.4 * (1 + Math.sin(ago / 5 + n)));
+			statements.push(
+				upsertCpuDayStatement(
+					db,
+					{
+						day,
+						owner,
+						runs: 1500 + 40 * n + ((ago * 37) % 300),
+						cutOff: 0,
+						p99Us: p50Us * 4,
+						p50Us,
+					},
+					now,
+				),
+			);
+		});
+	}
+	if (statements.length > 0) await db.batch(statements);
 }

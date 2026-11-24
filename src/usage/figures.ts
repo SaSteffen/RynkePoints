@@ -10,13 +10,15 @@ import {
 	type AllowanceId,
 	ATHLETE_CAPACITY,
 	CRITICAL_LEVEL,
+	earlyThreshold,
 	WARNING_LEVEL,
 } from "./allowances";
 
 // What the admin view shows of an allowance, as pure logic (feature 025 FR-007
 // to FR-009, FR-020, research R1, R11). All times are epoch seconds.
 
-export type Level = "ok" | "warning" | "critical";
+/** Hinweis is "early" (feature 048); CPU values and marked days never have it. */
+export type Level = "ok" | "early" | "warning" | "critical";
 
 export interface Figure {
 	id: AllowanceId;
@@ -52,9 +54,11 @@ export function reachesLevel(
 	return limit > 0 && used * 100 >= limit * level;
 }
 
-export function levelOf(used: number, limit: number): Level {
+export function levelOf(id: AllowanceId, used: number, limit: number): Level {
 	if (reachesLevel(used, limit, CRITICAL_LEVEL)) return "critical";
 	if (reachesLevel(used, limit, WARNING_LEVEL)) return "warning";
+	const early = earlyThreshold(id);
+	if (early !== null && reachesLevel(used, limit, early)) return "early";
 	return "ok";
 }
 
@@ -75,7 +79,7 @@ export function makeFigure(
 		used,
 		limit,
 		percent: percentOf(used, limit),
-		level: levelOf(used, limit),
+		level: levelOf(id, used, limit),
 		team,
 		notAttributed: team === null ? null : Math.max(0, used - team),
 		observedAt,

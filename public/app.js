@@ -3726,11 +3726,38 @@ function usageGraphs(signal) {
 		minimumFractionDigits: 2,
 		maximumFractionDigits: 2,
 	});
-	const hide = [];
-	for (const graph of graphs) {
-		const { first, numbers, gap, gb } = graph.dataset;
-		const days = graph.dataset.days.split(",");
-		const start = Date.parse(`${first}T00:00:00Z`);
+	const dayMonth = new Intl.DateTimeFormat(locale, {
+		day: "2-digit",
+		month: "2-digit",
+		timeZone: "UTC",
+	});
+	const tenths = new Intl.NumberFormat(locale, {
+		minimumFractionDigits: 1,
+		maximumFractionDigits: 1,
+	});
+	const at = (day) => Date.parse(`${day}T00:00:00Z`);
+	/**
+	 * The CPU row's season graph (feature 049): a week's dates, then each
+	 * owner's highest daily median, one per line; a week to come says nothing.
+	 */
+	const weeksOf = ({ weeks, names, gap, ms }) => {
+		const entries = weeks.split(",");
+		const owners = names.split("|");
+		return (i) => {
+			const entry = entries[i];
+			if (entry === undefined) return null;
+			const [from, to, ...values] = entry.split("/");
+			const lines = owners.map(
+				(owner, n) =>
+					`${owner} ${values[n] ? ms.replace("{n}", tenths.format(Number(values[n]) / 1000)) : gap}`,
+			);
+			return `${dayMonth.format(at(from))}–${date.format(at(to))}\n${lines.join("\n")}`;
+		};
+	};
+	/** An allowance's history: a day's figures. */
+	const daysOf = ({ first, numbers, gap, gb, days: list }) => {
+		const days = list.split(",");
+		const start = at(first);
 		const amount = (value) =>
 			gb
 				? gb.replace("{n}", gigabytes.format(value / 1e9))
@@ -3746,11 +3773,26 @@ function usageGraphs(signal) {
 					whole.format(limit > 0 ? Math.floor((used * 100) / limit) : 0),
 				);
 		};
+		const say = (i) =>
+			i < days.length
+				? `${date.format(start + i * 86_400_000)}: ${text(days[i])}`
+				: null;
+		return { slots: days.length, say };
+	};
+	const hide = [];
+	for (const graph of graphs) {
+		const weekly = graph.dataset.weeks !== undefined;
+		const { slots, say } = weekly
+			? {
+					slots: Number(graph.dataset.slots),
+					say: weeksOf(graph.dataset),
+				}
+			: daysOf(graph.dataset);
 		const cursor = document.createElement("div");
 		cursor.className = "usage-cursor";
 		cursor.hidden = true;
 		const tip = document.createElement("p");
-		tip.className = "usage-tip";
+		tip.className = weekly ? "usage-tip cpu-tip" : "usage-tip";
 		tip.hidden = true;
 		graph.append(cursor, tip);
 		const off = () => {
@@ -3761,15 +3803,17 @@ function usageGraphs(signal) {
 		const show = (event) => {
 			const box = graph.getBoundingClientRect();
 			const share = (event.clientX - box.left) / box.width;
-			const i = Math.min(
-				days.length - 1,
-				Math.max(0, Math.floor(share * days.length)),
-			);
-			const slot = box.width / days.length;
+			const i = Math.min(slots - 1, Math.max(0, Math.floor(share * slots)));
+			const said = say(i);
+			if (said === null) {
+				off();
+				return;
+			}
+			const slot = box.width / slots;
 			cursor.style.left = `${i * slot}px`;
 			cursor.style.width = `${slot}px`;
 			cursor.hidden = false;
-			tip.textContent = `${date.format(start + i * 86_400_000)}: ${text(days[i])}`;
+			tip.textContent = said;
 			tip.hidden = false;
 			const middle = (i + 0.5) * slot - tip.offsetWidth / 2;
 			tip.style.left = `${Math.max(0, Math.min(box.width - tip.offsetWidth, middle))}px`;
@@ -5622,6 +5666,32 @@ function adminRoles(signal) {
 	);
 }
 
+/**
+ * Opens the row of Admin › Nutzung a link names, on load and on following a
+ * link within the page (feature 048 research R9): the list at the top links to
+ * the figures' rows.
+ */
+function usageRows(signal) {
+	if (!document.querySelector(".usage-page")) return;
+	const open = (hash) => {
+		const id = decodeURIComponent(hash.slice(1));
+		const details = id
+			? document.getElementById(id)?.querySelector(":scope > details")
+			: null;
+		if (details) details.open = true;
+	};
+	open(location.hash);
+	document.addEventListener(
+		"click",
+		(event) => {
+			const link = event.target.closest?.('a[href^="#"]');
+			if (link) open(link.hash);
+		},
+		{ signal },
+	);
+	addEventListener("hashchange", () => open(location.hash), { signal });
+}
+
 function enhance(signal) {
 	lazyRides(signal);
 	installSettings(signal);
@@ -5639,6 +5709,7 @@ function enhance(signal) {
 	organiserRiders(signal);
 	organiserGraphs(signal);
 	usageGraphs(signal);
+	usageRows(signal);
 	adminRoles(signal);
 }
 

@@ -116,13 +116,12 @@ async function page(path = "/admin") {
 	return res.text();
 }
 
+/** The row of an allowance, by its name's key (feature 048 US3). */
 function figure(text: string, id: keyof typeof en): string {
-	return (
-		text
-			.split('<li class="usage-figure')
-			.slice(1)
-			.find((item) => item.includes(`>${en[id]}<`)) ?? `missing ${String(id)}`
-	);
+	const start = text.indexOf(`<li id="${id.replace("admin.allowance.", "")}"`);
+	return start === -1
+		? `missing ${String(id)}`
+		: text.slice(start, text.indexOf("</li>", start));
 }
 
 const teamCount = (team: string, n: string, percent: string) =>
@@ -194,8 +193,11 @@ describe("/admin", () => {
 	});
 
 	it("gives the teams and the gateway a column in the day table", async () => {
-		const text = await page("/admin?days=cf_worker_requests");
-		const table = text.slice(text.lastIndexOf('<div class="usage-table">'));
+		const row = figure(
+			await page("/admin?days=cf_worker_requests"),
+			"admin.allowance.cf_worker_requests",
+		);
+		const table = row.slice(row.indexOf('<div class="usage-table">'));
 		expect(table).toContain(`<th scope="col">${OTHER}</th>`);
 		expect(table).toContain(`<th scope="col">${escapeHtml(SHARED)}</th>`);
 		expect(table).toContain("<td>600</td><td>300</td><td>50</td>");

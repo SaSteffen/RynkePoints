@@ -45,9 +45,37 @@ How it's built: [Tech stack](#tech-stack).
   explains the rules.
 - **Season end** ([021](specs/021-season-rollover/spec.md)): Tour de Paris
   badges and a season album PDF for every rider.
-- **Admin view** ([025](specs/025-admin-usage-view/spec.md)): administrators see
-  how much of the Strava and Cloudflare allowances is used, with a daily history
-  and alerts near a limit, see who is connected, and can remove and block a rider.
+- **Look and navigation** ([022](specs/022-themes-and-controls/spec.md),
+  [023](specs/023-swipe-between-sections/spec.md)): themes in the header, one set
+  of controls everywhere, and swiping between sections.
+- **Fair Strava budget** ([024](specs/024-fair-strava-budget/spec.md)): every
+  rider gets a fair share of the requests Strava allows.
+- **Figures** ([029](specs/029-organiser-progress-graphs/spec.md),
+  [030](specs/030-rider-summaries/spec.md),
+  [032](specs/032-ride-stats-leaderboard/spec.md)): organisers' progress graphs,
+  and sessions, kilometres and elevation per season, month and week, ranked
+  without names, with each rider's typical ride.
+- **Badge extras** ([033](specs/033-badge-sharing/spec.md),
+  [034](specs/034-badge-hints/spec.md),
+  [035](specs/035-seasonal-monkeys/spec.md),
+  [037](specs/037-seasonal-monkeys-next/spec.md),
+  [038](specs/038-december-monkeys/spec.md)): sharing a badge, hints from the
+  monkey, and seasonal quote monkeys.
+- **Edited rides** ([036](specs/036-ride-edit-recheck/spec.md)): a ride changed
+  on Strava is checked again.
+- **Team rules and seasons** ([039](specs/039-europe-rules/spec.md),
+  [040](specs/040-season-window-split/spec.md)): each team's own rules, and a
+  qualification window inside the season.
+- **One team at a time** ([044](specs/044-one-team-at-a-time/spec.md)): a rider
+  rides for one team; switching deletes everything at the team they leave.
+- **Admin view** ([025](specs/025-admin-usage-view/spec.md),
+  [041](specs/041-admin-every-team/spec.md),
+  [043](specs/043-admin-grants-roles/spec.md),
+  [045](specs/045-riders-and-roles/spec.md),
+  [047](specs/047-strava-call-counts/spec.md)): on every team's site,
+  administrators see how much of the Strava and Cloudflare allowances is used,
+  with a daily history and alerts near a limit; they see who is connected, give and take the
+  organiser and administrator roles, and can remove and block a rider.
 - **Privacy page** ([017](specs/017-privacy-page/spec.md)): see
   [Privacy](#privacy).
 
@@ -75,7 +103,10 @@ contact address, set as `PRIVACY_CONTROLLER` and `CONTACT_EMAIL` in
 - **Entered by the team**: which team events a rider attended (kind, date and
   an optional event name) and organisers' Rynke corrections, with who changed
   them and when; riders' own reports of events they're coming to or were at.
-  **Worked out**: Rynke, badges and why each ride counts.
+  **Worked out**: Rynke, badges and why each ride counts; sessions, kilometres
+  and elevation per season, month and week, and a rider's typical ride; after
+  the qualification deadline, whether each rider had reached the training goal,
+  kept for the organisers until the next season starts.
 - **Consent**: the version and time of the text the rider agreed to. A new
   version asks every rider again before showing anything.
 - **Block list and usage records**: when an administrator removes a rider, only
@@ -85,9 +116,16 @@ contact address, set as `PRIVACY_CONTROLLER` and `CONTACT_EMAIL` in
 - **Who sees what**: riders see their own rides and Rynke; the team sees
   everyone's Rynke without names, and team sums and team badges that count
   everyone's kilometres, elevation and riding times; organisers see first names,
-  Rynke and their breakdown, team events, reports and corrections, but no single
-  rides; administrators see first names, connection state and dates, and whether
-  an import is running, and no rides or Rynke.
+  Rynke and their breakdown, team events, reports and corrections, sessions and
+  kilometres and elevation as totals per day, and typical rides, but no single
+  rides; administrators are always organisers too, and also see connection state
+  and dates and whether an import is running.
+- **One team at a time**: when someone connects, the team asks the other teams
+  whether they already ride for one. It learns only yes or no, never which team,
+  and stores no answer.
+- **Strava gateway**: keeps each rider's Strava athlete ID with the teams that
+  hold them, and nothing else, in the EU, to steer Strava's events; only the
+  maintainers can see it, and it is deleted when the rider leaves.
 - **Notifications**: for each device a rider turns them on for, only the
   address its push service gives it. Notifications are sent empty; the device
   fetches the text. The address is deleted when they turn notifications off,
@@ -124,8 +162,10 @@ queue, so no rider's data is readable from another team
   `node scripts/team-check.mjs` checks both halves. A team still holding another
   team's values is never deployed (`--deployable <id>`).
 - **Strava gateway** (`gateway/`): Strava allows one webhook subscription and one
-  sign-in return domain per application. The gateway forwards every event to every
-  team and sends a rider coming back from Strava on to their own team. Moving
+  sign-in return domain per application. The gateway keeps a copy of which teams
+  hold which athletes, to send each event only to them
+  ([046](specs/046-gateway-routing/spec.md)); for now, as a trial, it still sends
+  every event to every team. It sends a rider coming back from Strava on to their own team. Moving
   Hamburg behind it is a manual step: [docs/gateway-switch.md](docs/gateway-switch.md).
 - **Shared allowances**: Strava's request limits and its 999 connected athletes
   count for all teams together. Each team's admin view shows every team's share

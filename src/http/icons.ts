@@ -147,3 +147,68 @@ export const DEVICES = icon(
 export const TRASH = icon(
 	'<path d="M4 7h16"/><path d="M9 7V4.5h6V7"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v5.5"/><path d="M14 11v5.5"/>',
 );
+
+// Admin › Nutzung's rows (the usage redesign canvas, feature 048).
+
+/** An octagon with an exclamation mark, for Kritisch. */
+export const CRITICAL = icon(
+	'<path d="M8.2 2.5h7.6l5.7 5.7v7.6l-5.7 5.7H8.2l-5.7-5.7V8.2z"/><path d="M12 7.5v5.5M12 16.5v.01"/>',
+);
+
+/** A triangle with an exclamation mark, for Warnung. */
+export const WARNING = icon(
+	'<path d="M12 3 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.01"/>',
+);
+
+/** An "i" in a circle, for Hinweis and the state hints. */
+export const INFO = icon(
+	'<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8v.01"/>',
+);
+
+/** A ticked circle, for "Alles im Rahmen". */
+export const CHECK_CIRCLE = icon(
+	'<circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.7 2.7L16.5 9.5"/>',
+);
+
+/** A struck-through bell, for notifications on no device. */
+export const BELL_OFF = icon(
+	'<path d="M6 16V11a6 6 0 0 1 9.5-4.9M18 11v5l1.5 2H5"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/><path d="m3 3 18 18"/>',
+);
+
+/** A bolt, for Strava's daily requests. */
+export const BOLT = icon('<path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12z"/>');
+
+/** A clock, for Strava's 15-minute requests. */
+export const CLOCK = icon(
+	'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+);
+
+/** A cloud, for the Worker requests. */
+export const CLOUD = icon(
+	'<path d="M7 18.5h10.5a4 4 0 0 0 .4-8 6 6 0 0 0-11.6 1.6A3.2 3.2 0 0 0 7 18.5z"/>',
+);
+
+/** A database, for its rows and storage. */
+export const DATABASE = icon(
+	'<ellipse cx="12" cy="5.5" rx="7.5" ry="3"/><path d="M4.5 5.5v13c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-13"/><path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/>',
+);
+
+/** A list, for the queue operations. */
+export const LIST = icon(
+	'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>',
+);
+
+/** An hourglass, for the work waiting on the Strava budget. */
+export const HOURGLASS = icon(
+	'<path d="M6.5 2.5h11M6.5 21.5h11M7.5 2.5c0 5 9 5 9 9.5s-9 4.5-9 9.5M16.5 2.5c0 5-9 5-9 9.5"/>',
+);
+
+/** A route between two points, for the gateway's routing. */
+export const ROUTE = icon(
+	'<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5"/>',
+);
+
+/** A chip, for the Workers' CPU time. */
+export const CHIP = icon(
+	'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9.5 2.5v3.5M14.5 2.5v3.5M9.5 18v3.5M14.5 18v3.5M2.5 9.5H6M2.5 14.5H6M18 9.5h3.5M18 14.5h3.5"/>',
+);

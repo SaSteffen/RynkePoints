@@ -6,13 +6,15 @@ import { historyStart, RECORDED_ALLOWANCES } from "../../src/usage/allowances";
 
 describe("levelsReached", () => {
 	it.each([
-		[79, []],
-		[80, [80]],
-		[94, [80]],
-		[95, [80, 95]],
-		[130, [80, 95]],
-	])("%i of 100", (used, levels) => {
-		expect(levelsReached(used, 100)).toEqual(levels);
+		[24, []],
+		[25, [25]],
+		[79, [25]],
+		[80, [25, 80]],
+		[94, [25, 80]],
+		[95, [25, 80, 95]],
+		[130, [25, 80, 95]],
+	])("%i of 100, Hinweis included (feature 048)", (used, levels) => {
+		expect(levelsReached("cf_worker_requests", used, 100)).toEqual(levels);
 	});
 });
 

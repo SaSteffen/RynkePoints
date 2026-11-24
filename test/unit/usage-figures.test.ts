@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+	type AllowanceId,
+	alertLevels,
+	CLOUDFLARE_ALLOWANCES,
+	earlyThreshold,
+	RECORDED_ALLOWANCES,
+} from "../../src/usage/allowances";
+import {
 	connectedFigure,
 	currentStrava,
 	drainEstimateSeconds,
@@ -44,7 +51,7 @@ describe("makeFigure", () => {
 			percent: 40,
 			team: 900,
 			notAttributed: 300,
-			level: "ok",
+			level: "early",
 			observedAt: NOW,
 		});
 		expect((figure.team ?? 0) + (figure.notAttributed ?? 0)).toBe(figure.used);
@@ -64,15 +71,17 @@ describe("makeFigure", () => {
 	});
 });
 
-describe("levels (FR-009)", () => {
+describe("levels (FR-009, feature 048 FR-007)", () => {
 	it.each([
-		[7999, "ok"],
+		[2499, "ok"],
+		[2500, "early"],
+		[7999, "early"],
 		[8000, "warning"],
 		[9499, "warning"],
 		[9500, "critical"],
 		[12000, "critical"],
 	] as const)("%i of 10,000 is %s", (used, level) => {
-		expect(levelOf(used, 10_000)).toBe(level);
+		expect(levelOf("cf_worker_requests", used, 10_000)).toBe(level);
 	});
 
 	it("doesn't cap above 100 % (spec edge case)", () => {
@@ -85,7 +94,32 @@ describe("levels (FR-009)", () => {
 
 	it("treats a zero limit as nothing used", () => {
 		expect(percentOf(5, 0)).toBe(0);
-		expect(levelOf(5, 0)).toBe("ok");
+		expect(levelOf("cf_worker_requests", 5, 0)).toBe("ok");
+	});
+});
+
+describe("early thresholds (feature 048 FR-010)", () => {
+	const ALL: AllowanceId[] = [
+		...RECORDED_ALLOWANCES,
+		"strava_read_15m",
+		"strava_all_15m",
+	];
+
+	it("start at 25 % for every group", () => {
+		expect(ALL).toHaveLength(10);
+		for (const id of ALL) expect(earlyThreshold(id)).toBe(25);
+	});
+
+	it("is exact, not by the rounded percentage", () => {
+		expect(levelOf("strava_read_15m", 24.99, 100)).toBe("ok");
+		expect(levelOf("strava_read_15m", 25, 100)).toBe("early");
+		expect(levelOf("riders_connected", 250, 999)).toBe("early");
+	});
+
+	it("alerts at the early threshold, 80 % and 95 %, lowest first", () => {
+		for (const id of CLOUDFLARE_ALLOWANCES) {
+			expect(alertLevels(id)).toEqual([25, 80, 95]);
+		}
 	});
 });
 

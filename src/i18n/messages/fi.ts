@@ -1109,6 +1109,10 @@ export const fi: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Ylläpito",
+	"nav.admin.marks": {
+		one: "Ylläpito, {n} vaatii huomiotasi",
+		other: "Ylläpito, {n} vaativat huomiotasi",
+	},
 	"admin.switch.label": "Ylläpitonäkymät",
 	"admin.switch.usage": "Käyttö",
 	"admin.switch.riders": "Ajajat ja roolit",
@@ -1195,32 +1199,20 @@ export const fi: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Tietokannan tallennustila",
 	"admin.gigabytes": "{n} Gt",
 	"admin.level.warning": "Varoitus",
+	"admin.level.early": "Huomio",
 	"admin.level.critical": "Kriittinen",
-	"admin.summary.ok": "Kaikki luvut ovat alle 80 %.",
-	"admin.summary.attention": "Lukuja 80 % tai yli: {n}",
 	"admin.figure.numbers": "{used}/{limit} · {percent} %",
 	"admin.figure.split": "Tämä tiimi: {team} · Kohdistamaton: {rest}",
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: ei vielä lukuja",
 	"admin.figure.rest": "Kohdistamaton: {n}",
 	"admin.figure.notSplit": "Tätä lukua ei voi vielä jakaa tiimeittäin.",
-	"admin.figure.windowNote":
-		"Muiden tiimien pyynnöt lasketaan tässä kohdistamattomiksi: tiimit eivät vaihda 15 minuutin lukujaan.",
-	"admin.teams.stale":
-		"{team}: ei vastausta viimeisimmässä tallennuksessa. Luvut ovat ajalta {time} UTC.",
 	"admin.teams.other": "Toinen tiimi",
 	"admin.teams.otherN": "Toinen tiimi {n}",
 	"admin.teams.shared": "Yhteinen (yhdyskäytävä)",
-	"admin.teams.never": "{team}: ei vielä vastausta, joten luvut puuttuvat.",
-	"admin.overview.heading": "Kaikki tiimit",
-	"admin.overview.note":
-		"Tämän päivän luvut; Cloudflaren osalta viimeisimmän tallennetun päivän. Tyhjässä solussa ei ole lukua.",
-	"admin.overview.figure": "Luku",
-	"admin.overview.rest": "Kohdistamaton",
-	"admin.overview.total": "Yhteensä",
 	"admin.figure.seen": "Tilanne {time} UTC",
 	"admin.figure.notSeen": "Ei vielä havaittu",
-	"admin.figure.noValue": "Ei vielä arvoa. Raja: {limit}",
+	"admin.figure.noValue": "Ei vielä arvoa · raja {limit}",
 	"admin.strava.heading": "Strava",
 	"admin.cloudflare.heading": "Cloudflare",
 	"admin.cloudflare.note":
@@ -1228,6 +1220,86 @@ export const fi: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflaren luvut eivät ole juuri nyt saatavilla. Nämä ovat viimeisimmät tunnetut arvot.",
 	"admin.refresh": "Päivitä nyt",
+	"admin.strava.figure.strava_read_daily": "Lukuja päivässä",
+	"admin.strava.figure.strava_all_daily": "Pyyntöjä päivässä",
+	"admin.strava.figure.strava_read_15m": "Lukuja 15 minuutissa",
+	"admin.strava.figure.strava_all_15m": "Pyyntöjä 15 minuutissa",
+	"admin.betrieb.heading": "Toiminta",
+	"admin.betrieb.when": "viimeiset 30 päivää",
+	"admin.betrieb.noFigures": "Ei vielä lukuja",
+	"admin.waiting.none": "Mikään ei odota.",
+	"admin.waiting.note":
+		"Työ, jota Strava-budjetti pidättää, yrittää myöhemmin uudelleen.",
+	"admin.calls.today": {
+		one: "Tänään {n} tämän tiimin kutsu",
+		other: "Tänään {n} tämän tiimin kutsua",
+	},
+	"admin.calls.heldToday": "{n} pidätetty",
+	"admin.calls.heldNone": "mitään ei pidätetty",
+	"admin.recheck.line":
+		"{allowance} tarkistusta päivässä · {riders} aktiivista ajajaa · {last}",
+	"admin.recheck.lastRun": "viimeksi {date}",
+	"admin.recheck.notRun": "ei vielä ajettu",
+	"admin.routing.today": "Tänään {n} välitetty",
+	"admin.routing.todayCalm": "Tänään {n} välitetty, ei mitään poikkeavaa",
+	"admin.cpu.lineNone": "Ei vielä lukuja · raja {limit} ajoa kohden",
+	"admin.cpu.line": "Tänään {cut}/{runs} ajoa keskeytetty",
+	"admin.switch.usage.marks": {
+		one: "Käyttö, {n} vaatii huomiotasi",
+		other: "Käyttö, {n} vaativat huomiotasi",
+	},
+	"admin.lage.heading": "Vaatii huomiotasi",
+	"admin.lage.calm": "Kaikki rajoissa",
+	"admin.lage.calmLine":
+		"Mikään luku ei ole saavuttanut huomiorajaansa, kaikki tiimit ovat vastanneet, mikään ei odota. Tilanne {time} UTC.",
+	"admin.lage.calmLineWaiting":
+		"Mikään luku ei ole saavuttanut huomiorajaansa, ja kaikki tiimit ovat vastanneet. Tilanne {time} UTC.",
+	"admin.lage.critical": {
+		one: "{n} kriittinen",
+		other: "{n} kriittistä",
+	},
+	"admin.lage.warning": {
+		one: "{n} varoitus",
+		other: "{n} varoitusta",
+	},
+	"admin.lage.early": {
+		one: "{n} huomio",
+		other: "{n} huomiota",
+	},
+	"admin.lage.strava": "Strava, tänään",
+	"admin.lage.cloudflare": "Cloudflare, tilanne {date}",
+	"admin.lage.earlyLine": "yli huomiorajan {n}\u00a0%",
+	"admin.lage.day": "{table}: {date}",
+	"admin.lage.recheck.over24h": "Ajajat ovat odottaneet yli 24 tuntia",
+	"admin.lage.recheck.order": "Lista väärässä järjestyksessä",
+	"admin.lage.routing.missed": "Uhkaava menetys",
+	"admin.lage.routing.possible": "Mahdollinen menetys",
+	"admin.lage.routing.everyone": "Liikaa lähetetty kaikille tiimeille",
+	"admin.lage.calls": "Kutsut eivät täsmää",
+	"admin.lage.cpu": "{owner}: ajoja keskeytetty",
+	"admin.lage.cpuLine": "{cut}/{runs} tänään",
+	"admin.lage.team.stale": "{team} ei vastannut",
+	"admin.lage.team.staleLine":
+		"Sen uudet luvut puuttuvat, kunnes se vastaa taas. Viimeisin vastaus: {time} UTC.",
+	"admin.lage.team.never": "{team} ei ole koskaan vastannut",
+	"admin.lage.team.neverLine":
+		"Sen luvut puuttuvat kaikista arvoista, kunnes se vastaa.",
+	"admin.lage.device": "Et saa käyttöhälytyksiä",
+	"admin.lage.deviceLine": "Missään laitteessasi ei ole ilmoituksia käytössä.",
+	"admin.figure.of": "{used}/{limit}",
+	"admin.figure.levels":
+		"Huomio {early}\u00a0%:sta, varoitus {warning}\u00a0%:sta, kriittinen {critical}\u00a0%:sta.",
+	"admin.figure.levelsNoEarly":
+		"Varoitus {warning}\u00a0%:sta, kriittinen {critical}\u00a0%:sta.",
+	"admin.figure.whose.team": "{team} {n}",
+	"admin.figure.whose.none": "{team}: ei lukuja",
+	"admin.figure.whose.window": "vain tämä tiimi",
+	"admin.figure.whose.account": "koko tili",
+	"admin.strava.when": "tänään, UTC",
+	"admin.cloudflare.when": "tilanne {time} UTC",
+	"admin.strava.note":
+		"15 minuutin luvuissa muiden tiimien pyynnöt lasketaan kohdistamattomiksi: tiimit eivät vaihda näitä lukuja.",
+	"admin.strava.quiet": "0\u00a0%:n 15 minuutin luvut on piilotettu.",
 	"admin.recheck.heading": "Ajojen uudelleentarkistus",
 	"admin.recheck.allowance":
 		"{allowance} tarkistusta päivässä tälle tiimille · {riders} aktiivista ajajaa (aktiviteetti viimeisten 30 päivän aikana)",
@@ -1243,9 +1315,21 @@ export const fi: Catalog = {
 	"admin.recheck.listOrder": "listan järjestys",
 	"admin.cpu.heading": "Workerien suoritinaika",
 	"admin.cpu.intro":
-		"Workerin jokainen suoritus (sivu, jonon erä, ajastettu suoritus) saa käyttää {limit} suoritinaikaa. Päivittäin: kuinka paljon hitain suoritus sadasta tarvitsi ja kuinka monta suoritusta Cloudflare keskeytti. Cloudflare sallii satunnaiset ylitykset, mutta keskeytetyt suoritukset ovat virheitä.",
+		"Workerin jokainen suoritus saa käyttää {limit} suoritinaikaa. Keskeytetyt suoritukset ovat virheitä, satunnaiset ylitykset Cloudflare sallii. Mediaani: puolet päivän suorituksista jäi sen alle. Hitain: hitain suoritus sadasta.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut}/{runs} keskeytetty",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut}/{runs} keskeytetty",
+	"admin.cpu.pairHead": "Mediaani / hitain",
+	"admin.cpu.chart":
+		"Mediaanisuoritinaika viikoittain, kausi {season}: {names}",
+	"admin.cpu.months":
+		"syys|loka|marras|joulu|tammi|helmi|maalis|huhti|touko|kesä|heinä|elo",
+	"admin.cpu.under":
+		"Kunkin viikon suurin päivän mediaani; pisteviiva on tämä päivä. Raja {limit} suoritusta kohden on kaukana tämän alueen yläpuolella.",
+	"admin.cpu.underLimit":
+		"Kunkin viikon suurin päivän mediaani; pisteviiva on tämä päivä, punainen katkoviiva raja {limit} suoritusta kohden.",
+	"admin.cpu.seasonNone":
+		"Tälle kaudelle ei ole vielä kirjattu mediaania. Kaavio täyttyy ensimmäisestä kirjatusta päivästä alkaen.",
 	"admin.cpu.none": "Suoritinaikoja ei ole vielä tallennettu.",
 	"admin.cpu.unavailable":
 		"Cloudflaren suoritinaikoja ei viimeksi saatu haettua. Taulukko näyttää tähän mennessä tallennetut päivät.",
@@ -1289,9 +1373,6 @@ export const fi: Catalog = {
 	"admin.calls.all": "Kaikki tiimit",
 	"admin.calls.strava": "Strava",
 	"admin.calls.missing": "puuttuu",
-	"admin.summary.calls": "Päiviä, joilla Strava-kutsuissa on varoitus: {n}",
-	"admin.summary.routing":
-		"Päiviä, joilla yhdyskäytävän reitityksessä on varoitus: {n}",
 	"admin.waiting.heading": "Odotetaan Strava-budjettia",
 	"admin.waiting.body": {
 		one: "{n} kohde odottaa, valmis noin {time} kuluttua.",
@@ -1301,14 +1382,11 @@ export const fi: Catalog = {
 	"admin.waiting.hours": { one: "{n} tunnin", other: "{n} tunnin" },
 	"admin.waiting.days": { one: "{n} päivän", other: "{n} päivän" },
 	"admin.alerts.heading": "Käyttöhälytykset",
-	"admin.alerts.on":
-		"Saat ilmoituksen, kun jokin Strava- tai Cloudflare-kiintiö tai yhdistettyjen ajajien määrä saavuttaa 80 % tai 95 %.",
+	"admin.alerts.title": "Ilmoitukset: huomio, varoitus ja kriittinen",
+	"admin.alerts.levels":
+		"Kerran lukua ja tasoa kohden: huomiorajasta alkaen, 80 %:ssa ja 95 %:ssa.",
 	"admin.alerts.off":
 		"Et saa ilmoituksia käytöstä. Tämä sivu merkitsee luvut silti.",
-	"admin.alerts.turnOff": "Poista käyttöhälytykset käytöstä",
-	"admin.alerts.turnOn": "Ota käyttöhälytykset käyttöön",
-	"admin.alerts.noDevice":
-		"Et saa hälytyksiä: missään laitteessasi ei ole ilmoituksia käytössä. Ota ne käyttöön kohdassa {settings}.",
 	"admin.history.days": "Joka päivä",
 	"admin.history.hideDays": "Piilota päivät",
 	"admin.history.none":
@@ -1357,6 +1435,7 @@ export const fi: Catalog = {
 		"Tämä ei ole listalla oleva ajaja. Mitään ei muutettu.",
 	"admin.remove.leaveLink": "Poista tietoni",
 	"notification.usage.warning": "{allowance}: {percent} %",
+	"notification.usage.early": "Huomio: {allowance} {percent} %",
 	"notification.usage.critical": "Kriittinen: {allowance} {percent} %",
 	"notification.usage.cpuWarning":
 		"Cloudflare keskeytti tänään suorituksia, yleensä liian suuren suoritinajan vuoksi.",

@@ -231,7 +231,6 @@ function elements(html: string, classes: readonly string[]): string[] {
 describe("the one set of controls", () => {
 	const CARDS = [
 		"card",
-		"settings-group",
 		"ride-card",
 		"event-card",
 		"badge-card",

@@ -282,8 +282,8 @@ flowchart TD
 1. **Usage**: records the day's Strava and Cloudflare figures for the
    [admin view](../specs/025-admin-usage-view/spec.md). These are Strava's latest usage headers,
    Cloudflare's analytics for the account (if its token is set) and other teams' counts. It notifies
-   administrators who turned alerts on, once a figure reaches 80 % and again at 95 %. Nothing in this
-   step calls Strava.
+   administrators who turned alerts on, once a figure reaches its early threshold (Hinweis, 25 % for
+   now), again at 80 % and again at 95 %. Nothing in this step calls Strava.
 2. **Ride edit re-check** ([spec](../specs/036-ride-edit-recheck/spec.md)): picks a few riders who
    had an activity in the last 30 days and sends one `recheck-rider` for each, spread over the next 55
    minutes. Riders who waited longest go first. All teams together use at most 300 reads a day for
@@ -304,8 +304,10 @@ demand.
 
 All teams, the gateway and the sandboxes share one Strava application and one Cloudflare account. The
 limits below are for all of them together. The [admin view](../specs/025-admin-usage-view/spec.md)
-(`/admin`) shows each one as used today, keeps 13 months of history, and alerts at 80 % and 95 %. The
-figures it checks against are in `src/usage/allowances.ts`.
+(`/admin`, laid out by [feature 048](../specs/048-usage-tab-redesign/spec.md)) lists what needs a look
+first, shows each limit as used today, keeps 13 months of history, and alerts at each figure's early
+threshold, at 80 % and at 95 %. The Admin tab counts the marks. The figures and early thresholds it
+checks against are in `src/usage/allowances.ts`.
 
 ### Strava
 

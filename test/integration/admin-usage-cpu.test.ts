@@ -79,17 +79,19 @@ async function page() {
 
 const section = (text: string) =>
 	text.slice(
-		text.indexOf('id="cpu"'),
-		text.indexOf("</section>", text.indexOf('id="cpu"')),
+		text.indexOf('<li id="cpu">'),
+		text.indexOf("</details></li>", text.indexOf('<li id="cpu">')),
 	);
 
-const cell = (slowest: string, cut: string, runs: string) =>
-	escapeHtml(
-		en["admin.cpu.cell"]
-			.replace("{slowest}", en["admin.cpu.ms"].replace("{n}", slowest))
-			.replace("{cut}", cut)
-			.replace("{runs}", runs),
-	);
+/** A table cell's text: "median / slowest ms", then the runs cut off. */
+const cell = (slowest: string, cut: string, runs: string, median = "0.0") =>
+	`${escapeHtml(
+		en["admin.cpu.pair"]
+			.replace("{median}", median)
+			.replace("{slowest}", slowest),
+	)}<br>${escapeHtml(
+		en["admin.cpu.cutOff"].replace("{cut}", cut).replace("{runs}", runs),
+	)}`;
 
 const notified = (sent: readonly SentMessage[]) =>
 	sent.filter(({ body }) => body.kind === "send-notification").length;
@@ -167,8 +169,24 @@ describe("the view (FR-042, FR-043)", () => {
 			worker(hamburg.cloudflare.worker, 700, 0, 3900, YESTERDAY),
 		]);
 		const table = section(await page());
-		expect(table).toContain(`<th scope="col">${en["admin.history.team"]}</th>`);
-		expect(table).toContain(`<th scope="col">${en["admin.teams.other"]}</th>`);
+		const head = `<br><span class="cpu-head">${escapeHtml(en["admin.cpu.pairHead"])}</span></th>`;
+		expect(table).toContain(
+			`<th scope="col">${escapeHtml(en["admin.history.team"])}${head}`,
+		);
+		expect(table).toContain(
+			`<th scope="col">${escapeHtml(en["admin.teams.other"])}${head}`,
+		);
+		expect(table).toContain(
+			`<th scope="col">${escapeHtml(en["admin.teams.shared"])}${head}`,
+		);
+		expect(table).toContain(
+			escapeHtml(
+				en["admin.cpu.intro"].replace(
+					"{limit}",
+					en["admin.cpu.ms"].replace("{n}", "10"),
+				),
+			),
+		);
 		expect(table).toContain(cell("4.2", "0", "900"));
 		expect(table).toContain(cell("2.1", "0", "300"));
 		expect(table).toContain(cell("0.8", "0", "1,200"));
@@ -197,6 +215,33 @@ describe("the view (FR-042, FR-043)", () => {
 		);
 	});
 
+	it("shows the median beside the slowest runs, a dash where none was recorded (feature 049)", async () => {
+		await record([
+			{
+				date: TODAY,
+				scriptName: hamburg.cloudflare.worker,
+				runs: 1234,
+				cutOff: 0,
+				cpuTimeP99: 7800,
+				cpuTimeP50: 1400,
+			},
+		]);
+		// A day the release before recorded, without a median.
+		await env.DB.prepare(
+			`INSERT INTO usage_cpu_daily (day, owner, runs, cut_off, cpu_p99_us,
+				recorded_at) VALUES (?, 'hamburg', 1234, 3, 7800, 1)`,
+		)
+			.bind(YESTERDAY)
+			.run();
+		const table = section(await page());
+		expect(table).toContain(`<td>${cell("7.8", "0", "1,234", "1.4")}</td>`);
+		expect(table).toContain(
+			`<td>${cell("7.8", "3", "1,234", "–")} <span class="usage-mark usage-mark-warning">`,
+		);
+		// No other team and no gateway that day.
+		expect(table).toContain("<td>–</td><td>–</td></tr>");
+	});
+
 	it("says when nothing was recorded yet", async () => {
 		await record([]);
 		expect(section(await page())).toContain(escapeHtml(en["admin.cpu.none"]));
@@ -218,12 +263,17 @@ describe("alerts (FR-044)", () => {
 		expect(await alerts()).toHaveLength(2);
 	});
 
-	it("notifies for the gateway and counts it in the summary", async () => {
+	it("notifies for the gateway and lists it, counted (feature 048 FR-002)", async () => {
 		await record([worker(GATEWAY_WORKER, 1000, 2, 900)]);
 		expect(notified(ctx.queue.sent)).toBe(1);
-		expect(await page()).toContain(
-			escapeHtml(en["admin.summary.attention"].replace("{n}", "1")),
+		const text = await page();
+		expect(text).toContain(
+			escapeHtml(
+				en["admin.lage.cpu"].replace("{owner}", en["admin.teams.shared"]),
+			),
 		);
+		expect(text).toContain('<a class="settings-row" href="#cpu">');
+		expect(text).toContain(">1 warning<");
 	});
 
 	it("leaves another team's cut-off runs to that team", async () => {
@@ -231,7 +281,140 @@ describe("alerts (FR-044)", () => {
 		expect(notified(ctx.queue.sent)).toBe(0);
 		expect(await alerts()).toEqual([]);
 		const text = await page();
-		expect(section(text)).toContain("usage-mark-critical");
-		expect(text).toContain(escapeHtml(en["admin.summary.ok"]));
+		expect(section(text)).toContain(
+			`<span class="settings-title">${escapeHtml(en["admin.cpu.heading"])}<span class="usage-mark usage-mark-critical">Critical</span></span><span class="settings-sub">Today 50 of 1,000 runs cut off</span>`,
+		);
+		// Listed and counted, but notified by that team (feature 048 FR-002).
+		expect(text).toContain(
+			escapeHtml(
+				en["admin.lage.cpu"].replace("{owner}", en["admin.teams.other"]),
+			),
+		);
+		expect(text).toContain(">1 critical<");
+	});
+});
+
+describe("the season graph (feature 049 User Story 1)", () => {
+	const SEASON_NOW = Date.UTC(2026, 10, 24, 12, 0, 0) / 1000;
+	const self = env.TEAM_ID;
+	const other = self === "europe" ? "hamburg" : "europe";
+
+	const cpuDay = (day: string, owner: string, p50: number | null, p99 = 5000) =>
+		env.DB.prepare(
+			`INSERT INTO usage_cpu_daily (day, owner, runs, cut_off, cpu_p99_us,
+				cpu_p50_us, recorded_at) VALUES (?, ?, 1000, 0, ?, ?, 1)`,
+		)
+			.bind(day, owner, p99, p50)
+			.run();
+
+	async function seasonPage() {
+		ctx = { ...ctx, now: () => SEASON_NOW };
+		return section(await page());
+	}
+
+	const ms = (n: string) => escapeHtml(en["admin.cpu.ms"].replace("{n}", n));
+
+	it("draws the three owners' weeks over the season, then the table", async () => {
+		await cpuDay("2026-11-16", self, 1100);
+		await cpuDay("2026-11-18", self, 1800);
+		await cpuDay("2026-11-17", other, 1200);
+		await cpuDay("2026-11-17", "shared", 400);
+		await cpuDay("2026-11-24", self, 1500);
+		await cpuDay("2026-09-02", self, 900);
+		vi.mocked(globalThis.fetch).mockClear();
+		const row = await seasonPage();
+		expect(vi.mocked(globalThis.fetch)).not.toHaveBeenCalled();
+		const at = (piece: string) => {
+			const i = row.indexOf(piece);
+			expect(i, piece).toBeGreaterThan(-1);
+			return i;
+		};
+		const intro = at(escapeHtml(en["admin.cpu.intro"]).slice(0, 20));
+		const graph = at('<div class="cpu-graph">');
+		const legend = at('<ul class="cpu-legend">');
+		const under = at(
+			escapeHtml(
+				en["admin.cpu.under"].replace(
+					"{limit}",
+					en["admin.cpu.ms"].replace("{n}", "10"),
+				),
+			),
+		);
+		const table = at("<table>");
+		expect(intro).toBeLessThan(graph);
+		expect(graph).toBeLessThan(legend);
+		expect(legend).toBeLessThan(under);
+		expect(under).toBeLessThan(table);
+
+		expect(row).toContain('data-slots="53"');
+		const weeks = row.match(/data-weeks="([^"]*)"/)?.[1]?.split(",") ?? [];
+		expect(weeks).toHaveLength(13);
+		expect(weeks[0]).toBe("2026-09-01/2026-09-06/900//");
+		expect(weeks[1]).toBe("2026-09-07/2026-09-13///");
+		expect(weeks[11]).toBe("2026-11-16/2026-11-22/1800/1200/400");
+		expect(weeks[12]).toBe("2026-11-23/2026-11-29/1500//");
+		const names = [
+			en["admin.history.team"],
+			en["admin.teams.other"],
+			en["admin.teams.shared"],
+		];
+		expect(row).toContain(`data-names="${escapeHtml(names.join("|"))}"`);
+		expect(row).toContain(`data-gap="${escapeHtml(en["admin.history.gap"])}"`);
+		expect(row).toContain(
+			`aria-label="${escapeHtml(
+				en["admin.cpu.chart"]
+					.replace("{season}", "2026/27")
+					.replace("{names}", names.join(", ")),
+			)}"`,
+		);
+		expect(row).toContain(
+			`<div class="cpu-scale" aria-hidden="true"><span>${ms("2")}</span><span>${ms("1")}</span><span>${ms("0")}</span></div>`,
+		);
+		expect(row).toContain(
+			`<p class="usage-axis cpu-axis" aria-hidden="true">${en[
+				"admin.cpu.months"
+			]
+				.split("|")
+				.map((m) => `<span>${escapeHtml(m)}</span>`)
+				.join("")}</p>`,
+		);
+		for (const name of names) expect(row).toContain(`${escapeHtml(name)}</li>`);
+		expect(row).not.toContain("cpu-limit");
+		expect(row).not.toContain(europe.name);
+		expect(row).not.toContain(hamburg.name);
+	});
+
+	it("draws the limit when a week reaches it", async () => {
+		await cpuDay("2026-11-10", self, 11000, 15000);
+		const row = await seasonPage();
+		expect(row).toContain('<line class="cpu-limit"');
+		expect(row).toContain(
+			escapeHtml(
+				en["admin.cpu.underLimit"].replace(
+					"{limit}",
+					en["admin.cpu.ms"].replace("{n}", "10"),
+				),
+			),
+		);
+		expect(row).not.toContain(
+			escapeHtml(
+				en["admin.cpu.under"].replace(
+					"{limit}",
+					en["admin.cpu.ms"].replace("{n}", "10"),
+				),
+			),
+		);
+		expect(row).toContain(`<span>${ms("20")}</span>`);
+	});
+
+	it("says so in one line when the season has no median yet, the table as before", async () => {
+		await cpuDay("2026-11-23", self, null);
+		const row = await seasonPage();
+		expect(row).toContain(
+			`<p class="usage-detail cpu-empty">${escapeHtml(en["admin.cpu.seasonNone"])}</p>`,
+		);
+		expect(row).not.toContain("cpu-graph");
+		expect(row).not.toContain("cpu-legend");
+		expect(row).toContain("<table>");
 	});
 });

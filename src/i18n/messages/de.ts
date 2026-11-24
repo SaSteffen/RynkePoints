@@ -1148,6 +1148,10 @@ export const de = {
 
 	// Feature 025: die Admin-Ansicht.
 	"nav.admin": "Admin",
+	"nav.admin.marks": {
+		one: "Admin, {n} braucht deinen Blick",
+		other: "Admin, {n} brauchen deinen Blick",
+	},
 	"admin.switch.label": "Admin-Ansichten",
 	"admin.switch.usage": "Nutzung",
 	"admin.switch.riders": "Rider und Rollen",
@@ -1235,9 +1239,8 @@ export const de = {
 	"admin.allowance.cf_d1_storage_bytes": "Datenbank-Speicher",
 	"admin.gigabytes": "{n}\u00a0GB",
 	"admin.level.warning": "Warnung",
+	"admin.level.early": "Hinweis",
 	"admin.level.critical": "Kritisch",
-	"admin.summary.ok": "Alle Werte liegen unter 80\u00a0%.",
-	"admin.summary.attention": "Werte bei 80\u00a0% oder mehr: {n}",
 	"admin.figure.numbers": "{used} von {limit} · {percent}\u00a0%",
 	"admin.figure.split": "Dieses Team: {team} · Nicht zugeordnet: {rest}",
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
@@ -1245,23 +1248,12 @@ export const de = {
 	"admin.figure.rest": "Nicht zugeordnet: {n}",
 	"admin.figure.notSplit":
 		"Diese Zahl lässt sich noch nicht nach Teams aufteilen.",
-	"admin.figure.windowNote":
-		"Anfragen anderer Teams zählen hier als nicht zugeordnet: Die Teams tauschen ihre 15-Minuten-Zahlen nicht aus.",
-	"admin.teams.stale":
-		"{team}: keine Antwort bei der letzten Erfassung. Die Zahlen sind vom {time} UTC.",
 	"admin.teams.other": "Anderes Team",
 	"admin.teams.otherN": "Anderes Team {n}",
 	"admin.teams.shared": "Gemeinsam (Gateway)",
-	"admin.teams.never": "{team}: noch keine Antwort, daher fehlen die Zahlen.",
-	"admin.overview.heading": "Alle Teams",
-	"admin.overview.note":
-		"Heutige Zahlen, bei Cloudflare die des zuletzt erfassten Tages. Leere Zelle: keine Zahl.",
-	"admin.overview.figure": "Wert",
-	"admin.overview.rest": "Nicht zugeordnet",
-	"admin.overview.total": "Gesamt",
 	"admin.figure.seen": "Stand: {time} UTC",
 	"admin.figure.notSeen": "Noch nicht beobachtet",
-	"admin.figure.noValue": "Noch kein Wert. Limit: {limit}",
+	"admin.figure.noValue": "Noch kein Wert · Limit {limit}",
 	"admin.strava.heading": "Strava",
 	"admin.cloudflare.heading": "Cloudflare",
 	"admin.cloudflare.note":
@@ -1269,6 +1261,87 @@ export const de = {
 	"admin.cloudflare.unavailable":
 		"Cloudflares Werte sind gerade nicht verfügbar. Das hier sind die letzten bekannten.",
 	"admin.refresh": "Jetzt aktualisieren",
+	"admin.strava.figure.strava_read_daily": "Lesezugriffe pro Tag",
+	"admin.strava.figure.strava_all_daily": "Anfragen pro Tag",
+	"admin.strava.figure.strava_read_15m": "Lesezugriffe pro 15 Minuten",
+	"admin.strava.figure.strava_all_15m": "Anfragen pro 15 Minuten",
+	"admin.betrieb.heading": "Betrieb",
+	"admin.betrieb.when": "letzte 30 Tage",
+	"admin.betrieb.noFigures": "Noch keine Zahlen",
+	"admin.waiting.none": "Nichts wartet.",
+	"admin.waiting.note":
+		"Arbeit, die das Strava-Budget zurückhält, versucht es später wieder.",
+	"admin.calls.today": {
+		one: "Heute {n} Aufruf dieses Teams",
+		other: "Heute {n} Aufrufe dieses Teams",
+	},
+	"admin.calls.heldToday": "{n} zurückgehalten",
+	"admin.calls.heldNone": "nichts zurückgehalten",
+	"admin.recheck.line":
+		"{allowance} Prüfungen am Tag · {riders} aktive Rider · {last}",
+	"admin.recheck.lastRun": "zuletzt am {date}",
+	"admin.recheck.notRun": "noch nicht gelaufen",
+	"admin.routing.today": "Heute {n} weitergegeben",
+	"admin.routing.todayCalm": "Heute {n} weitergegeben, keine Auffälligkeit",
+	"admin.cpu.lineNone": "Noch keine Zahlen · Limit {limit} je Lauf",
+	"admin.cpu.line": "Heute {cut} von {runs} Läufen abgebrochen",
+	"admin.switch.usage.marks": {
+		one: "Nutzung, {n} braucht deinen Blick",
+		other: "Nutzung, {n} brauchen deinen Blick",
+	},
+	"admin.lage.heading": "Das braucht deinen Blick",
+	"admin.lage.calm": "Alles im Rahmen",
+	"admin.lage.calmLine":
+		"Kein Wert hat seine Hinweisgrenze erreicht, alle Teams haben geantwortet, nichts wartet. Stand: {time} UTC.",
+	"admin.lage.calmLineWaiting":
+		"Kein Wert hat seine Hinweisgrenze erreicht und alle Teams haben geantwortet. Stand: {time} UTC.",
+	"admin.lage.critical": {
+		one: "{n} kritisch",
+		other: "{n} kritisch",
+	},
+	"admin.lage.warning": {
+		one: "{n} Warnung",
+		other: "{n} Warnungen",
+	},
+	"admin.lage.early": {
+		one: "{n} Hinweis",
+		other: "{n} Hinweise",
+	},
+	"admin.lage.strava": "Strava, heute",
+	"admin.lage.cloudflare": "Cloudflare, Stand {date}",
+	"admin.lage.earlyLine": "über der Hinweisgrenze von {n}\u00a0%",
+	"admin.lage.day": "{table}: {date}",
+	"admin.lage.recheck.over24h": "Rider haben über 24 Stunden gewartet",
+	"admin.lage.recheck.order": "Liste in falscher Reihenfolge",
+	"admin.lage.routing.missed": "Drohender Verlust",
+	"admin.lage.routing.possible": "Möglicher Verlust",
+	"admin.lage.routing.everyone": "Zu viele Meldungen an alle Teams",
+	"admin.lage.calls": "Die Aufrufe gehen nicht auf",
+	"admin.lage.cpu": "{owner}: Läufe abgebrochen",
+	"admin.lage.cpuLine": "{cut} von {runs} heute",
+	"admin.lage.team.stale": "{team} hat nicht geantwortet",
+	"admin.lage.team.staleLine":
+		"Seine neuen Zahlen fehlen, bis es wieder antwortet. Letzte Antwort: {time} UTC.",
+	"admin.lage.team.never": "{team} hat noch nie geantwortet",
+	"admin.lage.team.neverLine":
+		"Seine Zahlen fehlen in allen Werten, bis es antwortet.",
+	"admin.lage.device": "Du bekommst keine Nutzungshinweise",
+	"admin.lage.deviceLine":
+		"Auf keinem deiner Geräte sind Benachrichtigungen an.",
+	"admin.figure.of": "{used} von {limit}",
+	"admin.figure.levels":
+		"Hinweis ab {early}\u00a0%, Warnung ab {warning}\u00a0%, kritisch ab {critical}\u00a0%.",
+	"admin.figure.levelsNoEarly":
+		"Warnung ab {warning}\u00a0%, kritisch ab {critical}\u00a0%.",
+	"admin.figure.whose.team": "{team} {n}",
+	"admin.figure.whose.none": "{team}: keine Zahlen",
+	"admin.figure.whose.window": "nur dieses Team",
+	"admin.figure.whose.account": "ganzes Konto",
+	"admin.strava.when": "heute, UTC",
+	"admin.cloudflare.when": "Stand {time} UTC",
+	"admin.strava.note":
+		"Bei den 15-Minuten-Werten zählen Anfragen anderer Teams als nicht zugeordnet: Die Teams tauschen diese Zahlen nicht aus.",
+	"admin.strava.quiet": "15-Minuten-Werte bei 0\u00a0% sind ausgeblendet.",
 	"admin.recheck.heading": "Nachprüfung der Fahrten",
 	"admin.recheck.allowance":
 		"{allowance} Prüfungen am Tag für dieses Team · {riders} aktive Rider (mit einer Aktivität in den letzten 30 Tagen)",
@@ -1284,9 +1357,19 @@ export const de = {
 	"admin.recheck.listOrder": "Reihenfolge der Liste",
 	"admin.cpu.heading": "CPU-Zeit der Worker",
 	"admin.cpu.intro":
-		"Jeder Lauf eines Workers (eine Seite, ein Stapel aus der Warteschlange, ein geplanter Lauf) darf {limit} CPU-Zeit nutzen. Je Tag: wie viel die langsamsten 1 von 100 Läufen brauchten, und wie viele Läufe Cloudflare abgebrochen hat. Einzelne Ausreißer verzeiht Cloudflare, abgebrochene Läufe sind Fehler.",
+		"Jeder Lauf eines Workers darf {limit} CPU-Zeit nutzen. Abgebrochene Läufe sind Fehler, einzelne Ausreißer verzeiht Cloudflare. Median: Die Hälfte der Läufe eines Tages blieb darunter. Langsamste: die langsamsten 1 von 100 Läufen.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut} von {runs} abgebrochen",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut} von {runs} abgebrochen",
+	"admin.cpu.pairHead": "Median / langsamste",
+	"admin.cpu.chart": "Median-CPU-Zeit je Woche, Saison {season}: {names}",
+	"admin.cpu.months": "Sep|Okt|Nov|Dez|Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug",
+	"admin.cpu.under":
+		"Je Woche der höchste Tages-Median, die gepunktete Linie ist heute. Das Limit von {limit} je Lauf liegt weit über diesem Ausschnitt.",
+	"admin.cpu.underLimit":
+		"Je Woche der höchste Tages-Median, die gepunktete Linie ist heute, die rote gestrichelte das Limit von {limit} je Lauf.",
+	"admin.cpu.seasonNone":
+		"Für diese Saison ist noch kein Median aufgezeichnet. Die Grafik füllt sich ab dem ersten aufgezeichneten Tag.",
 	"admin.cpu.none": "Bisher sind keine CPU-Zahlen aufgezeichnet.",
 	"admin.cpu.unavailable":
 		"Die CPU-Zahlen von Cloudflare konnten zuletzt nicht abgerufen werden. Die Tabelle zeigt die bisher aufgezeichneten Tage.",
@@ -1331,8 +1414,6 @@ export const de = {
 	"admin.calls.all": "Alle Teams",
 	"admin.calls.strava": "Strava",
 	"admin.calls.missing": "fehlt",
-	"admin.summary.calls": "Tage mit Warnung bei den Strava-Aufrufen: {n}",
-	"admin.summary.routing": "Tage mit Warnung beim Gateway-Routing: {n}",
 	"admin.waiting.heading": "Warten auf das Strava-Budget",
 	"admin.waiting.body": {
 		one: "{n} Eintrag wartet, fertig in etwa {time}.",
@@ -1342,14 +1423,11 @@ export const de = {
 	"admin.waiting.hours": { one: "{n} Stunde", other: "{n} Stunden" },
 	"admin.waiting.days": { one: "{n} Tag", other: "{n} Tagen" },
 	"admin.alerts.heading": "Nutzungshinweise",
-	"admin.alerts.on":
-		"Du bekommst eine Benachrichtigung, wenn ein Kontingent von Strava oder Cloudflare oder die verbundenen Rider 80\u00a0% oder 95\u00a0% erreichen.",
+	"admin.alerts.title": "Benachrichtigung bei Hinweis, Warnung und kritisch",
+	"admin.alerts.levels":
+		"Einmal je Wert und Stufe: ab der Hinweisgrenze, bei 80\u00a0% und bei 95\u00a0%.",
 	"admin.alerts.off":
 		"Du bekommst keine Benachrichtigungen zur Nutzung. Diese Seite markiert die Zahlen weiter.",
-	"admin.alerts.turnOff": "Nutzungshinweise ausschalten",
-	"admin.alerts.turnOn": "Nutzungshinweise einschalten",
-	"admin.alerts.noDevice":
-		"Du bekommst keine Hinweise: Auf keinem deiner Geräte sind Benachrichtigungen an. Du kannst sie unter {settings} einschalten.",
 	"admin.history.days": "Alle Tage",
 	"admin.history.hideDays": "Tage ausblenden",
 	"admin.history.none":
@@ -1398,6 +1476,7 @@ export const de = {
 		"Das ist niemand aus dieser Liste. Nichts wurde geändert.",
 	"admin.remove.leaveLink": "Meine Daten löschen",
 	"notification.usage.warning": "{allowance}: {percent}\u00a0%",
+	"notification.usage.early": "Hinweis: {allowance} bei {percent}\u00a0%",
 	"notification.usage.critical": "Kritisch: {allowance} bei {percent}\u00a0%",
 	"notification.usage.cpuWarning":
 		"Cloudflare hat heute Läufe abgebrochen, meist wegen zu viel CPU-Zeit.",

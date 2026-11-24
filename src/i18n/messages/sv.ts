@@ -1107,6 +1107,10 @@ export const sv: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Admin",
+	"nav.admin.marks": {
+		one: "Admin, {n} behöver din uppmärksamhet",
+		other: "Admin, {n} behöver din uppmärksamhet",
+	},
 	"admin.switch.label": "Admin-vyer",
 	"admin.switch.usage": "Användning",
 	"admin.switch.riders": "Cyklister och roller",
@@ -1192,32 +1196,20 @@ export const sv: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Databaslagring",
 	"admin.gigabytes": "{n} GB",
 	"admin.level.warning": "Varning",
+	"admin.level.early": "Obs",
 	"admin.level.critical": "Kritiskt",
-	"admin.summary.ok": "Alla siffror är under 80 %.",
-	"admin.summary.attention": "Siffror på 80 % eller mer: {n}",
 	"admin.figure.numbers": "{used} av {limit} · {percent} %",
 	"admin.figure.split": "Det här laget: {team} · Inte tilldelat: {rest}",
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: inga siffror än",
 	"admin.figure.rest": "Inte tilldelat: {n}",
 	"admin.figure.notSplit": "Den här siffran kan inte delas upp per lag än.",
-	"admin.figure.windowNote":
-		"Andra lags förfrågningar räknas här som inte tilldelade: lagen utbyter inte sina 15-minuterssiffror.",
-	"admin.teams.stale":
-		"{team}: inget svar vid senaste registreringen. Siffrorna är från {time} UTC.",
 	"admin.teams.other": "Annat lag",
 	"admin.teams.otherN": "Annat lag {n}",
 	"admin.teams.shared": "Gemensamt (gateway)",
-	"admin.teams.never": "{team}: inget svar än, så siffrorna saknas.",
-	"admin.overview.heading": "Alla lag",
-	"admin.overview.note":
-		"Dagens siffror; för Cloudflare den senast registrerade dagens. En tom cell har ingen siffra.",
-	"admin.overview.figure": "Siffra",
-	"admin.overview.rest": "Inte tilldelat",
-	"admin.overview.total": "Totalt",
 	"admin.figure.seen": "Per {time} UTC",
 	"admin.figure.notSeen": "Inte observerat än",
-	"admin.figure.noValue": "Inget värde än. Gräns: {limit}",
+	"admin.figure.noValue": "Inget värde än · gräns {limit}",
 	"admin.strava.heading": "Strava",
 	"admin.cloudflare.heading": "Cloudflare",
 	"admin.cloudflare.note":
@@ -1225,6 +1217,86 @@ export const sv: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflares siffror är inte tillgängliga just nu. Det här är de senast kända värdena.",
 	"admin.refresh": "Uppdatera nu",
+	"admin.strava.figure.strava_read_daily": "Läsningar per dag",
+	"admin.strava.figure.strava_all_daily": "Anrop per dag",
+	"admin.strava.figure.strava_read_15m": "Läsningar per 15 minuter",
+	"admin.strava.figure.strava_all_15m": "Anrop per 15 minuter",
+	"admin.betrieb.heading": "Drift",
+	"admin.betrieb.when": "senaste 30 dagarna",
+	"admin.betrieb.noFigures": "Inga siffror än",
+	"admin.waiting.none": "Inget väntar.",
+	"admin.waiting.note":
+		"Arbete som Strava-budgeten håller tillbaka försöker igen senare.",
+	"admin.calls.today": {
+		one: "I dag {n} anrop från det här laget",
+		other: "I dag {n} anrop från det här laget",
+	},
+	"admin.calls.heldToday": "{n} tillbakahållna",
+	"admin.calls.heldNone": "inget tillbakahållet",
+	"admin.recheck.line":
+		"{allowance} kontroller per dag · {riders} aktiva cyklister · {last}",
+	"admin.recheck.lastRun": "senast {date}",
+	"admin.recheck.notRun": "inte körd än",
+	"admin.routing.today": "I dag {n} vidareskickade",
+	"admin.routing.todayCalm": "I dag {n} vidareskickade, inget ovanligt",
+	"admin.cpu.lineNone": "Inga siffror än · gräns {limit} per körning",
+	"admin.cpu.line": "I dag {cut} av {runs} körningar avbrutna",
+	"admin.switch.usage.marks": {
+		one: "Användning, {n} behöver din uppmärksamhet",
+		other: "Användning, {n} behöver din uppmärksamhet",
+	},
+	"admin.lage.heading": "Behöver din uppmärksamhet",
+	"admin.lage.calm": "Allt inom ramarna",
+	"admin.lage.calmLine":
+		"Ingen siffra har nått sin obs-gräns, alla lag har svarat, inget väntar. Per {time} UTC.",
+	"admin.lage.calmLineWaiting":
+		"Ingen siffra har nått sin obs-gräns, och alla lag har svarat. Per {time} UTC.",
+	"admin.lage.critical": {
+		one: "{n} kritiskt",
+		other: "{n} kritiska",
+	},
+	"admin.lage.warning": {
+		one: "{n} varning",
+		other: "{n} varningar",
+	},
+	"admin.lage.early": {
+		one: "{n} obs",
+		other: "{n} obs",
+	},
+	"admin.lage.strava": "Strava, i dag",
+	"admin.lage.cloudflare": "Cloudflare, per {date}",
+	"admin.lage.earlyLine": "över obs-gränsen på {n}\u00a0%",
+	"admin.lage.day": "{table}: {date}",
+	"admin.lage.recheck.over24h": "Cyklister har väntat över 24 timmar",
+	"admin.lage.recheck.order": "Listan i fel ordning",
+	"admin.lage.routing.missed": "Hotande förlust",
+	"admin.lage.routing.possible": "Möjlig förlust",
+	"admin.lage.routing.everyone": "För mycket skickat till alla lag",
+	"admin.lage.calls": "Anropen går inte ihop",
+	"admin.lage.cpu": "{owner}: körningar avbrutna",
+	"admin.lage.cpuLine": "{cut} av {runs} i dag",
+	"admin.lage.team.stale": "{team} har inte svarat",
+	"admin.lage.team.staleLine":
+		"Lagets nya siffror saknas tills det svarar igen. Senaste svar: {time} UTC.",
+	"admin.lage.team.never": "{team} har aldrig svarat",
+	"admin.lage.team.neverLine":
+		"Lagets siffror saknas i alla värden tills det svarar.",
+	"admin.lage.device": "Du får inga användningsvarningar",
+	"admin.lage.deviceLine": "Ingen av dina enheter har aviseringar på.",
+	"admin.figure.of": "{used} av {limit}",
+	"admin.figure.levels":
+		"Obs från {early}\u00a0%, varning från {warning}\u00a0%, kritiskt från {critical}\u00a0%.",
+	"admin.figure.levelsNoEarly":
+		"Varning från {warning}\u00a0%, kritiskt från {critical}\u00a0%.",
+	"admin.figure.whose.team": "{team} {n}",
+	"admin.figure.whose.none": "{team}: inga siffror",
+	"admin.figure.whose.window": "bara det här laget",
+	"admin.figure.whose.account": "hela kontot",
+	"admin.strava.when": "i dag, UTC",
+	"admin.cloudflare.when": "per {time} UTC",
+	"admin.strava.note":
+		"I 15-minuterssiffrorna räknas andra lags förfrågningar som inte tilldelade: lagen utbyter inte dessa siffror.",
+	"admin.strava.quiet": "15-minuterssiffror på 0\u00a0% är dolda.",
 	"admin.recheck.heading": "Ny kontroll av turer",
 	"admin.recheck.allowance":
 		"{allowance} kontroller per dag för det här laget · {riders} aktiva cyklister (med en aktivitet de senaste 30 dagarna)",
@@ -1240,9 +1312,19 @@ export const sv: Catalog = {
 	"admin.recheck.listOrder": "listans ordning",
 	"admin.cpu.heading": "Workerns CPU-tid",
 	"admin.cpu.intro":
-		"Varje körning av en worker (en sida, en omgång från kön, en schemalagd körning) får använda {limit} CPU-tid. Per dag: hur mycket de långsammaste 1 av 100 körningarna behövde, och hur många körningar Cloudflare avbröt. Cloudflare förlåter enstaka överskridanden; avbrutna körningar är fel.",
+		"Varje körning av en worker får använda {limit} CPU-tid. Avbrutna körningar är fel; Cloudflare förlåter enstaka överskridanden. Median: hälften av en dags körningar låg under den. Långsammaste: de långsammaste 1 av 100 körningarna.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut} av {runs} avbrutna",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut} av {runs} avbrutna",
+	"admin.cpu.pairHead": "Median / långsammaste",
+	"admin.cpu.chart": "Median CPU-tid per vecka, säsong {season}: {names}",
+	"admin.cpu.months": "sep|okt|nov|dec|jan|feb|mar|apr|maj|jun|jul|aug",
+	"admin.cpu.under":
+		"Per vecka den högsta dagliga medianen; den prickade linjen är i dag. Gränsen på {limit} per körning ligger långt över det här utsnittet.",
+	"admin.cpu.underLimit":
+		"Per vecka den högsta dagliga medianen; den prickade linjen är i dag, den röda streckade gränsen på {limit} per körning.",
+	"admin.cpu.seasonNone":
+		"Ingen median har registrerats för den här säsongen än. Grafen fylls på från den första registrerade dagen.",
 	"admin.cpu.none": "Inga CPU-siffror registrerade ännu.",
 	"admin.cpu.unavailable":
 		"Cloudflares CPU-siffror kunde inte hämtas senast. Tabellen visar de dagar som registrerats hittills.",
@@ -1286,8 +1368,6 @@ export const sv: Catalog = {
 	"admin.calls.all": "Alla lag",
 	"admin.calls.strava": "Strava",
 	"admin.calls.missing": "saknas",
-	"admin.summary.calls": "Dagar med varning i anropen till Strava: {n}",
-	"admin.summary.routing": "Dagar med varning i gateway-routningen: {n}",
 	"admin.waiting.heading": "Väntar på Strava-budgeten",
 	"admin.waiting.body": {
 		one: "{n} post väntar, klart om ungefär {time}.",
@@ -1297,14 +1377,11 @@ export const sv: Catalog = {
 	"admin.waiting.hours": { one: "{n} timme", other: "{n} timmar" },
 	"admin.waiting.days": { one: "{n} dag", other: "{n} dagar" },
 	"admin.alerts.heading": "Användningsvarningar",
-	"admin.alerts.on":
-		"Du får en avisering när en Strava- eller Cloudflare-kvot eller antalet anslutna cyklister når 80 % eller 95 %.",
+	"admin.alerts.title": "Avisering vid obs, varning och kritiskt",
+	"admin.alerts.levels":
+		"En gång per siffra och nivå: från obs-gränsen, vid 80 % och vid 95 %.",
 	"admin.alerts.off":
 		"Du får inga aviseringar om användning. Den här sidan markerar fortfarande siffrorna.",
-	"admin.alerts.turnOff": "Stäng av användningsvarningar",
-	"admin.alerts.turnOn": "Slå på användningsvarningar",
-	"admin.alerts.noDevice":
-		"Du får inga varningar: ingen av dina enheter har aviseringar på. Slå på dem under {settings}.",
 	"admin.history.days": "Varje dag",
 	"admin.history.hideDays": "Dölj dagar",
 	"admin.history.none":
@@ -1353,6 +1430,7 @@ export const sv: Catalog = {
 		"Det är ingen cyklist på listan här. Inget har ändrats.",
 	"admin.remove.leaveLink": "Radera mina uppgifter",
 	"notification.usage.warning": "{allowance}: {percent} %",
+	"notification.usage.early": "Obs: {allowance} på {percent} %",
 	"notification.usage.critical": "Kritiskt: {allowance} på {percent} %",
 	"notification.usage.cpuWarning":
 		"Cloudflare avbröt körningar i dag, oftast för att de använde för mycket CPU-tid.",

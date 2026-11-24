@@ -37,7 +37,7 @@ async function page(query = "", lang = "de", athleteId = ADMIN) {
 function section(text: string): string {
 	return (
 		text.match(
-			/<section class="card usage-source" id="strava-calls">[\s\S]*?<\/section>/,
+			/<li id="strava-calls"><details[\s\S]*?<\/details><\/li>/,
 		)?.[0] ?? ""
 	);
 }
@@ -75,10 +75,21 @@ describe("the Strava calls section", () => {
 		expect(text).not.toContain("<table>");
 	});
 
-	it("comes after the ride re-check's", async () => {
+	it("comes after the waiting work and before the ride re-check (feature 048)", async () => {
 		const text = await page();
-		expect(text.indexOf('id="strava-calls"')).toBeGreaterThan(
-			text.indexOf('id="recheck"'),
+		expect(text.indexOf('<li id="strava-calls">')).toBeGreaterThan(
+			text.indexOf('<li id="waiting">'),
+		);
+		expect(text.indexOf('<li id="strava-calls">')).toBeLessThan(
+			text.indexOf('<li id="recheck">'),
+		);
+	});
+
+	it("names today's calls and held back in its line", async () => {
+		await seedCalls(TODAY, "ride-event", "GET /activities/{id}", 5, 2);
+		const text = await page();
+		expect(text).toContain(
+			'<span class="settings-sub">Heute 5 Aufrufe dieses Teams · 2 zurückgehalten</span>',
 		);
 	});
 
@@ -265,17 +276,23 @@ describe("the Strava calls section with another team", () => {
 		await yesterday(421);
 		const text = await page();
 		expect(marked(body(text, 0)[1])).toBe(false);
-		expect(text).not.toContain("Tage mit Warnung bei den Strava-Aufrufen");
+		expect(text).not.toContain('href="#strava-calls"');
 	});
 
-	it("marks a day Strava counted clearly more on, and the summary counts it", async () => {
+	it("marks a day Strava counted clearly more on, and lists it (feature 048)", async () => {
 		await yesterday(600);
 		const text = await page();
 		expect(section(text)).toContain(
 			'<span class="usage-mark usage-mark-warning">Warnung</span>',
 		);
 		expect(marked(body(text, 0)[1])).toBe(true);
-		expect(text).toContain("Tage mit Warnung bei den Strava-Aufrufen: 1");
+		expect(text).toContain(
+			'<a class="settings-row" href="#strava-calls"><span class="settings-icon lvl-warning">',
+		);
+		expect(text).toContain(
+			'Strava-Aufrufe: 03.11.2026</span><span class="settings-sub">Die Aufrufe gehen nicht auf</span>',
+		);
+		expect(text).toContain(">1 Warnung<");
 	});
 
 	it("says when the other team's day is missing, and doesn't mark it", async () => {

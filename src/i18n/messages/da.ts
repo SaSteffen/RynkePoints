@@ -1103,6 +1103,10 @@ export const da: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Admin",
+	"nav.admin.marks": {
+		one: "Admin, {n} kræver din opmærksomhed",
+		other: "Admin, {n} kræver din opmærksomhed",
+	},
 	"admin.switch.label": "Admin-visninger",
 	"admin.switch.usage": "Forbrug",
 	"admin.switch.riders": "Ryttere og roller",
@@ -1187,32 +1191,20 @@ export const da: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Databaselager",
 	"admin.gigabytes": "{n} GB",
 	"admin.level.warning": "Advarsel",
+	"admin.level.early": "Obs",
 	"admin.level.critical": "Kritisk",
-	"admin.summary.ok": "Alle tal er under 80 %.",
-	"admin.summary.attention": "Tal på 80 % eller derover: {n}",
 	"admin.figure.numbers": "{used} af {limit} · {percent} %",
 	"admin.figure.split": "Dette hold: {team} · Ikke tilknyttet: {rest}",
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: endnu ingen tal",
 	"admin.figure.rest": "Ikke tilknyttet: {n}",
 	"admin.figure.notSplit": "Dette tal kan endnu ikke fordeles på hold.",
-	"admin.figure.windowNote":
-		"Andre holds forespørgsler tæller her som ikke tilknyttet: holdene udveksler ikke deres 15-minutterstal.",
-	"admin.teams.stale":
-		"{team}: intet svar ved seneste registrering. Tallene er fra {time} UTC.",
 	"admin.teams.other": "Andet hold",
 	"admin.teams.otherN": "Andet hold {n}",
 	"admin.teams.shared": "Fælles (gateway)",
-	"admin.teams.never": "{team}: intet svar endnu, så tallene mangler.",
-	"admin.overview.heading": "Alle hold",
-	"admin.overview.note":
-		"Dagens tal; for Cloudflare den senest registrerede dags. En tom celle har intet tal.",
-	"admin.overview.figure": "Tal",
-	"admin.overview.rest": "Ikke tilknyttet",
-	"admin.overview.total": "Samlet",
 	"admin.figure.seen": "Pr. {time} UTC",
 	"admin.figure.notSeen": "Ikke observeret endnu",
-	"admin.figure.noValue": "Ingen værdi endnu. Grænse: {limit}",
+	"admin.figure.noValue": "Ingen værdi endnu · grænse {limit}",
 	"admin.strava.heading": "Strava",
 	"admin.cloudflare.heading": "Cloudflare",
 	"admin.cloudflare.note":
@@ -1220,6 +1212,87 @@ export const da: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflares tal er ikke tilgængelige lige nu. Dette er de sidst kendte værdier.",
 	"admin.refresh": "Opdater nu",
+	"admin.strava.figure.strava_read_daily": "Læsninger pr. dag",
+	"admin.strava.figure.strava_all_daily": "Forespørgsler pr. dag",
+	"admin.strava.figure.strava_read_15m": "Læsninger pr. 15 minutter",
+	"admin.strava.figure.strava_all_15m": "Forespørgsler pr. 15 minutter",
+	"admin.betrieb.heading": "Drift",
+	"admin.betrieb.when": "sidste 30 dage",
+	"admin.betrieb.noFigures": "Ingen tal endnu",
+	"admin.waiting.none": "Intet venter.",
+	"admin.waiting.note":
+		"Arbejde, som Strava-budgettet holder tilbage, prøver igen senere.",
+	"admin.calls.today": {
+		one: "I dag {n} kald fra dette hold",
+		other: "I dag {n} kald fra dette hold",
+	},
+	"admin.calls.heldToday": "{n} holdt tilbage",
+	"admin.calls.heldNone": "intet holdt tilbage",
+	"admin.recheck.line":
+		"{allowance} kontroller om dagen · {riders} aktive ryttere · {last}",
+	"admin.recheck.lastRun": "sidst den {date}",
+	"admin.recheck.notRun": "ikke kørt endnu",
+	"admin.routing.today": "I dag {n} videregivet",
+	"admin.routing.todayCalm": "I dag {n} videregivet, intet usædvanligt",
+	"admin.cpu.lineNone": "Ingen tal endnu · grænse {limit} pr. kørsel",
+	"admin.cpu.line": "I dag {cut} af {runs} kørsler afbrudt",
+	"admin.switch.usage.marks": {
+		one: "Forbrug, {n} kræver din opmærksomhed",
+		other: "Forbrug, {n} kræver din opmærksomhed",
+	},
+	"admin.lage.heading": "Kræver din opmærksomhed",
+	"admin.lage.calm": "Alt inden for rammerne",
+	"admin.lage.calmLine":
+		"Intet tal har nået sin obs-grænse, alle hold har svaret, intet venter. Pr. {time} UTC.",
+	"admin.lage.calmLineWaiting":
+		"Intet tal har nået sin obs-grænse, og alle hold har svaret. Pr. {time} UTC.",
+	"admin.lage.critical": {
+		one: "{n} kritisk",
+		other: "{n} kritiske",
+	},
+	"admin.lage.warning": {
+		one: "{n} advarsel",
+		other: "{n} advarsler",
+	},
+	"admin.lage.early": {
+		one: "{n} obs",
+		other: "{n} obs",
+	},
+	"admin.lage.strava": "Strava, i dag",
+	"admin.lage.cloudflare": "Cloudflare, pr. {date}",
+	"admin.lage.earlyLine": "over obs-grænsen på {n}\u00a0%",
+	"admin.lage.day": "{table}: {date}",
+	"admin.lage.recheck.over24h": "Ryttere har ventet over 24 timer",
+	"admin.lage.recheck.order": "Listen i forkert rækkefølge",
+	"admin.lage.routing.missed": "Truende tab",
+	"admin.lage.routing.possible": "Muligt tab",
+	"admin.lage.routing.everyone": "For meget sendt til alle hold",
+	"admin.lage.calls": "Kaldene stemmer ikke",
+	"admin.lage.cpu": "{owner}: kørsler afbrudt",
+	"admin.lage.cpuLine": "{cut} af {runs} i dag",
+	"admin.lage.team.stale": "{team} har ikke svaret",
+	"admin.lage.team.staleLine":
+		"Holdets nye tal mangler, indtil det svarer igen. Seneste svar: {time} UTC.",
+	"admin.lage.team.never": "{team} har aldrig svaret",
+	"admin.lage.team.neverLine":
+		"Holdets tal mangler i alle værdier, indtil det svarer.",
+	"admin.lage.device": "Du får ingen forbrugsadvarsler",
+	"admin.lage.deviceLine":
+		"Ingen af dine enheder har notifikationer slået til.",
+	"admin.figure.of": "{used} af {limit}",
+	"admin.figure.levels":
+		"Obs fra {early}\u00a0%, advarsel fra {warning}\u00a0%, kritisk fra {critical}\u00a0%.",
+	"admin.figure.levelsNoEarly":
+		"Advarsel fra {warning}\u00a0%, kritisk fra {critical}\u00a0%.",
+	"admin.figure.whose.team": "{team} {n}",
+	"admin.figure.whose.none": "{team}: ingen tal",
+	"admin.figure.whose.window": "kun dette hold",
+	"admin.figure.whose.account": "hele kontoen",
+	"admin.strava.when": "i dag, UTC",
+	"admin.cloudflare.when": "pr. {time} UTC",
+	"admin.strava.note":
+		"I 15-minutterstallene tæller andre holds forespørgsler som ikke tilknyttet: holdene udveksler ikke disse tal.",
+	"admin.strava.quiet": "15-minutterstal på 0\u00a0% er skjult.",
 	"admin.recheck.heading": "Genkontrol af ture",
 	"admin.recheck.allowance":
 		"{allowance} kontroller om dagen for dette hold · {riders} aktive ryttere (med en aktivitet inden for de sidste 30 dage)",
@@ -1235,9 +1308,19 @@ export const da: Catalog = {
 	"admin.recheck.listOrder": "listens rækkefølge",
 	"admin.cpu.heading": "Workernes CPU-tid",
 	"admin.cpu.intro":
-		"Hver afvikling af en worker (en side, en portion fra køen, en planlagt afvikling) må bruge {limit} CPU-tid. Pr. dag: hvor meget de langsomste 1 ud af 100 afviklinger brugte, og hvor mange afviklinger Cloudflare afbrød. Cloudflare tilgiver enkelte overskridelser; afbrudte afviklinger er fejl.",
+		"Hver afvikling af en worker må bruge {limit} CPU-tid. Afbrudte afviklinger er fejl; Cloudflare tilgiver enkelte overskridelser. Median: halvdelen af en dags afviklinger blev under den. Langsomste: de langsomste 1 ud af 100 afviklinger.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut} af {runs} afbrudt",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut} af {runs} afbrudt",
+	"admin.cpu.pairHead": "Median / langsomste",
+	"admin.cpu.chart": "Median-CPU-tid pr. uge, sæson {season}: {names}",
+	"admin.cpu.months": "sep|okt|nov|dec|jan|feb|mar|apr|maj|jun|jul|aug",
+	"admin.cpu.under":
+		"Pr. uge den højeste daglige median; den prikkede linje er i dag. Grænsen på {limit} pr. afvikling ligger langt over dette udsnit.",
+	"admin.cpu.underLimit":
+		"Pr. uge den højeste daglige median; den prikkede linje er i dag, den røde stiplede grænsen på {limit} pr. afvikling.",
+	"admin.cpu.seasonNone":
+		"Der er endnu ikke registreret nogen median for denne sæson. Grafen fyldes op fra den første registrerede dag.",
 	"admin.cpu.none": "Endnu ingen CPU-tal registreret.",
 	"admin.cpu.unavailable":
 		"Cloudflares CPU-tal kunne ikke hentes sidste gang. Tabellen viser de dage, der er registreret indtil nu.",
@@ -1281,8 +1364,6 @@ export const da: Catalog = {
 	"admin.calls.all": "Alle hold",
 	"admin.calls.strava": "Strava",
 	"admin.calls.missing": "mangler",
-	"admin.summary.calls": "Dage med advarsel i kaldene til Strava: {n}",
-	"admin.summary.routing": "Dage med advarsel i gateway-routingen: {n}",
 	"admin.waiting.heading": "Venter på Strava-budgettet",
 	"admin.waiting.body": {
 		one: "{n} post venter, færdig om cirka {time}.",
@@ -1292,14 +1373,11 @@ export const da: Catalog = {
 	"admin.waiting.hours": { one: "{n} time", other: "{n} timer" },
 	"admin.waiting.days": { one: "{n} dag", other: "{n} dage" },
 	"admin.alerts.heading": "Forbrugsadvarsler",
-	"admin.alerts.on":
-		"Du får en notifikation, når en Strava- eller Cloudflare-kvote eller antallet af forbundne ryttere når 80 % eller 95 %.",
+	"admin.alerts.title": "Notifikation ved obs, advarsel og kritisk",
+	"admin.alerts.levels":
+		"Én gang pr. tal og niveau: fra obs-grænsen, ved 80 % og ved 95 %.",
 	"admin.alerts.off":
 		"Du får ingen notifikationer om forbrug. Denne side markerer stadig tallene.",
-	"admin.alerts.turnOff": "Slå forbrugsadvarsler fra",
-	"admin.alerts.turnOn": "Slå forbrugsadvarsler til",
-	"admin.alerts.noDevice":
-		"Du får ingen advarsler: ingen af dine enheder har notifikationer slået til. Slå dem til under {settings}.",
 	"admin.history.days": "Hver dag",
 	"admin.history.hideDays": "Skjul dage",
 	"admin.history.none":
@@ -1348,6 +1426,7 @@ export const da: Catalog = {
 		"Det er ikke en rytter på listen her. Intet er ændret.",
 	"admin.remove.leaveLink": "Slet mine data",
 	"notification.usage.warning": "{allowance}: {percent} %",
+	"notification.usage.early": "Obs: {allowance} på {percent} %",
 	"notification.usage.critical": "Kritisk: {allowance} på {percent} %",
 	"notification.usage.cpuWarning":
 		"Cloudflare afbrød afviklinger i dag, oftest på grund af for meget CPU-tid.",

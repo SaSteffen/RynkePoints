@@ -35,9 +35,7 @@ async function page(lang = "de", athleteId = ADMIN) {
 /** The section's markup, or "" when the page has none. */
 function section(text: string): string {
 	return (
-		text.match(
-			/<section class="card usage-source" id="recheck">[\s\S]*?<\/section>/,
-		)?.[0] ?? ""
+		text.match(/<li id="recheck"><details[\s\S]*?<\/details><\/li>/)?.[0] ?? ""
 	);
 }
 
@@ -153,6 +151,26 @@ describe("the Ride re-check section", () => {
 		const text = section(await page());
 		expect(text).toContain(">Warnung<");
 		expect(rows(await page())[0]?.[4]).toBe("3");
+	});
+
+	it("lists today's and yesterday's marked days at the top, saying why (feature 048)", async () => {
+		await day("2026-11-04", { sent: 10, over_24h: 3 });
+		await day("2026-11-03", { sent: 10, unordered: 1 });
+		await day("2026-11-02", { sent: 10, over_24h: 1 });
+		const text = await page();
+		expect(
+			text.match(/<a class="settings-row" href="#recheck">/g),
+		).toHaveLength(2);
+		expect(text).toContain(
+			'Nachprüfung der Fahrten: 04.11.2026</span><span class="settings-sub">Rider haben über 24 Stunden gewartet</span>',
+		);
+		expect(text).toContain(
+			'Nachprüfung der Fahrten: 03.11.2026</span><span class="settings-sub">Liste in falscher Reihenfolge</span>',
+		);
+		expect(text).toContain(">2 Warnungen<");
+		expect(text).toContain(
+			'<span class="settings-title">Nachprüfung der Fahrten<span class="usage-mark usage-mark-warning">Warnung</span></span><span class="settings-sub">150 Prüfungen am Tag · 0 aktive Rider · zuletzt am 04.11.2026</span>',
+		);
 	});
 
 	it("names one run held in the singular", async () => {

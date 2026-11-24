@@ -150,7 +150,7 @@ export function dailyHistory(
 					record && record.limit > 0
 						? (record.used * 100) / record.limit
 						: null,
-				level: record ? levelOf(record.used, record.limit) : "ok",
+				level: record ? levelOf(id, record.used, record.limit) : "ok",
 			})),
 			i18n.t("admin.history.chart", {
 				name: i18n.t(`admin.allowance.${id}`),

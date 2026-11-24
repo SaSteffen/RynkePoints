@@ -230,6 +230,20 @@ export function teamCountRecords(rows: readonly unknown[]): TeamCountRecord[] {
 	}));
 }
 
+/** A team's newest stored count of connected riders; no row for none. */
+export function teamConnectedStatement(
+	db: D1Database,
+	team: string,
+): D1PreparedStatement {
+	return db
+		.prepare(
+			`SELECT used FROM usage_team_daily
+			WHERE allowance = 'riders_connected' AND team = ?
+			ORDER BY day DESC LIMIT 1`,
+		)
+		.bind(team);
+}
+
 /** Each team's newest day stored, and its newest count of connected riders. */
 export async function latestTeamCounts(
 	db: D1Database,
@@ -339,11 +353,11 @@ export function upsertCpuDayStatement(
 	return db
 		.prepare(
 			`INSERT INTO usage_cpu_daily (day, owner, runs, cut_off, cpu_p99_us,
-				recorded_at)
-			VALUES (?, ?, ?, ?, ?, ?)
+				cpu_p50_us, recorded_at)
+			VALUES (?, ?, ?, ?, ?, ?, ?)
 			ON CONFLICT (day, owner) DO UPDATE SET runs = excluded.runs,
 				cut_off = excluded.cut_off, cpu_p99_us = excluded.cpu_p99_us,
-				recorded_at = excluded.recorded_at`,
+				cpu_p50_us = excluded.cpu_p50_us, recorded_at = excluded.recorded_at`,
 		)
 		.bind(
 			record.day,
@@ -351,6 +365,7 @@ export function upsertCpuDayStatement(
 			record.runs,
 			record.cutOff,
 			record.p99Us,
+			record.p50Us,
 			now,
 		);
 }
@@ -362,7 +377,7 @@ export async function readCpuDays(
 ): Promise<CpuDay[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT day, owner, runs, cut_off, cpu_p99_us FROM usage_cpu_daily
+			`SELECT day, owner, runs, cut_off, cpu_p99_us, cpu_p50_us FROM usage_cpu_daily
 			WHERE day >= ? ORDER BY day DESC`,
 		)
 		.bind(since)
@@ -372,6 +387,7 @@ export async function readCpuDays(
 			runs: number;
 			cut_off: number;
 			cpu_p99_us: number;
+			cpu_p50_us: number | null;
 		}>();
 	return results.map((row) => ({
 		day: row.day,
@@ -379,6 +395,7 @@ export async function readCpuDays(
 		runs: row.runs,
 		cutOff: row.cut_off,
 		p99Us: row.cpu_p99_us,
+		p50Us: row.cpu_p50_us,
 	}));
 }
 

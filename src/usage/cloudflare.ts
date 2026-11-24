@@ -163,11 +163,14 @@ export async function queryCloudflare(
 	env: object,
 	now: number,
 	query: string,
+	/** The UTC days asked for; yesterday and today unless given. */
+	range?: { from: string; to: string },
 ): Promise<CloudflareAnswer> {
 	const analytics = cloudflareAnalytics(env);
 	if (!analytics) return { kind: "unavailable", reason: "not configured" };
 	const today = utcDay(now);
 	const yesterday = daysBefore(today, 1);
+	const { from, to } = range ?? { from: yesterday, to: today };
 	let response: Response;
 	try {
 		response = await fetch(GRAPHQL_URL, {
@@ -180,8 +183,8 @@ export async function queryCloudflare(
 				query,
 				variables: {
 					accountTag: analytics.accountId,
-					from: yesterday,
-					to: today,
+					from,
+					to,
 				},
 			}),
 		});
