@@ -1328,9 +1328,19 @@ export const nl: Catalog = {
 	"admin.recheck.listOrder": "volgorde van de lijst",
 	"admin.cpu.heading": "CPU-tijd van de Workers",
 	"admin.cpu.intro":
-		"Elke run van een Worker (een pagina, een batch uit de wachtrij, een geplande run) mag {limit} CPU-tijd gebruiken. Per dag: hoeveel de traagste 1 op 100 runs nodig hadden, en hoeveel runs Cloudflare heeft afgebroken. Cloudflare vergeeft een enkele overschrijding; afgebroken runs zijn fouten.",
+		"Elke run van een Worker mag {limit} CPU-tijd gebruiken. Afgebroken runs zijn fouten; Cloudflare vergeeft een enkele overschrijding. Mediaan: de helft van de runs van een dag bleef eronder. Traagste: de traagste 1 op 100 runs.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut} van {runs} afgebroken",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut} van {runs} afgebroken",
+	"admin.cpu.pairHead": "Mediaan / traagste",
+	"admin.cpu.chart": "Mediane CPU-tijd per week, seizoen {season}: {names}",
+	"admin.cpu.months": "sep|okt|nov|dec|jan|feb|mrt|apr|mei|jun|jul|aug",
+	"admin.cpu.under":
+		"Per week de hoogste dagmediaan; de gestippelde lijn is vandaag. De limiet van {limit} per run ligt ver boven dit bereik.",
+	"admin.cpu.underLimit":
+		"Per week de hoogste dagmediaan; de gestippelde lijn is vandaag, de rode gestreepte de limiet van {limit} per run.",
+	"admin.cpu.seasonNone":
+		"Voor dit seizoen is nog geen mediaan geregistreerd. De grafiek vult zich vanaf de eerste geregistreerde dag.",
 	"admin.cpu.none": "Nog geen CPU-cijfers vastgelegd.",
 	"admin.cpu.unavailable":
 		"De CPU-cijfers van Cloudflare konden de laatste keer niet worden opgehaald. De tabel toont de dagen die tot nu toe zijn vastgelegd.",

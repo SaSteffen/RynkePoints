@@ -1315,9 +1315,21 @@ export const fi: Catalog = {
 	"admin.recheck.listOrder": "listan järjestys",
 	"admin.cpu.heading": "Workerien suoritinaika",
 	"admin.cpu.intro":
-		"Workerin jokainen suoritus (sivu, jonon erä, ajastettu suoritus) saa käyttää {limit} suoritinaikaa. Päivittäin: kuinka paljon hitain suoritus sadasta tarvitsi ja kuinka monta suoritusta Cloudflare keskeytti. Cloudflare sallii satunnaiset ylitykset, mutta keskeytetyt suoritukset ovat virheitä.",
+		"Workerin jokainen suoritus saa käyttää {limit} suoritinaikaa. Keskeytetyt suoritukset ovat virheitä, satunnaiset ylitykset Cloudflare sallii. Mediaani: puolet päivän suorituksista jäi sen alle. Hitain: hitain suoritus sadasta.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut}/{runs} keskeytetty",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut}/{runs} keskeytetty",
+	"admin.cpu.pairHead": "Mediaani / hitain",
+	"admin.cpu.chart":
+		"Mediaanisuoritinaika viikoittain, kausi {season}: {names}",
+	"admin.cpu.months":
+		"syys|loka|marras|joulu|tammi|helmi|maalis|huhti|touko|kesä|heinä|elo",
+	"admin.cpu.under":
+		"Kunkin viikon suurin päivän mediaani; pisteviiva on tämä päivä. Raja {limit} suoritusta kohden on kaukana tämän alueen yläpuolella.",
+	"admin.cpu.underLimit":
+		"Kunkin viikon suurin päivän mediaani; pisteviiva on tämä päivä, punainen katkoviiva raja {limit} suoritusta kohden.",
+	"admin.cpu.seasonNone":
+		"Tälle kaudelle ei ole vielä kirjattu mediaania. Kaavio täyttyy ensimmäisestä kirjatusta päivästä alkaen.",
 	"admin.cpu.none": "Suoritinaikoja ei ole vielä tallennettu.",
 	"admin.cpu.unavailable":
 		"Cloudflaren suoritinaikoja ei viimeksi saatu haettua. Taulukko näyttää tähän mennessä tallennetut päivät.",

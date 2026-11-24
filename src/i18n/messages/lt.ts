@@ -1362,9 +1362,21 @@ export const lt: Catalog = {
 	"admin.recheck.listOrder": "sąrašo tvarka",
 	"admin.cpu.heading": "Workerių procesoriaus laikas",
 	"admin.cpu.intro":
-		"Kiekvienas workerio paleidimas (puslapis, eilės paketas, suplanuotas paleidimas) gali naudoti {limit} procesoriaus laiko. Kas dieną: kiek prireikė lėčiausiam 1 iš 100 paleidimų ir kiek paleidimų Cloudflare nutraukė. Cloudflare atleidžia pavienius viršijimus, o nutraukti paleidimai yra klaidos.",
+		"Kiekvienas workerio paleidimas gali naudoti {limit} procesoriaus laiko. Nutraukti paleidimai yra klaidos, o pavienius viršijimus Cloudflare atleidžia. Mediana: pusė dienos paleidimų liko žemiau jos. Lėčiausi: lėčiausias 1 iš 100 paleidimų.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · nutraukta {cut} iš {runs}",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "nutraukta {cut} iš {runs}",
+	"admin.cpu.pairHead": "Mediana / lėčiausi",
+	"admin.cpu.chart":
+		"Procesoriaus laiko mediana per savaitę, sezonas {season}: {names}",
+	"admin.cpu.months":
+		"rugs.|spal.|lapkr.|gruod.|saus.|vas.|kov.|bal.|geg.|birž.|liep.|rugp.",
+	"admin.cpu.under":
+		"Kiekvienos savaitės didžiausia dienos mediana; taškinė linija – šiandiena. {limit} riba vienam paleidimui yra gerokai virš šios srities.",
+	"admin.cpu.underLimit":
+		"Kiekvienos savaitės didžiausia dienos mediana; taškinė linija – šiandiena, raudona brūkšninė – {limit} riba vienam paleidimui.",
+	"admin.cpu.seasonNone":
+		"Šiam sezonui mediana dar neužfiksuota. Grafikas pildysis nuo pirmos užfiksuotos dienos.",
 	"admin.cpu.none": "Procesoriaus laiko duomenų dar neužfiksuota.",
 	"admin.cpu.unavailable":
 		"Paskutinį kartą nepavyko gauti Cloudflare procesoriaus laiko duomenų. Lentelėje rodomos iki šiol užfiksuotos dienos.",

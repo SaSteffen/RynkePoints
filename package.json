@@ -35,6 +35,7 @@
 		"catch-up": "scripts/catch-up.sh",
 		"strava:review": "node scripts/strava-review.mjs",
 		"season:album": "node scripts/season-album.mjs",
+		"cpu:fill-median": "node scripts/cpu-median-fill.mjs",
 		"prepare": "lefthook install"
 	},
 	"devDependencies": {

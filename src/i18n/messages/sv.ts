@@ -1312,9 +1312,19 @@ export const sv: Catalog = {
 	"admin.recheck.listOrder": "listans ordning",
 	"admin.cpu.heading": "Workerns CPU-tid",
 	"admin.cpu.intro":
-		"Varje körning av en worker (en sida, en omgång från kön, en schemalagd körning) får använda {limit} CPU-tid. Per dag: hur mycket de långsammaste 1 av 100 körningarna behövde, och hur många körningar Cloudflare avbröt. Cloudflare förlåter enstaka överskridanden; avbrutna körningar är fel.",
+		"Varje körning av en worker får använda {limit} CPU-tid. Avbrutna körningar är fel; Cloudflare förlåter enstaka överskridanden. Median: hälften av en dags körningar låg under den. Långsammaste: de långsammaste 1 av 100 körningarna.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut} av {runs} avbrutna",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut} av {runs} avbrutna",
+	"admin.cpu.pairHead": "Median / långsammaste",
+	"admin.cpu.chart": "Median CPU-tid per vecka, säsong {season}: {names}",
+	"admin.cpu.months": "sep|okt|nov|dec|jan|feb|mar|apr|maj|jun|jul|aug",
+	"admin.cpu.under":
+		"Per vecka den högsta dagliga medianen; den prickade linjen är i dag. Gränsen på {limit} per körning ligger långt över det här utsnittet.",
+	"admin.cpu.underLimit":
+		"Per vecka den högsta dagliga medianen; den prickade linjen är i dag, den röda streckade gränsen på {limit} per körning.",
+	"admin.cpu.seasonNone":
+		"Ingen median har registrerats för den här säsongen än. Grafen fylls på från den första registrerade dagen.",
 	"admin.cpu.none": "Inga CPU-siffror registrerade ännu.",
 	"admin.cpu.unavailable":
 		"Cloudflares CPU-siffror kunde inte hämtas senast. Tabellen visar de dagar som registrerats hittills.",

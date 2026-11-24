@@ -1309,9 +1309,19 @@ export const nb: Catalog = {
 	"admin.recheck.listOrder": "listens rekkefølge",
 	"admin.cpu.heading": "Workernes CPU-tid",
 	"admin.cpu.intro":
-		"Hver utføring av en worker (en side, en porsjon fra køen, en planlagt utføring) kan bruke {limit} CPU-tid. Per dag: hvor mye de tregeste 1 av 100 utføringene brukte, og hvor mange utføringer Cloudflare avbrøt. Cloudflare tilgir enkelte overskridelser; avbrutte utføringer er feil.",
+		"Hver utføring av en worker kan bruke {limit} CPU-tid. Avbrutte utføringer er feil; Cloudflare tilgir enkelte overskridelser. Median: halvparten av dagens utføringer holdt seg under den. Tregeste: de tregeste 1 av 100 utføringene.",
 	"admin.cpu.ms": "{n}\u00a0ms",
-	"admin.cpu.cell": "{slowest} · {cut} av {runs} avbrutt",
+	"admin.cpu.pair": "{median} / {slowest}\u00a0ms",
+	"admin.cpu.cutOff": "{cut} av {runs} avbrutt",
+	"admin.cpu.pairHead": "Median / tregeste",
+	"admin.cpu.chart": "Median CPU-tid per uke, sesong {season}: {names}",
+	"admin.cpu.months": "sep|okt|nov|des|jan|feb|mar|apr|mai|jun|jul|aug",
+	"admin.cpu.under":
+		"Per uke den høyeste daglige medianen; den prikkede linjen er i dag. Grensen på {limit} per utføring ligger langt over dette utsnittet.",
+	"admin.cpu.underLimit":
+		"Per uke den høyeste daglige medianen; den prikkede linjen er i dag, den røde stiplede grensen på {limit} per utføring.",
+	"admin.cpu.seasonNone":
+		"Ingen median er registrert for denne sesongen ennå. Grafen fylles fra den første registrerte dagen.",
 	"admin.cpu.none": "Ingen CPU-tall registrert ennå.",
 	"admin.cpu.unavailable":
 		"Cloudflares CPU-tall kunne ikke hentes sist. Tabellen viser dagene som er registrert så langt.",

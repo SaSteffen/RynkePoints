@@ -20,6 +20,7 @@ name no team, place or rider: every team shows the same list.
 - Strava's and Cloudflare's figures are rows with a bar marked at each level; a row opens to its levels, how the teams share it and its history.
 - The waiting work, Strava calls, ride re-check, gateway routing and CPU time are rows with one line each, and the alerts setting is a switch.
 - The Admin tab and Usage show how many usage marks need a look.
+- The CPU time row shows a graph of the season: each week's highest daily median CPU time for this team, the other teams and the gateway. Its table shows the median next to the slowest runs.
 
 ## 1.2.0
 

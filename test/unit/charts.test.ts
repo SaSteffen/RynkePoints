@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
 	peloton,
+	seasonLines,
+	seasonTop,
 	sparkline,
 	thresholdBars,
 	weekBars,
@@ -421,5 +423,86 @@ describe("thresholdBars", () => {
 		const svg = thresholdBars(1500, 1000, null, [25, 80, 95]).value;
 		expect(widthOf(svg)).toBe(100);
 		expect(marksOf(svg)).toEqual(["25", "80", "95"]);
+	});
+});
+
+describe("seasonLines (feature 049 research R5)", () => {
+	const none = [] as const;
+	const lines = (
+		own: readonly (number | null)[],
+		others: readonly (number | null)[] = none,
+		shared: readonly (number | null)[] = none,
+		top = 2,
+	) =>
+		seasonLines(
+			{ own, others, shared },
+			53,
+			Math.max(0, own.length - 1),
+			top,
+			"Median",
+		).value;
+	const path = (svg: string, owner: string) =>
+		svg.match(
+			new RegExp(`<path class="cpu-line cpu-${owner}" d="([^"]*)"`),
+		)?.[1] ?? "";
+
+	it("scales to the smallest of 0.5, 1, 2, 5, 10, 20, 50 … ms at or above the highest", () => {
+		expect(seasonTop(0)).toBe(0.5);
+		expect(seasonTop(0.3)).toBe(0.5);
+		expect(seasonTop(0.8)).toBe(1);
+		expect(seasonTop(1.8)).toBe(2);
+		expect(seasonTop(2)).toBe(2);
+		expect(seasonTop(4.2)).toBe(5);
+		expect(seasonTop(11)).toBe(20);
+		expect(seasonTop(51)).toBe(100);
+	});
+
+	it("is one labelled image that stretches to its box, one path per owner", () => {
+		const svg = lines([1, 1.5], [0.8, 0.9], [0.3, 0.4]);
+		expect(svg).toMatch(
+			/^<svg class="cpu-chart" viewBox="0 0 530 120" preserveAspectRatio="none" role="img" aria-label="Median">/,
+		);
+		for (const owner of ["own", "others", "shared"]) {
+			expect(svg).toContain(`<path class="cpu-line cpu-${owner}" d="M`);
+		}
+		expect(
+			svg.match(/vector-effect="non-scaling-stroke"/g)?.length,
+		).toBeGreaterThanOrEqual(3);
+		expect(svg).not.toContain("<text");
+	});
+
+	it("breaks a line at a gap instead of drawing zero, and a lone week is a dot", () => {
+		const d = path(lines([1, 1, null, 1.5, null, null, 2, 2]), "own");
+		expect(d.match(/M/g)).toHaveLength(3);
+		expect(d).toMatch(/^M[\d.]+ [\d.]+L[\d.]+ [\d.]+M[\d.]+ [\d.]+h0M/);
+		// Nothing at the bottom of the box, where 0 would be.
+		expect(d).not.toMatch(/ 116(?![\d.])/);
+	});
+
+	it("draws nothing for an owner without any value, nor for weeks to come", () => {
+		const svg = lines([1, 2], [null, null]);
+		expect(path(svg, "others")).toBe("");
+		// Two weeks of 53: the line ends in the left part of the box.
+		const xs = [...path(svg, "own").matchAll(/[ML]([\d.]+) /g)].map((m) =>
+			Number(m[1]),
+		);
+		expect(Math.max(...xs)).toBeLessThan(30);
+	});
+
+	it("puts today's dotted line at the current week", () => {
+		const svg = lines([1, 1, 1]);
+		const x = svg.match(/<line class="cpu-now" x1="([\d.]+)"/)?.[1];
+		expect(Number(x)).toBeGreaterThan(20);
+		expect(Number(x)).toBeLessThan(31);
+	});
+
+	it("draws the 10 ms limit only once the scale reaches it", () => {
+		expect(lines([1.8], none, none, 2)).not.toContain("cpu-limit");
+		const svg = lines([11], none, none, 20);
+		expect(svg).toContain('<line class="cpu-limit"');
+		// Half way up a 20 ms scale.
+		expect(svg).toMatch(
+			/<line class="cpu-limit" x1="0" x2="530" y1="60" y2="60"/,
+		);
 	});
 });

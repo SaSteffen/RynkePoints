@@ -338,3 +338,73 @@ export function dailyBars(days: readonly DailyBar[], label: string): SafeHtml {
 	});
 	return html`<svg class="usage-chart" viewBox="0 0 ${DAILY_WIDTH} ${DAILY_HEIGHT}" preserveAspectRatio="none" role="img" aria-label="${label}"><path class="usage-bars" d="${paths.ok}"/><path class="usage-bars usage-bars-warning" d="${paths.warning}"/><path class="usage-bars usage-bars-critical" d="${paths.critical}"/><line x1="0" x2="${DAILY_WIDTH}" y1="${coord(y(100))}" y2="${coord(y(100))}" vector-effect="non-scaling-stroke"/></svg>`;
 }
+
+const SEASON_WIDTH = 530;
+const SEASON_HEIGHT = 120;
+/** Keeps the round line ends inside the box at the top and bottom. */
+const SEASON_INSET = 4;
+/** The CPU limit per run, drawn once the scale reaches it (feature 049 FR-010). */
+const SEASON_LIMIT_MS = 10;
+
+/**
+ * The season graph's scale: the smallest of 0.5, 1, 2, 5, 10, 20, 50 … ms at
+ * or above `highest` (feature 049 research R5).
+ */
+export function seasonTop(highest: number): number {
+	if (highest <= 0.5) return 0.5;
+	for (let power = 1; ; power *= 10) {
+		for (const step of [1, 2, 5]) {
+			if (step * power >= highest) return step * power;
+		}
+	}
+}
+
+/** The season graph's lines: one value per week so far, ms; null: no record. */
+export interface SeasonLines {
+	own: readonly (number | null)[];
+	others: readonly (number | null)[];
+	shared: readonly (number | null)[];
+}
+
+/**
+ * The CPU medians over the season (feature 049 research R5): one line per owner
+ * across `slots` weeks, straight between the weeks' middles and broken at a
+ * week without a value, so a gap never reads as zero; a lone week is a dot (a
+ * subpath of no length with round ends). Grid lines at the top, middle and
+ * bottom of the scale `top`, the dotted line at the end of the `current` week,
+ * and the limit only when the scale reaches it. The labels are HTML around it,
+ * so no text stretches.
+ */
+export function seasonLines(
+	lines: SeasonLines,
+	slots: number,
+	current: number,
+	top: number,
+	label: string,
+): SafeHtml {
+	const slot = slots > 0 ? SEASON_WIDTH / slots : 0;
+	const y = (ms: number) =>
+		SEASON_HEIGHT -
+		SEASON_INSET -
+		(Math.max(0, ms) / top) * (SEASON_HEIGHT - 2 * SEASON_INSET);
+	const path = (values: readonly (number | null)[]) => {
+		let d = "";
+		values.forEach((value, i) => {
+			if (value === null) return;
+			const before = values[i - 1] ?? null;
+			const after = values[i + 1] ?? null;
+			d += `${before === null ? "M" : "L"}${coord((i + 0.5) * slot)} ${coord(y(value))}`;
+			if (before === null && after === null) d += "h0";
+		});
+		return d;
+	};
+	const across = (name: string, at: number) =>
+		html`<line class="${name}" x1="0" x2="${SEASON_WIDTH}" y1="${coord(at)}" y2="${coord(at)}" vector-effect="non-scaling-stroke"/>`;
+	const now = coord((current + 1) * slot);
+	return html`<svg class="cpu-chart" viewBox="0 0 ${SEASON_WIDTH} ${SEASON_HEIGHT}" preserveAspectRatio="none" role="img" aria-label="${label}">${across("cpu-grid", y(top))}${across("cpu-grid", y(top / 2))}${across("cpu-grid", y(0))}<line class="cpu-now" x1="${now}" x2="${now}" y1="0" y2="${SEASON_HEIGHT}" vector-effect="non-scaling-stroke"/>${top >= SEASON_LIMIT_MS ? across("cpu-limit", y(SEASON_LIMIT_MS)) : null}${(
+		["own", "others", "shared"] as const
+	).map(
+		(owner) =>
+			html`<path class="cpu-line cpu-${owner}" d="${path(lines[owner])}" vector-effect="non-scaling-stroke"/>`,
+	)}</svg>`;
+}

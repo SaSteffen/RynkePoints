@@ -52,6 +52,9 @@ import {
 	type CpuRow,
 	cpuLevel,
 	cpuRows,
+	seasonOf,
+	type WeekSlot,
+	weekSlots,
 } from "../../usage/cpu";
 import {
 	drainEstimateSeconds,
@@ -62,7 +65,7 @@ import { type Peer, usagePeers } from "../../usage/peers";
 import { recordUsage } from "../../usage/record";
 import { SHARED } from "../../usage/split";
 import { readUsageState, type UsageState } from "../../usage/state";
-import { thresholdBars } from "../charts";
+import { seasonLines, seasonTop, thresholdBars } from "../charts";
 import { html, type SafeHtml } from "../html";
 import {
 	BELL,
@@ -665,34 +668,111 @@ function levelMark(i18n: I18n, level: CpuLevel): SafeHtml | null {
 		: html` <span class="usage-mark usage-mark-${level}">${i18n.t(`admin.level.${level}`)}</span>`;
 }
 
+/** A scale label in ms: as many decimals as the value needs, at most two. */
+function scaleMs(i18n: I18n, ms: number): string {
+	const digits = Number.isInteger(ms) ? 0 : Number.isInteger(ms * 10) ? 1 : 2;
+	return i18n.t("admin.cpu.ms", {
+		n: i18n.formatNumber(ms, { fractionDigits: digits }),
+	});
+}
+
 /**
- * The Workers' CPU time (feature 025 User Story 6): per day and owner, the
- * slowest 1 in 100 runs' CPU time beside the limit, and the runs cut off out of
- * all runs, marked by FR-043. No other team is named (feature 026 FR-023).
+ * The season graph of the CPU row (feature 049 contracts/cpu-row.md): each
+ * week's highest daily median of this team, the other teams and the gateway,
+ * with its scale, months, legend and the line under it; one line instead when
+ * the season has no median yet (FR-012). The figures for the hover tip are in
+ * `data-weeks`, one entry per week up to this one.
+ */
+function cpuSeason(
+	i18n: I18n,
+	slots: readonly WeekSlot[],
+	today: string,
+): SafeHtml {
+	const current = slots.findIndex((s) => s.from <= today && today <= s.to);
+	const past = slots.slice(0, current + 1);
+	const values = past.flatMap((s) => [s.own, s.others, s.shared]);
+	const highest = Math.max(0, ...values.filter((v): v is number => v !== null));
+	if (values.every((v) => v === null)) {
+		return html`<p class="usage-detail cpu-empty">${i18n.t("admin.cpu.seasonNone")}</p>
+`;
+	}
+	const top = seasonTop(highest / 1000);
+	const ms = (us: number | null) => (us === null ? null : us / 1000);
+	const names = [
+		i18n.t("admin.history.team"),
+		i18n.t("admin.teams.other"),
+		i18n.t("admin.teams.shared"),
+	];
+	const season = seasonOf(today);
+	const limit = i18n.t("admin.cpu.ms", { n: whole(i18n, CPU_LIMIT_MS) });
+	const swatch = (owner: string) =>
+		html`<svg viewBox="0 0 24 8" aria-hidden="true"><path class="cpu-line cpu-${owner}" d="M2 4H22"/></svg>`;
+	return html`<div class="cpu-graph">
+<div class="cpu-scale" aria-hidden="true"><span>${scaleMs(i18n, top)}</span><span>${scaleMs(i18n, top / 2)}</span><span>${scaleMs(i18n, 0)}</span></div>
+<div class="usage-graph" data-locale="${i18n.t("meta.intlLocale")}" data-slots="${slots.length}" data-weeks="${past
+		.map(
+			(s) =>
+				`${s.from}/${s.to}/${s.own ?? ""}/${s.others ?? ""}/${s.shared ?? ""}`,
+		)
+		.join(
+			",",
+		)}" data-names="${names.join("|")}" data-gap="${i18n.t("admin.history.gap")}" data-ms="${i18n.t("admin.cpu.ms", { n: "{n}" })}">${seasonLines(
+		{
+			own: past.map((s) => ms(s.own)),
+			others: past.map((s) => ms(s.others)),
+			shared: past.map((s) => ms(s.shared)),
+		},
+		slots.length,
+		current,
+		top,
+		i18n.t("admin.cpu.chart", {
+			season: `${season.from.slice(0, 4)}/${season.to.slice(2, 4)}`,
+			names: names.join(", "),
+		}),
+	)}</div>
+<p class="usage-axis cpu-axis" aria-hidden="true">${i18n
+		.t("admin.cpu.months")
+		.split("|")
+		.map((month) => html`<span>${month}</span>`)}</p>
+</div>
+<ul class="cpu-legend"><li>${swatch("own")}${names[0]}</li><li>${swatch("others")}${names[1]}</li><li>${swatch("shared")}${names[2]}</li></ul>
+<p class="usage-detail">${i18n.t(top >= CPU_LIMIT_MS ? "admin.cpu.underLimit" : "admin.cpu.under", { limit })}</p>
+`;
+}
+
+/**
+ * The Workers' CPU time (feature 025 User Story 6, feature 049): the season
+ * graph of the medians, then per day and owner the median and the slowest 1 in
+ * 100 runs' CPU time, and the runs cut off out of all runs, marked by FR-043.
+ * No other team is named (feature 026 FR-023).
  */
 function cpuBody(
 	i18n: I18n,
 	rows: readonly CpuRow[],
 	available: boolean,
+	slots: readonly WeekSlot[],
+	today: string,
 ): SafeHtml {
-	const ms = (us: number) =>
-		i18n.t("admin.cpu.ms", {
-			n: i18n.formatNumber(us / 1000, { fractionDigits: 1 }),
-		});
+	const ms = (us: number | null) =>
+		us === null ? "–" : i18n.formatNumber(us / 1000, { fractionDigits: 1 });
 	const cell = (record: CpuDay | null) =>
 		record === null
 			? html`<td>–</td>`
-			: html`<td>${i18n.t("admin.cpu.cell", {
+			: html`<td>${i18n.t("admin.cpu.pair", {
+					median: ms(record.p50Us),
 					slowest: ms(record.p99Us),
+				})}<br>${i18n.t("admin.cpu.cutOff", {
 					cut: whole(i18n, record.cutOff),
 					runs: whole(i18n, record.runs),
 				})}${levelMark(i18n, cpuLevel(record.runs, record.cutOff))}</td>`;
+	const head = (name: string) =>
+		html`<th scope="col">${name}<br><span class="cpu-head">${i18n.t("admin.cpu.pairHead")}</span></th>`;
 	return html`<p class="usage-detail">${i18n.t("admin.cpu.intro", { limit: i18n.t("admin.cpu.ms", { n: whole(i18n, CPU_LIMIT_MS) }) })}</p>
-${available ? null : html`<p class="notice notice-error" role="alert">${i18n.t("admin.cpu.unavailable")}</p>`}${
+${available ? null : html`<p class="notice notice-error" role="alert">${i18n.t("admin.cpu.unavailable")}</p>`}${cpuSeason(i18n, slots, today)}${
 	rows.length === 0
 		? html`<p class="usage-detail">${i18n.t("admin.cpu.none")}</p>`
 		: html`<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
-<thead><tr><th scope="col">${i18n.t("admin.history.day")}</th><th scope="col">${i18n.t("admin.history.team")}</th><th scope="col">${i18n.t("admin.teams.other")}</th><th scope="col">${i18n.t("admin.teams.shared")}</th></tr></thead>
+<thead><tr><th scope="col">${i18n.t("admin.history.day")}</th>${head(i18n.t("admin.history.team"))}${head(i18n.t("admin.teams.other"))}${head(i18n.t("admin.teams.shared"))}</tr></thead>
 <tbody>
 ${rows.map(
 	(
@@ -849,7 +929,10 @@ function teamsOf(
 interface Operations {
 	waiting: number;
 	activeRiders: number;
+	/** The CPU table's days. */
 	cpuDays: readonly CpuDay[];
+	/** The season graph's weeks (feature 049). */
+	cpuWeeks: readonly WeekSlot[];
 	cpuAvailable: boolean;
 	routing: readonly RoutingDay[];
 	/** The day the Strava calls' breakdown shows. */
@@ -977,7 +1060,13 @@ function betriebGroup(
 						runs: cpuSum((d) => d.runs),
 					}),
 			null,
-			cpuBody(i18n, cpuRows(ops.cpuDays, ctx.team.id), ops.cpuAvailable),
+			cpuBody(
+				i18n,
+				cpuRows(ops.cpuDays, ctx.team.id),
+				ops.cpuAvailable,
+				ops.cpuWeeks,
+				today,
+			),
 		),
 	];
 	return group(
@@ -1002,7 +1091,11 @@ export function handleAdminUsage(
 		// The list and its count are the state the shell read for the Admin
 		// tab's number (feature 048 research R5), so all show the same; the
 		// longer tables are read beside.
-		const [state, counts, activeRiders, cpuDays, routingCounts] =
+		// One read for the CPU table's days and the season graph's (feature 049
+		// research R4).
+		const cpuFrom = daysBefore(today, CPU_DAYS - 1);
+		const seasonFrom = seasonOf(today).from;
+		const [state, counts, activeRiders, cpuSeasonDays, routingCounts] =
 			await Promise.all([
 				viewer.usage ?? readUsageState(ctx, rider.athleteId),
 				db.batch([
@@ -1011,7 +1104,8 @@ export function handleAdminUsage(
 					teamCountsStatement(db, historyStart(today)),
 				]),
 				countActiveRiders(db, now),
-				readCpuDays(db, daysBefore(today, CPU_DAYS - 1)),
+				// Days as text: the earlier one sorts first.
+				readCpuDays(db, [seasonFrom, cpuFrom].sort()[0] ?? cpuFrom),
 				readRoutingCounts(db, firstRoutingDay(today)),
 			]);
 		const cpuState = state.states.get("cloudflare-cpu");
@@ -1049,7 +1143,8 @@ export function handleAdminUsage(
 		const ops: Operations = {
 			waiting,
 			activeRiders,
-			cpuDays,
+			cpuDays: cpuSeasonDays.filter((d) => d.day >= cpuFrom),
+			cpuWeeks: weekSlots(cpuSeasonDays, ctx.team.id, today),
 			cpuAvailable:
 				cpuState?.lastFailureAt == null ||
 				(cpuState.lastSuccessAt ?? 0) > cpuState.lastFailureAt,

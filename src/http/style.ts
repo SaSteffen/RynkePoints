@@ -846,6 +846,27 @@ button.org-legend-entry[aria-pressed=true]{background:var(--md-sys-color-surface
 .usage-axis{display:flex;justify-content:space-between;gap:var(--rp-space-2);margin:0;font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 .usage-axis-limit{display:inline-flex;align-items:center;gap:var(--rp-space-1)}
 .usage-axis-limit::before{content:"";width:14px;border-top:2px dashed var(--md-sys-color-error)}
+.cpu-graph{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--rp-space-2);margin:var(--rp-space-2) 0 0}
+.cpu-graph .usage-graph{margin:0}
+.cpu-scale{display:flex;flex-direction:column;justify-content:space-between;height:120px;font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant);text-align:right}
+.cpu-chart{display:block;width:100%;height:120px}
+.cpu-chart line{fill:none;pointer-events:none}
+.cpu-grid{stroke:var(--md-sys-color-outline-variant);stroke-width:1}
+.cpu-now{stroke:var(--md-sys-color-on-surface-variant);stroke-width:1;stroke-dasharray:2 3}
+.cpu-limit{stroke:var(--md-sys-color-error);stroke-width:1.5;stroke-dasharray:4 3}
+.cpu-line{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.cpu-own{stroke:var(--rp-graph-1)}
+.cpu-others{stroke:var(--rp-graph-2);stroke-dasharray:7 4}
+.cpu-shared{stroke:var(--rp-graph-3);stroke-dasharray:1.5 4}
+.cpu-axis{grid-column:2;gap:0}
+.cpu-axis span{flex:1;min-width:0;overflow:hidden;text-align:center}
+.cpu-legend{display:flex;flex-wrap:wrap;gap:var(--rp-space-1) var(--rp-space-3);margin:var(--rp-space-1) 0 0;padding:0;list-style:none;font:var(--md-type-caption);color:var(--md-sys-color-on-surface)}
+.cpu-legend li{display:inline-flex;align-items:center;gap:var(--rp-space-1)}
+.cpu-legend svg{width:24px;height:8px}
+.cpu-legend+.usage-detail{margin-top:var(--rp-space-2)}
+.cpu-tip{white-space:pre-line;line-height:1.45}
+.cpu-head{font-weight:400;font-size:.92em;color:var(--md-sys-color-on-surface-variant);white-space:nowrap}
+.cpu-empty{margin:var(--rp-space-2) 0;padding:var(--rp-space-3);border-radius:var(--md-shape-xs);background:var(--md-sys-color-surface-container)}
 .usage-table-link{display:inline-flex;align-items:center;min-height:var(--rp-tap);font:var(--md-type-label-small);font-weight:600}
 .usage-table .progress-table-scroll{max-height:320px;overflow-y:auto}
 .usage-table thead th:first-child{text-align:left}
