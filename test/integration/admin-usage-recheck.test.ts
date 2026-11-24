@@ -155,6 +155,23 @@ describe("the Ride re-check section", () => {
 		expect(rows(await page())[0]?.[4]).toBe("3");
 	});
 
+	it("lists today's and yesterday's marked days at the top, saying why (feature 048)", async () => {
+		await day("2026-11-04", { sent: 10, over_24h: 3 });
+		await day("2026-11-03", { sent: 10, unordered: 1 });
+		await day("2026-11-02", { sent: 10, over_24h: 1 });
+		const text = await page();
+		expect(
+			text.match(/<a class="settings-row" href="#recheck">/g),
+		).toHaveLength(2);
+		expect(text).toContain(
+			'Nachprüfung der Fahrten: 04.11.2026</span><span class="settings-sub">Rider haben über 24 Stunden gewartet</span>',
+		);
+		expect(text).toContain(
+			'Nachprüfung der Fahrten: 03.11.2026</span><span class="settings-sub">Liste in falscher Reihenfolge</span>',
+		);
+		expect(text).toContain(">2 Warnungen<");
+	});
+
 	it("names one run held in the singular", async () => {
 		await day("2026-11-04", { sent: 10, runs_held: 1 });
 		expect(section(await page())).toContain("1 Lauf angehalten");

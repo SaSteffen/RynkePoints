@@ -265,17 +265,23 @@ describe("the Strava calls section with another team", () => {
 		await yesterday(421);
 		const text = await page();
 		expect(marked(body(text, 0)[1])).toBe(false);
-		expect(text).not.toContain("Tage mit Warnung bei den Strava-Aufrufen");
+		expect(text).not.toContain('href="#strava-calls"');
 	});
 
-	it("marks a day Strava counted clearly more on, and the summary counts it", async () => {
+	it("marks a day Strava counted clearly more on, and lists it (feature 048)", async () => {
 		await yesterday(600);
 		const text = await page();
 		expect(section(text)).toContain(
 			'<span class="usage-mark usage-mark-warning">Warnung</span>',
 		);
 		expect(marked(body(text, 0)[1])).toBe(true);
-		expect(text).toContain("Tage mit Warnung bei den Strava-Aufrufen: 1");
+		expect(text).toContain(
+			'<a class="settings-row" href="#strava-calls"><span class="settings-icon lvl-warning">',
+		);
+		expect(text).toContain(
+			'Strava-Aufrufe: 03.11.2026</span><span class="settings-sub">Die Aufrufe gehen nicht auf</span>',
+		);
+		expect(text).toContain(">1 Warnung<");
 	});
 
 	it("says when the other team's day is missing, and doesn't mark it", async () => {

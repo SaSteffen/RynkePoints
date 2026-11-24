@@ -230,6 +230,20 @@ export function teamCountRecords(rows: readonly unknown[]): TeamCountRecord[] {
 	}));
 }
 
+/** A team's newest stored count of connected riders; no row for none. */
+export function teamConnectedStatement(
+	db: D1Database,
+	team: string,
+): D1PreparedStatement {
+	return db
+		.prepare(
+			`SELECT used FROM usage_team_daily
+			WHERE allowance = 'riders_connected' AND team = ?
+			ORDER BY day DESC LIMIT 1`,
+		)
+		.bind(team);
+}
+
 /** Each team's newest day stored, and its newest count of connected riders. */
 export async function latestTeamCounts(
 	db: D1Database,

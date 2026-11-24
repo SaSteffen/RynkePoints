@@ -633,6 +633,8 @@ test("an administrator uses the admin pages", async ({ page, browserName }) => {
 
 	await page.goto("/admin");
 	await expect(page.locator(".usage-chart")).toHaveCount(8);
+	// A figure's history is inside its row (feature 048).
+	await page.locator("#strava_read_daily > details > summary").click();
 	const graph = page.locator(".usage-graph").first();
 	await graph.hover();
 	await expect(graph.locator(".usage-tip")).toContainText(/1[.,]000/);

@@ -218,12 +218,17 @@ describe("alerts (FR-044)", () => {
 		expect(await alerts()).toHaveLength(2);
 	});
 
-	it("notifies for the gateway and counts it in the summary", async () => {
+	it("notifies for the gateway and lists it, counted (feature 048 FR-002)", async () => {
 		await record([worker(GATEWAY_WORKER, 1000, 2, 900)]);
 		expect(notified(ctx.queue.sent)).toBe(1);
-		expect(await page()).toContain(
-			escapeHtml(en["admin.summary.attention"].replace("{n}", "1")),
+		const text = await page();
+		expect(text).toContain(
+			escapeHtml(
+				en["admin.lage.cpu"].replace("{owner}", en["admin.teams.shared"]),
+			),
 		);
+		expect(text).toContain('<a class="settings-row" href="#cpu">');
+		expect(text).toContain(">1 warning<");
 	});
 
 	it("leaves another team's cut-off runs to that team", async () => {
@@ -232,6 +237,12 @@ describe("alerts (FR-044)", () => {
 		expect(await alerts()).toEqual([]);
 		const text = await page();
 		expect(section(text)).toContain("usage-mark-critical");
-		expect(text).toContain(escapeHtml(en["admin.summary.ok"]));
+		// Listed and counted, but notified by that team (feature 048 FR-002).
+		expect(text).toContain(
+			escapeHtml(
+				en["admin.lage.cpu"].replace("{owner}", en["admin.teams.other"]),
+			),
+		);
+		expect(text).toContain(">1 critical<");
 	});
 });

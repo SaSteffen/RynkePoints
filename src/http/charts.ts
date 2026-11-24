@@ -280,20 +280,29 @@ const THRESHOLD_HEIGHT = 10;
 
 /**
  * `value` as a filled bar against `threshold`, with a tick at the even pace
- * when `pace` is set. Decoration: the card or table cell carries the figures.
+ * when `pace` is set, and a mark at each of `ticks`, in percent of `threshold`
+ * (the usage levels, feature 048 research R7). Decoration: the card, row or
+ * table cell carries the figures.
  */
 export function thresholdBars(
 	value: number,
 	threshold: number,
 	pace: number | null,
+	ticks: readonly number[] = [],
 ): SafeHtml {
 	const share = (n: number) =>
 		threshold > 0 ? Math.min(1, Math.max(0, n / threshold)) : 1;
+	const line = (name: string, x: number) =>
+		html`<line class="${name}" x1="${coord(x)}" x2="${coord(x)}" y1="0" y2="${THRESHOLD_HEIGHT}" vector-effect="non-scaling-stroke"/>`;
+	const marks = ticks.map((at) =>
+		line(
+			"threshold-tick",
+			(Math.min(100, Math.max(0, at)) / 100) * THRESHOLD_WIDTH,
+		),
+	);
 	const tick =
-		pace === null
-			? null
-			: html`<line class="pace-mark" x1="${coord(share(pace) * THRESHOLD_WIDTH)}" x2="${coord(share(pace) * THRESHOLD_WIDTH)}" y1="0" y2="${THRESHOLD_HEIGHT}" vector-effect="non-scaling-stroke"/>`;
-	return html`<svg class="threshold-bar" viewBox="0 0 ${THRESHOLD_WIDTH} ${THRESHOLD_HEIGHT}" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect class="threshold-track" y="2" width="${THRESHOLD_WIDTH}" height="6" rx="3"/><rect class="threshold-fill" y="2" width="${coord(share(value) * THRESHOLD_WIDTH)}" height="6" rx="3"/>${tick}</svg>`;
+		pace === null ? null : line("pace-mark", share(pace) * THRESHOLD_WIDTH);
+	return html`<svg class="threshold-bar" viewBox="0 0 ${THRESHOLD_WIDTH} ${THRESHOLD_HEIGHT}" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect class="threshold-track" y="2" width="${THRESHOLD_WIDTH}" height="6" rx="3"/><rect class="threshold-fill" y="2" width="${coord(share(value) * THRESHOLD_WIDTH)}" height="6" rx="3"/>${marks}${tick}</svg>`;
 }
 
 const DAILY_WIDTH = 1000;

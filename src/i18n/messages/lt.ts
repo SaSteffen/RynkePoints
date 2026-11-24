@@ -1229,8 +1229,6 @@ export const lt: Catalog = {
 	"admin.level.warning": "Įspėjimas",
 	"admin.level.early": "Dėmesio",
 	"admin.level.critical": "Kritinis",
-	"admin.summary.ok": "Visi skaičiai žemiau 80 %.",
-	"admin.summary.attention": "Skaičiai, pasiekę 80 % ar daugiau: {n}",
 	"admin.figure.numbers": "{used} iš {limit} · {percent} %",
 	"admin.figure.split": "Ši komanda: {team} · Nepriskirta: {rest}",
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
@@ -1238,23 +1236,12 @@ export const lt: Catalog = {
 	"admin.figure.rest": "Nepriskirta: {n}",
 	"admin.figure.notSplit":
 		"Šio skaičiaus kol kas negalima padalyti pagal komandas.",
-	"admin.figure.windowNote":
-		"Kitų komandų užklausos čia laikomos nepriskirtomis: komandos nesikeičia 15 minučių skaičiais.",
-	"admin.teams.stale":
-		"{team}: per paskutinį įrašymą atsakymo nebuvo. Skaičiai – {time} UTC.",
 	"admin.teams.other": "Kita komanda",
 	"admin.teams.otherN": "Kita komanda {n}",
 	"admin.teams.shared": "Bendra (šliuzas)",
-	"admin.teams.never": "{team}: atsakymo dar nėra, todėl skaičių trūksta.",
-	"admin.overview.heading": "Visos komandos",
-	"admin.overview.note":
-		"Šiandienos skaičiai; Cloudflare – paskutinės įrašytos dienos. Tuščiame langelyje skaičiaus nėra.",
-	"admin.overview.figure": "Rodiklis",
-	"admin.overview.rest": "Nepriskirta",
-	"admin.overview.total": "Iš viso",
 	"admin.figure.seen": "Būsena {time} UTC",
 	"admin.figure.notSeen": "Dar nestebėta",
-	"admin.figure.noValue": "Reikšmės dar nėra. Riba: {limit}",
+	"admin.figure.noValue": "Reikšmės dar nėra · riba {limit}",
 	"admin.strava.heading": "Strava",
 	"admin.cloudflare.heading": "Cloudflare",
 	"admin.cloudflare.note":
@@ -1262,6 +1249,64 @@ export const lt: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflare skaičiai šiuo metu nepasiekiami. Tai paskutinės žinomos reikšmės.",
 	"admin.refresh": "Atnaujinti dabar",
+	"admin.lage.heading": "Reikia tavo dėmesio",
+	"admin.lage.calm": "Viskas ribose",
+	"admin.lage.calmLine":
+		"Nė vienas skaičius nepasiekė savo dėmesio ribos, visos komandos atsakė, niekas nelaukia. Būsena {time} UTC.",
+	"admin.lage.calmLineWaiting":
+		"Nė vienas skaičius nepasiekė savo dėmesio ribos, ir visos komandos atsakė. Būsena {time} UTC.",
+	"admin.lage.critical": {
+		one: "{n} kritinis",
+		few: "{n} kritiniai",
+		many: "{n} kritinio",
+		other: "{n} kritinių",
+	},
+	"admin.lage.warning": {
+		one: "{n} įspėjimas",
+		few: "{n} įspėjimai",
+		many: "{n} įspėjimo",
+		other: "{n} įspėjimų",
+	},
+	"admin.lage.early": {
+		one: "{n} pastaba",
+		few: "{n} pastabos",
+		many: "{n} pastabos",
+		other: "{n} pastabų",
+	},
+	"admin.lage.strava": "Strava, šiandien",
+	"admin.lage.cloudflare": "Cloudflare, būsena {date}",
+	"admin.lage.earlyLine": "virš dėmesio ribos {n}\u00a0%",
+	"admin.lage.day": "{table}: {date}",
+	"admin.lage.recheck.over24h": "Dviratininkai laukė ilgiau nei 24\u00a0val.",
+	"admin.lage.recheck.order": "Sąrašas netinkama tvarka",
+	"admin.lage.routing.missed": "Grėsęs praradimas",
+	"admin.lage.routing.possible": "Galimas praradimas",
+	"admin.lage.routing.everyone": "Per daug išsiųsta visoms komandoms",
+	"admin.lage.calls": "Užklausos nesutampa",
+	"admin.lage.cpu": "{owner}: paleidimai nutraukti",
+	"admin.lage.cpuLine": "šiandien nutraukta {cut} iš {runs}",
+	"admin.lage.team.stale": "{team} neatsakė",
+	"admin.lage.team.staleLine":
+		"Jos naujų skaičių nėra, kol ji vėl atsakys. Paskutinis atsakymas: {time} UTC.",
+	"admin.lage.team.never": "{team} dar niekada neatsakė",
+	"admin.lage.team.neverLine":
+		"Jos skaičių trūksta visose reikšmėse, kol ji atsakys.",
+	"admin.lage.device": "Negauni naudojimo įspėjimų",
+	"admin.lage.deviceLine": "Nė viename tavo įrenginyje neįjungti pranešimai.",
+	"admin.figure.of": "{used} iš {limit}",
+	"admin.figure.levels":
+		"Dėmesio nuo {early}\u00a0%, įspėjimas nuo {warning}\u00a0%, kritinis nuo {critical}\u00a0%.",
+	"admin.figure.levelsNoEarly":
+		"Įspėjimas nuo {warning}\u00a0%, kritinis nuo {critical}\u00a0%.",
+	"admin.figure.whose.team": "{team} {n}",
+	"admin.figure.whose.none": "{team}: skaičių nėra",
+	"admin.figure.whose.window": "tik ši komanda",
+	"admin.figure.whose.account": "visa paskyra",
+	"admin.strava.when": "šiandien, UTC",
+	"admin.cloudflare.when": "būsena {time} UTC",
+	"admin.strava.note":
+		"15 minučių skaičiuose kitų komandų užklausos laikomos nepriskirtomis: komandos nesikeičia šiais skaičiais.",
+	"admin.strava.quiet": "15 minučių skaičiai ties 0\u00a0% paslėpti.",
 	"admin.recheck.heading": "Važiavimų pakartotinis tikrinimas",
 	"admin.recheck.allowance":
 		"{allowance} patikrinimai per dieną šiai komandai · aktyvūs dviratininkai (su veikla per pastaruosius 30 dienų): {riders}",
@@ -1325,8 +1370,6 @@ export const lt: Catalog = {
 	"admin.calls.all": "Visos komandos",
 	"admin.calls.strava": "Strava",
 	"admin.calls.missing": "trūksta",
-	"admin.summary.calls": "Dienos su užklausų į Stravą įspėjimu: {n}",
-	"admin.summary.routing": "Dienos su šliuzo maršrutizavimo įspėjimu: {n}",
 	"admin.waiting.heading": "Laukiama Strava biudžeto",
 	"admin.waiting.body": {
 		one: "Laukia {n} užduotis, liko maždaug {time}.",
@@ -1360,8 +1403,6 @@ export const lt: Catalog = {
 		"Pranešimų apie naudojimą negauni. Šis puslapis skaičius vis tiek pažymi.",
 	"admin.alerts.turnOff": "Išjungti naudojimo įspėjimus",
 	"admin.alerts.turnOn": "Įjungti naudojimo įspėjimus",
-	"admin.alerts.noDevice":
-		"Įspėjimų negausi: nė viename tavo įrenginyje neįjungti pranešimai. Įjunk juos skiltyje {settings}.",
 	"admin.history.days": "Kiekviena diena",
 	"admin.history.hideDays": "Slėpti dienas",
 	"admin.history.none": "Dar nieko neužfiksuota. Fiksuojama kartą per valandą.",

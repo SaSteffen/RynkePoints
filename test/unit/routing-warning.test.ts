@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { RoutingCount } from "../../src/routing/figures";
-import { isWarningDay, routingDays } from "../../src/routing/warning";
+import {
+	isWarningDay,
+	routingDays,
+	routingWarnings,
+} from "../../src/routing/warning";
 
 // Feature 046 contracts/usage-view.md: the day table's rows and FR-025's mark.
 
@@ -66,5 +70,27 @@ describe("isWarningDay", () => {
 				c("2026-11-23", "", "copy", 50),
 			]),
 		).toBe(false);
+	});
+});
+
+describe("routingWarnings", () => {
+	it("names every reason a day is marked, for the usage list (feature 048)", () => {
+		const [day] = routingDays(
+			[
+				c("2026-11-23", "hamburg", "missed", 1),
+				c("2026-11-23", "europe", "possible", 1),
+				c("2026-11-23", "", "allRouting", 100),
+				c("2026-11-23", "", "allRoutingEveryone", 2),
+			],
+			"hamburg",
+		);
+		if (!day) throw new Error("no day");
+		expect(routingWarnings(day)).toEqual(["missed", "possible", "everyone"]);
+		const [quiet] = routingDays(
+			[c("2026-11-23", "hamburg", "dropped", 9)],
+			"hamburg",
+		);
+		if (!quiet) throw new Error("no day");
+		expect(routingWarnings(quiet)).toEqual([]);
 	});
 });

@@ -1237,8 +1237,6 @@ export const de = {
 	"admin.level.warning": "Warnung",
 	"admin.level.early": "Hinweis",
 	"admin.level.critical": "Kritisch",
-	"admin.summary.ok": "Alle Werte liegen unter 80\u00a0%.",
-	"admin.summary.attention": "Werte bei 80\u00a0% oder mehr: {n}",
 	"admin.figure.numbers": "{used} von {limit} · {percent}\u00a0%",
 	"admin.figure.split": "Dieses Team: {team} · Nicht zugeordnet: {rest}",
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
@@ -1246,23 +1244,12 @@ export const de = {
 	"admin.figure.rest": "Nicht zugeordnet: {n}",
 	"admin.figure.notSplit":
 		"Diese Zahl lässt sich noch nicht nach Teams aufteilen.",
-	"admin.figure.windowNote":
-		"Anfragen anderer Teams zählen hier als nicht zugeordnet: Die Teams tauschen ihre 15-Minuten-Zahlen nicht aus.",
-	"admin.teams.stale":
-		"{team}: keine Antwort bei der letzten Erfassung. Die Zahlen sind vom {time} UTC.",
 	"admin.teams.other": "Anderes Team",
 	"admin.teams.otherN": "Anderes Team {n}",
 	"admin.teams.shared": "Gemeinsam (Gateway)",
-	"admin.teams.never": "{team}: noch keine Antwort, daher fehlen die Zahlen.",
-	"admin.overview.heading": "Alle Teams",
-	"admin.overview.note":
-		"Heutige Zahlen, bei Cloudflare die des zuletzt erfassten Tages. Leere Zelle: keine Zahl.",
-	"admin.overview.figure": "Wert",
-	"admin.overview.rest": "Nicht zugeordnet",
-	"admin.overview.total": "Gesamt",
 	"admin.figure.seen": "Stand: {time} UTC",
 	"admin.figure.notSeen": "Noch nicht beobachtet",
-	"admin.figure.noValue": "Noch kein Wert. Limit: {limit}",
+	"admin.figure.noValue": "Noch kein Wert · Limit {limit}",
 	"admin.strava.heading": "Strava",
 	"admin.cloudflare.heading": "Cloudflare",
 	"admin.cloudflare.note":
@@ -1270,6 +1257,59 @@ export const de = {
 	"admin.cloudflare.unavailable":
 		"Cloudflares Werte sind gerade nicht verfügbar. Das hier sind die letzten bekannten.",
 	"admin.refresh": "Jetzt aktualisieren",
+	"admin.lage.heading": "Das braucht deinen Blick",
+	"admin.lage.calm": "Alles im Rahmen",
+	"admin.lage.calmLine":
+		"Kein Wert hat seine Hinweisgrenze erreicht, alle Teams haben geantwortet, nichts wartet. Stand: {time} UTC.",
+	"admin.lage.calmLineWaiting":
+		"Kein Wert hat seine Hinweisgrenze erreicht und alle Teams haben geantwortet. Stand: {time} UTC.",
+	"admin.lage.critical": {
+		one: "{n} kritisch",
+		other: "{n} kritisch",
+	},
+	"admin.lage.warning": {
+		one: "{n} Warnung",
+		other: "{n} Warnungen",
+	},
+	"admin.lage.early": {
+		one: "{n} Hinweis",
+		other: "{n} Hinweise",
+	},
+	"admin.lage.strava": "Strava, heute",
+	"admin.lage.cloudflare": "Cloudflare, Stand {date}",
+	"admin.lage.earlyLine": "über der Hinweisgrenze von {n}\u00a0%",
+	"admin.lage.day": "{table}: {date}",
+	"admin.lage.recheck.over24h": "Rider haben über 24 Stunden gewartet",
+	"admin.lage.recheck.order": "Liste in falscher Reihenfolge",
+	"admin.lage.routing.missed": "Drohender Verlust",
+	"admin.lage.routing.possible": "Möglicher Verlust",
+	"admin.lage.routing.everyone": "Zu viele Meldungen an alle Teams",
+	"admin.lage.calls": "Die Aufrufe gehen nicht auf",
+	"admin.lage.cpu": "{owner}: Läufe abgebrochen",
+	"admin.lage.cpuLine": "{cut} von {runs} heute",
+	"admin.lage.team.stale": "{team} hat nicht geantwortet",
+	"admin.lage.team.staleLine":
+		"Seine neuen Zahlen fehlen, bis es wieder antwortet. Letzte Antwort: {time} UTC.",
+	"admin.lage.team.never": "{team} hat noch nie geantwortet",
+	"admin.lage.team.neverLine":
+		"Seine Zahlen fehlen in allen Werten, bis es antwortet.",
+	"admin.lage.device": "Du bekommst keine Nutzungshinweise",
+	"admin.lage.deviceLine":
+		"Auf keinem deiner Geräte sind Benachrichtigungen an.",
+	"admin.figure.of": "{used} von {limit}",
+	"admin.figure.levels":
+		"Hinweis ab {early}\u00a0%, Warnung ab {warning}\u00a0%, kritisch ab {critical}\u00a0%.",
+	"admin.figure.levelsNoEarly":
+		"Warnung ab {warning}\u00a0%, kritisch ab {critical}\u00a0%.",
+	"admin.figure.whose.team": "{team} {n}",
+	"admin.figure.whose.none": "{team}: keine Zahlen",
+	"admin.figure.whose.window": "nur dieses Team",
+	"admin.figure.whose.account": "ganzes Konto",
+	"admin.strava.when": "heute, UTC",
+	"admin.cloudflare.when": "Stand {time} UTC",
+	"admin.strava.note":
+		"Bei den 15-Minuten-Werten zählen Anfragen anderer Teams als nicht zugeordnet: Die Teams tauschen diese Zahlen nicht aus.",
+	"admin.strava.quiet": "15-Minuten-Werte bei 0\u00a0% sind ausgeblendet.",
 	"admin.recheck.heading": "Nachprüfung der Fahrten",
 	"admin.recheck.allowance":
 		"{allowance} Prüfungen am Tag für dieses Team · {riders} aktive Rider (mit einer Aktivität in den letzten 30 Tagen)",
@@ -1332,8 +1372,6 @@ export const de = {
 	"admin.calls.all": "Alle Teams",
 	"admin.calls.strava": "Strava",
 	"admin.calls.missing": "fehlt",
-	"admin.summary.calls": "Tage mit Warnung bei den Strava-Aufrufen: {n}",
-	"admin.summary.routing": "Tage mit Warnung beim Gateway-Routing: {n}",
 	"admin.waiting.heading": "Warten auf das Strava-Budget",
 	"admin.waiting.body": {
 		one: "{n} Eintrag wartet, fertig in etwa {time}.",
@@ -1350,8 +1388,6 @@ export const de = {
 		"Du bekommst keine Benachrichtigungen zur Nutzung. Diese Seite markiert die Zahlen weiter.",
 	"admin.alerts.turnOff": "Nutzungshinweise ausschalten",
 	"admin.alerts.turnOn": "Nutzungshinweise einschalten",
-	"admin.alerts.noDevice":
-		"Du bekommst keine Hinweise: Auf keinem deiner Geräte sind Benachrichtigungen an. Du kannst sie unter {settings} einschalten.",
 	"admin.history.days": "Alle Tage",
 	"admin.history.hideDays": "Tage ausblenden",
 	"admin.history.none":

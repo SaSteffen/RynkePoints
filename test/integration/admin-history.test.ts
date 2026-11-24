@@ -30,19 +30,19 @@ async function page(query = "") {
 	return res.text();
 }
 
-/** An allowance's card, by its German name. */
+/** An allowance's row, by its name's key (feature 048 US3). */
 function card(text: string, id: keyof typeof de): string {
-	return (
-		text
-			.split('<li class="usage-figure')
-			.slice(1)
-			.find((item) => item.includes(`>${de[id]}<`)) ?? `missing ${String(id)}`
-	);
+	const start = text.indexOf(`<li id="${id.replace("admin.allowance.", "")}"`);
+	return start === -1
+		? `missing ${String(id)}`
+		: text.slice(start, text.indexOf("</li>", start));
 }
 
-/** Every allowance's card, without the overview table above them. */
+/** Every allowance's row, without the list above them. */
 function figures(text: string): string {
-	return text.split('<li class="usage-figure').slice(1).join("");
+	return text.slice(
+		text.indexOf('<section class="settings-section" id="strava"'),
+	);
 }
 
 const READS = "admin.allowance.strava_read_daily";

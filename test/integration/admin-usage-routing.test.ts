@@ -143,12 +143,29 @@ describe("the Gateway routing section", () => {
 		expect(first?.[0]).toBe("23.11.2026 Warnung");
 		expect(second?.[0]).toBe("22.11.2026 Warnung");
 		expect(third?.[0]).toBe("21.11.2026");
-		expect(text).toContain("Tage mit Warnung beim Gateway-Routing: 2");
+		// Feature 048: today's and yesterday's marked days are in the list.
+		expect(text).toContain(
+			'<a class="settings-row" href="#routing"><span class="settings-icon lvl-warning">',
+		);
+		expect(text).toContain(
+			'Gateway-Routing: 23.11.2026</span><span class="settings-sub">Drohender Verlust</span>',
+		);
+		expect(text).toContain(
+			'Gateway-Routing: 22.11.2026</span><span class="settings-sub">Zu viele Meldungen an alle Teams</span>',
+		);
+		expect(text).toContain(">2 Warnungen<");
 	});
 
-	it("shows no summary line without a marked day", async () => {
+	it("leaves a day marked before yesterday out of the list (feature 048)", async () => {
+		await count("2026-11-21", "hamburg", "missed", 1);
+		const text = await page();
+		expect(rows(text)[0]?.[0]).toBe("21.11.2026 Warnung");
+		expect(text).not.toContain('href="#routing"');
+	});
+
+	it("lists no day without a mark", async () => {
 		await count("2026-11-23", "", "copy", 10);
-		expect(await page()).not.toContain("Tage mit Warnung");
+		expect(await page()).not.toContain('href="#routing"');
 	});
 
 	it("is there in every language", async () => {

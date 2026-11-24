@@ -1196,31 +1196,18 @@ export const en: Catalog = {
 	"admin.level.warning": "Warning",
 	"admin.level.early": "Heads-up",
 	"admin.level.critical": "Critical",
-	"admin.summary.ok": "All figures are below 80\u00a0%.",
-	"admin.summary.attention": "Figures at 80\u00a0% or above: {n}",
 	"admin.figure.numbers": "{used} of {limit} · {percent}\u00a0%",
 	"admin.figure.split": "This team: {team} · Not attributed: {rest}",
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: no figures yet",
 	"admin.figure.rest": "Not attributed: {n}",
 	"admin.figure.notSplit": "This figure can't be split by team yet.",
-	"admin.figure.windowNote":
-		"Other teams' requests count as not attributed here: teams don't exchange their 15-minute counts.",
-	"admin.teams.stale":
-		"{team}: no answer at the last recording. Its figures are from {time} UTC.",
 	"admin.teams.other": "Other team",
 	"admin.teams.otherN": "Other team {n}",
 	"admin.teams.shared": "Shared (gateway)",
-	"admin.teams.never": "{team}: no answer yet, so its figures are missing.",
-	"admin.overview.heading": "All teams",
-	"admin.overview.note":
-		"Today's counts; Cloudflare's for their latest recorded day. An empty cell has no figure.",
-	"admin.overview.figure": "Figure",
-	"admin.overview.rest": "Not attributed",
-	"admin.overview.total": "Overall",
 	"admin.figure.seen": "As of {time} UTC",
 	"admin.figure.notSeen": "Not observed yet",
-	"admin.figure.noValue": "No value yet. Limit: {limit}",
+	"admin.figure.noValue": "No value yet · limit {limit}",
 	"admin.strava.heading": "Strava",
 	"admin.cloudflare.heading": "Cloudflare",
 	"admin.cloudflare.note":
@@ -1228,6 +1215,58 @@ export const en: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflare's figures are unavailable right now. These are the last known values.",
 	"admin.refresh": "Update now",
+	"admin.lage.heading": "Needs your attention",
+	"admin.lage.calm": "All within limits",
+	"admin.lage.calmLine":
+		"No figure has reached its heads-up threshold, every team answered, nothing is waiting. As of {time} UTC.",
+	"admin.lage.calmLineWaiting":
+		"No figure has reached its heads-up threshold and every team answered. As of {time} UTC.",
+	"admin.lage.critical": {
+		one: "{n} critical",
+		other: "{n} critical",
+	},
+	"admin.lage.warning": {
+		one: "{n} warning",
+		other: "{n} warnings",
+	},
+	"admin.lage.early": {
+		one: "{n} heads-up",
+		other: "{n} heads-ups",
+	},
+	"admin.lage.strava": "Strava, today",
+	"admin.lage.cloudflare": "Cloudflare, as of {date}",
+	"admin.lage.earlyLine": "past its heads-up threshold of {n}\u00a0%",
+	"admin.lage.day": "{table}: {date}",
+	"admin.lage.recheck.over24h": "Riders waited over 24 hours",
+	"admin.lage.recheck.order": "List in the wrong order",
+	"admin.lage.routing.missed": "Would-be miss",
+	"admin.lage.routing.possible": "Possible miss",
+	"admin.lage.routing.everyone": "Too many events sent to every team",
+	"admin.lage.calls": "The calls don't add up",
+	"admin.lage.cpu": "{owner}: runs cut off",
+	"admin.lage.cpuLine": "{cut} of {runs} today",
+	"admin.lage.team.stale": "{team} didn't answer",
+	"admin.lage.team.staleLine":
+		"Its new figures are missing until it answers again. Last answer: {time} UTC.",
+	"admin.lage.team.never": "{team} has never answered",
+	"admin.lage.team.neverLine":
+		"Its figures are missing from every value until it answers.",
+	"admin.lage.device": "You get no usage alerts",
+	"admin.lage.deviceLine": "None of your devices has notifications on.",
+	"admin.figure.of": "{used} of {limit}",
+	"admin.figure.levels":
+		"Heads-up from {early}\u00a0%, warning from {warning}\u00a0%, critical from {critical}\u00a0%.",
+	"admin.figure.levelsNoEarly":
+		"Warning from {warning}\u00a0%, critical from {critical}\u00a0%.",
+	"admin.figure.whose.team": "{team} {n}",
+	"admin.figure.whose.none": "{team}: no figures",
+	"admin.figure.whose.window": "this team only",
+	"admin.figure.whose.account": "whole account",
+	"admin.strava.when": "today, UTC",
+	"admin.cloudflare.when": "as of {time} UTC",
+	"admin.strava.note":
+		"In the 15-minute figures, other teams' requests count as not attributed: teams don't exchange these counts.",
+	"admin.strava.quiet": "15-minute figures at 0\u00a0% are hidden.",
 	"admin.recheck.heading": "Ride re-check",
 	"admin.recheck.allowance":
 		"{allowance} checks a day for this team · {riders} active riders (with an activity in the last 30 days)",
@@ -1286,8 +1325,6 @@ export const en: Catalog = {
 	"admin.calls.all": "All teams",
 	"admin.calls.strava": "Strava",
 	"admin.calls.missing": "missing",
-	"admin.summary.calls": "Strava call days with a warning: {n}",
-	"admin.summary.routing": "Gateway routing days with a warning: {n}",
 	"admin.waiting.heading": "Waiting for the Strava budget",
 	"admin.waiting.body": {
 		one: "{n} item is waiting, done in about {time}.",
@@ -1304,8 +1341,6 @@ export const en: Catalog = {
 		"You get no notifications about usage. This page still marks the figures.",
 	"admin.alerts.turnOff": "Turn off usage alerts",
 	"admin.alerts.turnOn": "Turn on usage alerts",
-	"admin.alerts.noDevice":
-		"You won't get alerts: none of your devices has notifications on. Turn them on in {settings}.",
 	"admin.history.days": "Every day",
 	"admin.history.hideDays": "Hide days",
 	"admin.history.none": "Nothing recorded yet. Recording runs once an hour.",

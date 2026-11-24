@@ -1191,31 +1191,18 @@ export const nb: Catalog = {
 	"admin.level.warning": "Advarsel",
 	"admin.level.early": "Obs",
 	"admin.level.critical": "Kritisk",
-	"admin.summary.ok": "Alle tall er under 80 %.",
-	"admin.summary.attention": "Tall på 80 % eller mer: {n}",
 	"admin.figure.numbers": "{used} av {limit} · {percent} %",
 	"admin.figure.split": "Dette laget: {team} · Ikke tilordnet: {rest}",
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: ingen tall ennå",
 	"admin.figure.rest": "Ikke tilordnet: {n}",
 	"admin.figure.notSplit": "Dette tallet kan ikke fordeles på lag ennå.",
-	"admin.figure.windowNote":
-		"Andre lags forespørsler telles her som ikke tilordnet: lagene utveksler ikke 15-minuttstallene sine.",
-	"admin.teams.stale":
-		"{team}: ikke svar ved siste registrering. Tallene er fra {time} UTC.",
 	"admin.teams.other": "Annet lag",
 	"admin.teams.otherN": "Annet lag {n}",
 	"admin.teams.shared": "Felles (gateway)",
-	"admin.teams.never": "{team}: ikke svar ennå, så tallene mangler.",
-	"admin.overview.heading": "Alle lag",
-	"admin.overview.note":
-		"Dagens tall; for Cloudflare den sist registrerte dagens. En tom celle har ikke noe tall.",
-	"admin.overview.figure": "Tall",
-	"admin.overview.rest": "Ikke tilordnet",
-	"admin.overview.total": "Totalt",
 	"admin.figure.seen": "Per {time} UTC",
 	"admin.figure.notSeen": "Ikke observert ennå",
-	"admin.figure.noValue": "Ingen verdi ennå. Grense: {limit}",
+	"admin.figure.noValue": "Ingen verdi ennå · grense {limit}",
 	"admin.strava.heading": "Strava",
 	"admin.cloudflare.heading": "Cloudflare",
 	"admin.cloudflare.note":
@@ -1223,6 +1210,58 @@ export const nb: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflares tall er ikke tilgjengelige akkurat nå. Dette er de sist kjente verdiene.",
 	"admin.refresh": "Oppdater nå",
+	"admin.lage.heading": "Trenger din oppmerksomhet",
+	"admin.lage.calm": "Alt innenfor rammene",
+	"admin.lage.calmLine":
+		"Ingen tall har nådd obs-grensen sin, alle lag har svart, ingenting venter. Per {time} UTC.",
+	"admin.lage.calmLineWaiting":
+		"Ingen tall har nådd obs-grensen sin, og alle lag har svart. Per {time} UTC.",
+	"admin.lage.critical": {
+		one: "{n} kritisk",
+		other: "{n} kritiske",
+	},
+	"admin.lage.warning": {
+		one: "{n} advarsel",
+		other: "{n} advarsler",
+	},
+	"admin.lage.early": {
+		one: "{n} obs",
+		other: "{n} obs",
+	},
+	"admin.lage.strava": "Strava, i dag",
+	"admin.lage.cloudflare": "Cloudflare, per {date}",
+	"admin.lage.earlyLine": "over obs-grensen på {n}\u00a0%",
+	"admin.lage.day": "{table}: {date}",
+	"admin.lage.recheck.over24h": "Ryttere har ventet over 24 timer",
+	"admin.lage.recheck.order": "Listen i feil rekkefølge",
+	"admin.lage.routing.missed": "Truende tap",
+	"admin.lage.routing.possible": "Mulig tap",
+	"admin.lage.routing.everyone": "For mye sendt til alle lag",
+	"admin.lage.calls": "Kallene går ikke opp",
+	"admin.lage.cpu": "{owner}: kjøringer avbrutt",
+	"admin.lage.cpuLine": "{cut} av {runs} i dag",
+	"admin.lage.team.stale": "{team} har ikke svart",
+	"admin.lage.team.staleLine":
+		"Lagets nye tall mangler til det svarer igjen. Siste svar: {time} UTC.",
+	"admin.lage.team.never": "{team} har aldri svart",
+	"admin.lage.team.neverLine":
+		"Lagets tall mangler i alle verdier til det svarer.",
+	"admin.lage.device": "Du får ingen bruksvarsler",
+	"admin.lage.deviceLine": "Ingen av enhetene dine har varsler på.",
+	"admin.figure.of": "{used} av {limit}",
+	"admin.figure.levels":
+		"Obs fra {early}\u00a0%, advarsel fra {warning}\u00a0%, kritisk fra {critical}\u00a0%.",
+	"admin.figure.levelsNoEarly":
+		"Advarsel fra {warning}\u00a0%, kritisk fra {critical}\u00a0%.",
+	"admin.figure.whose.team": "{team} {n}",
+	"admin.figure.whose.none": "{team}: ingen tall",
+	"admin.figure.whose.window": "bare dette laget",
+	"admin.figure.whose.account": "hele kontoen",
+	"admin.strava.when": "i dag, UTC",
+	"admin.cloudflare.when": "per {time} UTC",
+	"admin.strava.note":
+		"I 15-minuttstallene telles andre lags forespørsler som ikke tilordnet: lagene utveksler ikke disse tallene.",
+	"admin.strava.quiet": "15-minuttstall på 0\u00a0% er skjult.",
 	"admin.recheck.heading": "Ny kontroll av turer",
 	"admin.recheck.allowance":
 		"{allowance} kontroller om dagen for dette laget · {riders} aktive ryttere (med en aktivitet de siste 30 dagene)",
@@ -1284,8 +1323,6 @@ export const nb: Catalog = {
 	"admin.calls.all": "Alle lag",
 	"admin.calls.strava": "Strava",
 	"admin.calls.missing": "mangler",
-	"admin.summary.calls": "Dager med advarsel i kallene til Strava: {n}",
-	"admin.summary.routing": "Dager med advarsel i gateway-rutingen: {n}",
 	"admin.waiting.heading": "Venter på Strava-budsjettet",
 	"admin.waiting.body": {
 		one: "{n} oppføring venter, ferdig om omtrent {time}.",
@@ -1302,8 +1339,6 @@ export const nb: Catalog = {
 		"Du får ingen varsler om bruk. Denne siden markerer fortsatt tallene.",
 	"admin.alerts.turnOff": "Slå av bruksvarsler",
 	"admin.alerts.turnOn": "Slå på bruksvarsler",
-	"admin.alerts.noDevice":
-		"Du får ingen varsler: ingen av enhetene dine har varsler på. Slå dem på under {settings}.",
 	"admin.history.days": "Hver dag",
 	"admin.history.hideDays": "Skjul dager",
 	"admin.history.none":
