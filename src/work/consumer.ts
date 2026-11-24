@@ -4,6 +4,7 @@ import { deleteRider, getRider, markNeedsReconnect } from "../db/riders";
 import { storeWork } from "../db/strava-work";
 import { countEvent } from "../routing/counts";
 import { queueReport, sendReport } from "../routing/report";
+import { actionOf } from "../strava/calls";
 import { backoffSeconds, MAX_DELAY_SECONDS } from "../strava/rate-limit";
 import { drain } from "./drain";
 import {
@@ -130,7 +131,9 @@ async function processMessage(
 	};
 	let result: HandlerResult;
 	try {
-		result = await handler(body, rider, ctx, attempt);
+		// Its Strava calls count under the message's action (feature 047 R1).
+		const working = { ...ctx, stravaAction: actionOf(body) };
+		result = await handler(body, rider, working, attempt);
 	} catch (err) {
 		// Only the error name: messages may quote SQL or other internals.
 		result = { kind: "transient", reason: `exception: ${errorName(err)}` };

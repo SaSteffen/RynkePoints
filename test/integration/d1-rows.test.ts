@@ -350,11 +350,17 @@ describe("rows written by the ride edit re-check (feature 036)", () => {
 			isLastAttempt: false,
 		});
 		expect(fake.callsTo("activities")).toHaveLength(1);
+		// The rate-limit row and the call's count (feature 047), no rider row.
 		expect(
 			counter
 				.statements()
-				.filter((sql) => /^\s*(INSERT|UPDATE|DELETE)/i.test(sql)),
-		).toEqual([expect.stringMatching(/^UPDATE strava_rate_limit/)]);
-		expect(counter.written()).toBe(1);
+				.filter((sql) => /^\s*(INSERT|UPDATE|DELETE)/i.test(sql))
+				.sort(),
+		).toEqual([
+			expect.stringMatching(/^INSERT INTO strava_calls_daily/),
+			expect.stringMatching(/^INSERT INTO strava_seen_daily/),
+			expect.stringMatching(/^UPDATE strava_rate_limit/),
+		]);
+		expect(counter.written()).toBe(3);
 	});
 });

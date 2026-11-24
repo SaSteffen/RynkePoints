@@ -1,5 +1,6 @@
 import { readRateLimitState } from "../db/rate-limit";
 import type { StravaActivity } from "./activity";
+import type { StravaEndpoint } from "./calls";
 import { isStravaId, parseStravaJson } from "./id";
 import {
 	budgetDecision,
@@ -7,6 +8,7 @@ import {
 	type Priority,
 } from "./rate-limit";
 import {
+	countRefused,
 	STRAVA_ORIGIN,
 	type StravaCtx,
 	type StravaResult,
@@ -29,12 +31,13 @@ const MAX_CLUB_PAGES = 20;
 
 /**
  * Calls are `background` (the queue's work) unless a person waits for them on
- * a page; background work leaves a reserve for those (feature 024 R5).
+ * a page; background work leaves a reserve for those (feature 024 R5). A call
+ * the budget refuses counts as held back (feature 047 FR-005).
  */
 async function apiGet<T>(
 	ctx: StravaCtx,
 	auth: StravaAuth,
-	endpoint: string,
+	endpoint: StravaEndpoint,
 	path: string,
 	priority: Priority = "background",
 	read: (res: Response) => Promise<T | null> = (res) =>
@@ -45,7 +48,10 @@ async function apiGet<T>(
 		ctx.now(),
 		priority,
 	);
-	if (!budget.ok) return { kind: "budget", delaySeconds: budget.delaySeconds };
+	if (!budget.ok) {
+		await countRefused(ctx, endpoint);
+		return { kind: "budget", delaySeconds: budget.delaySeconds };
+	}
 
 	const call = (token: string) =>
 		stravaFetch(ctx, endpoint, `${STRAVA_ORIGIN}${path}`, {

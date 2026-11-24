@@ -20,6 +20,7 @@ import {
 } from "../db/riders";
 import { pruneRoutingCounts } from "../db/routing";
 import { listRidersNeedingEvaluation } from "../db/rynke";
+import { pruneStravaCalls } from "../db/strava-calls";
 import { pruneUsageAlerts, pruneUsageHistory } from "../db/usage";
 import { exchangeRoutingCounts, sendFullList } from "../routing/report";
 import {
@@ -28,6 +29,7 @@ import {
 	currentRules,
 } from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
+import { firstCallDay } from "../strava/calls";
 import { settleWithdrawals } from "../strava/withdraw";
 import { daysBefore, historyStart, utcDay } from "../usage/allowances";
 import { recordUsage } from "../usage/record";
@@ -219,13 +221,15 @@ export async function fanOutEvaluations(ctx: Ctx): Promise<void> {
 
 /**
  * Usage days past 13 months, and alert rows past 2 days (025 data-model.md);
- * the re-check's days with the usage history (feature 036).
+ * the re-check's days with the usage history (feature 036); the Strava call
+ * counts past 30 days (feature 047 FR-017).
  */
 export async function pruneUsage(ctx: Ctx): Promise<void> {
 	const today = utcDay(ctx.now());
 	await pruneUsageHistory(ctx.env.DB, historyStart(today));
 	await pruneRecheckDays(ctx.env.DB, historyStart(today));
 	await pruneUsageAlerts(ctx.env.DB, daysBefore(today, 2));
+	await pruneStravaCalls(ctx.env.DB, firstCallDay(today));
 	// Gateway routing's counts keep 30 days (feature 046 FR-026).
 	await pruneRoutingCounts(ctx.env.DB, today);
 }
@@ -276,7 +280,8 @@ export async function handleScheduled(
 		// Everyone held now, so the gateway's copy matches within a day
 		// (feature 046 FR-006).
 		sendFullList,
-		settleWithdrawals,
+		// Giving access back is leaving (feature 047 research R2).
+		(ctx) => settleWithdrawals({ ...ctx, stravaAction: "leave" }),
 		requeueFailedWork,
 		fanOutFiguresReread,
 		purgePreSeasonActivities,

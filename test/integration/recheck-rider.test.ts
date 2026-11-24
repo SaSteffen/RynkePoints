@@ -130,8 +130,9 @@ beforeEach(async () => {
 afterEach(() => fake.restore());
 
 describe("a check that is made", () => {
-	// The request's usage headers update the app's one rate-limit row, as for
-	// every Strava read; nothing of the rider is written (FR-007).
+	// The request's usage headers update the app's one rate-limit row, and the
+	// call is counted (feature 047), as for every Strava read; nothing of the
+	// rider is written (FR-007).
 	it("makes exactly one request and writes nothing when nothing changed", async () => {
 		await stored(makeStravaActivity({ id: "1" }), pausedRide("2"));
 		const { ctx: counted, counter } = countRows(ctx);
@@ -142,12 +143,17 @@ describe("a check that is made", () => {
 			isLastAttempt: false,
 		});
 		expect(fake.callsTo("activities")).toHaveLength(1);
-		expect(counter.written()).toBe(1);
+		expect(counter.written()).toBe(3);
 		expect(
 			counter
 				.statements()
-				.filter((sql) => /^\s*(INSERT|UPDATE|DELETE)/i.test(sql)),
-		).toEqual([expect.stringMatching(/^UPDATE strava_rate_limit/)]);
+				.filter((sql) => /^\s*(INSERT|UPDATE|DELETE)/i.test(sql))
+				.sort(),
+		).toEqual([
+			expect.stringMatching(/^INSERT INTO strava_calls_daily/),
+			expect.stringMatching(/^INSERT INTO strava_seen_daily/),
+			expect.stringMatching(/^UPDATE strava_rate_limit/),
+		]);
 		expect(await stamp()).toBe(STAMP);
 		expect(await day()).toBeNull();
 	});
