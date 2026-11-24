@@ -13,6 +13,13 @@ English sentences for the administrators, without formatting or links, and
 name no team, place or rider: every team shows the same list.
 -->
 
+## 1.2.0
+
+- The Admin tab now opens on Riders and Roles.
+- The usage view shows how much CPU time the app used each day, against the free allowance.
+- With more than one team on the same Strava app, each new or changed ride from Strava now reaches only the teams the rider belongs to.
+- Rides from before the season are found faster.
+
 ## 1.1.0
 
 - The admin view's Riders tab is now Riders and Roles. Administrators give and take the Orga and Admin roles there; an administrator is always in the Orga too, and nobody changes their own role.
