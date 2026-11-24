@@ -11,8 +11,8 @@ One row per UTC day, newest first, at most 30 (today included). Columns:
 |---|---|
 | Day | date, linked to `?calls=<day>#strava-calls`; the mark after it |
 | This team | calls |
-| Another team | peers' calls together; "fehlt" (missing) when a peer's day is missing; empty without peers or before a peer's first day |
-| All teams | sum, empty when something is missing |
+| Another team | peers' calls together; "fehlt" (missing) when a peer's day is missing; empty before a peer's first day. Left out without peers; "Andere Teams" with more than one |
+| All teams | sum, empty when something is missing. Left out without peers |
 | Strava | Strava's count (highest any team saw); empty when unknown |
 | Held back | this team's held-back calls |
 
@@ -23,7 +23,8 @@ re-check section does.
 
 `<span class="usage-mark usage-mark-warning">Warnung</span>` after the date, on a
 finished day by [data-model.md](../data-model.md) › Derived. Today is never marked.
-The summary at the top counts marked days next to the figures that aren't ok.
+The summary at the top counts marked days in a line of their own, like gateway
+routing's days with a warning.
 
 ## Breakdown
 
