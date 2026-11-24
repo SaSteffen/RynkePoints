@@ -166,14 +166,15 @@ maintainers with access to the Cloudflare account can reach it.
 
 | Value | What the gateway does |
 |---|---|
-| `off` (shipped) | Sends every event to every team, as before. Keeps no copy: reports are answered `404`, and the first full list empties the copy. |
-| `trial` | Chooses the teams for each event, but still sends it to every team, marked chosen or not. Teams count would-be misses. |
+| `off` | Sends every event to every team, as before. Keeps no copy: reports are answered `404`, and the first full list empties the copy. |
+| `trial` (shipped) | Chooses the teams for each event, but still sends it to every team, marked chosen or not. Teams count would-be misses. |
 | `on` | Sends each event only to the chosen teams. |
 
 Going live:
 
-1. With the privacy notice live on every team, set `trial`. Within a day every team has sent
-   its full list.
+1. The trial ships with this feature. The copy fills only from the teams' reports and full
+   lists, which come with the same team release as the privacy notice, so nobody is kept
+   before their team's notice says so. Within a day every team has sent its full list.
 2. Watch Admin › Usage › **Gateway routing** on every team for at least 14 days in a row
    without a would-be miss (no day with the warning mark for a would-be miss).
 3. After the move to the Workers paid plan, set `on`.

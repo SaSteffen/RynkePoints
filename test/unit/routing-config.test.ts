@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { parseJsonc } from "../../scripts/team-check.mjs";
 
-// Feature 046 FR-017, FR-018, research R1, R2: routing ships switched off and
-// in the EU; local development runs the local gateway with routing and its
+// Feature 046 FR-017, FR-018, research R1, R2: routing ships as the trial,
+// which still sends every event to every team, and in the EU; local development runs the local gateway with routing and its
 // own copy.
 
 // `import.meta.glob` is declared in test/unit/dev-guard.test.ts.
@@ -29,8 +29,8 @@ const config = parseJsonc(GATEWAY) as {
 };
 
 describe("the gateway's routing settings", () => {
-	it("ship routing off", () => {
-		expect(config.vars.ROUTING).toBe("off");
+	it("ship the trial, never routing itself", () => {
+		expect(config.vars.ROUTING).toBe("trial");
 	});
 
 	it("never let production skip the EU jurisdiction", () => {

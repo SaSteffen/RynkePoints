@@ -25,7 +25,7 @@ consistent and with no EU guarantee.
 ## R2 The one setting
 
 **Decision**: The gateway var `ROUTING`: `off`, `trial` or `on`. Missing or anything else counts as
-`off`. The repository ships `off`.
+`off`. The repository ships `trial`.
 
 - `off`: today's broadcast. No lookup, no mark. Reports are answered `404`, as by a gateway
   without this feature. A full list empties the whole copy and is answered `404`, so switching to
@@ -38,14 +38,17 @@ The figures exchange works in every mode, so the re-check's baseline (FR-023) is
 the trial.
 
 **Rationale**: FR-018 wants one gateway setting between trial and routing, and routing must ship
-switched off. A third value lets the release ship without the gateway keeping anything: when the
-copy starts is the maintainers' step (set `trial` after the privacy notice is live), and the
-baseline before the trial needs a time without it. Changing the var is a pull request that
+switched off. The trial still sends every event to every team, so shipping it changes no
+delivery, and the re-check's baseline (FR-023) means the same in the trial as before it. The copy
+fills only from the teams' reports and full lists, which arrive with the same team release as the
+privacy notice (FR-014), so the gateway keeps nobody before their team's notice says so. `off`
+stays as the way back: it empties the copy within a day. Changing the var is a pull request that
 touches only `gateway/`, which deploys only the gateway.
 
-**Alternatives**: Two values (`trial`, `on`) shipping `trial`: the gateway would keep the copy from
-the first deploy and the baseline would start with the trial. A secret instead of a var: invisible
-in the repository, and the mode is no secret.
+**Alternatives**: Shipping `off` and setting `trial` by hand after the release: one more step that
+buys nothing, since the trial changes no delivery. Two values (`trial`, `on`): no way back to
+keeping nothing. A secret instead of a var: invisible in the repository, and the mode is no
+secret.
 
 ## R3 Choosing the teams within the acknowledgement
 

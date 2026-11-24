@@ -10,8 +10,8 @@ The gateway keeps a copy of which teams hold which athletes, in one SQLite Durab
 EU, and uses it to send each Strava event only to the teams that hold its athlete, plus every
 team that isn't routing; anything unknown or unreadable goes to every team. Teams keep the copy
 current with a queued report after each stored or deleted person and a full list in their daily
-run. One gateway var, `ROUTING`, switches between `off` (shipped: today's broadcast, nothing
-kept), `trial` (choose and mark, still send to all) and `on`. Teams count would-be misses, wasted
+run. One gateway var, `ROUTING`, switches between `off` (today's broadcast, nothing kept), `trial`
+(shipped: choose and mark, still send to all) and `on`. Teams count would-be misses, wasted
 deliveries, drops and the re-check's finds; the gateway counts its choices and the full lists'
 corrections. The hourly recording exchanges the counts through the gateway into each team's D1,
 and the admin usage view shows a 30-day table with warning marks. The privacy notice gains one

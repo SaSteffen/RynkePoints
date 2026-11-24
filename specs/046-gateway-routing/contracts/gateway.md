@@ -8,7 +8,7 @@ the team question (`/teams/<id>/held`) and let-go stay as they are and never rea
 
 | Name | Kind | Value |
 |---|---|---|
-| `ROUTING` | var | `off` (shipped; also when missing or unknown), `trial`, `on` (research R2) |
+| `ROUTING` | var | `off` (also when missing or unknown), `trial` (shipped), `on` (research R2) |
 | `ROUTING_COPY` | Durable Object binding | class `RoutingCopy`, used through `jurisdiction("eu")`, instance `copy` |
 
 ## Events: `POST /strava/webhook/<verify token>`
