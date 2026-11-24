@@ -5,6 +5,7 @@ import {
 	type StravaAction,
 	type StravaEndpoint,
 } from "../strava/calls";
+import { CALL_ALLOWANCES } from "../usage/allowances";
 import { isOneOf } from "../work/messages";
 
 // This team's Strava calls per UTC day (feature 047 data-model.md): calls and
@@ -110,7 +111,10 @@ export async function readCalls(
 	};
 }
 
-/** Deletes the days before `firstKept` (FR-017). */
+/**
+ * Deletes the days before `firstKept`, the other teams' call totals with them;
+ * their other counts keep 13 months (FR-017).
+ */
 export async function pruneStravaCalls(
 	db: D1Database,
 	firstKept: string,
@@ -118,5 +122,11 @@ export async function pruneStravaCalls(
 	await db.batch([
 		db.prepare("DELETE FROM strava_calls_daily WHERE day < ?").bind(firstKept),
 		db.prepare("DELETE FROM strava_seen_daily WHERE day < ?").bind(firstKept),
+		db
+			.prepare(
+				`DELETE FROM usage_team_daily WHERE day < ?
+				AND allowance IN (${CALL_ALLOWANCES.map(() => "?").join(", ")})`,
+			)
+			.bind(firstKept, ...CALL_ALLOWANCES),
 	]);
 }

@@ -1,5 +1,6 @@
 import { teamId } from "../config";
 import {
+	type CallAllowance,
 	CLOUDFLARE_ALLOWANCES,
 	type CloudflareAllowance,
 	type RecordedAllowance,
@@ -173,7 +174,7 @@ export function ownCountsStatement(
 
 export interface TeamCountRecord {
 	day: string;
-	allowance: RecordedAllowance;
+	allowance: RecordedAllowance | CallAllowance;
 	team: string;
 	used: number;
 	recordedAt: number;
@@ -215,7 +216,7 @@ export function teamCountRecords(rows: readonly unknown[]): TeamCountRecord[] {
 	return (
 		rows as {
 			day: string;
-			allowance: RecordedAllowance;
+			allowance: TeamCountRecord["allowance"];
 			team: string;
 			used: number;
 			recorded_at: number;

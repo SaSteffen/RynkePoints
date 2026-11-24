@@ -1328,6 +1328,10 @@ export const de = {
 	"admin.calls.endpoint.activities": "Aktivitätenliste",
 	"admin.calls.endpoint.token": "Token holen oder erneuern",
 	"admin.calls.endpoint.revoke": "Token widerrufen",
+	"admin.calls.all": "Alle Teams",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "fehlt",
+	"admin.summary.calls": "Tage mit Warnung bei den Strava-Aufrufen: {n}",
 	"admin.summary.routing": "Tage mit Warnung beim Gateway-Routing: {n}",
 	"admin.waiting.heading": "Warten auf das Strava-Budget",
 	"admin.waiting.body": {

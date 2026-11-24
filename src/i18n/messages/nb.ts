@@ -1280,6 +1280,10 @@ export const nb: Catalog = {
 	"admin.calls.endpoint.activities": "Aktivitetsliste",
 	"admin.calls.endpoint.token": "Hente eller fornye token",
 	"admin.calls.endpoint.revoke": "Trekke tilbake token",
+	"admin.calls.all": "Alle lag",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "mangler",
+	"admin.summary.calls": "Dager med advarsel i kallene til Strava: {n}",
 	"admin.summary.routing": "Dager med advarsel i gateway-rutingen: {n}",
 	"admin.waiting.heading": "Venter på Strava-budsjettet",
 	"admin.waiting.body": {

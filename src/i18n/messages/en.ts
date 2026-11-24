@@ -1282,6 +1282,10 @@ export const en: Catalog = {
 	"admin.calls.endpoint.activities": "Activity list",
 	"admin.calls.endpoint.token": "Get or refresh a token",
 	"admin.calls.endpoint.revoke": "Revoke a token",
+	"admin.calls.all": "All teams",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "missing",
+	"admin.summary.calls": "Strava call days with a warning: {n}",
 	"admin.summary.routing": "Gateway routing days with a warning: {n}",
 	"admin.waiting.heading": "Waiting for the Strava budget",
 	"admin.waiting.body": {

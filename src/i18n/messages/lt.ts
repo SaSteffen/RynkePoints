@@ -1321,6 +1321,10 @@ export const lt: Catalog = {
 	"admin.calls.endpoint.activities": "Veiklų sąrašas",
 	"admin.calls.endpoint.token": "Gauti ar atnaujinti žetoną",
 	"admin.calls.endpoint.revoke": "Atšaukti žetoną",
+	"admin.calls.all": "Visos komandos",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "trūksta",
+	"admin.summary.calls": "Dienos su užklausų į Stravą įspėjimu: {n}",
 	"admin.summary.routing": "Dienos su šliuzo maršrutizavimo įspėjimu: {n}",
 	"admin.waiting.heading": "Laukiama Strava biudžeto",
 	"admin.waiting.body": {

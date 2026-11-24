@@ -1299,6 +1299,11 @@ export const nl: Catalog = {
 	"admin.calls.endpoint.activities": "Activiteitenlijst",
 	"admin.calls.endpoint.token": "Token ophalen of vernieuwen",
 	"admin.calls.endpoint.revoke": "Token intrekken",
+	"admin.calls.all": "Alle teams",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "ontbreekt",
+	"admin.summary.calls":
+		"Dagen met een waarschuwing bij de aanroepen naar Strava: {n}",
 	"admin.summary.routing":
 		"Dagen met een waarschuwing bij de gateway-routering: {n}",
 	"admin.waiting.heading": "Wachten op het Strava-budget",

@@ -1,9 +1,13 @@
 import type { Ctx } from "../ctx";
 import { readStravaUsage } from "../db/rate-limit";
 import { connectedCountStatement } from "../db/riders";
+import { readCalls } from "../db/strava-calls";
 import { ownCountsStatement } from "../db/usage";
+import { CALL_DAYS, firstCallDay, ownCallDays } from "../strava/calls";
 import { parseTeamOrigins, type TeamOrigin } from "../team-origins";
+import { isOneOf } from "../work/messages";
 import {
+	CALL_ALLOWANCES,
 	daysBefore,
 	historyStart,
 	STRAVA_RECORDED,
@@ -19,8 +23,11 @@ import { currentStrava } from "./figures";
 
 export type Peer = TeamOrigin;
 
-/** The allowances whose own count a team exports: Strava's daily, and riders. */
-export const EXCHANGED = STRAVA_RECORDED;
+/**
+ * The allowances whose own count a team exports: Strava's daily, riders, and
+ * its Strava calls (feature 047).
+ */
+export const EXCHANGED = [...STRAVA_RECORDED, ...CALL_ALLOWANCES] as const;
 export type ExchangedAllowance = (typeof EXCHANGED)[number];
 
 export interface TeamCount {
@@ -36,7 +43,7 @@ export interface UsageExport {
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const FETCH_TIMEOUT_MS = 5_000;
-/** Thirteen months of three allowances, with room to spare. */
+/** Thirteen months of three allowances and 30 days of three, with room to spare. */
 const MAX_COUNTS = 1_500;
 /** How far back a team asks after it missed days. */
 const MAX_CATCH_UP_DAYS = 31;
@@ -89,12 +96,13 @@ export async function ownCounts(ctx: Ctx, since: string): Promise<UsageExport> {
 	const db = ctx.env.DB;
 	const now = ctx.now();
 	const today = utcDay(now);
-	const [usage, counts] = await Promise.all([
+	const [usage, counts, calls] = await Promise.all([
 		readStravaUsage(db),
 		db.batch([
 			ownCountsStatement(db, since, today),
 			connectedCountStatement(db),
 		]),
+		readCalls(db, firstCallDay(today)),
 	]);
 	const past = (counts[0]?.results ?? []) as {
 		day: string;
@@ -119,15 +127,49 @@ export async function ownCounts(ctx: Ctx, since: string): Promise<UsageExport> {
 			},
 			{ day: today, allowance: "strava_all_daily", count: strava.ownAllDaily },
 			{ day: today, allowance: "riders_connected", count: connected },
+			...callCounts(calls, since, today),
 		],
 	};
+}
+
+/**
+ * This team's Strava call totals per day (feature 047): from the later of
+ * `since` and its first counted day within the 30 days, to today; zero on a
+ * day without calls. Nothing by action or endpoint.
+ */
+function callCounts(
+	calls: Awaited<ReturnType<typeof readCalls>>,
+	since: string,
+	today: string,
+): TeamCount[] {
+	// Oldest first, as `readCalls` reads them.
+	const days = ownCallDays(calls.counts, calls.seen);
+	const first = days[0]?.day;
+	if (first === undefined) return [];
+	const start = first > since ? first : since;
+	const byDay = new Map(days.map((d) => [d.day, d]));
+	const entries: TeamCount[] = [];
+	for (let i = CALL_DAYS - 1; i >= 0; i--) {
+		const day = daysBefore(today, i);
+		if (day < start) continue;
+		const counted = byDay.get(day);
+		entries.push(
+			{ day, allowance: "strava_calls", count: counted?.calls ?? 0 },
+			{ day, allowance: "strava_held_back", count: counted?.heldBack ?? 0 },
+			{ day, allowance: "strava_seen", count: counted?.seen ?? 0 },
+		);
+	}
+	return entries;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
 }
 
-/** An export from `team`, or null when it isn't one. */
+/**
+ * An export from `team`, or null when it isn't one. An allowance this release
+ * doesn't know, from a later one, is skipped (feature 047).
+ */
 export function parseExport(body: unknown, team: string): TeamCount[] | null {
 	if (!isRecord(body) || body.team !== team || !Array.isArray(body.days)) {
 		return null;
@@ -139,15 +181,15 @@ export function parseExport(body: unknown, team: string): TeamCount[] | null {
 			!isRecord(entry) ||
 			typeof entry.day !== "string" ||
 			!DAY.test(entry.day) ||
-			!(EXCHANGED as readonly unknown[]).includes(entry.allowance) ||
 			!Number.isSafeInteger(entry.count) ||
 			(entry.count as number) < 0
 		) {
 			return null;
 		}
+		if (!isOneOf(EXCHANGED, entry.allowance)) continue;
 		days.push({
 			day: entry.day,
-			allowance: entry.allowance as ExchangedAllowance,
+			allowance: entry.allowance,
 			count: entry.count as number,
 		});
 	}

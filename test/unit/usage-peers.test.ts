@@ -95,16 +95,24 @@ describe("parseExport", () => {
 		["a negative count", { ...count, count: -1 }],
 		["a fractional count", { ...count, count: 1.5 }],
 		["an unsafe count", { ...count, count: 2 ** 60 }],
-		[
-			"an allowance that isn't exchanged",
-			{ ...count, allowance: "cf_d1_rows_read" },
-		],
 		["a malformed day", { ...count, day: "4.11.2026" }],
 		["no object", "3"],
 	])("refuses the whole answer with %s", (_, entry) => {
 		expect(
 			parseExport({ team: "europe", days: [count, entry] }, "europe"),
 		).toBe(null);
+	});
+
+	it("skips an allowance that isn't exchanged, keeping the rest (feature 047)", () => {
+		expect(
+			parseExport(
+				{
+					team: "europe",
+					days: [count, { ...count, allowance: "cf_d1_rows_read" }],
+				},
+				"europe",
+			),
+		).toEqual([count]);
 	});
 
 	it("refuses an answer longer than thirteen months could be", () => {

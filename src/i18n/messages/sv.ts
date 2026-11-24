@@ -1283,6 +1283,10 @@ export const sv: Catalog = {
 	"admin.calls.endpoint.activities": "Aktivitetslista",
 	"admin.calls.endpoint.token": "Hämta eller förnya token",
 	"admin.calls.endpoint.revoke": "Återkalla token",
+	"admin.calls.all": "Alla lag",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "saknas",
+	"admin.summary.calls": "Dagar med varning i anropen till Strava: {n}",
 	"admin.summary.routing": "Dagar med varning i gateway-routningen: {n}",
 	"admin.waiting.heading": "Väntar på Strava-budgeten",
 	"admin.waiting.body": {

@@ -1286,6 +1286,10 @@ export const fi: Catalog = {
 	"admin.calls.endpoint.activities": "Suorituslista",
 	"admin.calls.endpoint.token": "Tunnuksen haku tai uusiminen",
 	"admin.calls.endpoint.revoke": "Tunnuksen peruutus",
+	"admin.calls.all": "Kaikki tiimit",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "puuttuu",
+	"admin.summary.calls": "Päiviä, joilla Strava-kutsuissa on varoitus: {n}",
 	"admin.summary.routing":
 		"Päiviä, joilla yhdyskäytävän reitityksessä on varoitus: {n}",
 	"admin.waiting.heading": "Odotetaan Strava-budjettia",

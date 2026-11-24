@@ -1290,6 +1290,10 @@ export const is: Catalog = {
 	"admin.calls.endpoint.activities": "Listi yfir hreyfingar",
 	"admin.calls.endpoint.token": "Sækja eða endurnýja tóka",
 	"admin.calls.endpoint.revoke": "Afturkalla tóka",
+	"admin.calls.all": "Öll lið",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "vantar",
+	"admin.summary.calls": "Dagar með viðvörun í köllum til Strava: {n}",
 	"admin.summary.routing": "Dagar með viðvörun í leiðarvali gáttarinnar: {n}",
 	"admin.waiting.heading": "Beðið eftir Strava-kvótanum",
 	"admin.waiting.body": {

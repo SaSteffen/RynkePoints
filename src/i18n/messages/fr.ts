@@ -1340,6 +1340,11 @@ export const fr: Catalog = {
 	"admin.calls.endpoint.activities": "Liste des activités",
 	"admin.calls.endpoint.token": "Obtenir ou renouveler un jeton",
 	"admin.calls.endpoint.revoke": "Révoquer un jeton",
+	"admin.calls.all": "Toutes les équipes",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "manquant",
+	"admin.summary.calls":
+		"Jours avec un avertissement des appels à Strava : {n}",
 	"admin.summary.routing":
 		"Jours avec un avertissement du routage de la passerelle : {n}",
 	"admin.waiting.heading": "En attente du budget Strava",

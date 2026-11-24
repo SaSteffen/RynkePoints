@@ -1278,6 +1278,10 @@ export const da: Catalog = {
 	"admin.calls.endpoint.activities": "Aktivitetsliste",
 	"admin.calls.endpoint.token": "Hent eller forny token",
 	"admin.calls.endpoint.revoke": "Tilbagekald token",
+	"admin.calls.all": "Alle hold",
+	"admin.calls.strava": "Strava",
+	"admin.calls.missing": "mangler",
+	"admin.summary.calls": "Dage med advarsel i kaldene til Strava: {n}",
 	"admin.summary.routing": "Dage med advarsel i gateway-routingen: {n}",
 	"admin.waiting.heading": "Venter på Strava-budgettet",
 	"admin.waiting.body": {
