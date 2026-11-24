@@ -36,7 +36,8 @@ function d1(team, where, args) {
 		["d1", "execute", "DB", "--env", team, where, "--json", "--yes", ...args],
 		{ cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
 	);
-	return JSON.parse(out);
+	// With --remote --file, Wrangler prints its upload progress before the JSON.
+	return JSON.parse(out.slice(Math.max(0, out.search(/^[[{]/m))));
 }
 
 /** Wrangler's error text, from its JSON on stdout or from stderr. */
