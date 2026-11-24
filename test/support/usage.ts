@@ -1,5 +1,6 @@
 import { env } from "cloudflare:test";
 import { vi } from "vitest";
+import type { StravaAction, StravaEndpoint } from "../../src/strava/calls";
 
 // Synthetic usage for the admin view's tests (feature 025): figures straight into
 // D1, and a stubbed Cloudflare. No test reaches Cloudflare (FR-028).
@@ -84,6 +85,31 @@ export async function setCloudflareState(
 			last_failure_at) VALUES ('cloudflare', ?, ?)`,
 	)
 		.bind(success, failure)
+		.run();
+}
+
+/** A day's Strava calls under one action and endpoint (feature 047). */
+export async function seedCalls(
+	day: string,
+	action: StravaAction,
+	endpoint: StravaEndpoint,
+	calls: number,
+	heldBack = 0,
+): Promise<void> {
+	await env.DB.prepare(
+		`INSERT INTO strava_calls_daily (day, action, endpoint, calls, held_back)
+		VALUES (?, ?, ?, ?, ?)`,
+	)
+		.bind(day, action, endpoint, calls, heldBack)
+		.run();
+}
+
+/** The highest daily total Strava reported to this team on `day`. */
+export async function seedSeen(day: string, seen: number): Promise<void> {
+	await env.DB.prepare(
+		"INSERT INTO strava_seen_daily (day, seen) VALUES (?, ?)",
+	)
+		.bind(day, seen)
 		.run();
 }
 

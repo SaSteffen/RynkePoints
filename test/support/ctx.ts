@@ -231,6 +231,8 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM usage_alerts"),
 		env.DB.prepare("DELETE FROM recheck_daily"),
 		env.DB.prepare("DELETE FROM routing_daily"),
+		env.DB.prepare("DELETE FROM strava_calls_daily"),
+		env.DB.prepare("DELETE FROM strava_seen_daily"),
 		env.DB.prepare("DELETE FROM blocked_athletes"),
 		env.DB.prepare("DELETE FROM guests"),
 		env.DB.prepare("DELETE FROM pending_revocations"),

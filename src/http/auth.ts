@@ -150,10 +150,16 @@ function notice(id: NoticeId, cookies: string[] = []): Response {
 	return redirect(`/notice/${id}`, 303, [clearOAuthStateCookie(), ...cookies]);
 }
 
-export async function handleCallback(
-	request: Request,
-	ctx: Ctx,
-): Promise<Response> {
+/**
+ * Strava's redirect after the person approved or declined. Its Strava calls,
+ * giving access back to someone turned away among them, count under
+ * connecting (feature 047 research R1).
+ */
+export function handleCallback(request: Request, ctx: Ctx): Promise<Response> {
+	return signIn(request, { ...ctx, stravaAction: "connect" });
+}
+
+async function signIn(request: Request, ctx: Ctx): Promise<Response> {
 	const params = new URL(request.url).searchParams;
 	const expected = await readOAuthState(request, ctx.env, ctx.now());
 	if (!expected || params.get("state") !== expected.state) {

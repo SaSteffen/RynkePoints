@@ -12,6 +12,7 @@ import {
 	setAdminAlerts,
 } from "../../db/riders";
 import { readRoutingCounts } from "../../db/routing";
+import { readCalls } from "../../db/strava-calls";
 import { totalWaitingStatement } from "../../db/strava-work";
 import {
 	readCloudflareFigures,
@@ -33,6 +34,15 @@ import {
 	type RoutingDay,
 	routingDays,
 } from "../../routing/warning";
+import {
+	type CallBreakdown,
+	type CallDayRow,
+	callBreakdown,
+	callDayRows,
+	firstCallDay,
+	ownCallDays,
+	type StravaEndpoint,
+} from "../../strava/calls";
 import {
 	CLOUDFLARE_ALLOWANCES,
 	CLOUDFLARE_LIMITS,
@@ -319,6 +329,60 @@ ${days.map(row)}</tbody>
 `;
 }
 
+/** Each endpoint's name in the breakdown. */
+const ENDPOINT_NAMES: Record<StravaEndpoint, MessageId> = {
+	"GET /athlete/clubs": "admin.calls.endpoint.clubs",
+	"GET /activities/{id}": "admin.calls.endpoint.activity",
+	"GET /athlete/activities": "admin.calls.endpoint.activities",
+	"POST /oauth/token": "admin.calls.endpoint.token",
+	"POST /oauth/revoke": "admin.calls.endpoint.revoke",
+};
+
+/**
+ * This team's Strava calls (feature 047 contracts/usage-view.md): per UTC day
+ * the calls and the calls held back, each day linked to its breakdown below,
+ * `picked`'s, by action and endpoint. Counts only: no rider is named.
+ */
+function callsSection(
+	i18n: I18n,
+	days: readonly CallDayRow[],
+	picked: string,
+	breakdown: CallBreakdown,
+): SafeHtml {
+	const date = (day: string) => i18n.formatDate(`${day}T00:00:00Z`);
+	const head = (label: string) => html`<th scope="col">${label}</th>`;
+	const row = (d: CallDayRow) =>
+		html`<tr><th scope="row"><a href="?calls=${d.day}#strava-calls"${d.day === picked ? html` aria-current="date"` : null}>${date(d.day)}</a></th><td>${whole(i18n, d.calls)}</td><td>${whole(i18n, d.heldBack)}</td></tr>
+`;
+	const parts =
+		breakdown.rows.length === 0
+			? html`<p class="usage-detail">${i18n.t("admin.calls.dayNone")}</p>`
+			: html`<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
+<thead><tr>${head(i18n.t("admin.calls.for"))}${breakdown.endpoints.map((e) => head(i18n.t(ENDPOINT_NAMES[e])))}${head(i18n.t("admin.calls.heldBack"))}${head(i18n.t("admin.calls.total"))}</tr></thead>
+<tbody>
+${breakdown.rows.map(
+	(r) =>
+		html`<tr><th scope="row">${i18n.t(`admin.calls.action.${r.action}`)}</th>${r.calls.map((n) => html`<td>${whole(i18n, n)}</td>`)}<td>${whole(i18n, r.heldBack)}</td><td>${whole(i18n, r.total)}</td></tr>
+`,
+)}</tbody>
+</table></div></div>`;
+	return html`<section class="card usage-source" id="strava-calls">
+<h2>${i18n.t("admin.calls.heading")}</h2>
+<p class="usage-detail">${i18n.t("admin.calls.intro")}</p>
+${
+	days.length === 0
+		? html`<p class="usage-detail">${i18n.t("admin.calls.none")}</p>`
+		: html`<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
+<thead><tr>${head(i18n.t("admin.history.day"))}${head(i18n.t("admin.history.team"))}${head(i18n.t("admin.calls.heldBack"))}</tr></thead>
+<tbody>
+${days.map(row)}</tbody>
+</table></div></div>
+<h3>${i18n.t("admin.calls.day", { date: date(picked) })}</h3>
+${parts}`
+}</section>
+`;
+}
+
 /** The days the CPU table shows, today included (FR-042). */
 const CPU_DAYS = 30;
 
@@ -561,6 +625,7 @@ export function handleAdminUsage(
 			active,
 			cpuDays,
 			routingCounts,
+			calls,
 		] = await Promise.all([
 			readStravaUsage(db),
 			readCloudflareFigures(db),
@@ -576,8 +641,17 @@ export function handleAdminUsage(
 			countActiveRiders(db, now),
 			readCpuDays(db, daysBefore(today, CPU_DAYS - 1)),
 			readRoutingCounts(db, firstRoutingDay(today)),
+			readCalls(db, firstCallDay(today)),
 		]);
 		const routing = routingDays(routingCounts, ctx.team.id);
+		const callDays = callDayRows(
+			today,
+			ownCallDays(calls.counts, calls.seen),
+			[],
+		);
+		// The day `?calls=` picks if it is one shown, else today.
+		const askedDay = new URL(request.url).searchParams.get("calls");
+		const picked = callDays.find((d) => d.day === askedDay)?.day ?? today;
 		const cpu = cpuRows(cpuDays, ctx.team.id);
 		const cpuMarked = cpuDays.filter(
 			(d) =>
@@ -661,7 +735,7 @@ export function handleAdminUsage(
 <ul class="usage-figures">
 ${strava.map(item)}</ul>
 </section>
-${recheckSection(i18n, ctx.team.recheckAllowance, active, recheckDays)}${routingSection(i18n, routing)}${
+${recheckSection(i18n, ctx.team.recheckAllowance, active, recheckDays)}${callsSection(i18n, callDays, picked, callBreakdown(calls.counts, picked))}${routingSection(i18n, routing)}${
 	estimate === null
 		? null
 		: html`<section class="card">

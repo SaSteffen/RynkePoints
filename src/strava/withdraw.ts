@@ -24,7 +24,7 @@ export type Hold = (typeof HOLDS)[number];
 /** How a withdrawal stands: settled, or kept to be asked again later. */
 export type Withdrawal = "done" | "pending";
 
-type WithdrawCtx = Pick<Ctx, "env" | "now" | "team">;
+type WithdrawCtx = Pick<Ctx, "env" | "now" | "team" | "stravaAction">;
 
 const GATEWAY_TIMEOUT_MS = 10_000;
 
