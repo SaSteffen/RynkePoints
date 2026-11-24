@@ -77,8 +77,8 @@
 		// Gateway routing (feature 046 research R2): "off" sends every event to
 		// every team and keeps nothing; "trial" (shipped) chooses the teams but
 		// still sends to all, marked; "on" routes. Anything else counts as
-		// "off". Goes to "on" only after the paid plan and 14 days of trial
-		// without a would-be miss (FR-018, docs/gateway-switch.md › Routing).
+		// "off". Goes to "on" only after 14 days of trial without a would-be
+		// miss (FR-018, docs/gateway-switch.md › Routing).
 		"ROUTING": "trial",
 		"TEAMS": "[{\"id\":\"hamburg\",\"origin\":\"https://trhh-rynke-coins.link\"},{\"id\":\"europe\",\"origin\":\"https://rynke-points.eu\"}]"
 	},

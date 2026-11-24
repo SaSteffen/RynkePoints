@@ -30,8 +30,7 @@ additions only
 **Testing**: Vitest in the Workers runtime: the gateway project (Miniflare runs the object), the
 app project with the fake gateway in `test/support/fake-strava.ts`
 
-**Target Platform**: the gateway Worker and every team's Worker; works on the free plan, goes live
-on the paid plan (FR-018)
+**Target Platform**: the gateway Worker and every team's Worker; works on the free plan
 
 **Project Type**: Workers: webhook gateway, server-rendered app with queue consumer
 

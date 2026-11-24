@@ -177,7 +177,7 @@ Going live:
    before their team's notice says so. Within a day every team has sent its full list.
 2. Watch Admin › Usage › **Gateway routing** on every team for at least 14 days in a row
    without a would-be miss (no day with the warning mark for a would-be miss).
-3. After the move to the Workers paid plan, set `on`.
+3. Then set `on`.
 
 Going back to `trial` or `off` is the same one setting; no team needs a deploy.
 

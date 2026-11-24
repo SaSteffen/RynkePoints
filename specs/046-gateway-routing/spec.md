@@ -14,8 +14,7 @@ guests (feature 041). [...] The check before withdrawing a person's Strava acces
 asking the teams, not the copy, and its answer still never names a team. This is the gateway's
 first rider data, so it changes feature 026's promise that the gateway holds none. Say what it
 keeps, where (EU, like the teams' databases), for how long, who can see it, and what the privacy
-notice tells riders." Not before the move to Cloudflare's paid plan, which comes with the third
-team.
+notice tells riders."
 
 ## Context
 
@@ -30,8 +29,8 @@ it keeps a **copy** of which teams hold which athletes. Each team's own database
 record; the copy only steers deliveries, and whenever it may be wrong, the gateway falls back to
 sending to more teams, never fewer.
 
-The goal is data minimisation, not cost: on Cloudflare's paid plan, which the third team needs
-anyway, broadcasting costs cents. The feature goes live only after that move.
+The goal is data minimisation, not cost: broadcasting costs little. The feature runs on the plan
+the teams run on today.
 
 Since feature 044, a person rides for one team at a time, so most athletes are held by exactly one
 team. Guests (feature 041) are the exception: an administrator of one team whom another team lists
@@ -277,8 +276,8 @@ drop a report, and check the full list's correction and the re-check's find show
 
 - **FR-017**: Local development MUST run the local gateway with routing and its own copy, so it
   mirrors production. Tests and local development MUST NOT read or write a production copy.
-- **FR-018**: Routing MUST go live only after the move to Cloudflare's Workers paid plan, and only
-  after the trial (FR-020) showed no would-be miss for 14 days in a row. Until then, gateway and
+- **FR-018**: Routing MUST go live only after the trial (FR-020) showed no would-be miss for 14
+  days in a row. Until then, gateway and
   teams may carry the code and run the trial, but every event goes to every team. Switching
   between trial and routing MUST be one setting of the gateway, so going back to the trial needs
   no deployment of a team.
@@ -354,8 +353,6 @@ drop a report, and check the full list's correction and the re-check's find show
 - 48 hours as the limit for a full list leaves room for one failed daily run without falling back.
 - The feature reads no new data from Strava and shows nothing to anyone, so under the constitution
   it needs a privacy-notice update, not a consent revision.
-- The paid plan comes with the third team (decided 2026-11-19). The copy fits the free plan too;
-  waiting is the maintainer's decision, not a technical limit.
 - Once routing is live, a missed event is invisible at the moment it happens. The trial is the
   only exact miss rate; afterwards the full list's possible misses and the re-check's finds are
   the signals. 14 days of trial covers two weekends of normal riding.

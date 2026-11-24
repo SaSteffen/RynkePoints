@@ -26,5 +26,5 @@ table and its warning mark.
 
 ## Going live (maintainers)
 
-Documented in `docs/gateway-switch.md` › Routing: set `ROUTING` to `trial` once the privacy notice
-is live, watch 14 days without a would-be miss, move to the paid plan, set `on`.
+Documented in `docs/gateway-switch.md` › Routing: the trial ships with the feature; watch 14 days
+without a would-be miss, then set `on`.
