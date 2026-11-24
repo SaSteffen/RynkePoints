@@ -10,7 +10,7 @@ import {
 import type { I18n } from "../../i18n/i18n";
 import { hasEvents } from "../../teams";
 import { html, type SafeHtml } from "../html";
-import { adminPage, adminSwitch, whole } from "./access";
+import { adminPage, adminSwitch, usageMarks, whole } from "./access";
 import { ROLES_PATH } from "./roles";
 
 // Admin › Rider und Rollen (feature 045, contracts/pages.md): the team's listed
@@ -218,7 +218,8 @@ export function handleAdminRiders(
 		ctx,
 		i18n,
 		`/admin/riders${url.search}`,
-		async ({ rider: viewer }) => {
+		async (shell) => {
+			const viewer = shell.rider;
 			const canChange = !viewer.guest;
 			const events = hasEvents(ctx.team);
 			const { admins, orga, none, guests, unlisted, blocked } =
@@ -237,7 +238,7 @@ export function handleAdminRiders(
 				: null;
 			const listed = admins.length + orga.length + none.length;
 			const search = i18n.t("admin.roles.search");
-			return html`${adminSwitch(i18n, "riders")}<div class="settings-page roles">
+			return html`${adminSwitch(i18n, "riders", await usageMarks(shell))}<div class="settings-page roles">
 <div class="settings-col">
 ${await notice(url, i18n, ctx, canChange)}<p class="roles-hint">${i18n.t(events ? "admin.roles.hint.events" : "admin.roles.hint")}</p>
 <input type="search" class="rider-search" data-role-search aria-label="${search}" placeholder="${search}" autocomplete="off">

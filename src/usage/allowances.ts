@@ -21,9 +21,8 @@ export const RECHECK_READS = Math.floor(
 export const WARNING_LEVEL = 80;
 export const CRITICAL_LEVEL = 95;
 
-/** Lowest first. */
+/** The CPU alerts' levels, lowest first; allowances add their early one. */
 export const ALERT_LEVELS = [WARNING_LEVEL, CRITICAL_LEVEL] as const;
-export type AlertLevel = (typeof ALERT_LEVELS)[number];
 
 export const STRAVA_RECORDED = [
 	"strava_read_daily",
@@ -72,6 +71,42 @@ export const CLOUDFLARE_LIMITS: Record<CloudflareAllowance, number> = {
 	cf_d1_rows_written: 100_000,
 	cf_d1_storage_bytes: 5_000_000_000,
 };
+
+/**
+ * Where the early level, Hinweis, starts: per group of figures that behave
+ * alike, a whole percentage (feature 048 FR-010, data-model.md). At 80 or more
+ * a group has no early level. Changed by pull request, like a limit.
+ */
+const EARLY_STRAVA_DAILY = 25;
+const EARLY_STRAVA_15M = 25;
+const EARLY_CONNECTED = 25;
+const EARLY_CLOUDFLARE_DAILY = 25;
+const EARLY_STORAGE = 25;
+
+const EARLY_THRESHOLDS: Record<AllowanceId, number> = {
+	strava_read_daily: EARLY_STRAVA_DAILY,
+	strava_all_daily: EARLY_STRAVA_DAILY,
+	strava_read_15m: EARLY_STRAVA_15M,
+	strava_all_15m: EARLY_STRAVA_15M,
+	riders_connected: EARLY_CONNECTED,
+	cf_worker_requests: EARLY_CLOUDFLARE_DAILY,
+	cf_queue_operations: EARLY_CLOUDFLARE_DAILY,
+	cf_d1_rows_read: EARLY_CLOUDFLARE_DAILY,
+	cf_d1_rows_written: EARLY_CLOUDFLARE_DAILY,
+	cf_d1_storage_bytes: EARLY_STORAGE,
+};
+
+/** The allowance's early threshold, or null where its group has none. */
+export function earlyThreshold(id: AllowanceId): number | null {
+	const level = EARLY_THRESHOLDS[id];
+	return level < WARNING_LEVEL ? level : null;
+}
+
+/** The levels an allowance alerts at, lowest first (feature 048 contracts/alerts.md). */
+export function alertLevels(id: AllowanceId): number[] {
+	const early = earlyThreshold(id);
+	return early === null ? [...ALERT_LEVELS] : [early, ...ALERT_LEVELS];
+}
 
 export function isRecordedAllowance(id: string): id is RecordedAllowance {
 	return (RECORDED_ALLOWANCES as readonly string[]).includes(id);

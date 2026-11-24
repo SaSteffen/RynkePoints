@@ -14,7 +14,7 @@ import {
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
 import { versionsOf } from "../rynke/rules";
-import { CRITICAL_LEVEL, utcDay } from "../usage/allowances";
+import { CRITICAL_LEVEL, utcDay, WARNING_LEVEL } from "../usage/allowances";
 import { percentOf } from "../usage/figures";
 import { html, htmlResponse, layout, pageLook, type SafeHtml } from "./html";
 import { BELL, CLOSE } from "./icons";
@@ -186,8 +186,13 @@ export async function handleRiderNotificationText(
 				alert.used !== null && alert.limit_value !== null
 					? percentOf(alert.used, alert.limit_value)
 					: alert.level;
+			// A Hinweis is stored as its threshold, below 80 (feature 048 R3).
 			body = i18n.t(
-				critical ? "notification.usage.critical" : "notification.usage.warning",
+				critical
+					? "notification.usage.critical"
+					: alert.level >= WARNING_LEVEL
+						? "notification.usage.warning"
+						: "notification.usage.early",
 				{
 					allowance: i18n.t(`admin.allowance.${allowance}`),
 					percent: i18n.formatNumber(percent, { fractionDigits: 0 }),

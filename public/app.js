@@ -5622,6 +5622,32 @@ function adminRoles(signal) {
 	);
 }
 
+/**
+ * Opens the row of Admin › Nutzung a link names, on load and on following a
+ * link within the page (feature 048 research R9): the list at the top links to
+ * the figures' rows.
+ */
+function usageRows(signal) {
+	if (!document.querySelector(".usage-page")) return;
+	const open = (hash) => {
+		const id = decodeURIComponent(hash.slice(1));
+		const details = id
+			? document.getElementById(id)?.querySelector(":scope > details")
+			: null;
+		if (details) details.open = true;
+	};
+	open(location.hash);
+	document.addEventListener(
+		"click",
+		(event) => {
+			const link = event.target.closest?.('a[href^="#"]');
+			if (link) open(link.hash);
+		},
+		{ signal },
+	);
+	addEventListener("hashchange", () => open(location.hash), { signal });
+}
+
 function enhance(signal) {
 	lazyRides(signal);
 	installSettings(signal);
@@ -5639,6 +5665,7 @@ function enhance(signal) {
 	organiserRiders(signal);
 	organiserGraphs(signal);
 	usageGraphs(signal);
+	usageRows(signal);
 	adminRoles(signal);
 }
 

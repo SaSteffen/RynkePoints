@@ -72,14 +72,23 @@ export function routingDays(
 	return [...days.values()].sort((a, b) => (a.day < b.day ? 1 : -1));
 }
 
+/** Why a day is marked; the usage view's list names it (feature 048). */
+export type RoutingWarning = "missed" | "possible" | "everyone";
+
 /**
  * FR-025: a would-be miss or a possible miss on any team, or more than 1% of
  * the events that came while every team routed sent to every team.
  */
+export function routingWarnings(d: RoutingDay): RoutingWarning[] {
+	const reasons: RoutingWarning[] = [];
+	if (d.own.missed + d.others.missed > 0) reasons.push("missed");
+	if (d.own.possible + d.others.possible > 0) reasons.push("possible");
+	if (d.allRouting > 0 && d.allRoutingEveryone * 100 > d.allRouting) {
+		reasons.push("everyone");
+	}
+	return reasons;
+}
+
 export function isWarningDay(d: RoutingDay): boolean {
-	return (
-		d.own.missed + d.others.missed > 0 ||
-		d.own.possible + d.others.possible > 0 ||
-		(d.allRouting > 0 && d.allRoutingEveryone * 100 > d.allRouting)
-	);
+	return routingWarnings(d).length > 0;
 }

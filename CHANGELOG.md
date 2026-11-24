@@ -13,6 +13,14 @@ English sentences for the administrators, without formatting or links, and
 name no team, place or rider: every team shows the same list.
 -->
 
+## 1.3.0
+
+- The usage view starts with a list of what needs a look, worst first, and says so in one line when everything is within limits.
+- Every usage figure has a third, earlier level, Hinweis, at 25 % for now. Administrators who turned alerts on get a notification for it too.
+- Strava's and Cloudflare's figures are rows with a bar marked at each level; a row opens to its levels, how the teams share it and its history.
+- The waiting work, Strava calls, ride re-check, gateway routing and CPU time are rows with one line each, and the alerts setting is a switch.
+- The Admin tab and Usage show how many usage marks need a look.
+
 ## 1.2.0
 
 - The Admin tab now opens on Riders and Roles.

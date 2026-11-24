@@ -17,6 +17,8 @@ import { vapidPublicKey } from "../push/vapid";
 import { countingWindow, currentRules } from "../rynke/rules";
 import { hasEvents, hasOutsideRule, hasTeamRynke } from "../teams";
 import type { TeamData } from "../teams/types";
+import { markCount } from "../usage/attention";
+import { readUsageState, type UsageState } from "../usage/state";
 import { consentGate } from "./consent-gate";
 import {
 	html,
@@ -153,6 +155,12 @@ export interface ShellViewer {
 	 * the real data (feature 020 FR-005, FR-013).
 	 */
 	example: boolean;
+	/**
+	 * Admin › Nutzung's state for an administrator, read once per request for
+	 * the Admin tab's number and shared with the usage page, so both show the
+	 * same count (feature 048 contracts/nav-count.md); null for anyone else.
+	 */
+	usage: Promise<UsageState> | null;
 }
 
 /**
@@ -174,16 +182,31 @@ export function countBadge(n: number): SafeHtml {
 	return html`<span class="count-badge" aria-hidden="true">${n > 9 ? "9+" : String(n)}</span>`;
 }
 
+/** What a tab counts: Orga the open requests, Admin the usage marks. */
+interface NavCounts {
+	openRequests: number;
+	usageMarks: number;
+}
+
+function countOf(id: SectionId, counts: NavCounts): number {
+	if (id === "organiser") return counts.openRequests;
+	if (id === "admin") return counts.usageMarks;
+	return 0;
+}
+
 /** The link's accessible name where its label is short or it carries a count. */
 function navLabel(
 	i18n: I18n,
 	id: SectionId,
 	label: MessageId,
 	short: MessageId | undefined,
-	openRequests: number,
+	count: number,
 ): SafeHtml | null {
-	if (id === "organiser" && openRequests > 0) {
-		return html` aria-label="${i18n.t("nav.organiser.open", { n: String(openRequests) })}"`;
+	if (id === "organiser" && count > 0) {
+		return html` aria-label="${i18n.t("nav.organiser.open", { n: String(count) })}"`;
+	}
+	if (id === "admin" && count > 0) {
+		return html` aria-label="${i18n.t("nav.admin.marks", { n: count })}"`;
 	}
 	return short ? html` aria-label="${i18n.t(label)}"` : null;
 }
@@ -196,7 +219,7 @@ function shellParts(
 	organiser: boolean,
 	administrator: boolean,
 	hint: TourHint | null,
-	openRequests: number,
+	counts: NavCounts,
 	hidden: ReadonlySet<SectionId>,
 	look: PageLook,
 ): ShellParts {
@@ -207,15 +230,15 @@ function shellParts(
 			(organiser ? !s.riderOnly : !s.organiserOnly) &&
 			(administrator || !s.adminOnly),
 	);
-	const links = shown.map(
-		({ id, path: href, label, short, icon }) =>
-			html`<a href="${href}"${navLabel(i18n, id, label, short, openRequests)}${id === section ? html` aria-current="page"` : null}${id === hint?.section ? html` class="tour-target"` : null}><span class="nav-icon">${icon}${id === "organiser" && openRequests > 0 ? countBadge(openRequests) : null}</span>${
-				short
-					? html`<span class="nav-label nav-label-short">${i18n.t(short)}</span><span class="nav-label nav-label-full">${i18n.t(label)}</span>`
-					: html`<span class="nav-label">${i18n.t(label)}</span>`
-			}</a>
-`,
-	);
+	const links = shown.map(({ id, path: href, label, short, icon }) => {
+		const count = countOf(id, counts);
+		return html`<a href="${href}"${navLabel(i18n, id, label, short, count)}${id === section ? html` aria-current="page"` : null}${id === hint?.section ? html` class="tour-target"` : null}><span class="nav-icon">${icon}${count > 0 ? countBadge(count) : null}</span>${
+			short
+				? html`<span class="nav-label nav-label-short">${i18n.t(short)}</span><span class="nav-label nav-label-full">${i18n.t(label)}</span>`
+				: html`<span class="nav-label">${i18n.t(label)}</span>`
+		}</a>
+`;
+	});
 	return {
 		// Tapping it is a fresh GET of the same page, rides page included (R8).
 		header: html`${WORDMARK}
@@ -299,14 +322,20 @@ export async function shellPage(
 		hint = null;
 	}
 	// Organisers see how many reports wait for them on every page (019
-	// FR-030), counted alongside the section, not after it (issue #184).
-	const [rendered, openRequests] = await Promise.all([
+	// FR-030), administrators how many usage marks (feature 048), counted
+	// alongside the section, not after it (issue #184).
+	const usage = viewer.rider.administrator
+		? readUsageState(ctx, viewer.rider.athleteId)
+		: null;
+	const [usageMarks, openRequests, rendered] = await Promise.all([
+		usage?.then((state) => markCount(state.items).total) ?? 0,
+		viewer.rider.organiser && hasEvents(ctx.team) ? countOpenRequests(ctx) : 0,
 		render({
 			rider: viewer.rider,
 			consent: accepted,
 			example: hint?.example === true,
+			usage,
 		}),
-		viewer.rider.organiser && hasEvents(ctx.team) ? countOpenRequests(ctx) : 0,
 	]);
 	if (rendered instanceof Response) return rendered;
 	const { body, scripts } =
@@ -333,7 +362,7 @@ export async function shellPage(
 				viewer.rider.organiser,
 				viewer.rider.administrator,
 				hint,
-				openRequests,
+				{ openRequests, usageMarks },
 				hiddenSections(ctx.env, ctx.team),
 				look,
 			),

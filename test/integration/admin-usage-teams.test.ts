@@ -130,15 +130,20 @@ async function page(path = "/admin") {
 	return res.text();
 }
 
-/** The list item of an allowance, by its English name. */
+/** The row of an allowance, by its name's key (feature 048 US3). */
 function figure(text: string, id: keyof typeof en): string {
-	return (
-		text
-			.split('<li class="usage-figure')
-			.slice(1)
-			.find((item) => item.includes(`>${en[id]}<`)) ?? `missing ${String(id)}`
-	);
+	const start = text.indexOf(`<li id="${id.replace("admin.allowance.", "")}"`);
+	return start === -1
+		? `missing ${String(id)}`
+		: text.slice(start, text.indexOf("</li>", start));
 }
+
+/** The closed row's line under the bar. */
+const sub = (row: string) =>
+	row.slice(
+		row.indexOf('<span class="settings-sub">'),
+		row.indexOf("</summary>"),
+	);
 
 const teamCount = (team: string, n: string, percent: string) =>
 	escapeHtml(
@@ -300,11 +305,15 @@ describe("the hourly recording with another team", () => {
 		const notified = ctx.queue.sent.flatMap(({ body }: SentMessage) =>
 			body.kind === "send-notification" ? [body.athleteId] : [],
 		);
-		expect(notified).toEqual([ADMIN]);
+		// Europe's synthetic counts pass other figures' Hinweis too (feature 048).
+		expect(new Set(notified)).toEqual(new Set([ADMIN]));
 		const { results } = await env.DB.prepare(
-			"SELECT allowance, level FROM usage_alerts",
+			"SELECT allowance, level FROM usage_alerts WHERE allowance = 'riders_connected'",
 		).all();
-		expect(results).toEqual([{ allowance: "riders_connected", level: 80 }]);
+		expect(results).toEqual([
+			{ allowance: "riders_connected", level: 25 },
+			{ allowance: "riders_connected", level: 80 },
+		]);
 	});
 });
 
@@ -341,18 +350,26 @@ describe("/admin with another team", () => {
 	});
 
 	it("says that 15-minute counts aren't exchanged", async () => {
-		const item = figure(await page(), "admin.allowance.strava_read_15m");
-		expect(item).toContain(escapeHtml(en["admin.figure.windowNote"]));
+		const text = await page();
+		expect(text).toContain(escapeHtml(en["admin.strava.note"]));
+		expect(sub(figure(text, "admin.allowance.strava_read_15m"))).toContain(
+			en["admin.figure.whose.window"],
+		);
 	});
 
 	it("still shows the view when a team didn't answer, with its last figures", async () => {
 		await setTeamState(NOW - 7200, NOW - 60);
 		const text = await page();
+		// Feature 048: a state hint in the list, never counted.
+		expect(text).toContain(
+			`<a class="settings-row" href="#strava"><span class="settings-icon lvl-hint">`,
+		);
+		expect(text).toContain(
+			escapeHtml(en["admin.lage.team.stale"].replace("{team}", OTHER)),
+		);
 		expect(text).toContain(
 			escapeHtml(
-				en["admin.teams.stale"]
-					.replace("{team}", OTHER)
-					.replace("{time}", "04/11/2026, 10:58"),
+				en["admin.lage.team.staleLine"].replace("{time}", "04/11/2026, 10:58"),
 			),
 		);
 		expect(figure(text, "admin.allowance.strava_read_daily")).toContain(
@@ -363,41 +380,33 @@ describe("/admin with another team", () => {
 	it("says when a team has never answered", async () => {
 		await env.DB.prepare("DELETE FROM usage_source_state").run();
 		expect(await page()).toContain(
-			escapeHtml(en["admin.teams.never"].replace("{team}", OTHER)),
+			escapeHtml(en["admin.lage.team.never"].replace("{team}", OTHER)),
 		);
 	});
 
 	it("gives each team a column in the day table", async () => {
 		await seedUsageDay(TODAY, "strava_read_daily", 1200, 3000, { team: 900 });
-		const text = await page("/admin?days=strava_read_daily");
-		const table = text.slice(text.lastIndexOf('<div class="usage-table">'));
+		const row = figure(
+			await page("/admin?days=strava_read_daily"),
+			"admin.allowance.strava_read_daily",
+		);
+		const table = row.slice(row.indexOf('<div class="usage-table">'));
 		expect(table).toContain(`<th scope="col">${OWN}</th>`);
 		expect(table).toContain(`<th scope="col">${OTHER}</th>`);
 		expect(table).toContain("<td>900</td><td>200</td>");
 	});
 
-	it("puts every team's part and the overall use in one table", async () => {
+	it("says each team's count in the closed row, never naming one (feature 048 FR-014)", async () => {
 		const text = await page();
-		const overview = text.slice(
-			text.indexOf('id="overview"'),
-			text.indexOf("</section>", text.indexOf('id="overview"')),
+		expect(text).not.toContain('id="overview"');
+		expect(sub(figure(text, "admin.allowance.strava_read_daily"))).toContain(
+			`1,200 of 3,000 · ${OWN} 900 · ${OTHER} 200`,
 		);
-		expect(overview).toContain(`<th scope="col">${OWN}</th>`);
-		expect(overview).toContain(`<th scope="col">${OTHER}</th>`);
-		const row = (id: keyof typeof en) =>
-			overview.split("<tr>").find((r) => r.includes(`>${en[id]}</a>`)) ??
-			`missing ${id}`;
-		// This team, the other team, what no team counts, then the overall.
-		expect(row("admin.allowance.strava_read_daily")).toContain(
-			"<td>900</td><td>200</td><td>100</td><td>1,200 of",
+		expect(sub(figure(text, "admin.allowance.strava_all_daily"))).toContain(
+			`${OWN} 1,000 · ${escapeHtml(en["admin.figure.whose.none"].replace("{team}", OTHER))}`,
 		);
-		// Riders have no rest: every connected rider belongs to a team.
-		expect(row("admin.allowance.riders_connected")).toContain(
-			"<td>2</td><td>40</td><td></td><td>42 of 999",
-		);
-		// Other teams' 15-minute counts aren't exchanged.
-		expect(row("admin.allowance.strava_read_15m")).toMatch(
-			/<td>\d+<\/td><td><\/td><td>\d+<\/td>/,
+		expect(sub(figure(text, "admin.allowance.riders_connected"))).toContain(
+			`42 of 999 · ${OWN} 2 · ${OTHER} 40`,
 		);
 	});
 

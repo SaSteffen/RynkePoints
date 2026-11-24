@@ -79,8 +79,8 @@ async function page() {
 
 const section = (text: string) =>
 	text.slice(
-		text.indexOf('id="cpu"'),
-		text.indexOf("</section>", text.indexOf('id="cpu"')),
+		text.indexOf('<li id="cpu">'),
+		text.indexOf("</details></li>", text.indexOf('<li id="cpu">')),
 	);
 
 const cell = (slowest: string, cut: string, runs: string) =>
@@ -218,12 +218,17 @@ describe("alerts (FR-044)", () => {
 		expect(await alerts()).toHaveLength(2);
 	});
 
-	it("notifies for the gateway and counts it in the summary", async () => {
+	it("notifies for the gateway and lists it, counted (feature 048 FR-002)", async () => {
 		await record([worker(GATEWAY_WORKER, 1000, 2, 900)]);
 		expect(notified(ctx.queue.sent)).toBe(1);
-		expect(await page()).toContain(
-			escapeHtml(en["admin.summary.attention"].replace("{n}", "1")),
+		const text = await page();
+		expect(text).toContain(
+			escapeHtml(
+				en["admin.lage.cpu"].replace("{owner}", en["admin.teams.shared"]),
+			),
 		);
+		expect(text).toContain('<a class="settings-row" href="#cpu">');
+		expect(text).toContain(">1 warning<");
 	});
 
 	it("leaves another team's cut-off runs to that team", async () => {
@@ -231,7 +236,15 @@ describe("alerts (FR-044)", () => {
 		expect(notified(ctx.queue.sent)).toBe(0);
 		expect(await alerts()).toEqual([]);
 		const text = await page();
-		expect(section(text)).toContain("usage-mark-critical");
-		expect(text).toContain(escapeHtml(en["admin.summary.ok"]));
+		expect(section(text)).toContain(
+			`<span class="settings-title">${escapeHtml(en["admin.cpu.heading"])}<span class="usage-mark usage-mark-critical">Critical</span></span><span class="settings-sub">Today 50 of 1,000 runs cut off</span>`,
+		);
+		// Listed and counted, but notified by that team (feature 048 FR-002).
+		expect(text).toContain(
+			escapeHtml(
+				en["admin.lage.cpu"].replace("{owner}", en["admin.teams.other"]),
+			),
+		);
+		expect(text).toContain(">1 critical<");
 	});
 });

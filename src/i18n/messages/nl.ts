@@ -1122,6 +1122,10 @@ export const nl: Catalog = {
 
 	// Feature 025: the admin view.
 	"nav.admin": "Beheer",
+	"nav.admin.marks": {
+		one: "Beheer, {n} vraagt je aandacht",
+		other: "Beheer, {n} vragen je aandacht",
+	},
 	"admin.switch.label": "Beheerweergaven",
 	"admin.switch.usage": "Gebruik",
 	"admin.switch.riders": "Renners en rollen",
@@ -1208,32 +1212,20 @@ export const nl: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Databaseopslag",
 	"admin.gigabytes": "{n} GB",
 	"admin.level.warning": "Waarschuwing",
+	"admin.level.early": "Let op",
 	"admin.level.critical": "Kritiek",
-	"admin.summary.ok": "Alle cijfers liggen onder 80 %.",
-	"admin.summary.attention": "Cijfers op 80 % of hoger: {n}",
 	"admin.figure.numbers": "{used} van {limit} · {percent} %",
 	"admin.figure.split": "Dit team: {team} · Niet toegewezen: {rest}",
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: nog geen cijfers",
 	"admin.figure.rest": "Niet toegewezen: {n}",
 	"admin.figure.notSplit": "Dit cijfer kan nog niet per team worden verdeeld.",
-	"admin.figure.windowNote":
-		"Verzoeken van andere teams tellen hier als niet toegewezen: de teams wisselen hun 15-minutencijfers niet uit.",
-	"admin.teams.stale":
-		"{team}: geen antwoord bij de laatste registratie. De cijfers zijn van {time} UTC.",
 	"admin.teams.other": "Ander team",
 	"admin.teams.otherN": "Ander team {n}",
 	"admin.teams.shared": "Gedeeld (gateway)",
-	"admin.teams.never": "{team}: nog geen antwoord, dus de cijfers ontbreken.",
-	"admin.overview.heading": "Alle teams",
-	"admin.overview.note":
-		"Cijfers van vandaag; voor Cloudflare die van de laatst geregistreerde dag. Een lege cel heeft geen cijfer.",
-	"admin.overview.figure": "Cijfer",
-	"admin.overview.rest": "Niet toegewezen",
-	"admin.overview.total": "Totaal",
 	"admin.figure.seen": "Stand van {time} UTC",
 	"admin.figure.notSeen": "Nog niet waargenomen",
-	"admin.figure.noValue": "Nog geen waarde. Limiet: {limit}",
+	"admin.figure.noValue": "Nog geen waarde · limiet {limit}",
 	"admin.strava.heading": "Strava",
 	"admin.cloudflare.heading": "Cloudflare",
 	"admin.cloudflare.note":
@@ -1241,6 +1233,86 @@ export const nl: Catalog = {
 	"admin.cloudflare.unavailable":
 		"De cijfers van Cloudflare zijn nu niet beschikbaar. Dit zijn de laatst bekende waarden.",
 	"admin.refresh": "Nu bijwerken",
+	"admin.strava.figure.strava_read_daily": "Leesverzoeken per dag",
+	"admin.strava.figure.strava_all_daily": "Verzoeken per dag",
+	"admin.strava.figure.strava_read_15m": "Leesverzoeken per 15 minuten",
+	"admin.strava.figure.strava_all_15m": "Verzoeken per 15 minuten",
+	"admin.betrieb.heading": "Bedrijf",
+	"admin.betrieb.when": "laatste 30 dagen",
+	"admin.betrieb.noFigures": "Nog geen cijfers",
+	"admin.waiting.none": "Er wacht niets.",
+	"admin.waiting.note":
+		"Werk dat het Strava-budget tegenhoudt, probeert het later opnieuw.",
+	"admin.calls.today": {
+		one: "Vandaag {n} aanroep van dit team",
+		other: "Vandaag {n} aanroepen van dit team",
+	},
+	"admin.calls.heldToday": "{n} tegengehouden",
+	"admin.calls.heldNone": "niets tegengehouden",
+	"admin.recheck.line":
+		"{allowance} controles per dag · {riders} actieve renners · {last}",
+	"admin.recheck.lastRun": "laatst op {date}",
+	"admin.recheck.notRun": "nog niet gedraaid",
+	"admin.routing.today": "Vandaag {n} doorgegeven",
+	"admin.routing.todayCalm": "Vandaag {n} doorgegeven, niets bijzonders",
+	"admin.cpu.lineNone": "Nog geen cijfers · limiet {limit} per run",
+	"admin.cpu.line": "Vandaag {cut} van {runs} runs afgebroken",
+	"admin.switch.usage.marks": {
+		one: "Gebruik, {n} vraagt je aandacht",
+		other: "Gebruik, {n} vragen je aandacht",
+	},
+	"admin.lage.heading": "Dit vraagt je aandacht",
+	"admin.lage.calm": "Alles binnen de grenzen",
+	"admin.lage.calmLine":
+		"Geen cijfer heeft zijn let-op-grens bereikt, alle teams hebben geantwoord, er wacht niets. Stand van {time} UTC.",
+	"admin.lage.calmLineWaiting":
+		"Geen cijfer heeft zijn let-op-grens bereikt en alle teams hebben geantwoord. Stand van {time} UTC.",
+	"admin.lage.critical": {
+		one: "{n} kritiek",
+		other: "{n} kritiek",
+	},
+	"admin.lage.warning": {
+		one: "{n} waarschuwing",
+		other: "{n} waarschuwingen",
+	},
+	"admin.lage.early": {
+		one: "{n} let op",
+		other: "{n} let op",
+	},
+	"admin.lage.strava": "Strava, vandaag",
+	"admin.lage.cloudflare": "Cloudflare, stand van {date}",
+	"admin.lage.earlyLine": "boven de let-op-grens van {n}\u00a0%",
+	"admin.lage.day": "{table}: {date}",
+	"admin.lage.recheck.over24h": "Renners hebben langer dan 24 uur gewacht",
+	"admin.lage.recheck.order": "Lijst in de verkeerde volgorde",
+	"admin.lage.routing.missed": "Dreigend verlies",
+	"admin.lage.routing.possible": "Mogelijk verlies",
+	"admin.lage.routing.everyone": "Te veel naar alle teams gestuurd",
+	"admin.lage.calls": "De aanroepen kloppen niet",
+	"admin.lage.cpu": "{owner}: runs afgebroken",
+	"admin.lage.cpuLine": "{cut} van {runs} vandaag",
+	"admin.lage.team.stale": "{team} heeft niet geantwoord",
+	"admin.lage.team.staleLine":
+		"Zijn nieuwe cijfers ontbreken tot het weer antwoordt. Laatste antwoord: {time} UTC.",
+	"admin.lage.team.never": "{team} heeft nog nooit geantwoord",
+	"admin.lage.team.neverLine":
+		"Zijn cijfers ontbreken in alle waarden tot het antwoordt.",
+	"admin.lage.device": "Je krijgt geen gebruiksmeldingen",
+	"admin.lage.deviceLine": "Op geen van je apparaten staan meldingen aan.",
+	"admin.figure.of": "{used} van {limit}",
+	"admin.figure.levels":
+		"Let op vanaf {early}\u00a0%, waarschuwing vanaf {warning}\u00a0%, kritiek vanaf {critical}\u00a0%.",
+	"admin.figure.levelsNoEarly":
+		"Waarschuwing vanaf {warning}\u00a0%, kritiek vanaf {critical}\u00a0%.",
+	"admin.figure.whose.team": "{team} {n}",
+	"admin.figure.whose.none": "{team}: geen cijfers",
+	"admin.figure.whose.window": "alleen dit team",
+	"admin.figure.whose.account": "hele account",
+	"admin.strava.when": "vandaag, UTC",
+	"admin.cloudflare.when": "stand van {time} UTC",
+	"admin.strava.note":
+		"Bij de 15-minutencijfers tellen verzoeken van andere teams als niet toegewezen: de teams wisselen deze cijfers niet uit.",
+	"admin.strava.quiet": "15-minutencijfers op 0\u00a0% zijn verborgen.",
 	"admin.recheck.heading": "Hercontrole van ritten",
 	"admin.recheck.allowance":
 		"{allowance} controles per dag voor dit team · {riders} actieve renners (met een activiteit in de laatste 30 dagen)",
@@ -1302,10 +1374,6 @@ export const nl: Catalog = {
 	"admin.calls.all": "Alle teams",
 	"admin.calls.strava": "Strava",
 	"admin.calls.missing": "ontbreekt",
-	"admin.summary.calls":
-		"Dagen met een waarschuwing bij de aanroepen naar Strava: {n}",
-	"admin.summary.routing":
-		"Dagen met een waarschuwing bij de gateway-routering: {n}",
 	"admin.waiting.heading": "Wachten op het Strava-budget",
 	"admin.waiting.body": {
 		one: "{n} item wacht, klaar over ongeveer {time}.",
@@ -1315,14 +1383,11 @@ export const nl: Catalog = {
 	"admin.waiting.hours": { one: "{n} uur", other: "{n} uur" },
 	"admin.waiting.days": { one: "{n} dag", other: "{n} dagen" },
 	"admin.alerts.heading": "Gebruiksmeldingen",
-	"admin.alerts.on":
-		"Je krijgt een melding als een Strava- of Cloudflare-limiet of het aantal verbonden renners 80 % of 95 % bereikt.",
+	"admin.alerts.title": "Meldingen: let op, waarschuwing en kritiek",
+	"admin.alerts.levels":
+		"Eén keer per cijfer en niveau: vanaf de let-op-grens, bij 80 % en bij 95 %.",
 	"admin.alerts.off":
 		"Je krijgt geen meldingen over het gebruik. Deze pagina markeert de cijfers wel.",
-	"admin.alerts.turnOff": "Gebruiksmeldingen uitzetten",
-	"admin.alerts.turnOn": "Gebruiksmeldingen aanzetten",
-	"admin.alerts.noDevice":
-		"Je krijgt geen meldingen: op geen van je apparaten staan meldingen aan. Zet ze aan in {settings}.",
 	"admin.history.days": "Elke dag",
 	"admin.history.hideDays": "Dagen verbergen",
 	"admin.history.none":
@@ -1371,6 +1436,7 @@ export const nl: Catalog = {
 		"Dat is geen renner uit deze lijst. Er is niets veranderd.",
 	"admin.remove.leaveLink": "Mijn gegevens wissen",
 	"notification.usage.warning": "{allowance}: {percent} %",
+	"notification.usage.early": "Let op: {allowance} op {percent} %",
 	"notification.usage.critical": "Kritiek: {allowance} op {percent} %",
 	"notification.usage.cpuWarning":
 		"Cloudflare heeft vandaag runs afgebroken, meestal door te veel CPU-tijd.",

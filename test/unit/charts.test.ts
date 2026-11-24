@@ -396,4 +396,30 @@ describe("thresholdBars", () => {
 		expect(tickOf(thresholdBars(100, 250, 138).value)).toBe("55.2");
 		expect(thresholdBars(100, 250, null).value).not.toContain("pace-mark");
 	});
+
+	// Feature 048 research R7: the usage levels on a figure's bar.
+	const marksOf = (svg: string) =>
+		[...svg.matchAll(/<line class="threshold-tick" x1="([^"]*)"/g)].map(
+			(m) => m[1],
+		);
+
+	it("marks each level at its percentage of the limit", () => {
+		expect(marksOf(thresholdBars(10, 1000, null, [25, 80, 95]).value)).toEqual([
+			"25",
+			"80",
+			"95",
+		]);
+	});
+
+	it("draws no level marks without them, as before", () => {
+		const svg = thresholdBars(100, 250, 138).value;
+		expect(svg).not.toContain("threshold-tick");
+		expect(svg).toBe(thresholdBars(100, 250, 138, []).value);
+	});
+
+	it("stays full over 100 %, its marks where they were", () => {
+		const svg = thresholdBars(1500, 1000, null, [25, 80, 95]).value;
+		expect(widthOf(svg)).toBe(100);
+		expect(marksOf(svg)).toEqual(["25", "80", "95"]);
+	});
 });

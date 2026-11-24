@@ -152,3 +152,32 @@ export async function fetchCpuUsage(
 export function notifiesThisTeam(owner: string, self: string): boolean {
 	return owner === self || owner === SHARED;
 }
+
+/** A day of the usage view's CPU table: this team, the other teams together, the gateway. */
+export interface CpuRow {
+	day: string;
+	own: CpuDay | null;
+	others: CpuDay | null;
+	shared: CpuDay | null;
+}
+
+/** The days' records by owner, other teams added up, newest first. */
+export function cpuRows(days: readonly CpuDay[], self: string): CpuRow[] {
+	const rows = new Map<string, CpuRow>();
+	for (const record of days) {
+		let row = rows.get(record.day);
+		if (!row) {
+			row = { day: record.day, own: null, others: null, shared: null };
+			rows.set(record.day, row);
+		}
+		if (record.owner === self) row.own = record;
+		else if (record.owner === SHARED) row.shared = record;
+		else if (row.others === null) row.others = { ...record };
+		else {
+			row.others.runs += record.runs;
+			row.others.cutOff += record.cutOff;
+			row.others.p99Us = Math.max(row.others.p99Us, record.p99Us);
+		}
+	}
+	return [...rows.values()].sort((a, b) => b.day.localeCompare(a.day));
+}

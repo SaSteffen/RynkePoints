@@ -3,11 +3,12 @@ import type { Ctx } from "../../ctx";
 import type { Rider } from "../../db/riders";
 import type { I18n } from "../../i18n/i18n";
 import type { AllowanceId } from "../../usage/allowances";
+import { markCount } from "../../usage/attention";
 import { forbidden } from "../errors";
 import { html, type SafeHtml } from "../html";
 import { GAUGE, PEOPLE } from "../icons";
 import { isSameOrigin } from "../session";
-import { type ShellViewer, shellPage } from "../shell";
+import { countBadge, type ShellViewer, shellPage } from "../shell";
 import { readViewer, riderConsentState } from "../viewer";
 
 // Who may use the admin pages (feature 025 FR-001 to FR-004, research R10). Every
@@ -58,10 +59,23 @@ export async function requireAdminPost(
 
 export type AdminView = "usage" | "riders";
 
-/** The switch between the views, like Orga's. */
-export function adminSwitch(i18n: I18n, current: AdminView): SafeHtml {
+/** The usage marks the Admin tab counts, from the state the shell read once. */
+export async function usageMarks(viewer: ShellViewer): Promise<number> {
+	return viewer.usage ? markCount((await viewer.usage).items).total : 0;
+}
+
+/**
+ * The switch between the views, like Orga's; "Nutzung" carries the Admin
+ * tab's number of usage marks (feature 048 contracts/nav-count.md).
+ */
+export function adminSwitch(
+	i18n: I18n,
+	current: AdminView,
+	marks: number,
+): SafeHtml {
+	const counted = (view: AdminView) => view === "usage" && marks > 0;
 	const segment = (view: AdminView, href: string, icon: SafeHtml) =>
-		html`<a class="segmented" href="${href}"${view === current ? html` aria-current="true"` : null}>${icon}${i18n.t(`admin.switch.${view}`)}</a>`;
+		html`<a class="segmented" href="${href}"${counted(view) ? html` aria-label="${i18n.t("admin.switch.usage.marks", { n: marks })}"` : null}${view === current ? html` aria-current="true"` : null}>${icon}${i18n.t(`admin.switch.${view}`)}${counted(view) ? countBadge(marks) : null}</a>`;
 	return html`<nav class="organiser-switch" aria-label="${i18n.t("admin.switch.label")}">
 ${segment("riders", "/admin/riders", PEOPLE)}
 ${segment("usage", "/admin", GAUGE)}
