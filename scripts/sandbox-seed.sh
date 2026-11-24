@@ -103,14 +103,9 @@ seed() {
 
 	local work state port inspector log pid
 	work="$(work_dir "$team")"
-	# `d1 export` has no --persist-to: it reads .wrangler/state next to the
-	# configuration it's given, so the database lives there.
-	local root="$work/base"
-	state="$root/.wrangler/state"
+	state="$work/base-state"
 	log="$work/server.log"
-	rm -rf "$root" "$work/base.sql"
-	mkdir -p "$root"
-	cp "$src/wrangler.jsonc" "$root/wrangler.jsonc"
+	rm -rf "$state" "$work/base.sql"
 	wrangler_in "$src" d1 migrations apply DB --local --env "$team" \
 		--persist-to "$state" >/dev/null
 	port="$(free_port)"
@@ -162,8 +157,11 @@ seed() {
 	wait "$pid" 2>/dev/null || true
 	trap - EXIT
 
-	wrangler_in "$src" d1 export DB --local --env "$team" \
-		--config "$root/wrangler.jsonc" --output "$work/base.sql" >/dev/null
+	# Not `wrangler d1 export`: it rounds IDs past 2^53 (scripts/sandbox-export.mjs).
+	local db
+	db="$(find "$state/v3/d1" -name '*.sqlite' ! -name metadata.sqlite)"
+	[[ -n "$db" && "$db" != *$'\n'* ]] || die "Expected one local database in $state"
+	node "$SELF/scripts/sandbox-export.mjs" "$db" >"$work/base.sql"
 	[[ -s "$work/base.sql" ]] || die "The export wrote nothing"
 	# The sandbox mustn't follow anything back to the machine that seeded it.
 	if grep -q "localhost:$port\|127\.0\.0\.1:$port" "$work/base.sql"; then
