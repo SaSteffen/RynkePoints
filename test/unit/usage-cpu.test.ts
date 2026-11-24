@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { europe } from "../../src/teams/europe";
-import { hamburg } from "../../src/teams/hamburg";
 import {
 	cpuByOwner,
 	cpuLevel,
@@ -8,6 +6,8 @@ import {
 	parseCpu,
 } from "../../src/usage/cpu";
 import { GATEWAY_WORKER, SHARED } from "../../src/usage/split";
+import { europe } from "../../teams/europe/team";
+import { hamburg } from "../../teams/hamburg/team";
 import { cpuBody, installCloudflare, WITH_ANALYTICS } from "../support/usage";
 
 // The Workers' CPU time (feature 025 User Story 6, FR-041, FR-043, FR-045).
