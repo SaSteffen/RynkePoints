@@ -1194,6 +1194,7 @@ export const en: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Database storage",
 	"admin.gigabytes": "{n}\u00a0GB",
 	"admin.level.warning": "Warning",
+	"admin.level.early": "Heads-up",
 	"admin.level.critical": "Critical",
 	"admin.summary.ok": "All figures are below 80\u00a0%.",
 	"admin.summary.attention": "Figures at 80\u00a0% or above: {n}",
@@ -1296,8 +1297,9 @@ export const en: Catalog = {
 	"admin.waiting.hours": { one: "{n} hour", other: "{n} hours" },
 	"admin.waiting.days": { one: "{n} day", other: "{n} days" },
 	"admin.alerts.heading": "Usage alerts",
-	"admin.alerts.on":
-		"You get a notification when a Strava or Cloudflare allowance or connected riders reach 80\u00a0% or 95\u00a0%.",
+	"admin.alerts.title": "Notify at heads-up, warning and critical",
+	"admin.alerts.levels":
+		"Once per figure and level: from its heads-up threshold, at 80\u00a0% and at 95\u00a0%.",
 	"admin.alerts.off":
 		"You get no notifications about usage. This page still marks the figures.",
 	"admin.alerts.turnOff": "Turn off usage alerts",
@@ -1351,6 +1353,7 @@ export const en: Catalog = {
 		"That isn't a rider listed here. Nothing changed.",
 	"admin.remove.leaveLink": "Delete my data",
 	"notification.usage.warning": "{allowance}: {percent}\u00a0%",
+	"notification.usage.early": "Heads-up: {allowance} at {percent}\u00a0%",
 	"notification.usage.critical": "Critical: {allowance} at {percent}\u00a0%",
 	"notification.usage.cpuWarning":
 		"Cloudflare cut off runs today, mostly for using too much CPU time.",

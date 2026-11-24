@@ -1245,6 +1245,7 @@ export const fr: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Stockage de la base",
 	"admin.gigabytes": "{n} Go",
 	"admin.level.warning": "Avertissement",
+	"admin.level.early": "À noter",
 	"admin.level.critical": "Critique",
 	"admin.summary.ok": "Tous les chiffres sont sous 80 %.",
 	"admin.summary.attention": "Chiffres à 80 % ou plus\u00a0: {n}",
@@ -1369,8 +1370,10 @@ export const fr: Catalog = {
 		other: "{n} jours",
 	},
 	"admin.alerts.heading": "Alertes d'utilisation",
-	"admin.alerts.on":
-		"Tu reçois une notification quand un quota Strava ou Cloudflare ou le nombre de cyclistes connectés atteint 80 % ou 95 %.",
+	"admin.alerts.title":
+		"Notifications\u00a0: à noter, avertissement et critique",
+	"admin.alerts.levels":
+		"Une fois par chiffre et par niveau\u00a0: dès son seuil «\u00a0à noter\u00a0», à 80 % et à 95 %.",
 	"admin.alerts.off":
 		"Tu ne reçois pas de notifications d'utilisation. Cette page marque quand même les chiffres.",
 	"admin.alerts.turnOff": "Désactiver les alertes d'utilisation",
@@ -1425,6 +1428,7 @@ export const fr: Catalog = {
 		"Ce n'est pas un·e cycliste de cette liste. Rien n'a changé.",
 	"admin.remove.leaveLink": "Supprimer mes données",
 	"notification.usage.warning": "{allowance}\u00a0: {percent} %",
+	"notification.usage.early": "À noter\u00a0: {allowance} à {percent} %",
 	"notification.usage.critical": "Critique\u00a0: {allowance} à {percent} %",
 	"notification.usage.cpuWarning":
 		"Cloudflare a interrompu des exécutions aujourd'hui, surtout pour trop de temps CPU.",

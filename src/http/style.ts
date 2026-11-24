@@ -819,6 +819,7 @@ button.org-legend-entry[aria-pressed=true]{background:var(--md-sys-color-surface
 .usage-mark{padding:0 var(--rp-space-2);border-radius:var(--md-shape-full);font:var(--md-type-label-small);font-weight:600}
 .usage-mark-warning{outline:2px solid currentColor;outline-offset:-2px;color:var(--md-sys-color-on-surface)}
 .usage-mark-critical{background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container)}
+.usage-mark-early{outline:1px solid currentColor;outline-offset:-1px;color:var(--md-sys-color-on-surface-variant)}
 .usage-figure .threshold-fill{fill:var(--md-sys-color-primary)}
 .usage-warning .threshold-fill{fill:var(--rp-bar-warning)}
 .usage-critical .threshold-fill{fill:var(--md-sys-color-error)}

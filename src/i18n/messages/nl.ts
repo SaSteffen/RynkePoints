@@ -1208,6 +1208,7 @@ export const nl: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Databaseopslag",
 	"admin.gigabytes": "{n} GB",
 	"admin.level.warning": "Waarschuwing",
+	"admin.level.early": "Let op",
 	"admin.level.critical": "Kritiek",
 	"admin.summary.ok": "Alle cijfers liggen onder 80 %.",
 	"admin.summary.attention": "Cijfers op 80 % of hoger: {n}",
@@ -1315,8 +1316,9 @@ export const nl: Catalog = {
 	"admin.waiting.hours": { one: "{n} uur", other: "{n} uur" },
 	"admin.waiting.days": { one: "{n} dag", other: "{n} dagen" },
 	"admin.alerts.heading": "Gebruiksmeldingen",
-	"admin.alerts.on":
-		"Je krijgt een melding als een Strava- of Cloudflare-limiet of het aantal verbonden renners 80 % of 95 % bereikt.",
+	"admin.alerts.title": "Meldingen: let op, waarschuwing en kritiek",
+	"admin.alerts.levels":
+		"Eén keer per cijfer en niveau: vanaf de let-op-grens, bij 80 % en bij 95 %.",
 	"admin.alerts.off":
 		"Je krijgt geen meldingen over het gebruik. Deze pagina markeert de cijfers wel.",
 	"admin.alerts.turnOff": "Gebruiksmeldingen uitzetten",
@@ -1371,6 +1373,7 @@ export const nl: Catalog = {
 		"Dat is geen renner uit deze lijst. Er is niets veranderd.",
 	"admin.remove.leaveLink": "Mijn gegevens wissen",
 	"notification.usage.warning": "{allowance}: {percent} %",
+	"notification.usage.early": "Let op: {allowance} op {percent} %",
 	"notification.usage.critical": "Kritiek: {allowance} op {percent} %",
 	"notification.usage.cpuWarning":
 		"Cloudflare heeft vandaag runs afgebroken, meestal door te veel CPU-tijd.",

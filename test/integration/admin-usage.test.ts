@@ -278,7 +278,13 @@ describe("usage alerts switch (FR-039)", () => {
 
 	it("is on by default", async () => {
 		expect(await stored(ADMIN)).toBe(1);
-		expect(await page()).toContain(de["admin.alerts.turnOff"]);
+		const text = await page();
+		expect(text).toContain(de["admin.alerts.turnOff"]);
+		// Feature 048 FR-011: the switch names the three levels.
+		expect(text).toContain(
+			"Benachrichtigung bei Hinweis, Warnung und kritisch",
+		);
+		expect(text).toContain(de["admin.alerts.levels"]);
 	});
 
 	it("sets only the viewer's own, and stays set after a reload", async () => {

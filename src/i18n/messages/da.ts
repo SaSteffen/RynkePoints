@@ -1187,6 +1187,7 @@ export const da: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Databaselager",
 	"admin.gigabytes": "{n} GB",
 	"admin.level.warning": "Advarsel",
+	"admin.level.early": "Obs",
 	"admin.level.critical": "Kritisk",
 	"admin.summary.ok": "Alle tal er under 80 %.",
 	"admin.summary.attention": "Tal på 80 % eller derover: {n}",
@@ -1292,8 +1293,9 @@ export const da: Catalog = {
 	"admin.waiting.hours": { one: "{n} time", other: "{n} timer" },
 	"admin.waiting.days": { one: "{n} dag", other: "{n} dage" },
 	"admin.alerts.heading": "Forbrugsadvarsler",
-	"admin.alerts.on":
-		"Du får en notifikation, når en Strava- eller Cloudflare-kvote eller antallet af forbundne ryttere når 80 % eller 95 %.",
+	"admin.alerts.title": "Notifikation ved obs, advarsel og kritisk",
+	"admin.alerts.levels":
+		"Én gang pr. tal og niveau: fra obs-grænsen, ved 80 % og ved 95 %.",
 	"admin.alerts.off":
 		"Du får ingen notifikationer om forbrug. Denne side markerer stadig tallene.",
 	"admin.alerts.turnOff": "Slå forbrugsadvarsler fra",
@@ -1348,6 +1350,7 @@ export const da: Catalog = {
 		"Det er ikke en rytter på listen her. Intet er ændret.",
 	"admin.remove.leaveLink": "Slet mine data",
 	"notification.usage.warning": "{allowance}: {percent} %",
+	"notification.usage.early": "Obs: {allowance} på {percent} %",
 	"notification.usage.critical": "Kritisk: {allowance} på {percent} %",
 	"notification.usage.cpuWarning":
 		"Cloudflare afbrød afviklinger i dag, oftest på grund af for meget CPU-tid.",

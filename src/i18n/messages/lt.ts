@@ -1227,6 +1227,7 @@ export const lt: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Duomenų bazės saugykla",
 	"admin.gigabytes": "{n} GB",
 	"admin.level.warning": "Įspėjimas",
+	"admin.level.early": "Dėmesio",
 	"admin.level.critical": "Kritinis",
 	"admin.summary.ok": "Visi skaičiai žemiau 80 %.",
 	"admin.summary.attention": "Skaičiai, pasiekę 80 % ar daugiau: {n}",
@@ -1352,8 +1353,9 @@ export const lt: Catalog = {
 		other: "{n} dienų",
 	},
 	"admin.alerts.heading": "Naudojimo įspėjimai",
-	"admin.alerts.on":
-		"Gauni pranešimą, kai Strava ar Cloudflare limitas arba prisijungę dviratininkai pasiekia 80 % ar 95 %.",
+	"admin.alerts.title": "Pranešimai: dėmesio, įspėjimas ir kritinis",
+	"admin.alerts.levels":
+		"Kartą kiekvienam skaičiui ir lygiui: nuo dėmesio ribos, ties 80 % ir ties 95 %.",
 	"admin.alerts.off":
 		"Pranešimų apie naudojimą negauni. Šis puslapis skaičius vis tiek pažymi.",
 	"admin.alerts.turnOff": "Išjungti naudojimo įspėjimus",
@@ -1407,6 +1409,7 @@ export const lt: Catalog = {
 		"Tai ne čia išvardytas dviratininkas. Niekas nepasikeitė.",
 	"admin.remove.leaveLink": "Ištrinti mano duomenis",
 	"notification.usage.warning": "{allowance}: {percent} %",
+	"notification.usage.early": "Dėmesio: {allowance} {percent} %",
 	"notification.usage.critical": "Kritinis: {allowance} – {percent} %",
 	"notification.usage.cpuWarning":
 		"Šiandien Cloudflare nutraukė paleidimų, dažniausiai dėl per didelio procesoriaus laiko.",

@@ -21,7 +21,7 @@ import {
 	WITH_ANALYTICS,
 } from "../support/usage";
 
-// Alerts (feature 025 US5, contracts/alerts.md, FR-033 to FR-037). Each message
+// Alerts (feature 025 US5, feature 048 US2's Hinweis, contracts/alerts.md, FR-033 to FR-037). Each message
 // on the fake queue is one notification to one device; none holds any rider data
 // but the IDs it is addressed by.
 
@@ -74,8 +74,8 @@ beforeEach(async () => {
 });
 
 describe("a daily allowance", () => {
-	it("below 80 % sends nothing", async () => {
-		await readsAt(79);
+	it("below the early threshold sends nothing", async () => {
+		await readsAt(24);
 		await handleScheduled(hourly(), ctx);
 		expect(notified(ctx.queue.sent)).toEqual([]);
 		expect(await alerts()).toEqual([]);
@@ -86,8 +86,30 @@ describe("a daily allowance", () => {
 		await handleScheduled(hourly(), ctx);
 		expect(notified(ctx.queue.sent).sort()).toEqual([ADMIN, OTHER_ADMIN]);
 		expect(await alerts()).toEqual([
+			{ allowance: "strava_read_daily", period: TODAY, level: 25 },
 			{ allowance: "strava_read_daily", period: TODAY, level: 80 },
 		]);
+	});
+
+	it("at 25 % notifies once as a Hinweis (feature 048 US2 scenario 1)", async () => {
+		await readsAt(25);
+		await handleScheduled(hourly(), ctx);
+		expect(notified(ctx.queue.sent).sort()).toEqual([ADMIN, OTHER_ADMIN]);
+		expect(await alerts()).toEqual([
+			{ allowance: "strava_read_daily", period: TODAY, level: 25 },
+		]);
+		ctx.queue.sent.length = 0;
+		await handleScheduled(hourly(), ctx);
+		expect(notified(ctx.queue.sent)).toEqual([]);
+	});
+
+	it("after the Hinweis, 80 % and 95 % notify once each (feature 048 US2 scenario 2)", async () => {
+		for (const percent of [30, 80, 95]) {
+			ctx.queue.sent.length = 0;
+			await readsAt(percent);
+			await handleScheduled(hourly(), ctx);
+			expect(notified(ctx.queue.sent).sort()).toEqual([ADMIN, OTHER_ADMIN]);
+		}
 	});
 
 	it("at 95 % later notifies once more (scenario 2)", async () => {
@@ -103,7 +125,7 @@ describe("a daily allowance", () => {
 		await readsAt(96);
 		await handleScheduled(hourly(), ctx);
 		expect(notified(ctx.queue.sent).sort()).toEqual([ADMIN, OTHER_ADMIN]);
-		expect(await alerts()).toHaveLength(2);
+		expect(await alerts()).toHaveLength(3);
 	});
 
 	it("sends nothing on further checks in the period (scenario 3, FR-035)", async () => {
@@ -179,6 +201,7 @@ describe("the usage alerts switch (scenarios 7 to 9, FR-039)", () => {
 		await handleScheduled(hourly(), target);
 		expect(notified(ctx.queue.sent)).toEqual([]);
 		expect(await alerts()).toEqual([
+			{ allowance: "cf_worker_requests", period: TODAY, level: 25 },
 			{ allowance: "cf_worker_requests", period: TODAY, level: 80 },
 		]);
 		await env.DB.prepare("UPDATE riders SET admin_alerts = 1").run();
@@ -215,9 +238,26 @@ describe("allowances that don't reset", () => {
 	it("keep their period as open", async () => {
 		await handleScheduled(hourly(), storageAt(4_800_000_000));
 		expect(await alerts()).toEqual([
+			{ allowance: "cf_d1_storage_bytes", period: "open", level: 25 },
 			{ allowance: "cf_d1_storage_bytes", period: "open", level: 80 },
 			{ allowance: "cf_d1_storage_bytes", period: "open", level: 95 },
 		]);
+	});
+
+	it("clear the Hinweis below the early threshold, so the next rise notifies (feature 048)", async () => {
+		await handleScheduled(hourly(), storageAt(2_000_000_000));
+		expect(notified(ctx.queue.sent)).toHaveLength(2);
+		ctx.queue.sent.length = 0;
+
+		vi.mocked(globalThis.fetch).mockRestore();
+		vi.spyOn(globalThis, "fetch");
+		await handleScheduled(hourly(), storageAt(1_000_000_000));
+		expect(await alerts()).toEqual([]);
+
+		vi.mocked(globalThis.fetch).mockRestore();
+		vi.spyOn(globalThis, "fetch");
+		await handleScheduled(hourly(), storageAt(2_000_000_000));
+		expect(notified(ctx.queue.sent)).toHaveLength(2);
 	});
 });
 
@@ -227,7 +267,7 @@ describe("failures", () => {
 		await readsAt(80);
 		await handleScheduled(hourly(), ctx);
 		expect(notified(ctx.queue.sent)).toEqual([]);
-		expect(await alerts()).toHaveLength(1);
+		expect(await alerts()).toHaveLength(2);
 	});
 
 	it("a queue failure doesn't fail the recording (scenario 6)", async () => {

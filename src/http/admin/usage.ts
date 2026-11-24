@@ -542,7 +542,10 @@ function summary(
 	routingWarnings: number,
 	callWarnings: number,
 ): SafeHtml {
-	const marked = figures.filter((f) => f.level !== "ok").length + cpuMarked;
+	// "80 % or more": Hinweis waits for the list of feature 048 User Story 1.
+	const marked =
+		figures.filter((f) => f.level === "warning" || f.level === "critical")
+			.length + cpuMarked;
 	const days = (key: MessageId, n: number) =>
 		n === 0
 			? null
@@ -571,7 +574,8 @@ function alertsSwitch(i18n: I18n, rider: Rider): SafeHtml {
 	const on = rider.adminAlerts;
 	return html`<section class="settings-group">
 <h2>${i18n.t("admin.alerts.heading")}</h2>
-<p>${i18n.t(on ? "admin.alerts.on" : "admin.alerts.off")}</p>
+<p>${i18n.t("admin.alerts.title")}</p>
+<p>${i18n.t(on ? "admin.alerts.levels" : "admin.alerts.off")}</p>
 <form method="post" action="/admin/alerts"><input type="hidden" name="admin_alerts" value="${on ? "off" : "on"}"><button class="button-outlined">${i18n.t(on ? "admin.alerts.turnOff" : "admin.alerts.turnOn")}</button></form>
 </section>
 `;

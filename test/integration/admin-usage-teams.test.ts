@@ -300,11 +300,15 @@ describe("the hourly recording with another team", () => {
 		const notified = ctx.queue.sent.flatMap(({ body }: SentMessage) =>
 			body.kind === "send-notification" ? [body.athleteId] : [],
 		);
-		expect(notified).toEqual([ADMIN]);
+		// Europe's synthetic counts pass other figures' Hinweis too (feature 048).
+		expect(new Set(notified)).toEqual(new Set([ADMIN]));
 		const { results } = await env.DB.prepare(
-			"SELECT allowance, level FROM usage_alerts",
+			"SELECT allowance, level FROM usage_alerts WHERE allowance = 'riders_connected'",
 		).all();
-		expect(results).toEqual([{ allowance: "riders_connected", level: 80 }]);
+		expect(results).toEqual([
+			{ allowance: "riders_connected", level: 25 },
+			{ allowance: "riders_connected", level: 80 },
+		]);
 	});
 });
 

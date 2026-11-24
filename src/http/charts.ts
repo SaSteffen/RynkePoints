@@ -304,7 +304,8 @@ const DAILY_TOUCHING = 90;
 export interface DailyBar {
 	/** Percentage of that day's limit; null: no record that day. */
 	share: number | null;
-	level: "ok" | "warning" | "critical";
+	/** Hinweis draws like a fine day: the history colours from 80 % on. */
+	level: "ok" | "early" | "warning" | "critical";
 }
 
 /**
@@ -323,7 +324,7 @@ export function dailyBars(days: readonly DailyBar[], label: string): SafeHtml {
 	const paths = { ok: "", warning: "", critical: "" };
 	days.forEach(({ share, level }, i) => {
 		if (share === null) return;
-		paths[level] +=
+		paths[level === "early" ? "ok" : level] +=
 			`M${coord(i * slot)} ${coord(y(share))}h${width}V${DAILY_HEIGHT}h-${width}z`;
 	});
 	return html`<svg class="usage-chart" viewBox="0 0 ${DAILY_WIDTH} ${DAILY_HEIGHT}" preserveAspectRatio="none" role="img" aria-label="${label}"><path class="usage-bars" d="${paths.ok}"/><path class="usage-bars usage-bars-warning" d="${paths.warning}"/><path class="usage-bars usage-bars-critical" d="${paths.critical}"/><line x1="0" x2="${DAILY_WIDTH}" y1="${coord(y(100))}" y2="${coord(y(100))}" vector-effect="non-scaling-stroke"/></svg>`;

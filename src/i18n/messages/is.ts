@@ -1198,6 +1198,7 @@ export const is: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Gagnagrunnsgeymsla",
 	"admin.gigabytes": "{n} GB",
 	"admin.level.warning": "Viðvörun",
+	"admin.level.early": "Athugið",
 	"admin.level.critical": "Alvarlegt",
 	"admin.summary.ok": "Allar tölur eru undir 80 %.",
 	"admin.summary.attention": "Tölur í 80 % eða yfir: {n}",
@@ -1304,8 +1305,9 @@ export const is: Catalog = {
 	"admin.waiting.hours": { one: "{n} klukkustund", other: "{n} klukkustundir" },
 	"admin.waiting.days": { one: "{n} dag", other: "{n} daga" },
 	"admin.alerts.heading": "Notkunarviðvaranir",
-	"admin.alerts.on":
-		"Þú færð tilkynningu þegar Strava- eða Cloudflare-kvóti eða tengdir hjólreiðamenn ná 80 % eða 95 %.",
+	"admin.alerts.title": "Tilkynningar: athugið, viðvörun og alvarlegt",
+	"admin.alerts.levels":
+		"Einu sinni fyrir hverja tölu og stig: frá athugunarmörkum, við 80 % og við 95 %.",
 	"admin.alerts.off":
 		"Þú færð engar tilkynningar um notkun. Þessi síða merkir tölurnar samt.",
 	"admin.alerts.turnOff": "Slökkva á notkunarviðvörunum",
@@ -1361,6 +1363,7 @@ export const is: Catalog = {
 		"Þetta er ekki hjólreiðamaður á listanum hér. Engu var breytt.",
 	"admin.remove.leaveLink": "Eyða gögnunum mínum",
 	"notification.usage.warning": "{allowance}: {percent} %",
+	"notification.usage.early": "Athugið: {allowance} í {percent} %",
 	"notification.usage.critical": "Alvarlegt: {allowance} í {percent} %",
 	"notification.usage.cpuWarning":
 		"Cloudflare stöðvaði keyrslur í dag, oftast vegna of mikils örgjörvatíma.",

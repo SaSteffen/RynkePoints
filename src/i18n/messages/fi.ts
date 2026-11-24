@@ -1195,6 +1195,7 @@ export const fi: Catalog = {
 	"admin.allowance.cf_d1_storage_bytes": "Tietokannan tallennustila",
 	"admin.gigabytes": "{n} Gt",
 	"admin.level.warning": "Varoitus",
+	"admin.level.early": "Huomio",
 	"admin.level.critical": "Kriittinen",
 	"admin.summary.ok": "Kaikki luvut ovat alle 80 %.",
 	"admin.summary.attention": "Lukuja 80 % tai yli: {n}",
@@ -1301,8 +1302,9 @@ export const fi: Catalog = {
 	"admin.waiting.hours": { one: "{n} tunnin", other: "{n} tunnin" },
 	"admin.waiting.days": { one: "{n} päivän", other: "{n} päivän" },
 	"admin.alerts.heading": "Käyttöhälytykset",
-	"admin.alerts.on":
-		"Saat ilmoituksen, kun jokin Strava- tai Cloudflare-kiintiö tai yhdistettyjen ajajien määrä saavuttaa 80 % tai 95 %.",
+	"admin.alerts.title": "Ilmoitukset: huomio, varoitus ja kriittinen",
+	"admin.alerts.levels":
+		"Kerran lukua ja tasoa kohden: huomiorajasta alkaen, 80 %:ssa ja 95 %:ssa.",
 	"admin.alerts.off":
 		"Et saa ilmoituksia käytöstä. Tämä sivu merkitsee luvut silti.",
 	"admin.alerts.turnOff": "Poista käyttöhälytykset käytöstä",
@@ -1357,6 +1359,7 @@ export const fi: Catalog = {
 		"Tämä ei ole listalla oleva ajaja. Mitään ei muutettu.",
 	"admin.remove.leaveLink": "Poista tietoni",
 	"notification.usage.warning": "{allowance}: {percent} %",
+	"notification.usage.early": "Huomio: {allowance} {percent} %",
 	"notification.usage.critical": "Kriittinen: {allowance} {percent} %",
 	"notification.usage.cpuWarning":
 		"Cloudflare keskeytti tänään suorituksia, yleensä liian suuren suoritinajan vuoksi.",

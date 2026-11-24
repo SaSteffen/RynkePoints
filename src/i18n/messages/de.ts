@@ -1235,6 +1235,7 @@ export const de = {
 	"admin.allowance.cf_d1_storage_bytes": "Datenbank-Speicher",
 	"admin.gigabytes": "{n}\u00a0GB",
 	"admin.level.warning": "Warnung",
+	"admin.level.early": "Hinweis",
 	"admin.level.critical": "Kritisch",
 	"admin.summary.ok": "Alle Werte liegen unter 80\u00a0%.",
 	"admin.summary.attention": "Werte bei 80\u00a0% oder mehr: {n}",
@@ -1342,8 +1343,9 @@ export const de = {
 	"admin.waiting.hours": { one: "{n} Stunde", other: "{n} Stunden" },
 	"admin.waiting.days": { one: "{n} Tag", other: "{n} Tagen" },
 	"admin.alerts.heading": "Nutzungshinweise",
-	"admin.alerts.on":
-		"Du bekommst eine Benachrichtigung, wenn ein Kontingent von Strava oder Cloudflare oder die verbundenen Rider 80\u00a0% oder 95\u00a0% erreichen.",
+	"admin.alerts.title": "Benachrichtigung bei Hinweis, Warnung und kritisch",
+	"admin.alerts.levels":
+		"Einmal je Wert und Stufe: ab der Hinweisgrenze, bei 80\u00a0% und bei 95\u00a0%.",
 	"admin.alerts.off":
 		"Du bekommst keine Benachrichtigungen zur Nutzung. Diese Seite markiert die Zahlen weiter.",
 	"admin.alerts.turnOff": "Nutzungshinweise ausschalten",
@@ -1398,6 +1400,7 @@ export const de = {
 		"Das ist niemand aus dieser Liste. Nichts wurde geändert.",
 	"admin.remove.leaveLink": "Meine Daten löschen",
 	"notification.usage.warning": "{allowance}: {percent}\u00a0%",
+	"notification.usage.early": "Hinweis: {allowance} bei {percent}\u00a0%",
 	"notification.usage.critical": "Kritisch: {allowance} bei {percent}\u00a0%",
 	"notification.usage.cpuWarning":
 		"Cloudflare hat heute Läufe abgebrochen, meist wegen zu viel CPU-Zeit.",

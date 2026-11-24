@@ -9,8 +9,7 @@ import {
 } from "../db/usage";
 import { notifyRiders } from "../work/send-notification";
 import {
-	ALERT_LEVELS,
-	type AlertLevel,
+	alertLevels,
 	CRITICAL_LEVEL,
 	isOpenEnded,
 	type RecordedAllowance,
@@ -24,9 +23,15 @@ import { reachesLevel } from "./figures";
 // notification per allowance, level and period, however often a run repeats; a
 // lost push isn't retried, since the view still marks the figure.
 
-/** The levels `used` has reached, lowest first. */
-export function levelsReached(used: number, limit: number): AlertLevel[] {
-	return ALERT_LEVELS.filter((level) => reachesLevel(used, limit, level));
+/** The levels `used` has reached, lowest first, Hinweis included (feature 048). */
+export function levelsReached(
+	allowance: RecordedAllowance,
+	used: number,
+	limit: number,
+): number[] {
+	return alertLevels(allowance).filter((level) =>
+		reachesLevel(used, limit, level),
+	);
 }
 
 /** The UTC day of a daily allowance, or `open` where nothing resets. */
@@ -50,7 +55,7 @@ export async function checkAlerts(
 	const fires: Fire[] = [];
 	const clears: D1PreparedStatement[] = [];
 	for (const { allowance, day, used, limit } of records) {
-		const reached = levelsReached(used, limit);
+		const reached = levelsReached(allowance, used, limit);
 		const period = alertPeriod(allowance, day);
 		for (const level of reached) {
 			fires.push({
@@ -59,7 +64,7 @@ export async function checkAlerts(
 			});
 		}
 		if (isOpenEnded(allowance)) {
-			for (const level of ALERT_LEVELS) {
+			for (const level of alertLevels(allowance)) {
 				if (!reached.includes(level)) {
 					clears.push(clearOpenAlertStatement(db, allowance, level));
 				}
@@ -86,7 +91,7 @@ export async function checkCpuAlerts(
 ): Promise<void> {
 	const db = ctx.env.DB;
 	const now = ctx.now();
-	const reached = new Set<AlertLevel>();
+	const reached = new Set<number>();
 	for (const level of levels) {
 		if (level !== "ok") reached.add(WARNING_LEVEL);
 		if (level === "critical") reached.add(CRITICAL_LEVEL);
