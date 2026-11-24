@@ -39,7 +39,7 @@ for that team and day.
   counts of teams not in `TEAMS`; delete counts older than 30 days.
 - **Off mode full list**: delete every `copy` and `lists` row.
 
-## Team: D1 `routing_daily` (migration `0038_routing_daily.sql`, additions only)
+## Team: D1 `routing_daily` (migration `0039_routing_daily.sql`, additions only)
 
 | Column | Type | Notes |
 |---|---|---|

@@ -19,7 +19,7 @@ implementation.
 ## Phase 1: Setup
 
 - [X] T001 Add the `ROUTING` var (`off`), the `ROUTING_COPY` Durable Object binding and its `new_sqlite_classes` migration to gateway/wrangler.jsonc, and update its header comment (no D1, rider data per FR-010)
-- [X] T002 [P] Add migration migrations/0038_routing_daily.sql (`routing_daily`, additions only)
+- [X] T002 [P] Add migration migrations/0039_routing_daily.sql (`routing_daily`, additions only)
 - [X] T003 [P] Add the shared figure names and the 30-day window in src/routing/figures.ts
 
 ## Phase 2: Foundational

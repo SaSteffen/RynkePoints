@@ -24,7 +24,7 @@ paragraph.
 **Primary Dependencies**: none new
 
 **Storage**: Gateway: one SQLite-backed Durable Object (`RoutingCopy`, EU jurisdiction), created by
-the deploy (research R1). Teams: D1 table `routing_daily`, migration `0038_routing_daily.sql`,
+the deploy (research R1). Teams: D1 table `routing_daily`, migration `0039_routing_daily.sql`,
 additions only
 
 **Testing**: Vitest in the Workers runtime: the gateway project (Miniflare runs the object), the
@@ -100,7 +100,7 @@ src/
 ├── work/scheduled.ts     # daily: full list, prune; hourly: exchange
 └── i18n/messages/*.ts    # ten catalogs
 
-migrations/0038_routing_daily.sql
+migrations/0039_routing_daily.sql
 scripts/dev.mjs           # local gateway with ROUTING=on
 docs/gateway-switch.md    # Routing: fallbacks, which teams route, emptying the copy, going live
 .github/workflows/ci.yml  # the gateway deploys when src/routing/figures.ts changes
