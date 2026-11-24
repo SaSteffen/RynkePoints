@@ -19,7 +19,7 @@ class Page:
     def __init__(self, path):
         src = open(path, encoding="utf-8").read()
         # Scripts would re-render or open tours over the mock; the stylesheet stays.
-        self.src = re.sub(r"<script\b.*?</script>", "", src, flags=re.S)
+        self.src = re.sub(r"<script\b.*?</script\b[^>]*>", "", src, flags=re.S | re.I)
         head, rest = self.src.split("<main", 1)
         attrs, rest = rest.split(">", 1)
         self.main, self.tail = rest.split("</main>", 1)
