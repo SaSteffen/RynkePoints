@@ -13,6 +13,11 @@ English sentences for the administrators, without formatting or links, and
 name no team, place or rider: every team shows the same list.
 -->
 
+## 1.5.0
+
+- The Team page's total card shows both sides of the team's coin, with the team's own side in front.
+- When installing the app on Android, riders see a note that it can take up to two minutes to appear on the home screen.
+
 ## 1.4.0
 
 - Each day warning in the usage view's list (Strava calls, ride re-check, gateway routing) has a button to mark it as seen. It then leaves that administrator's list and the Admin tab's number; the day's table keeps its mark, and a new reason brings it back.
