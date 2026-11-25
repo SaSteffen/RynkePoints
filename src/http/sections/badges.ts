@@ -667,14 +667,14 @@ async function readBadgesPage(
  * rider: of the team's only those earned since they connected. Only a GET
  * marks them as revealed, as with `rynke_seen` (FR-032, research R16).
  */
-async function badgesOf(
+function badgesOf(
 	request: Request,
 	ctx: Ctx,
 	rider: Rider,
 	read: BadgesRead & { balance: StoredBalance },
 	window: CountingWindow,
 	progress: readonly CategoryProgress[],
-): Promise<BadgeSection | null> {
+): BadgeSection | null {
 	const { badges } = read;
 	const season = countingWindow(ctx.env);
 	const section = buildBadgeSection({
@@ -694,11 +694,10 @@ async function badgesOf(
 		seasonStart: window.seasonStart,
 	});
 	if (section && section.reveal.length > 0 && request.method === "GET") {
-		await upsertRevealsStatement(
-			ctx.env.DB,
-			rider.athleteId,
-			section.reveal,
-		).run();
+		// After the answer, so the page doesn't wait for the write.
+		ctx.waitUntil(
+			upsertRevealsStatement(ctx.env.DB, rider.athleteId, section.reveal).run(),
+		);
 	}
 	return section;
 }
@@ -766,18 +765,17 @@ export function handleBadges(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
+	// Nothing dated after today counts towards a badge or a bar.
+	const season = countingWindow(ctx.env);
+	const today = berlinDate(ctx.now());
+	const window = badgeWindow(season, today);
 	return shellPage(
 		request,
 		ctx,
 		i18n,
 		"badges",
 		"/me/badges",
-		async ({ rider }) => {
-			// Nothing dated after today counts towards a badge or a bar.
-			const season = countingWindow(ctx.env);
-			const today = berlinDate(ctx.now());
-			const window = badgeWindow(season, today);
-			const read = await readBadgesPage(ctx.env.DB, rider.athleteId, window);
+		async ({ rider }, read) => {
 			const { balance } = read;
 			if (!balance) {
 				return renderWaiting(
@@ -796,7 +794,7 @@ export function handleBadges(
 					window,
 				),
 			});
-			const section = await badgesOf(
+			const section = badgesOf(
 				request,
 				ctx,
 				rider,
@@ -832,5 +830,6 @@ export function handleBadges(
 				? html`${renderBadgeReveal(i18n, names, section.reveal)}${renderBadges(i18n, ctx.team, names, section, app, berlinDate(ctx.now() - DAY_SECONDS), hints)}`
 				: html``;
 		},
+		(athleteId: string) => readBadgesPage(ctx.env.DB, athleteId, window),
 	);
 }
