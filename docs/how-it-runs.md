@@ -184,7 +184,8 @@ without storing or logging it. Strava sends no event when a ride is only cropped
 | Sign-in, token refresh, revoke | `POST /oauth/token`, `POST /oauth/revoke` |
 | Club membership | `GET /athlete/clubs` |
 | One activity | `GET /activities/{id}` |
-| The season import, re-reads and the ride edit re-check | `GET /athlete/activities?after=…&per_page=200` |
+| The season import and re-reads | `GET /athlete/activities?after=…&per_page=200` |
+| The ride edit re-check | `GET /athlete/activities?page=1&per_page=50` |
 
 The full list, and the fields read from each response, are in
 [contracts/strava-api-usage.md](../specs/001-strava-connect-webhook/contracts/strava-api-usage.md). Only
@@ -224,7 +225,7 @@ it moves towards Strava's current state instead of adding to it.
 | `delete-rider` | The app removed in Strava, leaving the club, no reconnect within 7 days, or a guest taken off the guest list | Withdraws the rider's Strava access unless another team holds them (asked through the gateway), then deletes everything about them. Always finishes; a withdrawal that can't settle yet stays in `pending_revocations` for the daily run. | 0 or 1 |
 | `evaluate-rider` | Organisers' events and attendance, and the daily job | Works out the rider's Rynke and badges from what's stored. | 0 |
 | `send-notification` | Rynke that rose, a badge earned, a usage alert | Sends an empty Web Push message to each of the rider's devices. The device then fetches the text. | 0 |
-| `recheck-rider` | The hourly job | Reads the rider's newest 200 activities and passes only the differences to the usual processing. Never retried. | 1 |
+| `recheck-rider` | The hourly job | Reads the rider's newest 50 activities and passes only the differences to the usual processing. Never retried. | 1 |
 
 ### How the queue handles a message
 
@@ -286,8 +287,8 @@ flowchart TD
    now), again at 80 % and again at 95 %. Nothing in this step calls Strava.
 2. **Ride edit re-check** ([spec](../specs/036-ride-edit-recheck/spec.md)): picks a few riders who
    had an activity in the last 30 days and sends one `recheck-rider` for each, spread over the next 55
-   minutes. Riders who waited longest go first. All teams together use at most 300 reads a day for
-   this. A run sends nothing while more than half of the day's reads are used.
+   minutes. Riders who waited longest go first. Each team makes about 75 checks a day, more only so that
+   every rider is checked within 24 hours. A run sends nothing while more than half of the day's reads are used.
 
 ### By hand
 
@@ -330,7 +331,7 @@ Roughly what uses the reads:
 | A ride is added or changed | 1 |
 | A ride is deleted | 0 |
 | Each connected rider, each day | 1 membership check |
-| The ride edit re-check | at most 300 a day, for all teams |
+| The ride edit re-check | about 75 a day per team |
 
 ### Cloudflare
 

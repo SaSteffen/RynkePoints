@@ -250,7 +250,7 @@ describe("a check that is made", () => {
 		expect(fake.callsTo("activities")).toHaveLength(1);
 	});
 
-	it("leaves a stored activity older than the oldest listed alone: the list stops at 200", async () => {
+	it("leaves a stored activity older than the oldest listed alone: the list stops at 50", async () => {
 		await stored(
 			makeStravaActivity({
 				id: "8",
@@ -270,7 +270,7 @@ describe("a check that is made", () => {
 		).toBe(1);
 	});
 
-	it("removes an older one too when the list is shorter than 200: it holds every activity", async () => {
+	it("removes an older one too when the list is shorter than 50: it holds every activity", async () => {
 		await stored(
 			makeStravaActivity({
 				id: "8",

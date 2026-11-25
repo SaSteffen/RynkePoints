@@ -234,8 +234,9 @@ export const hamburg: TeamData = {
 			kind: "short",
 		},
 	],
-	// Half of the re-check's 300 reads a day; Europe has the other half (036).
-	recheckAllowance: 150,
+	// Checks a day (feature 036 FR-008), well below the 300 reads the teams may
+	// share: every check is a Worker run with a long list to read.
+	recheckAllowance: 75,
 	rulesHandout: { path: "/rynke-punkte.pdf", locale: "de" },
 	dev: { host: "localhost", port: 8789, inspectorPort: 9230 },
 	cloudflare: {

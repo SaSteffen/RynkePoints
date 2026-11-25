@@ -88,7 +88,12 @@ const sentIds = () => sent().map((m) => m.body.athleteId);
 
 beforeEach(async () => {
 	await resetDb();
-	ctx = makeCtx({ now: NOW });
+	// The figures below are for an allowance of 150, not any team's own.
+	const base = makeCtx({ now: NOW });
+	ctx = makeCtx({
+		now: NOW,
+		team: { ...base.team, recheckAllowance: 150 },
+	});
 });
 
 describe("the run", () => {

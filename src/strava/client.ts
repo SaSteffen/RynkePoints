@@ -170,9 +170,16 @@ export function getActivity(
 }
 
 /**
- * The rider's newest activities, one page of 200, newest first: without
- * `after` Strava lists newest first (feature 036 research R3, verified
- * 2026-11-13). The ride edit re-check's one request.
+ * How many of the rider's newest activities the ride edit re-check reads
+ * (feature 036 FR-001). Reading a list costs CPU by its length: 200 took most
+ * of a run's 10 ms.
+ */
+export const NEWEST_COUNT = 50;
+
+/**
+ * The rider's newest `NEWEST_COUNT` activities, newest first: without `after`
+ * Strava lists newest first (feature 036 research R3, verified 2026-11-13).
+ * The ride edit re-check's one request.
  */
 export function listNewestActivities(
 	ctx: StravaCtx,
@@ -182,7 +189,7 @@ export function listNewestActivities(
 		ctx,
 		auth,
 		"GET /athlete/activities",
-		`/api/v3/athlete/activities?page=1&per_page=${PER_PAGE}`,
+		`/api/v3/athlete/activities?page=1&per_page=${NEWEST_COUNT}`,
 		"background",
 		readActivities,
 	);

@@ -13,6 +13,10 @@ English sentences for the administrators, without formatting or links, and
 name no team, place or rider: every team shows the same list.
 -->
 
+## 1.5.1
+
+- The ride re-check reads each rider's newest 50 activities instead of 200, and each team makes 75 re-checks a day instead of 150, so the app stays within its computing limits. Every rider is still checked at least once a day; an edit to an older ride is no longer picked up, but renaming that ride still works.
+
 ## 1.5.0
 
 - The Team page's total card shows both sides of the team's coin, with the team's own side in front.

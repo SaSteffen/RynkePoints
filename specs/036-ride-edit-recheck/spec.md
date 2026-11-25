@@ -34,7 +34,7 @@ allowance, so its cost does not grow unnoticed and nothing a person waits for is
 
 **Terms**:
 
-- **Check**: one re-read of one rider: the rider's newest 200 activities, in one request to
+- **Check**: one re-read of one rider: the rider's newest 50 activities, in one request to
   Strava, compared with the stored ones.
 - **Run**: the hourly moment at which a team's site does its checks.
 - **Allowance**: the number of checks a team may do per day in normal operation (FR-008).
@@ -71,7 +71,7 @@ rider's Rynke change.
    happens, **Then** nothing about the rider's rides, Rynke or badges changes and no ride is
    written again.
 4. **Given** an activity on Strava from this season that the app never heard of (a lost event),
-   **When** it is among the rider's newest 200 at a check, **Then** it is stored and evaluated like
+   **When** it is among the rider's newest 50 at a check, **Then** it is stored and evaluated like
    a newly reported one.
 5. **Given** a ride that starts to count through a check, **When** the rider has notifications on,
    **Then** they are told as for any other ride that starts to count.
@@ -149,9 +149,9 @@ and count how often each rider was checked.
 
 1. **Given** fewer riders than a run's checks, **When** a run happens, **Then** every rider is
    checked once, and none twice in that run.
-2. **Given** 50 riders, an allowance of 150 a day and nobody in the fast lane, **When** a day of
+2. **Given** 25 riders, an allowance of 75 a day and nobody in the fast lane, **When** a day of
    runs has passed, **Then** every rider was checked three times, about 8 hours apart, and the team
-   made no more than 150 checks.
+   made no more than 75 checks.
 3. **Given** more riders than the allowance, **When** a day of runs has passed, **Then** every
    rider was still checked once, and the team made about as many checks as it has riders.
 4. **Given** a rider who connects today, **When** the next runs happen, **Then** the rider takes
@@ -191,15 +191,15 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 
 ### Edge Cases
 
-- A rider with more than 200 activities this season (every sport type counts towards the 200): only
-  the newest 200 are compared. An edit of an older ride is not picked up; renaming still works for
+- A rider with more than 50 activities this season (every sport type counts towards the 50): only
+  the newest 50 are compared. An edit of an older ride is not picked up; renaming still works for
   that one.
-- An activity among the 200 from before the season start: ignored, as everywhere.
+- An activity among the 50 from before the season start: ignored, as everywhere.
 - A stored ride that is missing from the list but started after the list's oldest entry: gone from
   Strava without an event reaching the app (deleted, made private without the grant, changed to a
   sport type the app doesn't keep), so it is removed as a reported deletion would be (FR-006a). One
-  that started at or before the oldest entry is left alone: the list stops at 200. A list of fewer
-  than 200 holds every activity, so then an older one missing from it is removed too. An empty list
+  that started at or before the oldest entry is left alone: the list stops at 50. A list of fewer
+  than 50 holds every activity, so then an older one missing from it is removed too. An empty list
   removes nothing.
 - A private ride of a rider who didn't grant access to private rides: ignored, as in the import.
 - Strava's list lacks a figure that the stored ride has: the stored figure stays. A missing figure
@@ -225,7 +225,7 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 
 **The check**
 
-- **FR-001**: The system MUST re-read each active rider's (FR-027) newest 200 activities from Strava on
+- **FR-001**: The system MUST re-read each active rider's (FR-027) newest 50 activities from Strava on
   its own, on a schedule, and compare them with the stored rides, runs and swims.
 - **FR-002**: A check MUST cost exactly one request to Strava. It MUST NOT read further pages and
   MUST NOT fetch single activities.
@@ -240,7 +240,7 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 - **FR-006a**: A stored activity that started after the list's oldest entry and that the list
   doesn't hold, after the rules of FR-005, MUST be removed and the rider evaluated again, as for a
   deletion Strava reports. A stored activity that started at or before that entry MUST stay,
-  unless the list holds fewer than 200 entries: then it holds every activity, and any stored one
+  unless the list holds fewer than 50 entries: then it holds every activity, and any stored one
   it doesn't hold MUST be removed. An empty list removes nothing.
 - **FR-007**: A check that finds no difference MUST NOT write any ride, verdict, Rynke or badge
   again. The only thing it records is that the rider was checked.
@@ -249,8 +249,8 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 
 - **FR-008**: Each team MUST have an allowance: the number of checks it may make per day in normal
   operation. The allowances of all teams together MUST NOT exceed 10% of the app's daily Strava
-  read limit (300 of 3,000 today), and the 300 are split evenly between the teams (150 each for
-  two teams). The allowance is team data.
+  read limit (300 of 3,000 today). The allowance is team data: 75 for each of the two teams
+  (revised 2026-11-25, see Assumptions).
 - **FR-009**: A run's number of checks MUST follow from the allowance, spread evenly over the day's
   runs, so that the day's total stays within the allowance. No rider is checked more than once per
   run; places nobody is due for stay unused.
@@ -329,13 +329,13 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 ### Measurable Outcomes
 
 - **SC-001**: An edit on Strava that the rider did nothing further about shows on the rider's page
-  within 24 hours in at least 99% of cases, among the newest 200 activities of a rider who has an
+  within 24 hours in at least 99% of cases, among the newest 50 activities of a rider who has an
   activity in the past 30 days.
 - **SC-002**: For a rider in the fast lane, such an edit shows within 2 hours in at least 90% of
   cases.
 - **SC-003**: With 100 riders across all teams, the checks use at most 300 Strava reads a day (10%
   of the limit) and at most 15 in any 15 minutes.
-- **SC-004**: A team with up to 140 active riders never uses more than its allowance; above that, never
+- **SC-004**: A team with up to 70 active riders never uses more than its allowance; above that, never
   more than one read per rider per 23 hours.
 - **SC-005**: On a day on which no rider edited anything, the checks write no more than one
   database row per check, plus one per run.
@@ -351,13 +351,16 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 - Strava's activity list, asked without a start date, returns the newest activities first, up to
   200 per request. Strava's API reference (read 2026-11-13) says nothing about the order and names
   no maximum per request; "newest first" is what client libraries describe (stravalib) and 200 is
-  what the import already uses. Because it is not documented, planning confirms it with one real
+  what the import already uses. The check asks for 50 (revised 2026-11-25): reading a list of 200
+  took most of the 10 ms of CPU a Worker run may use, and 50 still reach about seven weeks back for
+  a rider with one activity a day, where nearly every edit happens. Because it is not documented, planning confirms it with one real
   request made by the maintainer, and the check verifies the order of every list (FR-026).
 - The activity list carries every figure the verdict needs (distance, moving and elapsed time,
   elevation, manual, indoor, flagged, private, type, start). Where it lacks one, the stored value
   stays (FR-006).
-- The 300 are split evenly between the teams (the owner's decision): 150 each for Hamburg and
-  Europe. A team with up to about 140 active riders is checked within its allowance (a rider is taken one
+- Each team's allowance is 75 a day (the owner's decision, revised 2026-11-25 from 150): with 150
+  the checks were over a third of a team's Worker runs, each above the 10 ms CPU limit, and riders
+  were checked several times a day. A team with up to about 70 active riders is checked within its allowance (a rider is taken one
   run early, after 23 hours, so that the check still happens within 24); a further team means a
   smaller share for each.
 - 20 hours (FR-010) leaves four runs of slack for the 24-hour promise when runs are skipped.
@@ -368,7 +371,7 @@ no request is made. Lower it: the next run checks the riders who waited longest.
   often and a winter break costs almost no requests. Every kind of activity counts, so a rider who
   only runs for a few weeks stays in the check.
 - The rules handouts do not mention changing the title, so they stay as they are.
-- A rider with more than 200 activities in a season is rare and accepted (the owner's decision);
+- A rider with more than 50 activities in a season is accepted (the owner's decision);
   renaming keeps working as a way to make the app read one ride again.
 - Riders don't need a way to ask for a check; the fast lane covers the impatient case.
 - The existing hourly schedule is used; no further schedule is needed.
