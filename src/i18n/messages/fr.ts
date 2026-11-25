@@ -1336,6 +1336,8 @@ export const fr: Catalog = {
 	"admin.lage.routing.possible": "Perte possible",
 	"admin.lage.routing.everyone": "Trop d'envois à toutes les équipes",
 	"admin.lage.calls": "Les appels ne concordent pas",
+	"admin.lage.dismiss": "Vu",
+	"admin.lage.dismissLabel": "Vu\u00a0: {title}",
 	"admin.lage.cpu": "{owner}\u00a0: exécutions interrompues",
 	"admin.lage.cpuLine": "{cut} sur {runs} aujourd'hui",
 	"admin.lage.team.stale": "{team} n'a pas répondu",

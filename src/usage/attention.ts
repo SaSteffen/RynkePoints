@@ -1,5 +1,5 @@
 import type { RecheckDay } from "../db/recheck";
-import type { SourceState } from "../db/usage";
+import type { Dismissal, SourceState } from "../db/usage";
 import {
 	type RoutingDay,
 	type RoutingWarning,
@@ -41,8 +41,8 @@ export type AttentionItem =
 			level: "warning";
 			target: "#recheck";
 			day: string;
-			over24h: boolean;
-			unordered: boolean;
+			/** Riders waiting over 24 hours, a list in the wrong order; in that order. */
+			reasons: RecheckReason[];
 	  }
 	| {
 			kind: "routing";
@@ -51,7 +51,13 @@ export type AttentionItem =
 			day: string;
 			reasons: RoutingWarning[];
 	  }
-	| { kind: "calls"; level: "warning"; target: "#strava-calls"; day: string }
+	| {
+			kind: "calls";
+			level: "warning";
+			target: "#strava-calls";
+			day: string;
+			reasons: ["calls"];
+	  }
 	| {
 			kind: "team";
 			level: "hint";
@@ -62,6 +68,24 @@ export type AttentionItem =
 			lastSuccessAt: number | null;
 	  }
 	| { kind: "device"; level: "hint"; target: "/me/settings" };
+
+/** The day warnings an administrator can dismiss (feature 050 FR-002). */
+export type DayKind = "calls" | "recheck" | "routing";
+
+export type RecheckReason = "over24h" | "unordered";
+
+/** Why a day warning shows; a dismissal covers the reasons it was made for. */
+export type DismissReason = "calls" | RecheckReason | RoutingWarning;
+
+/**
+ * Every reason each kind of day warning can show (feature 050 research R2):
+ * what the dismiss route accepts and what the list's rows carry.
+ */
+export const DAY_REASONS: Record<DayKind, readonly DismissReason[]> = {
+	calls: ["calls"],
+	recheck: ["over24h", "unordered"],
+	routing: ["missed", "possible", "everyone"],
+};
 
 export interface AttentionInputs {
 	today: string;
@@ -77,6 +101,11 @@ export interface AttentionInputs {
 	peers: readonly (SourceState | undefined)[];
 	/** Whether the viewer gets notifications on any device. */
 	hasDevice: boolean;
+	/**
+	 * The viewer's dismissed day warnings (feature 050): a day item is left out
+	 * when every reason it shows is among them, so a new reason brings it back.
+	 */
+	dismissed: readonly Dismissal[];
 }
 
 /** A re-check day with riders waiting over 24 hours or a list in the wrong order. */
@@ -102,6 +131,11 @@ const CPU_OWNERS: readonly CpuOwner[] = ["own", "others", "shared"];
 export function attentionItems(inputs: AttentionInputs): AttentionItem[] {
 	const recent = (day: string) =>
 		day === inputs.today || day === daysBefore(inputs.today, 1);
+	const dismissed = new Set(
+		inputs.dismissed.map((d) => `${d.kind} ${d.day} ${d.reason}`),
+	);
+	const shows = (kind: DayKind, day: string, reasons: readonly string[]) =>
+		reasons.some((reason) => !dismissed.has(`${kind} ${day} ${reason}`));
 	const items: AttentionItem[] = [];
 	for (const figure of inputs.figures) {
 		if (figure.level !== "ok") {
@@ -116,30 +150,33 @@ export function attentionItems(inputs: AttentionInputs): AttentionItem[] {
 	const newestFirst = <T extends { day: string }>(days: readonly T[]) =>
 		days.filter((d) => recent(d.day)).sort((a, b) => (a.day < b.day ? 1 : -1));
 	for (const d of newestFirst(inputs.calls)) {
-		if (d.marked) {
+		if (d.marked && shows("calls", d.day, ["calls"])) {
 			items.push({
 				kind: "calls",
 				level: "warning",
 				target: "#strava-calls",
 				day: d.day,
+				reasons: ["calls"],
 			});
 		}
 	}
 	for (const d of newestFirst(inputs.recheck)) {
-		if (isRecheckWarningDay(d)) {
+		const reasons: RecheckReason[] = [];
+		if (d.over24h > 0) reasons.push("over24h");
+		if (d.unordered > 0) reasons.push("unordered");
+		if (reasons.length > 0 && shows("recheck", d.day, reasons)) {
 			items.push({
 				kind: "recheck",
 				level: "warning",
 				target: "#recheck",
 				day: d.day,
-				over24h: d.over24h > 0,
-				unordered: d.unordered > 0,
+				reasons,
 			});
 		}
 	}
 	for (const d of newestFirst(inputs.routing)) {
 		const reasons = routingWarnings(d);
-		if (reasons.length > 0) {
+		if (reasons.length > 0 && shows("routing", d.day, reasons)) {
 			items.push({
 				kind: "routing",
 				level: "warning",

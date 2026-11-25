@@ -46,7 +46,7 @@
 		"@playwright/test": "^1.65.1",
 		"@types/node": "^26.6.6",
 		"chart.js": "4.6.1",
-		"chartjs-plugin-zoom": "2.2.0",
+		"chartjs-plugin-zoom": "3.0.0",
 		"lefthook": "^2.2.2",
 		"mp4-muxer": "5.2.2",
 		"pdf-lib": "^1.17.1",

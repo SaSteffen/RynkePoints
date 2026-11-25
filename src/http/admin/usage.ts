@@ -4,6 +4,7 @@ import { type Rider, setAdminAlerts } from "../../db/riders";
 import { readRoutingCounts } from "../../db/routing";
 import { totalWaitingStatement } from "../../db/strava-work";
 import {
+	addDismissals,
 	readCpuDays,
 	type TeamCountRecord,
 	teamCountRecords,
@@ -42,6 +43,8 @@ import {
 import {
 	type AttentionItem,
 	type AttentionLevel,
+	DAY_REASONS,
+	type DayKind,
 	isRecheckWarningDay,
 	markCount,
 } from "../../usage/attention";
@@ -403,13 +406,29 @@ const dateOf = (i18n: I18n, epochSeconds: number) =>
 
 /** A row of the list: what it is about, one line, and a value where there is one. */
 function lageRow(i18n: I18n, item: AttentionItem, teams: Teams): SafeHtml {
+	const link = (
+		icon: SafeHtml,
+		title: string,
+		sub: string,
+		value: string | null,
+	) =>
+		html`<a class="settings-row" href="${item.target}"><span class="settings-icon lvl-${item.level}">${icon}</span><span class="settings-text"><span class="settings-title">${title}</span><span class="settings-sub">${sub}</span></span>${value === null ? null : html`<span class="settings-value">${value}</span>`}</a>`;
 	const row = (
 		icon: SafeHtml,
 		title: string,
 		sub: string,
 		value: string | null = null,
+	) => html`<li>${link(icon, title, sub, value)}</li>
+`;
+	// A day warning can be marked as seen, for this viewer only (feature 050).
+	const dayRow = (
+		kind: DayKind,
+		d: string,
+		reasons: readonly string[],
+		title: string,
+		sub: string,
 	) =>
-		html`<li><a class="settings-row" href="${item.target}"><span class="settings-icon lvl-${item.level}">${icon}</span><span class="settings-text"><span class="settings-title">${title}</span><span class="settings-sub">${sub}</span></span>${value === null ? null : html`<span class="settings-value">${value}</span>`}</a></li>
+		html`<li class="lage-dismissable">${link(WARNING, title, sub, null)}<form method="post" action="/admin/dismiss" class="lage-dismiss" data-swap><input type="hidden" name="kind" value="${kind}"><input type="hidden" name="day" value="${d}">${reasons.map((reason) => html`<input type="hidden" name="reason" value="${reason}">`)}<button class="button-text" aria-label="${i18n.t("admin.lage.dismissLabel", { title })}">${i18n.t("admin.lage.dismiss")}</button></form></li>
 `;
 	const day = (heading: MessageId, d: string) =>
 		i18n.t("admin.lage.day", {
@@ -463,25 +482,36 @@ function lageRow(i18n: I18n, item: AttentionItem, teams: Teams): SafeHtml {
 			);
 		}
 		case "recheck":
-			return row(
-				WARNING,
+			return dayRow(
+				item.kind,
+				item.day,
+				item.reasons,
 				day("admin.recheck.heading", item.day),
-				[
-					...(item.over24h ? [i18n.t("admin.lage.recheck.over24h")] : []),
-					...(item.unordered ? [i18n.t("admin.lage.recheck.order")] : []),
-				].join(" · "),
+				item.reasons
+					.map((reason) =>
+						i18n.t(
+							reason === "over24h"
+								? "admin.lage.recheck.over24h"
+								: "admin.lage.recheck.order",
+						),
+					)
+					.join(" · "),
 			);
 		case "routing":
-			return row(
-				WARNING,
+			return dayRow(
+				item.kind,
+				item.day,
+				item.reasons,
 				day("admin.routing.heading", item.day),
 				item.reasons
 					.map((reason) => i18n.t(`admin.lage.routing.${reason}`))
 					.join(" · "),
 			);
 		case "calls":
-			return row(
-				WARNING,
+			return dayRow(
+				item.kind,
+				item.day,
+				item.reasons,
 				day("admin.calls.heading", item.day),
 				i18n.t("admin.lage.calls"),
 			);
@@ -1215,6 +1245,46 @@ export async function handleAdminAlerts(
 	);
 	if (value === "on" || value === "off") {
 		await setAdminAlerts(ctx.env.DB, rider.athleteId, value === "on");
+	}
+	return redirect("/admin", 303);
+}
+
+/**
+ * `POST /admin/dismiss`: marks a day warning as seen for the viewer only
+ * (feature 050 contracts/dismiss-route.md). Keeps only a known kind, today or
+ * yesterday, and the reasons that kind can show; anything else stores nothing.
+ */
+export async function handleAdminDismiss(
+	request: Request,
+	ctx: Ctx,
+	i18n: I18n,
+): Promise<Response> {
+	const rider = await requireAdminPost(request, ctx, i18n, "/admin/dismiss");
+	if (rider instanceof Response) return rider;
+	const form = await request.formData().catch(() => null);
+	const kind = form?.get("kind");
+	const day = form?.get("day");
+	const today = utcDay(ctx.now());
+	if (
+		typeof kind === "string" &&
+		Object.hasOwn(DAY_REASONS, kind) &&
+		(day === today || day === daysBefore(today, 1))
+	) {
+		const known: readonly string[] = DAY_REASONS[kind as DayKind];
+		const reasons = [
+			...new Set(
+				(form?.getAll("reason") ?? []).filter(
+					(r): r is string => typeof r === "string" && known.includes(r),
+				),
+			),
+		];
+		await addDismissals(
+			ctx.env.DB,
+			rider.athleteId,
+			kind as DayKind,
+			day,
+			reasons,
+		);
 	}
 	return redirect("/admin", 303);
 }

@@ -305,7 +305,8 @@ export async function tableCounts(): Promise<Record<string, number>> {
 
 export interface RequestOptions {
 	method?: string;
-	form?: Record<string, string>;
+	/** Pairs for a field that repeats, e.g. `[["reason", "a"], ["reason", "b"]]`. */
+	form?: Record<string, string> | [string, string][];
 	cookies?: Record<string, string>;
 	acceptLanguage?: string;
 	/** `null` sends no Origin header; POSTs default to the same origin. */

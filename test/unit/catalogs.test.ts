@@ -994,6 +994,8 @@ const CONTRACT_IDS = [
 	"admin.lage.routing.possible",
 	"admin.lage.routing.everyone",
 	"admin.lage.calls",
+	"admin.lage.dismiss",
+	"admin.lage.dismissLabel",
 	"admin.lage.cpu",
 	"admin.lage.cpuLine",
 	"admin.lage.team.stale",
