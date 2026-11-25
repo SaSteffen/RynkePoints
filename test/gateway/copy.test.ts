@@ -55,10 +55,10 @@ describe("full lists", () => {
 	});
 
 	it("counts additions, removals and possible misses", async () => {
-		await copy().report("hamburg", A, true);
+		await copy().replaceList("hamburg", [A], NOW, TEAMS);
 		// B is listed under europe only: hamburg's list adding them is a
 		// possible miss. C is unknown: it went to every team.
-		await copy().report("europe", B, true);
+		await copy().replaceList("europe", [B], NOW, TEAMS);
 		const result = await copy().replaceList("hamburg", [B, C], NOW, TEAMS);
 		expect(result).toEqual({ added: 2, removed: 1, possible: 1 });
 		const counts = await copy().exchange("hamburg", [], TODAY, TEAMS);
@@ -69,6 +69,18 @@ describe("full lists", () => {
 				{ day: TODAY, team: "hamburg", figure: "possible", count: 1 },
 			]),
 		);
+	});
+
+	it("counts nothing for a team's first list, nor after forget", async () => {
+		await copy().report("hamburg", A, true);
+		await copy().replaceList("europe", [A, B], NOW, TEAMS);
+		const first = await copy().replaceList("hamburg", [A, B, C], NOW, TEAMS);
+		expect(first).toEqual({ added: 0, removed: 0, possible: 0 });
+		await copy().forget();
+		await copy().replaceList("europe", [A], NOW, TEAMS);
+		const again = await copy().replaceList("hamburg", [A], NOW, TEAMS);
+		expect(again).toEqual({ added: 0, removed: 0, possible: 0 });
+		expect(await copy().exchange("hamburg", [], TODAY, TEAMS)).toEqual([]);
 	});
 
 	it("routes a team for 48 hours after its list", async () => {
