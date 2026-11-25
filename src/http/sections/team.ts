@@ -47,7 +47,7 @@ import { hasTeamRynke } from "../../teams";
 import type { TeamData } from "../../teams/types";
 import { artUrl } from "../art";
 import { peloton, sparkline, weekBars } from "../charts";
-import { amount, coinArt, miniCoin } from "../coin";
+import { amount, coinPair, miniCoin } from "../coin";
 import { FUN_SPARKLES } from "../fun";
 import { type Holiday, holidaysOn } from "../holidays";
 import { html, type SafeHtml } from "../html";
@@ -150,7 +150,7 @@ function renderTeamTotal(
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	return html`<section class="team-total card">
-${coinArt(team.art.coin, kind === "training" ? "front" : "back", "large")}<div class="team-total-text">
+${coinPair(team.art.coin)}<div class="team-total-text">
 <p class="team-total-label">${i18n.t("team.total.label", { team: team.name })}</p>
 <p class="team-total-value${kind === "team" ? " hero-team" : ""}">${i18n.tHtml(kind === "training" ? "team.total.training" : "team.total.team", { n: amount(i18n, totals.total) })}</p>
 <p class="team-total-kind">${i18n.t("team.total.kind")}</p>
