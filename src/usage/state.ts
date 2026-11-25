@@ -8,6 +8,7 @@ import { readCalls } from "../db/strava-calls";
 import {
 	readCloudflareFigures,
 	readCpuDays,
+	readDismissals,
 	readSourceStates,
 	type SourceState,
 	type TeamCountRecord,
@@ -109,6 +110,7 @@ export async function readUsageState(
 		routingCounts,
 		calls,
 		devices,
+		dismissed,
 	] = await Promise.all([
 		readStravaUsage(db),
 		readCloudflareFigures(db),
@@ -123,6 +125,7 @@ export async function readUsageState(
 		readRoutingCounts(db, yesterday),
 		readCalls(db, callsSince),
 		subscriptionIdsOfRiders(db, [athleteId]),
+		readDismissals(db, athleteId, yesterday),
 	]);
 	const connected =
 		(counts[0]?.results[0] as { n: number } | undefined)?.n ?? 0;
@@ -181,6 +184,7 @@ export async function readUsageState(
 			calls: callDays,
 			peers: peers.map((peer) => states.get(`team:${peer.id}`)),
 			hasDevice,
+			dismissed,
 		}),
 	};
 }

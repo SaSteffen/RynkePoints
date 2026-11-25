@@ -1268,6 +1268,8 @@ export const da: Catalog = {
 	"admin.lage.routing.possible": "Muligt tab",
 	"admin.lage.routing.everyone": "For meget sendt til alle hold",
 	"admin.lage.calls": "Kaldene stemmer ikke",
+	"admin.lage.dismiss": "Set",
+	"admin.lage.dismissLabel": "Set: {title}",
 	"admin.lage.cpu": "{owner}: kørsler afbrudt",
 	"admin.lage.cpuLine": "{cut} af {runs} i dag",
 	"admin.lage.team.stale": "{team} har ikke svaret",

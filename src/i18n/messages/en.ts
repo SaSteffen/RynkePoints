@@ -1274,6 +1274,8 @@ export const en: Catalog = {
 	"admin.lage.routing.possible": "Possible miss",
 	"admin.lage.routing.everyone": "Too many events sent to every team",
 	"admin.lage.calls": "The calls don't add up",
+	"admin.lage.dismiss": "Got it",
+	"admin.lage.dismissLabel": "Got it: {title}",
 	"admin.lage.cpu": "{owner}: runs cut off",
 	"admin.lage.cpuLine": "{cut} of {runs} today",
 	"admin.lage.team.stale": "{team} didn't answer",

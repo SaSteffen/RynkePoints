@@ -9,6 +9,7 @@ import {
 } from "./consents";
 import { deleteSubscriptionsStatement } from "./push-subscriptions";
 import { insertEmptySummaryStatement } from "./rider-summaries";
+import { deleteDismissalsStatement } from "./usage";
 
 // Riders and their Strava credentials (data-model.md). Deleting a rider is a
 // single DELETE; the schema cascades to everything they own (FR-022).
@@ -759,7 +760,7 @@ export async function setRole(
 	});
 	if (from === role) return { result: "same", from };
 	const [organiser, administrator] = ROLE_FLAGS[role];
-	await db
+	const update = db
 		.prepare(
 			`UPDATE riders SET organiser = ?, administrator = ?, role_since = ?,
 				role_seen = COALESCE(role_seen, ?), role_changed_by = ?,
@@ -774,8 +775,13 @@ export async function setRole(
 			by.firstName,
 			now,
 			athleteId,
-		)
-		.run();
+		);
+	// Day warnings marked as seen belong to the Admin role (feature 050 FR-009).
+	await db.batch(
+		role === "admin"
+			? [update]
+			: [update, deleteDismissalsStatement(db, athleteId)],
+	);
 	return { result: "changed", from };
 }
 

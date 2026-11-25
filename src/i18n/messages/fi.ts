@@ -1276,6 +1276,8 @@ export const fi: Catalog = {
 	"admin.lage.routing.possible": "Mahdollinen menetys",
 	"admin.lage.routing.everyone": "Liikaa lähetetty kaikille tiimeille",
 	"admin.lage.calls": "Kutsut eivät täsmää",
+	"admin.lage.dismiss": "Nähty",
+	"admin.lage.dismissLabel": "Nähty: {title}",
 	"admin.lage.cpu": "{owner}: ajoja keskeytetty",
 	"admin.lage.cpuLine": "{cut}/{runs} tänään",
 	"admin.lage.team.stale": "{team} ei vastannut",

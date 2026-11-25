@@ -1321,6 +1321,8 @@ export const lt: Catalog = {
 	"admin.lage.routing.possible": "Galimas praradimas",
 	"admin.lage.routing.everyone": "Per daug išsiųsta visoms komandoms",
 	"admin.lage.calls": "Užklausos nesutampa",
+	"admin.lage.dismiss": "Mačiau",
+	"admin.lage.dismissLabel": "Mačiau: {title}",
 	"admin.lage.cpu": "{owner}: paleidimai nutraukti",
 	"admin.lage.cpuLine": "šiandien nutraukta {cut} iš {runs}",
 	"admin.lage.team.stale": "{team} neatsakė",
