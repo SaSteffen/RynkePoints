@@ -243,6 +243,7 @@ const CONTRACT_IDS = [
 	"install.ios",
 	"install.firefox",
 	"install.macSafari",
+	"install.wait",
 	"prompt.install.text",
 	"prompt.notify.text",
 	"prompt.notify.accept",

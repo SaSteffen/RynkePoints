@@ -271,6 +271,8 @@ export const nl: Catalog = {
 		"We hebben alle gegevens over jou gewist. Kopieën in de back-ups van onze hostingprovider verdwijnen uiterlijk na 7 dagen.",
 
 	"install.button": "Installeren als app",
+	"install.wait":
+		"Op Android kan het tot 2 minuten duren voordat de app op je beginscherm verschijnt.",
 	"install.ios":
 		"Als app op je iPhone: tik in Safari op “Deel” en dan op “Zet op beginscherm”.",
 	"install.firefox":

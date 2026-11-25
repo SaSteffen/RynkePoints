@@ -268,6 +268,8 @@ export const da: Catalog = {
 		"Vi har slettet alle data om dig. Kopier i vores hostingudbyders sikkerhedskopier forsvinder senest efter 7 dage.",
 
 	"install.button": "Installer som app",
+	"install.wait":
+		"På Android kan det tage op til 2 minutter, før appen dukker op på hjemmeskærmen.",
 	"install.ios":
 		"Som app på din iPhone: tryk i Safari på »Del« og derefter »Føj til hjemmeskærm«.",
 	"install.firefox":
