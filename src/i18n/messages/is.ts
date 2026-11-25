@@ -268,6 +268,8 @@ export const is: Catalog = {
 		"Við höfum eytt öllum gögnum um þig. Afrit í afritum hýsingaraðilans hverfa í síðasta lagi eftir 7 daga.",
 
 	"install.button": "Setja upp sem app",
+	"install.wait":
+		"Á Android getur liðið allt að 2 mínútur þar til appið birtist á heimaskjánum.",
 	"install.ios":
 		"Sem app á iPhone: ýttu á „Deila“ í Safari og svo „Bæta á heimaskjá“.",
 	"install.firefox":

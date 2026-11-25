@@ -267,6 +267,8 @@ export const en: Catalog = {
 		"We have deleted all data about you. Copies in our hosting provider's backups disappear after 7 days at the latest.",
 
 	"install.button": "Install as an app",
+	"install.wait":
+		"On Android, it can take up to 2 minutes for the app to appear on your home screen.",
 	"install.ios":
 		'As an app on your iPhone: in Safari, tap "Share" and then "Add to Home Screen".',
 	"install.firefox":

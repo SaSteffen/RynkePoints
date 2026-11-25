@@ -264,6 +264,8 @@ export const sv: Catalog = {
 		"Vi har raderat alla uppgifter om dig. Kopior i vår webbhotellsleverantörs säkerhetskopior försvinner senast efter 7 dagar.",
 
 	"install.button": "Installera som app",
+	"install.wait":
+		"På Android kan det ta upp till 2 minuter innan appen syns på hemskärmen.",
 	"install.ios":
 		"Som app på din iPhone: tryck på ”Dela” i Safari och sedan ”Lägg till på hemskärmen”.",
 	"install.firefox":
