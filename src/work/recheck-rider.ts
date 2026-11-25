@@ -10,7 +10,7 @@ import { anyWorkReady } from "../db/strava-work";
 import { differences, gone } from "../recheck/diff";
 import { countFound } from "../routing/counts";
 import type { StravaActivity } from "../strava/activity";
-import { listNewestActivities, PER_PAGE } from "../strava/client";
+import { listNewestActivities, NEWEST_COUNT } from "../strava/client";
 import { budgetDecision, halfDayUsed } from "../strava/rate-limit";
 import { countRefused } from "../strava/result";
 import { utcDay } from "../usage/allowances";
@@ -20,7 +20,7 @@ import type { Handler } from "./handler";
 import type { RecheckRiderMessage } from "./messages";
 
 // One ride edit re-check (feature 036 contracts/queue-message.md): the rider's
-// newest 200 activities in one request, compared with the stored ones; only
+// newest 50 activities in one request, compared with the stored ones; only
 // what differs goes through the same evaluation as a reported activity, and a
 // stored activity the list no longer holds is removed as a deletion is. A check
 // that can't or mustn't happen puts the rider's stamp back and is counted, and
@@ -96,7 +96,7 @@ export const recheckRider: Handler<RecheckRiderMessage> = async (
 		kept,
 		stored,
 		result.value.at(-1)?.start_date,
-		result.value.length < PER_PAGE,
+		result.value.length < NEWEST_COUNT,
 	);
 	if (changed.records.length + changed.runs.length + changed.swims.length > 0) {
 		await evaluateAndNotify(ctx, rider.athleteId, {

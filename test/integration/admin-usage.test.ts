@@ -541,7 +541,7 @@ describe("Betrieb (feature 048 US4)", () => {
 			"Heute 0 Aufrufe dieses Teams · nichts zurückgehalten",
 		);
 		expect(sub("recheck")).toBe(
-			"150 Prüfungen am Tag · 0 aktive Rider · noch nicht gelaufen",
+			"75 Prüfungen am Tag · 0 aktive Rider · noch nicht gelaufen",
 		);
 		expect(sub("routing")).toBe("Noch keine Zahlen");
 		expect(sub("cpu")).toBe(`Noch keine Zahlen · Limit 10${NB}ms je Lauf`);
