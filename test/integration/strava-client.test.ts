@@ -445,10 +445,10 @@ describe("revoking", () => {
 	);
 });
 
-// Feature 036 research R3: the re-check's one request, the rider's newest 200
+// Feature 036 research R3: the re-check's one request, the rider's newest 50
 // activities, without `after`, as background work.
 describe("listNewestActivities", () => {
-	it("asks for the first 200 without `after`, newest first", async () => {
+	it("asks for the first 50 without `after`, newest first", async () => {
 		fake.addActivity(
 			ATHLETE_A,
 			makeStravaActivity({ id: "1", start_date: "2026-10-01T07:00:00Z" }),
@@ -467,7 +467,7 @@ describe("listNewestActivities", () => {
 		expect(call?.url.pathname).toBe("/api/v3/athlete/activities");
 		expect([...(call?.url.searchParams ?? [])]).toEqual([
 			["page", "1"],
-			["per_page", "200"],
+			["per_page", "50"],
 		]);
 	});
 
