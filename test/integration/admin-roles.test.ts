@@ -218,6 +218,39 @@ describe("taking a role away (US3)", () => {
 		);
 	});
 
+	it("drops an administrator's dismissed day warnings with the Admin role (feature 050)", async () => {
+		const dismissals = (athleteId: string) =>
+			env.DB.prepare(
+				"SELECT COUNT(*) AS n FROM usage_dismissals WHERE athlete_id = ?",
+			)
+				.bind(athleteId)
+				.first<number>("n");
+		const dismissed = async (athleteId: string) =>
+			env.DB.prepare(
+				`INSERT INTO usage_dismissals (athlete_id, kind, day, reason)
+				VALUES (?, 'routing', '2026-11-24', 'possible')`,
+			)
+				.bind(athleteId)
+				.run();
+		for (const [athleteId, role] of [
+			["900011", "orga"],
+			["900012", "none"],
+		] as const) {
+			await seedRider(ctx, {
+				athleteId,
+				firstName: "Anna",
+				administrator: true,
+			});
+			await dismissed(athleteId);
+			await setRole(athleteId, role);
+			expect(await dismissals(athleteId)).toBe(0);
+		}
+		await dismissed(ADMIN);
+		await seedRider(ctx, { athleteId: "900013", firstName: "Ben" });
+		await setRole("900013", "admin");
+		expect(await dismissals(ADMIN)).toBe(1);
+	});
+
 	it("keeps the starting point across an undo", async () => {
 		await setRole(ORGA, "none");
 		await setRole(ORGA, "orga");

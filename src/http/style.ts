@@ -664,7 +664,7 @@ figure.gauge figcaption{display:flex;align-items:center;gap:var(--rp-space-2);ma
 .progress-team{border-left:6px solid var(--rp-coin-team)}
 .progress-chart figcaption{display:flex;align-items:center;gap:var(--rp-space-2);margin:0 0 var(--rp-space-2);font:var(--md-type-label)}
 .progress-plot{position:relative;height:11rem}
-.progress-plot canvas{display:block;width:100%;height:100%;touch-action:pan-y;border-radius:var(--md-shape-xs)}
+.progress-plot canvas{display:block;width:100%;height:100%;touch-action:pan-y!important;border-radius:var(--md-shape-xs)}
 .progress-legend{display:flex;flex-wrap:wrap;gap:var(--rp-space-1) var(--rp-space-4);margin:var(--rp-space-2) 0 0;padding:0;list-style:none;font:var(--md-type-label-small);color:var(--md-sys-color-on-surface-variant)}
 .progress-legend li{display:inline-flex;align-items:center;gap:var(--rp-space-2)}
 .progress-key{flex:none;width:24px;height:0;border-top:2px solid var(--md-sys-color-on-surface-variant)}
@@ -782,7 +782,7 @@ button.org-graphs-toggle{display:flex;align-items:center;justify-content:space-b
 .org-graph-title{font:600 16px/24px var(--md-ref-typeface)}
 .org-graph-readout{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 .org-graph-plot{position:relative;height:13rem}
-.org-graph-plot canvas{display:block;width:100%;height:100%;touch-action:pan-y;border-radius:var(--md-shape-xs)}
+.org-graph-plot canvas{display:block;width:100%;height:100%;touch-action:pan-y!important;border-radius:var(--md-shape-xs)}
 .org-graph-legend{display:flex;flex-wrap:wrap;gap:4px;margin-top:var(--rp-space-2)}
 .org-legend-many{max-height:120px;overflow-y:auto}
 button.org-legend-entry{display:flex;align-items:center;gap:6px;min-height:28px;padding:0 var(--rp-space-2);border:none;border-radius:var(--md-shape-sm);background:none;color:var(--md-sys-color-on-surface);font:var(--md-type-caption);cursor:pointer}
@@ -817,6 +817,9 @@ button.org-legend-entry[aria-pressed=true]{background:var(--md-sys-color-surface
 .lage-badge.is-ok{background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
 .lage-chips{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);margin:var(--rp-space-1) 0 0}
 .lage-chips .usage-mark{padding:2px 10px;font:var(--rp-type-status)}
+.lage-dismissable{display:flex;align-items:center;gap:var(--rp-space-2)}
+.lage-dismissable>.settings-row{flex:1;min-width:0}
+.settings-list .lage-dismiss{flex:none;margin:0 var(--rp-space-2) 0 0}
 .usage-page .settings-section>h2{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:0 var(--rp-space-2);margin-right:var(--rp-space-4)}
 .usage-page .settings-section>h2 small{font:var(--md-type-caption)}
 .settings-note.is-warn{color:var(--md-sys-color-error)}

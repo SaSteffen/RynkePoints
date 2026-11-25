@@ -205,6 +205,8 @@ drop a report, and check the full list's correction and the re-check's find show
   every event again, until a full list arrives.
 - **A new team joins**: It isn't routing until its first full list, so it receives every event from
   the start and misses nothing.
+- **Routing starts, or starts again after `off`**: Every team's first full list fills the empty
+  copy. It counts no corrections or possible misses (FR-022), so the day isn't marked for them.
 - **Events for an athlete nobody holds** (they disconnected, and Strava still sends one last
   event): The copy doesn't list them, so the event goes to every team, which drop it as today.
 - **The team question and the let-go request** (feature 041, feature 044): The gateway keeps asking
@@ -296,7 +298,9 @@ drop a report, and check the full list's correction and the re-check's find show
   MUST count per day the events it received and dropped because it doesn't hold the athlete.
 - **FR-022**: The gateway MUST count, per team and day, the entries a full list added to and
   removed from that team's part of the copy. An added entry for an athlete the copy listed under
-  other teams only MUST count as a possible miss.
+  other teams only MUST count as a possible miss. A team's first full list, before it ever sent
+  one or after routing was switched off, only fills its part and MUST count neither: there was no
+  list to correct, and a person held by two teams would otherwise count as a possible miss.
 - **FR-023**: Each team MUST count per day the rides its daily ride re-check (feature 036) stored
   that no event had brought. Counting MUST start before the trial, so there is a baseline of what
   Strava itself loses.

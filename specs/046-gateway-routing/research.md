@@ -109,7 +109,9 @@ gateway replaces the team's part in one transaction, counts additions, removals 
 misses, and sets the team's list date.
 
 **Possible miss** (FR-022): an athlete the list adds whom the copy listed under other teams only.
-An athlete the copy didn't know at all went to every team and isn't one.
+An athlete the copy didn't know at all went to every team and isn't one. A team's first list (no
+list date yet, also after `off` empties the copy) counts nothing: on the first day of routing every
+team's list added all its people, and one held by both teams showed as a possible miss.
 
 ## R8 IDs on the new routes
 

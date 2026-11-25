@@ -125,8 +125,10 @@ export class RoutingCopy extends DurableObject<unknown> {
 
 	/**
 	 * Replaces the team's part of the copy with its full list (FR-006) and
-	 * counts the corrections (FR-022). Also drops what departed teams left
-	 * (FR-009) and counts past 30 days (FR-026).
+	 * counts the corrections (FR-022). The team's first list, before any list
+	 * date or after `forget`, fills its part and counts none: nothing was there
+	 * to correct. Also drops what departed teams left (FR-009) and counts past
+	 * 30 days (FR-026).
 	 */
 	replaceList(
 		team: string,
@@ -135,6 +137,9 @@ export class RoutingCopy extends DurableObject<unknown> {
 		teams: readonly string[],
 	): ListResult {
 		return this.ctx.storage.transactionSync(() => {
+			const first =
+				this.sql.exec("SELECT 1 FROM lists WHERE team = ?", team).toArray()
+					.length === 0;
 			const current = new Set(
 				this.sql
 					.exec<{ athlete_id: string }>(
@@ -179,11 +184,14 @@ export class RoutingCopy extends DurableObject<unknown> {
 				now,
 			);
 			const day = routingDay(now);
-			this.add(day, team, "added", added);
-			this.add(day, team, "removed", removed);
-			this.add(day, team, "possible", possible);
+			const counted: ListResult = first
+				? { added: 0, removed: 0, possible: 0 }
+				: { added, removed, possible };
+			this.add(day, team, "added", counted.added);
+			this.add(day, team, "removed", counted.removed);
+			this.add(day, team, "possible", counted.possible);
 			this.prune(teams, day);
-			return { added, removed, possible };
+			return counted;
 		});
 	}
 

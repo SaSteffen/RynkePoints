@@ -1289,6 +1289,8 @@ export const nl: Catalog = {
 	"admin.lage.routing.possible": "Mogelijk verlies",
 	"admin.lage.routing.everyone": "Te veel naar alle teams gestuurd",
 	"admin.lage.calls": "De aanroepen kloppen niet",
+	"admin.lage.dismiss": "Gezien",
+	"admin.lage.dismissLabel": "Gezien: {title}",
 	"admin.lage.cpu": "{owner}: runs afgebroken",
 	"admin.lage.cpuLine": "{cut} van {runs} vandaag",
 	"admin.lage.team.stale": "{team} heeft niet geantwoord",

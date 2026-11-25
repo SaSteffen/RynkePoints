@@ -1280,6 +1280,8 @@ export const is: Catalog = {
 	"admin.lage.routing.possible": "Mögulegt tap",
 	"admin.lage.routing.everyone": "Of mikið sent til allra liða",
 	"admin.lage.calls": "Köllin stemma ekki",
+	"admin.lage.dismiss": "Séð",
+	"admin.lage.dismissLabel": "Séð: {title}",
 	"admin.lage.cpu": "{owner}: keyrslur stöðvaðar",
 	"admin.lage.cpuLine": "{cut} af {runs} í dag",
 	"admin.lage.team.stale": "{team} svaraði ekki",
