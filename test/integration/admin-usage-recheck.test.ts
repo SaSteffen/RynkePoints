@@ -114,7 +114,7 @@ describe("the Ride re-check section", () => {
 			],
 		});
 		expect(section(await page())).toContain(
-			"150 Prüfungen am Tag für dieses Team · 1 aktive Rider (mit einer Aktivität in den letzten 30 Tagen)",
+			"75 Prüfungen am Tag für dieses Team · 1 aktive Rider (mit einer Aktivität in den letzten 30 Tagen)",
 		);
 	});
 
@@ -169,7 +169,7 @@ describe("the Ride re-check section", () => {
 		);
 		expect(text).toContain(">2 Warnungen<");
 		expect(text).toContain(
-			'<span class="settings-title">Nachprüfung der Fahrten<span class="usage-mark usage-mark-warning">Warnung</span></span><span class="settings-sub">150 Prüfungen am Tag · 0 aktive Rider · zuletzt am 04.11.2026</span>',
+			'<span class="settings-title">Nachprüfung der Fahrten<span class="usage-mark usage-mark-warning">Warnung</span></span><span class="settings-sub">75 Prüfungen am Tag · 0 aktive Rider · zuletzt am 04.11.2026</span>',
 		);
 	});
 
