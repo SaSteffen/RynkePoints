@@ -817,6 +817,9 @@ button.org-legend-entry[aria-pressed=true]{background:var(--md-sys-color-surface
 .lage-badge.is-ok{background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
 .lage-chips{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);margin:var(--rp-space-1) 0 0}
 .lage-chips .usage-mark{padding:2px 10px;font:var(--rp-type-status)}
+.lage-dismissable{display:flex;align-items:center;gap:var(--rp-space-2)}
+.lage-dismissable>.settings-row{flex:1;min-width:0}
+.settings-list .lage-dismiss{flex:none;margin:0 var(--rp-space-2) 0 0}
 .usage-page .settings-section>h2{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:0 var(--rp-space-2);margin-right:var(--rp-space-4)}
 .usage-page .settings-section>h2 small{font:var(--md-type-caption)}
 .settings-note.is-warn{color:var(--md-sys-color-error)}

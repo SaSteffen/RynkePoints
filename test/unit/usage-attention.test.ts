@@ -71,6 +71,7 @@ const quiet: AttentionInputs = {
 	calls: [],
 	peers: [{ lastSuccessAt: 100, lastFailureAt: null }],
 	hasDevice: true,
+	dismissed: [],
 };
 
 const items = (inputs: Partial<AttentionInputs>) =>
@@ -176,8 +177,7 @@ describe("attentionItems", () => {
 		expect(list).toEqual([
 			expect.objectContaining({
 				kind: "recheck",
-				over24h: true,
-				unordered: true,
+				reasons: ["over24h", "unordered"],
 			}),
 			expect.objectContaining({ kind: "routing", reasons: ["missed"] }),
 		]);
@@ -280,5 +280,142 @@ describe("isRecheckWarningDay", () => {
 		expect(isRecheckWarningDay(recheck(TODAY))).toBe(false);
 		expect(isRecheckWarningDay(recheck(TODAY, 1))).toBe(true);
 		expect(isRecheckWarningDay(recheck(TODAY, 0, 1))).toBe(true);
+	});
+});
+
+const possible = (day: string, count = 1): RoutingCount => ({
+	day,
+	team: "hamburg",
+	figure: "possible",
+	count,
+});
+
+describe("reasons of day items (feature 050 research R2)", () => {
+	it("gives a marked Strava calls day the reason calls", () => {
+		expect(items({ calls: [calls(TODAY, true)] })).toEqual([
+			expect.objectContaining({ kind: "calls", reasons: ["calls"] }),
+		]);
+	});
+
+	it("names a re-check day's reasons, only those it has", () => {
+		expect(items({ recheck: [recheck(TODAY, 1, 1)] })).toEqual([
+			expect.objectContaining({ reasons: ["over24h", "unordered"] }),
+		]);
+		expect(items({ recheck: [recheck(TODAY, 1)] })).toEqual([
+			expect.objectContaining({ reasons: ["over24h"] }),
+		]);
+		expect(items({ recheck: [recheck(TODAY, 0, 1)] })).toEqual([
+			expect.objectContaining({ reasons: ["unordered"] }),
+		]);
+	});
+
+	it("keeps a routing day's warnings as its reasons", () => {
+		const list = items({
+			routing: routingDays([missed(TODAY), possible(TODAY)], "hamburg"),
+		});
+		expect(list).toEqual([
+			expect.objectContaining({
+				kind: "routing",
+				reasons: ["missed", "possible"],
+			}),
+		]);
+	});
+});
+
+describe("dismissed day items (feature 050 data-model.md)", () => {
+	const routing = routingDays([possible(YESTERDAY)], "hamburg");
+
+	it("leaves out a day whose every reason is dismissed, and counts it no more", () => {
+		const before = items({ routing });
+		const after = items({
+			routing,
+			dismissed: [{ kind: "routing", day: YESTERDAY, reason: "possible" }],
+		});
+		expect(before).toHaveLength(1);
+		expect(after).toEqual([]);
+		expect(markCount(after).total).toBe(markCount(before).total - 1);
+	});
+
+	it("keeps it for a dismissal of another day or another kind", () => {
+		expect(
+			items({
+				routing,
+				dismissed: [
+					{ kind: "routing", day: TODAY, reason: "possible" },
+					{ kind: "recheck", day: YESTERDAY, reason: "possible" },
+				],
+			}),
+		).toHaveLength(1);
+	});
+
+	it("leaves out Strava calls and re-check days with all reasons dismissed", () => {
+		expect(
+			items({
+				calls: [calls(TODAY, true)],
+				recheck: [recheck(YESTERDAY, 1, 1)],
+				dismissed: [
+					{ kind: "calls", day: TODAY, reason: "calls" },
+					{ kind: "recheck", day: YESTERDAY, reason: "over24h" },
+					{ kind: "recheck", day: YESTERDAY, reason: "unordered" },
+				],
+			}),
+		).toEqual([]);
+	});
+
+	it("counts nothing with the only mark dismissed, and keeps the state hints", () => {
+		const list = items({
+			routing,
+			peers: [undefined],
+			hasDevice: false,
+			dismissed: [{ kind: "routing", day: YESTERDAY, reason: "possible" }],
+		});
+		expect(markCount(list).total).toBe(0);
+		expect(list.map((item) => item.kind)).toEqual(["team", "device"]);
+	});
+
+	it("never leaves out a figure or a CPU row", () => {
+		const list = items({
+			figures: [at("strava_read_daily", 95)],
+			cpu: [cpu(SHARED, 100, 5)],
+			dismissed: [
+				{ kind: "routing", day: TODAY, reason: "possible" },
+				{ kind: "calls", day: TODAY, reason: "calls" },
+			],
+		});
+		expect(list.map((item) => item.kind).sort()).toEqual(["cpu", "figure"]);
+	});
+});
+
+describe("a new reason brings a dismissed day back (feature 050 US3)", () => {
+	it("shows a routing day again, with both reasons, after a would-be miss", () => {
+		const list = items({
+			routing: routingDays([missed(YESTERDAY), possible(YESTERDAY)], "hamburg"),
+			dismissed: [{ kind: "routing", day: YESTERDAY, reason: "possible" }],
+		});
+		expect(list).toEqual([
+			expect.objectContaining({
+				kind: "routing",
+				reasons: ["missed", "possible"],
+			}),
+		]);
+	});
+
+	it("keeps it dismissed when the same reason only grows", () => {
+		expect(
+			items({
+				routing: routingDays([possible(YESTERDAY, 2)], "hamburg"),
+				dismissed: [{ kind: "routing", day: YESTERDAY, reason: "possible" }],
+			}),
+		).toEqual([]);
+	});
+
+	it("shows a re-check day again once the list is also out of order", () => {
+		const list = items({
+			recheck: [recheck(YESTERDAY, 1, 1)],
+			dismissed: [{ kind: "recheck", day: YESTERDAY, reason: "over24h" }],
+		});
+		expect(list).toEqual([
+			expect.objectContaining({ reasons: ["over24h", "unordered"] }),
+		]);
 	});
 });

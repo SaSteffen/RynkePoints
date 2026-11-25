@@ -21,7 +21,11 @@ import {
 import { pruneRoutingCounts } from "../db/routing";
 import { listRidersNeedingEvaluation } from "../db/rynke";
 import { pruneStravaCalls } from "../db/strava-calls";
-import { pruneUsageAlerts, pruneUsageHistory } from "../db/usage";
+import {
+	pruneDismissals,
+	pruneUsageAlerts,
+	pruneUsageHistory,
+} from "../db/usage";
 import { exchangeRoutingCounts, sendFullList } from "../routing/report";
 import {
 	type CountingWindow,
@@ -222,7 +226,8 @@ export async function fanOutEvaluations(ctx: Ctx): Promise<void> {
 /**
  * Usage days past 13 months, and alert rows past 2 days (025 data-model.md);
  * the re-check's days with the usage history (feature 036); the Strava call
- * counts past 30 days (feature 047 FR-017).
+ * counts past 30 days (feature 047 FR-017); dismissed day warnings once their
+ * day has left the list (feature 050 FR-009).
  */
 export async function pruneUsage(ctx: Ctx): Promise<void> {
 	const today = utcDay(ctx.now());
@@ -232,6 +237,7 @@ export async function pruneUsage(ctx: Ctx): Promise<void> {
 	await pruneStravaCalls(ctx.env.DB, firstCallDay(today));
 	// Gateway routing's counts keep 30 days (feature 046 FR-026).
 	await pruneRoutingCounts(ctx.env.DB, today);
+	await pruneDismissals(ctx.env.DB, daysBefore(today, 1));
 }
 
 function safeParse(json: string): unknown {

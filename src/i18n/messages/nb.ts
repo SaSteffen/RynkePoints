@@ -1270,6 +1270,8 @@ export const nb: Catalog = {
 	"admin.lage.routing.possible": "Mulig tap",
 	"admin.lage.routing.everyone": "For mye sendt til alle lag",
 	"admin.lage.calls": "Kallene går ikke opp",
+	"admin.lage.dismiss": "Sett",
+	"admin.lage.dismissLabel": "Sett: {title}",
 	"admin.lage.cpu": "{owner}: kjøringer avbrutt",
 	"admin.lage.cpuLine": "{cut} av {runs} i dag",
 	"admin.lage.team.stale": "{team} har ikke svart",

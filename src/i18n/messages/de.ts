@@ -1317,6 +1317,8 @@ export const de = {
 	"admin.lage.routing.possible": "Möglicher Verlust",
 	"admin.lage.routing.everyone": "Zu viele Meldungen an alle Teams",
 	"admin.lage.calls": "Die Aufrufe gehen nicht auf",
+	"admin.lage.dismiss": "Gesehen",
+	"admin.lage.dismissLabel": "Gesehen: {title}",
 	"admin.lage.cpu": "{owner}: Läufe abgebrochen",
 	"admin.lage.cpuLine": "{cut} von {runs} heute",
 	"admin.lage.team.stale": "{team} hat nicht geantwortet",

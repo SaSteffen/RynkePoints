@@ -5,6 +5,7 @@ import {
 	type CloudflareAllowance,
 	type RecordedAllowance,
 } from "../usage/allowances";
+import type { DayKind } from "../usage/attention";
 import type { CpuDay } from "../usage/cpu";
 
 // The daily usage records and the sources' state (feature 025 data-model.md).
@@ -476,4 +477,68 @@ export function currentAlertStatement(
 			LIMIT 1`,
 		)
 		.bind(athleteId, since, today);
+}
+
+// Day warnings an administrator marked as seen (feature 050 data-model.md).
+// Unlike the records above they name the administrator, so they go with the
+// rider (ON DELETE CASCADE) and with the Admin role (`setRole`).
+
+/** A dismissed reason of a day warning (feature 050). */
+export interface Dismissal {
+	kind: DayKind;
+	day: string;
+	reason: string;
+}
+
+/** The viewer's dismissals from `since` on (feature 050). */
+export async function readDismissals(
+	db: D1Database,
+	athleteId: string,
+	since: string,
+): Promise<Dismissal[]> {
+	const { results } = await db
+		.prepare(
+			"SELECT kind, day, reason FROM usage_dismissals WHERE athlete_id = ? AND day >= ?",
+		)
+		.bind(athleteId, since)
+		.all<Dismissal>();
+	return results;
+}
+
+/** Keeps each reason as dismissed; a second time changes nothing (feature 050). */
+export async function addDismissals(
+	db: D1Database,
+	athleteId: string,
+	kind: DayKind,
+	day: string,
+	reasons: readonly string[],
+): Promise<void> {
+	if (reasons.length === 0) return;
+	const insert = db.prepare(
+		"INSERT OR IGNORE INTO usage_dismissals (athlete_id, kind, day, reason) VALUES (?, ?, ?, ?)",
+	);
+	await db.batch(
+		reasons.map((reason) => insert.bind(athleteId, kind, day, reason)),
+	);
+}
+
+/** Dismissals for days before `firstKept` go: the list no longer shows them (feature 050). */
+export async function pruneDismissals(
+	db: D1Database,
+	firstKept: string,
+): Promise<void> {
+	await db
+		.prepare("DELETE FROM usage_dismissals WHERE day < ?")
+		.bind(firstKept)
+		.run();
+}
+
+/** Drops an administrator's dismissals, for `setRole`'s batch (feature 050). */
+export function deleteDismissalsStatement(
+	db: D1Database,
+	athleteId: string,
+): D1PreparedStatement {
+	return db
+		.prepare("DELETE FROM usage_dismissals WHERE athlete_id = ?")
+		.bind(athleteId);
 }

@@ -1273,6 +1273,8 @@ export const sv: Catalog = {
 	"admin.lage.routing.possible": "Möjlig förlust",
 	"admin.lage.routing.everyone": "För mycket skickat till alla lag",
 	"admin.lage.calls": "Anropen går inte ihop",
+	"admin.lage.dismiss": "Sett",
+	"admin.lage.dismissLabel": "Sett: {title}",
 	"admin.lage.cpu": "{owner}: körningar avbrutna",
 	"admin.lage.cpuLine": "{cut} av {runs} i dag",
 	"admin.lage.team.stale": "{team} har inte svarat",

@@ -8,6 +8,7 @@ import { handleAdminRiders } from "./admin/riders";
 import { handleOldRolesAddress, handleSetRole } from "./admin/roles";
 import {
 	handleAdminAlerts,
+	handleAdminDismiss,
 	handleAdminRefresh,
 	handleAdminUsage,
 } from "./admin/usage";
@@ -207,6 +208,8 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleLogoutEverywhere(request, ctx, i18n);
 			case "/admin/alerts":
 				return handleAdminAlerts(request, ctx, i18n);
+			case "/admin/dismiss":
+				return handleAdminDismiss(request, ctx, i18n);
 			case "/admin/refresh":
 				return handleAdminRefresh(request, ctx, i18n);
 			case "/admin/roles":
