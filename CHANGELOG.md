@@ -13,6 +13,11 @@ English sentences for the administrators, without formatting or links, and
 name no team, place or rider: every team shows the same list.
 -->
 
+## 1.4.0
+
+- Each day warning in the usage view's list (Strava calls, ride re-check, gateway routing) has a button to mark it as seen. It then leaves that administrator's list and the Admin tab's number; the day's table keeps its mark, and a new reason brings it back.
+- Gateway routing no longer warns of a possible miss on the day a team sends its first full list.
+
 ## 1.3.0
 
 - The usage view starts with a list of what needs a look, worst first, and says so in one line when everything is within limits.
