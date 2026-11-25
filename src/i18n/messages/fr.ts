@@ -279,6 +279,8 @@ export const fr: Catalog = {
 		"Nous avons supprimé toutes les données te concernant. Les copies dans les sauvegardes de notre hébergeur disparaissent au plus tard après 7 jours.",
 
 	"install.button": "Installer comme application",
+	"install.wait":
+		"Sur Android, l'application peut mettre jusqu'à 2\u00a0minutes à apparaître sur l'écran d'accueil.",
 	"install.ios":
 		"Comme application sur ton iPhone\u00a0: dans Safari, touche «\u00a0Partager\u00a0» puis «\u00a0Sur l'écran d'accueil\u00a0».",
 	"install.firefox":

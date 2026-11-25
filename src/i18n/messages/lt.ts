@@ -269,6 +269,8 @@ export const lt: Catalog = {
 		"Ištrynėme visus duomenis apie tave. Kopijos mūsų prieglobos paslaugų teikėjo atsarginėse kopijose dingsta ne vėliau kaip po 7 dienų.",
 
 	"install.button": "Įdiegti kaip programėlę",
+	"install.wait":
+		"Android telefone gali užtrukti iki 2 minučių, kol programėlė atsiras pradžios ekrane.",
 	"install.ios":
 		"Kaip programėlė iPhone: Safari bakstelėk „Bendrinti“, tada „Įtraukti į pradžios ekraną“.",
 	"install.firefox":

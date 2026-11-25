@@ -266,6 +266,8 @@ export const nb: Catalog = {
 		"Vi har slettet alle data om deg. Kopier i sikkerhetskopiene til vertsleverandøren vår forsvinner senest etter 7 dager.",
 
 	"install.button": "Installer som app",
+	"install.wait":
+		"På Android kan det ta opptil 2 minutter før appen dukker opp på startskjermen.",
 	"install.ios":
 		"Som app på iPhonen: trykk «Del» i Safari og så «Legg til på Hjem-skjerm».",
 	"install.firefox":

@@ -25,6 +25,7 @@ Wir holen einmalig deine Fahrten seit dem 01.01.2026 von Strava. Das dauert etwa
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -57,6 +58,7 @@ Wir holen einmalig deine Fahrten seit dem 01.01.2026 von Strava. Das dauert etwa
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -89,6 +91,7 @@ Wir holen einmalig deine Fahrten seit dem 01.01.2026 von Strava. Das dauert etwa
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -117,7 +120,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -196,6 +199,7 @@ Alle
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -315,6 +319,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -350,6 +355,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -663,6 +669,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -691,7 +698,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -773,6 +780,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -903,6 +911,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -963,6 +972,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -1359,6 +1369,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -1387,7 +1398,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -1473,6 +1484,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -1592,6 +1604,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -1807,6 +1820,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -2252,6 +2266,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -2280,7 +2295,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -2363,6 +2378,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -2497,6 +2513,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -2712,6 +2729,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -3218,6 +3236,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -3246,7 +3265,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -3330,6 +3349,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -3449,6 +3469,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -3586,6 +3607,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -3933,6 +3955,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -3961,7 +3984,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -4045,6 +4068,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -4174,6 +4198,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -4389,6 +4414,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -4764,6 +4790,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -4792,7 +4819,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -4878,6 +4905,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -5001,6 +5029,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -5079,6 +5108,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -5426,6 +5456,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -5454,7 +5485,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -5540,6 +5571,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -5581,6 +5613,7 @@ Wir holen einmalig deine Fahrten seit dem 01.01.2026 von Strava. Das dauert etwa
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -5613,6 +5646,7 @@ Wir holen einmalig deine Fahrten seit dem 01.01.2026 von Strava. Das dauert etwa
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -5645,6 +5679,7 @@ Wir holen einmalig deine Fahrten seit dem 01.01.2026 von Strava. Das dauert etwa
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -5673,7 +5708,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 Die Verbindung zu Strava muss erneuert werden.
 Erneut verbinden
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -5782,6 +5817,7 @@ Ohne Namen. Die Linie zeigt die Saison bisher.
 [img /strava/en/powered-by-strava.svg] [img /strava/en/powered-by-strava-white.svg] Datenschutz und Kontakt
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -5912,6 +5948,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -5990,6 +6027,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -6372,6 +6410,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -6400,7 +6439,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -6486,6 +6525,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -6613,6 +6653,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -6754,6 +6795,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -7148,6 +7190,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -7176,7 +7219,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -7262,6 +7305,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -7381,6 +7425,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -7432,6 +7477,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -7751,6 +7797,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -7779,7 +7826,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -7864,6 +7911,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -8005,6 +8053,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -8220,6 +8269,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -8739,6 +8789,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -8767,7 +8818,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Du bist gut dabei. Nimm heute jemanden aus dem Team mit auf die Runde.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -8849,6 +8900,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -8970,6 +9022,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -9030,6 +9083,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -9377,6 +9431,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -9405,7 +9460,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -9491,6 +9546,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -9615,6 +9671,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -9828,6 +9885,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -10266,6 +10324,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -10294,7 +10353,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -10380,6 +10439,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -10503,6 +10563,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -10718,6 +10779,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -11170,6 +11232,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -11198,7 +11261,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -11284,6 +11347,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -11403,6 +11467,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -11473,6 +11538,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -11800,6 +11866,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -11829,7 +11896,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -11915,6 +11982,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -12036,6 +12104,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -12106,6 +12175,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -12454,6 +12524,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -12481,7 +12552,7 @@ Rynke Nacht Nachtfahrt Wald Pflaume Disco Glitzer
 Hoher Kontrast
 Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -12594,6 +12665,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -12719,6 +12791,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -12934,6 +13007,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -13337,6 +13411,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -13365,7 +13440,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -13451,6 +13526,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -13575,6 +13651,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -13790,6 +13867,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -14186,6 +14264,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -14214,7 +14293,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -14300,6 +14379,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -14597,6 +14677,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -14812,6 +14893,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -15222,6 +15304,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -15250,7 +15333,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -15336,6 +15419,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -15460,6 +15544,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -15675,6 +15760,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -16085,6 +16171,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -16113,7 +16200,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -16199,6 +16286,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -16323,6 +16411,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -16538,6 +16627,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -16962,6 +17052,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -16990,7 +17081,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -17076,6 +17167,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -17200,6 +17292,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -17415,6 +17508,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -17839,6 +17933,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -17867,7 +17962,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -17953,6 +18048,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -18249,6 +18345,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -18464,6 +18561,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -18888,6 +18986,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -18916,7 +19015,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -19002,6 +19101,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -19126,6 +19226,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -19341,6 +19442,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -19751,6 +19853,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -19779,7 +19882,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -19865,6 +19968,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -19989,6 +20093,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -20204,6 +20309,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -20635,6 +20741,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -20663,7 +20770,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -20749,6 +20856,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -20873,6 +20981,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -21088,6 +21197,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -21519,6 +21629,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -21547,7 +21658,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -21633,6 +21744,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -21930,6 +22042,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -22145,6 +22258,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -22555,6 +22669,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -22583,7 +22698,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -22669,6 +22784,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -22793,6 +22909,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -23008,6 +23125,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -23418,6 +23536,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -23446,7 +23565,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -23532,6 +23651,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -23656,6 +23776,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -23871,6 +23992,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -24288,6 +24410,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -24316,7 +24439,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -24402,6 +24525,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -24526,6 +24650,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -24741,6 +24866,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -25158,6 +25284,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -25186,7 +25313,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -25272,6 +25399,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -25569,6 +25697,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -25784,6 +25913,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -26180,6 +26310,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -26208,7 +26339,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -26294,6 +26425,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -26418,6 +26550,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -26633,6 +26766,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -27036,6 +27170,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -27064,7 +27199,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -27150,6 +27285,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -27274,6 +27410,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -27489,6 +27626,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -27906,6 +28044,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -27934,7 +28073,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -28020,6 +28159,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -28144,6 +28284,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -28359,6 +28500,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -28776,6 +28918,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -28804,7 +28947,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -28890,6 +29033,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -29186,6 +29330,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -29401,6 +29546,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -29839,6 +29985,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -29867,7 +30014,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -29952,6 +30099,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -30076,6 +30224,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -30291,6 +30440,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -30701,6 +30851,7 @@ Zeig mal
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.
@@ -30729,7 +30880,7 @@ Kontrast hell Kontrast dunkel
 Gilt nur für dieses Gerät.
 [img /quotes/thumbs.svg?v=28f36c614a]
 Die schwerste Kurbelumdrehung ist die erste. Danach rollt&#39;s.
-[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7]
+[img /coin/rynke-coin-front.svg?v=c3ebc6f6c7] [img /coin/rynke-coin-back.svg?v=8467ce2650]
 Team Rynkeby Hamburg
 6.294 Trainingsrynke
 gemeinsam gesammelt
@@ -30815,6 +30966,7 @@ Weiter
 Überspringen
 Hol dir RynkePoints als App auf deinen Startbildschirm.
 Als App installieren
+Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.
 Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.
 Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.
 Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.

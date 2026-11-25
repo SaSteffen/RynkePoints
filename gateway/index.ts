@@ -76,8 +76,12 @@ const MAX_LIST_IDS = 999;
 /** A team's own counts: four figures for 30 days, with room. */
 const MAX_COUNTS_BYTES = 16 * 1024;
 const MAX_OWN_COUNTS = 200;
-/** How long choosing may take before the event goes to everyone (FR-002). */
-export const LOOKUP_BUDGET_MS = 1_000;
+/**
+ * How long choosing may take before the event goes to everyone (FR-002).
+ * Not exported: workerd takes every export of the main module for an
+ * entrypoint and refuses to start on a plain value.
+ */
+const LOOKUP_BUDGET_MS = 1_000;
 
 function text(body: string, status: number): Response {
 	return new Response(body, {

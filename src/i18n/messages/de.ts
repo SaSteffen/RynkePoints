@@ -286,6 +286,8 @@ export const de = {
 	// `push.body.rise*` and `push.rise.*` only through the signed-in
 	// /me/notification-text.
 	"install.button": "Als App installieren",
+	"install.wait":
+		"Auf Android kann es bis zu 2 Minuten dauern, bis die App auf dem Startbildschirm erscheint.",
 	"install.ios":
 		"Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.",
 	"install.firefox":

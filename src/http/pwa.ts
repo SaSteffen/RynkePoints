@@ -312,10 +312,13 @@ ${state("failed")}
 
 /**
  * The ways to install: the browser's own prompt, or the steps where the
- * browser has none (iPhone, Firefox on Android, Safari on the Mac).
+ * browser has none (iPhone, Firefox on Android, Safari on the Mac). The wait
+ * note shows with the browser's prompt only (the stylesheet): Chrome on Android
+ * has an app package built for it first, which can take a while.
  */
 function installWays(i18n: I18n): SafeHtml {
 	return html`<p data-install="prompt" hidden><button type="button" class="button">${i18n.t("install.button")}</button></p>
+<p class="install-wait">${i18n.t("install.wait")}</p>
 <p data-install="ios" hidden>${i18n.t("install.ios")}</p>
 <p data-install="firefox" hidden>${i18n.t("install.firefox")}</p>
 <p data-install="macSafari" hidden>${i18n.t("install.macSafari")}</p>`;

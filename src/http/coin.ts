@@ -79,8 +79,9 @@ export function heroCoin(pick = Math.random()): SafeHtml {
 }
 
 /**
- * The start page's coin: both sides of the team's coin, the back with the
- * team's own place in front of the front, side by side and overlapping.
+ * Both sides of the team's coin, the back with the team's own place in front
+ * of the front, overlapping: on the start page and in the Team page's total
+ * card, in every view (`style.ts` places them).
  */
 export function coinPair(coin: CoinArt): SafeHtml {
 	return new SafeHtml(

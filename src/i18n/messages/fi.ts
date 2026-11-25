@@ -266,6 +266,8 @@ export const fi: Catalog = {
 		"Olemme poistaneet kaikki tietosi. Kopiot palveluntarjoajamme varmuuskopioissa häviävät viimeistään 7 päivän kuluttua.",
 
 	"install.button": "Asenna sovelluksena",
+	"install.wait":
+		"Androidilla voi kestää jopa 2 minuuttia, ennen kuin sovellus näkyy aloitusnäytöllä.",
 	"install.ios":
 		"Sovellukseksi iPhonelle: napauta Safarissa ”Jaa” ja sitten ”Lisää Koti-valikkoon”.",
 	"install.firefox":
