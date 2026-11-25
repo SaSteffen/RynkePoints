@@ -196,15 +196,18 @@ export function handleEvents(
 		i18n,
 		"events",
 		allPast ? `${PATH}?past=all` : PATH,
-		async ({ rider }) => {
+		({ rider }, results) => {
 			if (rider.organiser) return redirect("/organiser", 302);
-			const { results } = await listRiderEventsStatement(
-				ctx.env.DB,
-				rider.athleteId,
-				window,
-			).all<RiderEventRow>();
 			return html`${notice(url, i18n)}${eventsBody(i18n, results, berlinDate(ctx.now()), window.deadline, allPast, currentRules(ctx.team.rules))}`;
 		},
+		async (athleteId: string) =>
+			(
+				await listRiderEventsStatement(
+					ctx.env.DB,
+					athleteId,
+					window,
+				).all<RiderEventRow>()
+			).results,
 	);
 }
 

@@ -18,7 +18,7 @@ import {
 	toRider,
 } from "../db/riders";
 import { redirect } from "./redirect";
-import { readSessionCookie } from "./session";
+import { readSessionCookie, type SessionCookie } from "./session";
 
 // Who is asking (feature 004 contracts/viewer-and-visibility.md). The role
 // lives only in `riders.organiser` and is read afresh on every request, never
@@ -39,7 +39,17 @@ export type Viewer =
 
 /** Who is asking, decided afresh on every request (FR-003). */
 export async function readViewer(request: Request, ctx: Ctx): Promise<Viewer> {
-	const session = await readSessionCookie(request, ctx.env, ctx.now());
+	return viewerOf(await readSessionCookie(request, ctx.env, ctx.now()), ctx);
+}
+
+/**
+ * Who holds `session`, the request's signed session cookie, or a visitor
+ * without one: whether it still signs the rider in is read here.
+ */
+export async function viewerOf(
+	session: SessionCookie | null,
+	ctx: Ctx,
+): Promise<Viewer> {
 	if (!session) return { kind: "visitor" };
 	const { athleteId } = session;
 	const db = ctx.env.DB;

@@ -9,7 +9,12 @@ import { phraseSet } from "../../content";
 import type { Phrases, Season } from "../../content/types";
 import type { Ctx } from "../../ctx";
 import { readSeenQuotes, writeSeenQuote } from "../../db/quote-seen";
-import { readTeam, readTeamAndRides, readTeamRides } from "../../db/team";
+import {
+	readTeam,
+	readTeamAndRides,
+	readTeamRides,
+	type TeamRider,
+} from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
 import { breakaway } from "../../rynke/breakaway";
 import {
@@ -738,38 +743,27 @@ export function handleTeam(
 		ctx.team,
 		beforeWindow,
 	);
+	const rides = rideFigures(ctx.env);
+	const figure = view.by === "rynke" ? null : view.by;
+	// No quote at all while the team has switched phrases off (feature
+	// 026 FR-018).
+	const quoting = phrasesOn(ctx.env);
 	return shellPage(
 		request,
 		ctx,
 		i18n,
 		"team",
 		teamHref(view),
-		async ({ rider }) => {
-			if (!rynkeViews(ctx.env)) return singleView(ctx, i18n, view, rider);
+		async ({ rider }, read) => {
+			if (read.kind === "single") {
+				return singleView(ctx, i18n, view, rider, read.rides);
+			}
 			const { kind, all } = view;
 			// Without Team Rynke: no kind switch, no Team figure in the rows
 			// (feature 039).
 			const teamRynke = hasTeamRynke(ctx.team);
 			const ranksTraining = trainingLeaderboard(ctx.env);
-			const rides = rideFigures(ctx.env);
-			const figure = view.by === "rynke" ? null : view.by;
-			// No quote at all while the team has switched phrases off (feature
-			// 026 FR-018).
-			const quoting = phrasesOn(ctx.env);
-			// The seen quotes alongside the team, not after it (issue #184); they
-			// only matter when the rider is on the leaderboard. The ride figures
-			// are read only when one is picked (032 research R2).
-			const [{ team, rides: rideRiders }, seenQuotes] = await Promise.all([
-				figure || (beforeWindow && rides)
-					? readTeamAndRides(ctx.env.DB)
-					: readTeam(ctx.env.DB).then((listed) => ({
-							team: listed,
-							rides: [] as RideRider[],
-						})),
-				quoting
-					? readSeenQuotes(ctx.env.DB, rider.athleteId)
-					: new Set<string>(),
-			]);
+			const { team, rides: rideRiders, seenQuotes } = read;
 			const ends = weekEnds(
 				window.windowStart,
 				lastDay(today, window.deadline),
@@ -800,13 +794,11 @@ export function handleTeam(
 				viewer && phrases
 					? pickQuote(phrases, status, today, seenQuotes)
 					: null;
-			// Only a GET marks the quote as seen, as with `rynke_seen`.
+			// Only a GET marks the quote as seen, as with `rynke_seen`; after the
+			// answer, so the page doesn't wait for the write.
 			if (quote && request.method === "GET") {
-				await writeSeenQuote(
-					ctx.env.DB,
-					rider.athleteId,
-					quote.id,
-					quote.restart,
+				ctx.waitUntil(
+					writeSeenQuote(ctx.env.DB, rider.athleteId, quote.id, quote.restart),
 				);
 			}
 			// The quote's monkey stands on the team total, above everything else.
@@ -884,25 +876,58 @@ export function handleTeam(
 			);
 			return html`${head}<div class="team-grid">${pelotonCard}${chart}${rankingGroup(rankBy, viewer ? waiting(renderPlace(i18n, viewer)) : null, leaderboard)}</div>`;
 		},
+		async (athleteId: string): Promise<TeamRead> => {
+			const db = ctx.env.DB;
+			if (!rynkeViews(ctx.env)) {
+				return {
+					kind: "single",
+					rides: rides ? await readTeamRides(db) : [],
+				};
+			}
+			// The seen quotes alongside the team (issue #184); they only matter
+			// when the rider is on the leaderboard. The ride figures are read
+			// only when one is picked (032 research R2).
+			const [{ team, rides: rideRiders }, seenQuotes] = await Promise.all([
+				figure || (beforeWindow && rides)
+					? readTeamAndRides(db)
+					: readTeam(db).then((listed) => ({
+							team: listed,
+							rides: [] as RideRider[],
+						})),
+				quoting ? readSeenQuotes(db, athleteId) : new Set<string>(),
+			]);
+			return { kind: "rynke", team, rides: rideRiders, seenQuotes };
+		},
 	);
 }
+
+/** What the Team page reads: for its Rynke views, or for its single view. */
+type TeamRead =
+	| { kind: "single"; rides: RideRider[] }
+	| {
+			kind: "rynke";
+			team: TeamRider[];
+			rides: RideRider[];
+			seenQuotes: Set<string>;
+	  };
 
 /**
  * `/team` of a team without Rynke views (FR-012): the team card, the team's
  * km week by week, the place card and the ride ranking. No kind switch, Rynke
- * card, peloton, quote or coin.
+ * card, peloton, quote or coin. `riders`: the ride figures, none while the team
+ * shows none.
  */
-async function singleView(
+function singleView(
 	ctx: Ctx,
 	i18n: I18n,
 	view: TeamView,
 	rider: Parameters<typeof renderReconnect>[1],
-): Promise<SafeHtml> {
+	riders: RideRider[],
+): SafeHtml {
 	const figure = view.by === "rynke" ? "km" : view.by;
 	const window = countingWindow(ctx.env);
 	const today = berlinDate(ctx.now());
 	const ends = weekEnds(window.seasonStart, lastDay(today, window.deadline));
-	const riders = rideFigures(ctx.env) ? await readTeamRides(ctx.env.DB) : [];
 	const season = periodOf("season", today, window);
 	const ranking = rideRanking(
 		riders,

@@ -82,24 +82,15 @@ export function handleOverview(
 		i18n,
 		"you",
 		"/me",
-		async ({ rider, example }) => {
+		async ({ rider, example }, own) => {
 			const window = countingWindow(ctx.env);
 			const inEffect = currentRules(ctx.team.rules);
 			const rulesFor = versionsOf(ctx.team.rules);
 			// On the rider tour's steps, the example rider instead (feature 020
 			// FR-005); it is never marked as seen and never celebrated (FR-007).
-			// The seen Rynke come in the same batch (issue #184).
-			// The line of feature 024 US4 is read alongside, in the same round
-			// trip (issue #184); not on the tour.
-			const [read, fetchingText] = await Promise.all([
-				example
-					? exampleRiderView(window, berlinDate(ctx.now()), inEffect)
-					: readRiderView(ctx.env.DB, rider.athleteId, 1, {
-							progress: true,
-							seen: true,
-						}),
-				example ? null : riderFetchingText(ctx, i18n, rider.athleteId),
-			]);
+			const [read, fetchingText] = example
+				? [exampleRiderView(window, berlinDate(ctx.now()), inEffect), null]
+				: own;
 			const view = buildRiderView(
 				read,
 				read.balance ? rulesFor(read.balance.rulesVersion) : null,
@@ -128,7 +119,8 @@ export function handleOverview(
 				request.method === "GET" &&
 				(seen?.training !== totals.training || seen?.team !== totals.team)
 			) {
-				await writeSeen(ctx.env.DB, rider.athleteId, totals);
+				// After the answer, so the page doesn't wait for the write.
+				ctx.waitUntil(writeSeen(ctx.env.DB, rider.athleteId, totals));
 			}
 			// How the Rynke grew over the season (feature 009), under the rules of
 			// the balance's version, with the chart library only when it shows.
@@ -170,5 +162,12 @@ ${ready ? renderBreakdown(i18n, ready.breakdown, hasEvents(ctx.team)) : null}
 ${ready ? progress : null}</div>`;
 			return progress && ready ? { body, scripts: CHART_SCRIPTS } : body;
 		},
+		// The seen Rynke come in the same batch, the line of feature 024 US4
+		// alongside (issue #184).
+		(athleteId: string) =>
+			Promise.all([
+				readRiderView(ctx.env.DB, athleteId, 1, { progress: true, seen: true }),
+				riderFetchingText(ctx, i18n, athleteId),
+			]),
 	);
 }
