@@ -163,13 +163,9 @@ export function handleSettings(
 		i18n,
 		"settings",
 		"/me/settings",
-		async ({ rider, consent }) => {
+		async ({ rider, consent }, balance) => {
 			// The version the rider's Rynke were computed with (feature 005
 			// FR-050), or the one in effect before their first evaluation.
-			const balance = await readBalanceStatement(
-				ctx.env.DB,
-				rider.athleteId,
-			).first<BalanceRow>();
 			const inEffect = currentRules(ctx.team.rules);
 			const version = balance?.rules_version ?? inEffect.version;
 			const rules = rulesInfo(
@@ -247,5 +243,7 @@ ${signOutRow("settings-logout-everywhere", "/logout/everywhere", DEVICES, i18n.t
 </div>
 </div>`;
 		},
+		(athleteId: string) =>
+			readBalanceStatement(ctx.env.DB, athleteId).first<BalanceRow>(),
 	);
 }

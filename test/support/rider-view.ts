@@ -147,7 +147,10 @@ export async function riderPage(
 		}),
 		ctx,
 	);
-	return { status: response.status, html: await response.text() };
+	const html = await response.text();
+	// What the page does after its answer, like marking the Team quote seen.
+	await Promise.all(ctx.pending);
+	return { status: response.status, html };
 }
 
 /** The tags-stripped, whitespace-collapsed text of an HTML fragment. */

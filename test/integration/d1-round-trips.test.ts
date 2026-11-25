@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { upsertActivity } from "../../src/db/activities";
 import { writeSeen } from "../../src/db/rynke-seen";
 import { handleFetch } from "../../src/index";
@@ -16,20 +16,37 @@ import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
 import { seedBalance, seedEmptySummary } from "../support/rider-view";
 
 // How many D1 round trips a page waits on (issues #184, #185): the rider and
-// their consent in one batch, then the section's reads in one more, with the
-// organisers' count alongside. Writes (the seen Rynke, a reveal, a quote) come
-// on top, as before.
+// their consent in one batch, the section's reads alongside it, and the
+// organisers' count in one more. What a page marks as seen (the Rynke, a
+// reveal, a quote) is written after the answer: the writes are held until the
+// answer is there, so a page that waited for one would never answer.
 
-const { ctx, counter } = countTrips(makeCtx());
+const { ctx, counter } = countTrips(makeCtx(), { holdWrites: true });
 
-/** The round trips `path` took for rider A, after a 200 or a redirect. */
+/**
+ * The round trips `path` took for rider A, after a 200 or a redirect; then
+ * the writes after the answer.
+ */
 async function tripsOf(path: string, status = 200): Promise<number> {
 	const cookies = await sessionCookie(ctx, ATHLETE_A);
 	counter.reset();
 	const res = await handleFetch(request(path, { cookies }), ctx);
 	expect(res.status).toBe(status);
 	await res.arrayBuffer();
-	return counter.trips();
+	const trips = counter.trips();
+	counter.release();
+	await Promise.all(ctx.pending);
+	return trips;
+}
+
+async function countOf(table: string): Promise<number> {
+	return (
+		(await env.DB.prepare(
+			`SELECT COUNT(*) AS n FROM ${table} WHERE athlete_id = ?`,
+		)
+			.bind(ATHLETE_A)
+			.first<number>("n")) ?? 0
+	);
 }
 
 async function seedReadyRider(options: { organiser?: boolean } = {}) {
@@ -48,42 +65,37 @@ async function seedReadyRider(options: { organiser?: boolean } = {}) {
 }
 
 beforeEach(resetDb);
+// A page that waited for a write leaves it held: let it go for the next test.
+afterEach(() => counter.release());
 
 describe("D1 round trips per page (#184, #185)", () => {
-	it("serves /me in two, and three when it marks new Rynke as seen", async () => {
+	it("serves /me in one, and marks new Rynke as seen after it", async () => {
 		await seedReadyRider();
-		expect(await tripsOf("/me")).toBe(3);
-		expect(await tripsOf("/me")).toBe(2);
+		expect(await tripsOf("/me")).toBe(1);
+		expect(await countOf("rynke_seen")).toBe(1);
+		expect(await tripsOf("/me")).toBe(1);
 	});
 
-	it("counts an organiser's open requests alongside the section", async () => {
+	it("counts an organiser's open requests after the section's reads", async () => {
 		await seedReadyRider({ organiser: true });
 		await writeSeen(env.DB, ATHLETE_A, { training: 30, team: 0 });
 		expect(await tripsOf("/me")).toBe(2);
 	});
 
-	it("serves the rides page in two", async () => {
-		await seedReadyRider({ organiser: true });
-		expect(await tripsOf("/me/rides")).toBe(2);
-	});
+	it.each(["/me/rides", "/me/badges", "/events", "/me/settings"])(
+		"serves %s in one",
+		async (path) => {
+			await seedReadyRider();
+			expect(await tripsOf(path)).toBe(1);
+		},
+	);
 
-	it("serves /me/badges in two", async () => {
-		await seedReadyRider();
-		expect(await tripsOf("/me/badges")).toBe(2);
-	});
-
-	it("serves /team in two, and three when it marks a quote as seen", async () => {
+	it("serves /team in one, and marks a quote as seen after it", async () => {
 		await seedReadyRider();
 		// The rider's first view shows them a quote and marks it as seen.
-		expect(await tripsOf("/team")).toBe(3);
-		const cookies = await sessionCookie(ctx, ATHLETE_A);
-		counter.reset();
-		const head = await handleFetch(
-			request("/team", { cookies, method: "HEAD" }),
-			ctx,
-		);
-		expect(head.status).toBe(200);
-		expect(counter.trips()).toBe(2);
+		expect(await tripsOf("/team")).toBe(1);
+		expect(await countOf("quote_seen")).toBe(1);
+		expect(await tripsOf("/team?kind=team&all=1")).toBe(1);
 	});
 
 	it("serves /team by a ride figure in as many as by Rynke (ride stats SC-006)", async () => {

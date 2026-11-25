@@ -1,6 +1,6 @@
 {
 	"name": "rynke-points",
-	"version": "1.5.1",
+	"version": "1.5.2",
 	"private": true,
 	"description": "Strava integration for Team Rynkeby Hamburg: collects riders' activities (with consent), detects event participation, and awards gamified Rynke Points.",
 	"license": "Unlicense",

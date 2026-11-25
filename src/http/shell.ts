@@ -43,9 +43,10 @@ import {
 } from "./icons";
 import { renderAppPrompt } from "./pwa";
 import { redirect } from "./redirect";
+import { readSessionCookie } from "./session";
 import { themeButton, themeMenu } from "./theme-menu";
 import { type TourHint, type TourSwitches, tourHint } from "./tour";
-import { readViewer, riderConsentState } from "./viewer";
+import { riderConsentState, viewerOf } from "./viewer";
 
 // The signed-in area's sections (feature 011 data-model.md "Section",
 // research R1, R3, R8), with the badges in their own after Rides, and Orga for
@@ -263,8 +264,13 @@ ${links}</nav>
  * hasn't agreed to the current version meets the gate, which returns here
  * (FR-007, research R9); anyone else gets the section in the shell, or the
  * response `render` returns instead (feature 014's 403 and 404).
+ *
+ * `read` is the section's own reading of the database, for the rider the
+ * signed session cookie names. It goes out alongside the viewer's, so a page
+ * waits for one round trip instead of two; `render` gets what it read. A
+ * visitor or a rider at the gate never sees it: it is dropped unused.
  */
-export async function shellPage(
+export async function shellPage<T = undefined>(
 	request: Request,
 	ctx: Ctx,
 	i18n: I18n,
@@ -272,13 +278,20 @@ export async function shellPage(
 	path: string,
 	render: (
 		viewer: ShellViewer,
+		read: NoInfer<T>,
 	) =>
 		| Promise<SafeHtml | SectionBody | Response>
 		| SafeHtml
 		| SectionBody
 		| Response,
+	read?: (athleteId: string) => Promise<T>,
 ): Promise<Response> {
-	const viewer = await readViewer(request, ctx);
+	const session = await readSessionCookie(request, ctx.env, ctx.now());
+	const reading = session && read ? read(session.athleteId) : undefined;
+	// Dropped unused when the viewer turns out not to see the section; its
+	// failure then belongs to nobody.
+	reading?.catch(() => {});
+	const viewer = await viewerOf(session, ctx);
 	if (viewer.kind === "visitor") return redirect("/", 302);
 	// Nothing of a section until the rider agrees (004 research R14).
 	const state = riderConsentState(viewer, ctx);
@@ -330,12 +343,16 @@ export async function shellPage(
 	const [usageMarks, openRequests, rendered] = await Promise.all([
 		usage?.then((state) => markCount(state.items).total) ?? 0,
 		viewer.rider.organiser && hasEvents(ctx.team) ? countOpenRequests(ctx) : 0,
-		render({
-			rider: viewer.rider,
-			consent: accepted,
-			example: hint?.example === true,
-			usage,
-		}),
+		(async () =>
+			render(
+				{
+					rider: viewer.rider,
+					consent: accepted,
+					example: hint?.example === true,
+					usage,
+				},
+				(await reading) as T,
+			))(),
 	]);
 	if (rendered instanceof Response) return rendered;
 	const { body, scripts } =

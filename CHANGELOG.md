@@ -13,6 +13,10 @@ English sentences for the administrators, without formatting or links, and
 name no team, place or rider: every team shows the same list.
 -->
 
+## 1.5.2
+
+- Rider pages answer faster: each page now waits for one trip to the database instead of two or three, and what a page marks as seen is saved after the page is sent.
+
 ## 1.5.1
 
 - The ride re-check reads each rider's newest 50 activities instead of 200, and each team makes 75 re-checks a day instead of 150, so the app stays within its computing limits. Every rider is still checked at least once a day; an edit to an older ride is no longer picked up, but renaming that ride still works.
